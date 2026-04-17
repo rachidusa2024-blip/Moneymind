@@ -101,7 +101,7 @@ Be like a calm friend who has been in this situation before. Never judge. Never 
 End with: "**Your move today:** [the single most important action right now]"`
 };
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
