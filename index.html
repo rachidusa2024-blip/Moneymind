@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sum Goals — Your Financial Life, Transformed</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F0F4FF;
+  --bg2:#E8EEFF;
+  --white:#FFFFFF;
+  --navy:#0A1628;
+  --blue:#1A56DB;
+  --blue-dark:#1446C0;
+  --blue-light:#EEF2FF;
+  --teal:#00C9A7;
+  --teal-dark:#00A888;
+  --teal-light:#E6FBF7;
+  --gold:#F59E0B;
+  --muted:#64748B;
+  --dim:#94A3B8;
+  --border:#E2E8F0;
+  --red:#EF4444;
+  --green:#10B981;
+  --shadow:0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.1);
+  --font-head:'Playfair Display',serif;
+  --font-body:'Plus Jakarta Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-size:15px;line-height:1.6}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* NAV */
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.logo{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--navy);cursor:pointer}
+.logo span{color:var(--teal)}
+.nav-r{display:flex;align-items:center;gap:12px}
+.nav-a{color:var(--muted);font-size:14px;text-decoration:none;font-weight:500;padding:6px 12px;border-radius:6px;transition:all .2s}
+.nav-a:hover{color:var(--navy);background:var(--bg)}
+.btn-login{background:transparent;color:var(--navy);padding:8px 20px;border-radius:8px;font-weight:600;font-size:14px;border:1.5px solid var(--border);cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-login:hover{border-color:var(--blue);color:var(--blue)}
+.btn-signup{background:var(--teal);color:var(--white);padding:8px 20px;border-radius:8px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-signup:hover{background:var(--teal-dark);transform:translateY(-1px)}
+
+/* HERO */
+.hero{padding:80px 48px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:20px;margin-bottom:20px}
+.hero h1{font-family:var(--font-head);font-size:clamp(40px,4.5vw,62px);line-height:1;letter-spacing:-1px;margin-bottom:20px;color:var(--navy)}
+.hero h1 em{color:var(--teal);font-style:italic;display:block}
+.hero-p{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:32px;font-weight:400;max-width:460px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.btn-main{background:var(--teal);color:var(--white);padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 4px 14px rgba(0,201,167,.3)}
+.btn-main:hover{background:var(--teal-dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,201,167,.4)}
+.btn-ghost{background:var(--white);color:var(--navy);padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;border:1.5px solid var(--border);cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-ghost:hover{border-color:var(--navy);transform:translateY(-1px)}
+.trust-row{display:flex;gap:20px;flex-wrap:wrap}
+.tr-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.tr-check{width:18px;height:18px;background:var(--teal-light);color:var(--teal-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* MOCKUP */
+.hero-r{position:relative}
+.mock{background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-md)}
+.mock-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white)}
+.mock-logo{font-family:var(--font-head);font-size:15px;font-style:italic;color:var(--navy)}.mock-logo span{color:var(--teal)}
+.mock-user{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.mock-av{width:24px;height:24px;border-radius:50%;background:var(--teal);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.mock-body{padding:16px}
+.score-box{background:linear-gradient(135deg,var(--blue) 0%,var(--teal) 100%);border-radius:14px;padding:18px;color:var(--white);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.score-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.8;margin-bottom:6px}
+.score-num{font-family:var(--font-head);font-size:52px;font-style:italic;line-height:1}
+.score-change{font-size:12px;opacity:.9;margin-top:4px}
+.score-right{text-align:right}
+.score-day{font-size:11px;opacity:.8;margin-bottom:6px}
+.score-prog{height:6px;background:rgba(255,255,255,.3);border-radius:3px;width:120px}
+.score-fill{height:6px;background:var(--white);border-radius:3px;width:52%}
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mg{background:var(--bg);border-radius:10px;padding:10px;border:1px solid var(--border)}
+.mg-l{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.mg-v{font-family:var(--font-head);font-size:20px;font-style:italic}
+.mg-v.g{color:var(--green)}.mg-v.r{color:var(--red)}.mg-v.t{color:var(--teal)}.mg-v.gold{color:var(--gold)}
+.pd-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.pd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.pd-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.pd-days{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--gold)}
+.pd-sub{font-size:11px;color:var(--muted)}
+.pd-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px}
+.pd-fill{height:4px;background:var(--gold);border-radius:2px;width:60%}
+.maya-box{background:var(--teal-light);border-radius:10px;padding:10px;border:1px solid rgba(0,201,167,.2);font-size:12px;color:var(--navy);line-height:1.5}
+.maya-box strong{color:var(--teal-dark)}
+
+/* MARQUEE */
+.mq{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;background:var(--white)}
+.mq-track{display:flex;animation:mq 28s linear infinite;width:max-content}
+.mq-item{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.mq-dot{width:4px;height:4px;background:var(--teal);border-radius:50%}
+
+/* TRUST BAR */
+.trust-bar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap}
+.ti{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
+.tc{width:18px;height:18px;background:var(--teal-light);color:var(--teal-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+
+/* MAYA SECTION */
+.maya-sec{background:var(--white);padding:80px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.maya-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center}
+.maya-av-big{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));color:var(--white);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:36px;font-style:italic;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,201,167,.3)}
+.maya-sec h2{font-family:var(--font-head);font-size:34px;font-style:italic;color:var(--navy);margin-bottom:8px}
+.maya-sec h2 span{color:var(--teal)}
+.maya-tagline{font-size:15px;color:var(--muted);margin-bottom:18px;font-weight:400}
+.maya-stats{display:flex;gap:24px;flex-wrap:wrap}
+.ms{text-align:center}.ms-num{font-family:var(--font-head);font-size:26px;font-style:italic;color:var(--teal)}.ms-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.chat-preview{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.cp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.cp-lbl.m{color:var(--teal-dark)}.cp-lbl.u{color:var(--muted);text-align:right}
+.cp-msg{font-size:13px;line-height:1.65;padding:12px 16px;border-radius:12px}
+.cp-msg.m{background:var(--white);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px;box-shadow:var(--shadow)}
+.cp-msg.u{background:var(--teal);color:var(--white);border-radius:12px 4px 12px 12px}
+.cp-msg strong{color:var(--teal-dark)}
+.cp-msg.m strong{color:var(--teal-dark)}
+
+/* SECTIONS */
+.sec{padding:80px 48px;max-width:1200px;margin:0 auto}
+.sec-tag{display:inline-flex;align-items:center;gap:8px;background:var(--teal-light);color:var(--teal-dark);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 12px;border-radius:20px;margin-bottom:16px}
+.sec-h{font-family:var(--font-head);font-size:clamp(30px,3.5vw,48px);line-height:1;letter-spacing:-1px;color:var(--navy);margin-bottom:12px}
+.sec-h em{color:var(--teal)}
+.sec-sub{font-size:15px;color:var(--muted);max-width:480px;margin-bottom:44px}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .25s;position:relative}
+.feat:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.feat.wide{grid-column:span 2}
+.feat-num{width:34px;height:34px;border-radius:8px;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-bottom:14px}
+.feat-num.blue{background:var(--blue-light);color:var(--blue)}
+.feat-t{font-family:var(--font-head);font-size:19px;font-style:italic;color:var(--navy);margin-bottom:8px}
+.feat-d{font-size:13px;color:var(--muted);line-height:1.65}
+.feat-badge{display:inline-block;margin-top:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
+.feat-badge.excl{background:var(--teal-light);color:var(--teal-dark)}
+.feat-badge.new{background:#FEF3C7;color:#92400E}
+
+/* 90 DAY */
+.plan-sec{background:var(--white);padding:80px 48px;border-top:1px solid var(--border)}
+.plan-inner{max-width:1000px;margin:0 auto}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.week{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:20px}
+.week.hl{border-color:var(--teal);background:var(--teal-light)}
+.wk-num{font-size:10px;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.wk-title{font-family:var(--font-head);font-size:17px;font-style:italic;color:var(--navy);margin-bottom:8px}
+.wk-items{list-style:none;display:flex;flex-direction:column;gap:5px}
+.wk-items li{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.wk-items li::before{content:'→';color:var(--teal-dark);flex-shrink:0;font-weight:700}
+
+/* STATS */
+.stats-sec{background:linear-gradient(135deg,var(--blue) 0%,var(--teal) 100%);padding:60px 48px}
+.stats-inner{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.stat-big{font-family:var(--font-head);font-size:44px;font-style:italic;color:var(--white);line-height:1}
+.stat-lbl{font-size:13px;color:rgba(255,255,255,.8);margin-top:4px}
+
+/* PROOF */
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.proof{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+.proof-stars{color:var(--gold);font-size:14px;margin-bottom:12px}
+.proof-t{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;font-style:italic}
+.proof-t strong{color:var(--navy);font-style:normal}
+.proof-a{display:flex;align-items:center;gap:10px}
+.proof-av{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;color:var(--white)}
+.proof-n{font-size:13px;font-weight:700;color:var(--navy)}.proof-loc{font-size:11px;color:var(--muted)}
+
+/* PRICING */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px}
+.plan{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;box-shadow:var(--shadow)}
+.plan.hot{border-color:var(--teal);box-shadow:0 4px 20px rgba(0,201,167,.2)}
+.plan-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:var(--white);font-size:10px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
+.plan-tier{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.plan-price{font-family:var(--font-head);font-size:48px;font-style:italic;line-height:1;color:var(--navy);margin-bottom:4px;letter-spacing:-1px}
+.plan-price sub{font-size:15px;color:var(--muted);font-family:var(--font-body);font-style:normal}
+.plan-cycle{font-size:12px;color:var(--dim);margin-bottom:20px}
+.plan-ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.plan-ul li{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.plan-ul li::before{content:'✓';color:var(--teal-dark);flex-shrink:0;font-weight:700}
+.plan-ul li.off::before{content:'✗';color:var(--dim)}.plan-ul li.off{color:var(--dim)}
+.btn-plan{width:100%;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-plan.o{background:var(--bg);color:var(--navy);border:1.5px solid var(--border)}.btn-plan.o:hover{border-color:var(--navy)}
+.btn-plan.s{background:var(--teal);color:var(--white);border:none}.btn-plan.s:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-plan.b{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}.btn-plan.b:hover{background:var(--blue-light)}
+
+/* FOOTER */
+footer{background:var(--navy);color:rgba(255,255,255,.7);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.foot-logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--white)}.foot-logo span{color:var(--teal)}
+.foot-copy{font-size:13px}
+.foot-links{display:flex;gap:20px}
+.foot-links a{font-size:13px;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s}.foot-links a:hover{color:var(--white)}
+
+/* AUTH MODAL */
+.overlay{position:fixed;inset:0;background:rgba(10,22,40,.6);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--white);border-radius:20px;padding:36px;width:100%;max-width:420px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-close{position:absolute;top:14px;right:16px;background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:22px;line-height:1}
+.modal-close:hover{color:var(--navy)}
+.modal-logo{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--navy);text-align:center;margin-bottom:4px}.modal-logo span{color:var(--teal)}
+.modal-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
+.modal-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:22px;gap:3px}
+.mtab{flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.mtab.active{background:var(--white);color:var(--navy);box-shadow:var(--shadow)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--navy);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--teal);background:var(--white)}
+.form-input::placeholder{color:var(--dim)}
+.btn-auth{width:100%;padding:13px;background:var(--teal);color:var(--white);border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin-top:4px}
+.btn-auth:hover{background:var(--teal-dark)}
+.btn-auth:disabled{background:var(--dim);cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--dim)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{width:100%;padding:11px;background:var(--white);color:var(--navy);border:1.5px solid var(--border);border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-google:hover{border-color:var(--navy);background:var(--bg)}
+.auth-msg{padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.auth-msg.error{background:#FEF2F2;color:var(--red);border:1px solid #FECACA}
+.auth-msg.success{background:var(--teal-light);color:var(--teal-dark);border:1px solid rgba(0,201,167,.3)}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:var(--white);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+
+/* SUPPORT */
+.sup-fab{position:fixed;bottom:24px;right:24px;z-index:100;width:50px;height:50px;background:var(--teal);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,201,167,.4);transition:all .2s}
+.sup-fab:hover{background:var(--teal-dark);transform:scale(1.08)}
+.sup-fab svg{width:22px;height:22px;fill:var(--white)}
+.sup-panel{position:fixed;bottom:86px;right:24px;z-index:100;width:320px;background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:none;flex-direction:column;box-shadow:var(--shadow-md)}
+.sup-panel.open{display:flex}
+.sup-top{padding:14px 16px;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:space-between}
+.sup-info{display:flex;align-items:center;gap:8px}
+.sup-av{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.sup-name{font-size:13px;font-weight:700;color:var(--white)}
+.sup-status{font-size:10px;color:rgba(255,255,255,.8)}
+.sup-close{background:transparent;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:18px}
+.sup-msgs{height:240px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.sup-msg{font-size:13px;line-height:1.55;padding:10px 13px;border-radius:10px;max-width:88%}
+.sup-msg.bot{background:var(--bg);border:1px solid var(--border);color:var(--navy);align-self:flex-start;border-radius:4px 10px 10px 10px}
+.sup-msg.usr{background:var(--teal);color:var(--white);align-self:flex-end;border-radius:10px 4px 10px 10px}
+.sup-inp-row{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
+.sup-inp{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--navy);font-size:13px;font-family:var(--font-body);outline:none}
+.sup-inp:focus{border-color:var(--teal)}
+.sup-inp::placeholder{color:var(--dim)}
+.sup-send{background:var(--teal);border:none;border-radius:8px;padding:8px 14px;cursor:pointer;color:var(--white);font-weight:700;font-size:12px;font-family:var(--font-body)}
+.sup-send:hover{background:var(--teal-dark)}
+
+@media(max-width:900px){
+  nav{padding:0 20px}.nav-r .nav-a{display:none}
+  .hero{grid-template-columns:1fr;padding:50px 20px;gap:40px}
+  .maya-inner{grid-template-columns:1fr}
+  .sec{padding:60px 20px}
+  .feat-grid{grid-template-columns:1fr}.feat.wide{grid-column:span 1}
+  .proof-grid,.plan-grid{grid-template-columns:1fr;max-width:100%}
+  .weeks{grid-template-columns:repeat(2,1fr)}
+  .stats-inner{grid-template-columns:repeat(2,1fr)}
+  .trust-bar{padding:12px 20px;gap:14px}
+  footer{flex-direction:column;text-align:center;padding:24px 20px}
+  .sup-panel{width:calc(100vw - 32px);right:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="nav-r">
+    <a href="#features" class="nav-a">Features</a>
+    <a href="#pricing" class="nav-a">Pricing</a>
+    <button class="btn-login" onclick="openAuth('login')">Sign in</button>
+    <button class="btn-signup" onclick="openAuth('signup')">Start free</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Personal Finance Coach</div>
+    <h1>Your money.<br><em>Finally working for you.</em></h1>
+    <p class="hero-p">Sum Goals gives you Maya — a personal finance coach in your pocket. Build budgets, crush debt, and transform your financial life in 90 days. Any currency. Any language.</p>
+    <div class="hero-btns">
+      <button class="btn-main" onclick="openAuth('signup')">Start my transformation</button>
+      <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See how it works</button>
+    </div>
+    <div class="trust-row">
+      <div class="tr-item"><div class="tr-check">✓</div>Free to start</div>
+      <div class="tr-item"><div class="tr-check">✓</div>150+ currencies</div>
+      <div class="tr-item"><div class="tr-check">✓</div>50+ languages</div>
+      <div class="tr-item"><div class="tr-check">✓</div>No credit card</div>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="mock">
+      <div class="mock-nav">
+        <div class="mock-logo"><i>Sum</i> <span>Goals</span></div>
+        <div class="mock-user"><div class="mock-av">R</div>My Dashboard</div>
+      </div>
+      <div class="mock-body">
+        <div class="score-box">
+          <div><div class="score-lbl">Financial Health</div><div class="score-num">74</div><div class="score-change">+12 points this month</div></div>
+          <div class="score-right"><div class="score-day">Day 47 of 90</div><div class="score-prog"><div class="score-fill"></div></div><div style="font-size:10px;opacity:.8;margin-top:4px">Transformation</div></div>
+        </div>
+        <div class="mock-grid">
+          <div class="mg"><div class="mg-l">Saved</div><div class="mg-v g">$580</div></div>
+          <div class="mg"><div class="mg-l">Debt left</div><div class="mg-v r">$1,840</div></div>
+          <div class="mg"><div class="mg-l">Score</div><div class="mg-v t">74/100</div></div>
+          <div class="mg"><div class="mg-l">Days left</div><div class="mg-v gold">43</div></div>
+        </div>
+        <div class="pd-box">
+          <div class="pd-top"><div><div class="pd-lbl">Payday Countdown</div><div class="pd-sub">$44 daily budget</div></div><div class="pd-days">5</div></div>
+          <div class="pd-bar"><div class="pd-fill"></div></div>
+        </div>
+        <div class="maya-box"><strong>Maya:</strong> Move $80 to savings today — you'll hit your emergency fund 2 weeks early.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="mq">
+  <div class="mq-track">
+    <div class="mq-item"><div class="mq-dot"></div>Personal dashboard</div>
+    <div class="mq-item"><div class="mq-dot"></div>Meet Maya your coach</div>
+    <div class="mq-item"><div class="mq-dot"></div>90-Day Transformation</div>
+    <div class="mq-item"><div class="mq-dot"></div>Debt Race tracker</div>
+    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
+    <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>Google login</div>
+    <div class="mq-item"><div class="mq-dot"></div>Stripe payments</div>
+    <div class="mq-item"><div class="mq-dot"></div>Couples Mode</div>
+    <div class="mq-item"><div class="mq-dot"></div>Senior Mode</div>
+    <div class="mq-item"><div class="mq-dot"></div>Personal dashboard</div>
+    <div class="mq-item"><div class="mq-dot"></div>Meet Maya your coach</div>
+    <div class="mq-item"><div class="mq-dot"></div>90-Day Transformation</div>
+    <div class="mq-item"><div class="mq-dot"></div>Debt Race tracker</div>
+    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
+    <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>Google login</div>
+    <div class="mq-item"><div class="mq-dot"></div>Stripe payments</div>
+    <div class="mq-item"><div class="mq-dot"></div>Couples Mode</div>
+    <div class="mq-item"><div class="mq-dot"></div>Senior Mode</div>
+  </div>
+</div>
+
+<div class="trust-bar">
+  <div class="ti"><div class="tc">✓</div>Bank-grade security</div>
+  <div class="ti"><div class="tc">✓</div>Google login</div>
+  <div class="ti"><div class="tc">✓</div>Stripe payments</div>
+  <div class="ti"><div class="tc">✓</div>Your data stays private</div>
+  <div class="ti"><div class="tc">✓</div>7-day money back</div>
+  <div class="ti"><div class="tc">✓</div>24/7 support</div>
+</div>
+
+<div class="maya-sec">
+  <div class="maya-inner">
+    <div>
+      <div class="maya-av-big">M</div>
+      <h2>Meet <span>Maya</span></h2>
+      <p class="maya-tagline">Your personal finance coach. Available 24/7. Zero judgment. In your language and currency.</p>
+      <div class="maya-stats">
+        <div class="ms"><div class="ms-num">10K+</div><div class="ms-lbl">People helped</div></div>
+        <div class="ms"><div class="ms-num">150+</div><div class="ms-lbl">Currencies</div></div>
+        <div class="ms"><div class="ms-num">24/7</div><div class="ms-lbl">Available</div></div>
+      </div>
+    </div>
+    <div class="chat-preview">
+      <div style="margin-top:14px">
+        <div class="cp-lbl u">You</div>
+        <div class="cp-msg u">I make $2,400/month and I'm always broke. $3,800 in credit card debt and zero savings.</div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="cp-lbl m">Maya</div>
+        <div class="cp-msg m">Honestly? You're not bad with money — you just never had a real plan. Let's fix that right now.<br><br><strong>Your 3 moves this week:</strong><br>→ $480 to debt (minimum + $200 extra)<br>→ $240 to emergency fund<br>→ $1,440 for all living expenses<br><br>At this rate — debt free in 8 months. What are your biggest expenses?</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="sec" id="features">
+  <div class="sec-tag">What makes Sum Goals different</div>
+  <h2 class="sec-h">Features nobody else<br><em>has built yet.</em></h2>
+  <p class="sec-sub">Every feature built around one question: what do real people actually need when stressed about money?</p>
+  <div class="feat-grid">
+    <div class="feat wide"><div class="feat-num">01</div><h3 class="feat-t">The Money Mirror</h3><p class="feat-d">The world's most honest financial reality check. Maya analyzes your spending patterns and reveals what your habits say about you psychologically. Raw, eye-opening, life-changing.</p><span class="feat-badge excl">Only on Sum Goals</span></div>
+    <div class="feat"><div class="feat-num">02</div><h3 class="feat-t">Financial Pressure Meter</h3><p class="feat-d">A real-time gauge showing your financial stress and exact steps to reduce it today. Unique to Sum Goals.</p><span class="feat-badge excl">Exclusive</span></div>
+    <div class="feat"><div class="feat-num">03</div><h3 class="feat-t">Debt Race Tracker</h3><p class="feat-d">Your debts as a race. Watch them get eliminated one by one following Maya's payoff plan.</p><span class="feat-badge excl">Exclusive</span></div>
+    <div class="feat"><div class="feat-num blue">04</div><h3 class="feat-t">Payday Countdown</h3><p class="feat-d">Real-time countdown with automatic daily survival budget. No more panic before payday.</p></div>
+    <div class="feat"><div class="feat-num blue">05</div><h3 class="feat-t">Couples Mode</h3><p class="feat-d">Two people, one financial plan. Maya coaches you as a team — shared goals, different habits.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">06</div><h3 class="feat-t">Senior Mode</h3><p class="feat-d">Large text, retirement runway calculator, fixed income optimizer. Built for life after 60.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">07</div><h3 class="feat-t">Money Personality Quiz</h3><p class="feat-d">60-second quiz reveals your money type. Custom financial plan built for your psychology.</p></div>
+    <div class="feat"><div class="feat-num blue">08</div><h3 class="feat-t">Emergency Kit</h3><p class="feat-d">Job loss, medical bill, divorce — one tap launches a complete emergency response plan.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">09</div><h3 class="feat-t">150+ Currencies · 50+ Languages</h3><p class="feat-d">Maya detects your language and currency automatically. Every country, every currency.</p></div>
+  </div>
+</section>
+
+<div class="plan-sec" id="plan">
+  <div class="plan-inner">
+    <div class="sec-tag">The transformation</div>
+    <h2 class="sec-h">90 days.<br><em>A completely new financial life.</em></h2>
+    <p class="sec-sub">The only structured financial transformation program in the world. Maya guides every single day.</p>
+    <div class="weeks">
+      <div class="week"><div class="wk-num">Month 1</div><div class="wk-title">The Audit</div><ul class="wk-items"><li>Complete financial picture</li><li>Identify money leaks</li><li>Personality assessment</li><li>Emergency fund started</li></ul></div>
+      <div class="week hl"><div class="wk-num">Month 2</div><div class="wk-title">The Plan</div><ul class="wk-items"><li>Complete budget built</li><li>Debt race started</li><li>Savings automation</li><li>First milestone hit</li></ul></div>
+      <div class="week"><div class="wk-num">Month 3</div><div class="wk-title">The Momentum</div><ul class="wk-items"><li>Debt visibly shrinking</li><li>Emergency fund done</li><li>Score above 70</li><li>New habits locked in</li></ul></div>
+      <div class="week" style="border-color:var(--gold);background:#FFFBEB"><div class="wk-num" style="color:var(--gold)">Day 90</div><div class="wk-title">The New You</div><ul class="wk-items"><li>Financial report card</li><li>Next 90-day plan</li><li>Shareable milestone</li><li>Freedom on track</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<div class="stats-sec">
+  <div class="stats-inner">
+    <div><div class="stat-big">150+</div><div class="stat-lbl">Currencies supported</div></div>
+    <div><div class="stat-big">50+</div><div class="stat-lbl">Languages available</div></div>
+    <div><div class="stat-big">90</div><div class="stat-lbl">Days to transform</div></div>
+    <div><div class="stat-big">$0</div><div class="stat-lbl">To start today</div></div>
+  </div>
+</div>
+
+<section class="sec">
+  <div class="sec-tag">Real results</div>
+  <h2 class="sec-h" style="margin-bottom:10px">Real people.<br><em>Real change.</em></h2>
+  <p class="sec-sub" style="margin-bottom:32px">From Morocco to Mexico to Pakistan — Maya works everywhere.</p>
+  <div class="proof-grid">
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"The Payday Countdown alone changed my life. <strong>Saved $380 my first month.</strong> Never saved anything before."</p><div class="proof-a"><div class="proof-av" style="background:var(--green)">M</div><div><div class="proof-n">Maria R.</div><div class="proof-loc">Texas, USA · USD</div></div></div></div>
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"Maya en español con pesos. <strong>Pagué $31,000 MXN de deuda en 4 meses.</strong>"</p><div class="proof-a"><div class="proof-av" style="background:var(--blue)">C</div><div><div class="proof-n">Carlos M.</div><div class="proof-loc">México · MXN</div></div></div></div>
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"تكلمت مع مايا بالعربية. <strong>أول مرة في حياتي عندي مدخرات.</strong>"</p><div class="proof-a"><div class="proof-av" style="background:var(--teal)">Y</div><div><div class="proof-n">Youssef A.</div><div class="proof-loc">Casablanca · MAD</div></div></div></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0" id="pricing">
+  <div class="sec-tag">Pricing</div>
+  <h2 class="sec-h" style="margin-bottom:10px">Simple pricing.<br><em>Life-changing results.</em></h2>
+  <p class="sec-sub" style="margin-bottom:32px">Less than a coffee. More valuable than any financial advisor.</p>
+  <div class="plan-grid">
+    <div class="plan">
+      <div class="plan-tier">Starter</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-cycle">free forever</div>
+      <ul class="plan-ul">
+        <li>Personal dashboard</li>
+        <li>Maya coaching — 5 sessions/day</li>
+        <li>Budget builder</li>
+        <li>Payday countdown</li>
+        <li>150+ currencies · 50+ languages</li>
+        <li class="off">90-Day Transformation</li>
+        <li class="off">Debt Race + Money Mirror</li>
+        <li class="off">Couples + Senior Mode</li>
+      </ul>
+      <button class="btn-plan o" onclick="openAuth('signup')">Create free account</button>
+    </div>
+    <div class="plan hot">
+      <div class="plan-tag">Most popular</div>
+      <div class="plan-tier">Pro</div>
+      <div class="plan-price">$9<sub>/mo</sub></div>
+      <div class="plan-cycle">cancel anytime</div>
+      <ul class="plan-ul">
+        <li>Everything in Starter</li>
+        <li>Unlimited Maya sessions</li>
+        <li>90-Day Transformation</li>
+        <li>Debt Race + Money Mirror</li>
+        <li>Financial Pressure Meter</li>
+        <li>Couples + Senior Mode</li>
+        <li>Emergency Kit</li>
+        <li>Monthly Report Card</li>
+      </ul>
+      <button class="btn-plan s" onclick="handleUpgrade('pro')">Start transformation — $9/mo</button>
+    </div>
+    <div class="plan">
+      <div class="plan-tier">Lifetime</div>
+      <div class="plan-price">$29</div>
+      <div class="plan-cycle">one-time · yours forever</div>
+      <ul class="plan-ul">
+        <li>Everything in Pro</li>
+        <li>Pay once, use forever</li>
+        <li>All future features</li>
+        <li>No monthly fees ever</li>
+      </ul>
+      <button class="btn-plan b" onclick="handleUpgrade('lifetime')">Own it forever — $29</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="foot-copy">© 2026 Sum Goals. Built for everyone, everywhere.</div>
+  <div class="foot-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Support</a>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <div class="modal-logo"><i>Sum</i> <span>Goals</span></div>
+    <div class="modal-sub" id="modalSub">Transform your financial life today</div>
+    <div class="modal-tabs">
+      <button class="mtab active" id="tabS" onclick="switchTab('signup')">Create account</button>
+      <button class="mtab" id="tabL" onclick="switchTab('login')">Sign in</button>
+    </div>
+    <div class="auth-msg error" id="authErr"></div>
+    <div class="auth-msg success" id="authOk"></div>
+    <div id="signupForm">
+      <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="sName" type="text" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="sEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="sPass" type="password" placeholder="Min 8 characters"></div>
+      <button class="btn-auth" id="sBtn" onclick="doSignup()">Create my free account</button>
+    </div>
+    <div id="loginForm" style="display:none">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="lEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="lPass" type="password" placeholder="Your password"></div>
+      <button class="btn-auth" id="lBtn" onclick="doLogin()">Sign in to my account</button>
+    </div>
+    <div class="divider">or</div>
+    <button class="btn-google" onclick="doGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- SUPPORT -->
+<button class="sup-fab" onclick="toggleSup()">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+</button>
+<div class="sup-panel" id="supPanel">
+  <div class="sup-top">
+    <div class="sup-info"><div class="sup-av">SG</div><div><div class="sup-name">Sum Goals Support</div><div class="sup-status">Always available</div></div></div>
+    <button class="sup-close" onclick="toggleSup()">×</button>
+  </div>
+  <div class="sup-msgs" id="supMsgs"><div class="sup-msg bot">Hi! I'm here to help 24/7. Ask me anything about Sum Goals.</div></div>
+  <div class="sup-inp-row">
+    <input class="sup-inp" id="supInp" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendSup()">
+    <button class="sup-send" onclick="sendSup()">Send</button>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+// Check if already logged in — redirect to dashboard
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = '/dashboard.html';
+}
+checkAuth();
+
+function openAuth(tab) {
+  document.getElementById('authModal').classList.add('open');
+  switchTab(tab);
+  document.body.style.overflow = 'hidden';
+}
+function closeAuth() {
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow = '';
+  clearMsgs();
+}
+function switchTab(tab) {
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('tabS').classList.toggle('active', tab === 'signup');
+  document.getElementById('tabL').classList.toggle('active', tab === 'login');
+  document.getElementById('modalSub').textContent = tab === 'signup' ? 'Transform your financial life today' : 'Welcome back to Sum Goals';
+  clearMsgs();
+}
+function showErr(msg) { const e = document.getElementById('authErr'); e.textContent = msg; e.style.display = 'block'; document.getElementById('authOk').style.display = 'none'; }
+function showOk(msg) { const e = document.getElementById('authOk'); e.textContent = msg; e.style.display = 'block'; document.getElementById('authErr').style.display = 'none'; }
+function clearMsgs() { document.getElementById('authErr').style.display = 'none'; document.getElementById('authOk').style.display = 'none'; }
+function setLoading(id, on) { const b = document.getElementById(id); b.disabled = on; b.innerHTML = on ? '<span class="spinner"></span> Please wait...' : b.dataset.txt || b.innerHTML; }
+
+async function doSignup() {
+  const name = document.getElementById('sName').value.trim();
+  const email = document.getElementById('sEmail').value.trim();
+  const pass = document.getElementById('sPass').value;
+  if (!name) return showErr('Please enter your name');
+  if (!email) return showErr('Please enter your email');
+  if (pass.length < 8) return showErr('Password must be at least 8 characters');
+  document.getElementById('sBtn').innerHTML = '<span class="spinner"></span> Creating account...';
+  document.getElementById('sBtn').disabled = true;
+  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  document.getElementById('sBtn').innerHTML = 'Create my free account';
+  document.getElementById('sBtn').disabled = false;
+  if (error) return showErr(error.message);
+  showOk('Account created! Signing you in...');
+  setTimeout(async () => {
+    const { error: e2 } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (!e2) window.location.href = '/dashboard.html';
+  }, 1000);
+}
+
+async function doLogin() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass = document.getElementById('lPass').value;
+  if (!email || !pass) return showErr('Please enter email and password');
+  document.getElementById('lBtn').innerHTML = '<span class="spinner"></span> Signing in...';
+  document.getElementById('lBtn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  document.getElementById('lBtn').innerHTML = 'Sign in to my account';
+  document.getElementById('lBtn').disabled = false;
+  if (error) return showErr(error.message);
+  window.location.href = '/dashboard.html';
+}
+
+async function doGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/dashboard.html' } });
+  if (error) showErr(error.message);
+}
+
+async function handleUpgrade(plan) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { openAuth('signup'); return; }
+  const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ plan }) });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+}
+
+document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
+
+function toggleSup() { document.getElementById('supPanel').classList.toggle('open'); }
+let supH = [];
+async function sendSup() {
+  const inp = document.getElementById('supInp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  addSupMsg('usr', text);
+  supH.push({ role: 'user', content: text });
+  const t = addSupMsg('bot', '...');
+  try {
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: supH, mode: 'support' }) });
+    const d = await r.json();
+    t.textContent = d.reply || 'Please email support@sumgoals.com';
+    if (d.reply) supH.push({ role: 'assistant', content: d.reply });
+  } catch(e) { t.textContent = 'Please email support@sumgoals.com'; }
+}
+function addSupMsg(role, text) {
+  const c = document.getElementById('supMsgs');
+  const d = document.createElement('div');
+  d.className = 'sup-msg ' + role;
+  d.textContent = text;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+</script>
+</body>
+</html>
