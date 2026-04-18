@@ -1,0 +1,9 @@
+{
+  "name": "sumgoals",
+  "version": "1.0.0",
+  "description": "Sum Goals - Personal Finance Coaching Platform",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "stripe": "^14.10.0"
+  }
+}
