@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to Pro — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060D16;--card:#0F2035;--teal:#00C9A7;--gold:#FFB347;--white:#E8F4F8;--muted:#7AA8C0;--border:rgba(255,255,255,0.07);--font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,201,167,.3)}50%{box-shadow:0 0 40px rgba(0,201,167,.6)}}
+.wrap{max-width:480px;width:100%;text-align:center}
+.icon{width:80px;height:80px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:36px;animation:glow 2s ease infinite;opacity:0;animation:up .5s ease forwards, glow 2s ease 1s infinite}
+.checkmark{width:40px;height:40px;stroke:white;stroke-width:3;fill:none}
+.logo{font-family:var(--font-head);font-size:20px;font-style:italic;margin-bottom:32px;opacity:0;animation:up .5s ease .1s forwards}.logo span{color:var(--teal)}
+h1{font-family:var(--font-head);font-size:40px;font-style:italic;margin-bottom:12px;letter-spacing:-1px;opacity:0;animation:up .6s ease .2s forwards}
+h1 span{color:var(--teal)}
+.sub{font-size:15px;color:var(--muted);margin-bottom:32px;line-height:1.6;opacity:0;animation:up .6s ease .3s forwards}
+.features{background:var(--card);border:1px solid rgba(0,201,167,.2);border-radius:16px;padding:24px;margin-bottom:28px;text-align:left;opacity:0;animation:up .6s ease .4s forwards}
+.feat-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
+.feat-item:last-child{border-bottom:none}
+.feat-check{width:20px;height:20px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--teal);flex-shrink:0}
+.feat-item strong{color:var(--white);font-style:normal}
+.btn-dash{display:block;background:var(--teal);color:#060D16;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;transition:all .2s;margin-bottom:12px;opacity:0;animation:up .6s ease .5s forwards}
+.btn-dash:hover{background:#00A888;transform:translateY(-2px)}
+.note{font-size:12px;color:var(--muted);opacity:0;animation:up .6s ease .6s forwards}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="icon">
+    <svg class="checkmark" viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" stroke="white" stroke-opacity=".3"/><path stroke="white" d="M14 26l8 8 16-16"/></svg>
+  </div>
+  <h1>Welcome to <span>Pro</span></h1>
+  <p class="sub">Your payment was successful. Maya and all Pro features are now unlocked — your 90-day transformation starts today.</p>
+  <div class="features">
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>Unlimited Maya sessions</strong> — no daily limits</span></div>
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>90-Day Transformation</strong> — full program unlocked</span></div>
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>Money Mirror</strong> — psychological money analysis</span></div>
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>Debt Race tracker</strong> — visual payoff progress</span></div>
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>Couples Mode + Senior Mode</strong> — for every situation</span></div>
+    <div class="feat-item"><div class="feat-check">✓</div><span><strong>Monthly Report Card</strong> — track your progress</span></div>
+  </div>
+  <a href="/dashboard.html" class="btn-dash">Go to my Pro dashboard</a>
+  <p class="note">A confirmation email has been sent. Questions? Email support@sumgoals.com</p>
+</div>
+</body>
+</html>
