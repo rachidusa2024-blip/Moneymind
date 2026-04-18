@@ -379,7 +379,7 @@ async function init() {
 }
 
 async function loadProfile() {
-  const { data } = await sb.supabase?.from('profiles').select('*').eq('id', currentUser.id).single()
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single()
     .catch(() => ({ data: null }));
   if (!data) {
     userProfile = { full_name: currentUser.user_metadata?.full_name || currentUser.email.split('@')[0], plan: 'free', currency: 'USD' };
