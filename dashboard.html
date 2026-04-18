@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F0F4FF;--bg2:#E8EEFF;--white:#FFFFFF;--navy:#0A1628;
+  --blue:#1A56DB;--blue-dark:#1446C0;--blue-light:#EEF2FF;
+  --teal:#00C9A7;--teal-dark:#00A888;--teal-light:#E6FBF7;
+  --gold:#F59E0B;--muted:#64748B;--dim:#94A3B8;--border:#E2E8F0;
+  --red:#EF4444;--green:#10B981;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.08);
+  --font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-size:15px;min-height:100vh}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+.loading{position:fixed;inset:0;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.loading-logo{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--navy)}.loading-logo span{color:var(--teal)}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
+
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:10;box-shadow:var(--shadow)}
+.sb-logo{padding:20px;border-bottom:1px solid var(--border)}
+.logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}.logo span{color:var(--teal)}
+.sb-user{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.sb-name{font-size:13px;font-weight:700;color:var(--navy)}
+.sb-plan{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:2px}
+.sb-plan.free{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.sb-plan.pro{background:var(--teal-light);color:var(--teal-dark);border:1px solid rgba(0,201,167,.3)}
+.sb-plan.lifetime{background:#FEF3C7;color:#92400E}
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.sb-sec{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;padding:10px 8px 6px}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;width:100%;text-align:left;font-family:var(--font-body)}
+.sb-btn:hover{background:var(--bg);color:var(--navy)}
+.sb-btn.active{background:var(--teal-light);color:var(--teal-dark)}
+.sb-bottom{padding:12px;border-top:1px solid var(--border)}
+.btn-upgrade{width:100%;padding:10px;background:var(--teal);color:var(--white);border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);margin-bottom:8px;transition:all .2s}
+.btn-upgrade:hover{background:var(--teal-dark)}
+.btn-signout{width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-signout:hover{color:var(--navy);border-color:var(--navy)}
+
+/* MAIN */
+.main{flex:1;margin-left:250px;padding:28px}
+.page-head{margin-bottom:24px;animation:up .4s ease forwards}
+.page-title{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--navy);margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted)}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;animation:up .4s ease .1s both}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.sc.hl{border-color:var(--teal);background:linear-gradient(135deg,rgba(0,201,167,.05),var(--white))}
+.sc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.sc-val{font-family:var(--font-head);font-size:32px;font-style:italic;line-height:1;margin-bottom:4px}
+.sc-val.teal{color:var(--teal)}.sc-val.green{color:var(--green)}.sc-val.red{color:var(--red)}.sc-val.gold{color:var(--gold)}
+.sc-note{font-size:11px;color:var(--muted)}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;animation:up .4s ease .2s both}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.card.full{grid-column:span 2}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;color:var(--navy)}
+.card-action{font-size:12px;color:var(--teal-dark);cursor:pointer;border:none;background:transparent;font-family:var(--font-body);font-weight:600}
+
+/* HEALTH SCORE */
+.score-display{display:flex;gap:20px;align-items:center}
+.score-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.score-num-big{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--white)}
+.score-bars{flex:1}
+.sbar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.sbar-lbl{color:var(--muted);width:75px;flex-shrink:0}
+.sbar-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.sbar-fill{height:6px;background:var(--teal);border-radius:3px}
+.sbar-val{color:var(--teal-dark);font-weight:700;width:24px;text-align:right;flex-shrink:0}
+
+/* PAYDAY */
+.pd-center{text-align:center;padding:8px 0}
+.pd-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.pd-big{font-family:var(--font-head);font-size:64px;font-style:italic;color:var(--gold);line-height:1}
+.pd-budget{font-size:13px;color:var(--navy);font-weight:600;margin-top:8px}
+.pd-track{height:6px;background:var(--border);border-radius:3px;margin-top:12px}
+.pd-fill{height:6px;background:var(--gold);border-radius:3px}
+
+/* TRANSFORM */
+.tp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.tp-day{font-size:13px;color:var(--muted)}
+.tp-pct{font-size:14px;font-weight:700;color:var(--teal-dark)}
+.tp-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.tp-fill{height:8px;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:4px}
+.milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ms{background:var(--bg);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
+.ms.done{background:var(--teal-light);border-color:rgba(0,201,167,.3)}
+.ms-icon{font-size:16px;margin-bottom:4px;color:var(--dim)}
+.ms.done .ms-icon{color:var(--teal-dark)}
+.ms-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.ms-sub{font-size:10px;color:var(--muted)}
+
+/* MAYA CHAT */
+.chat-wrap{display:flex;flex-direction:column;animation:up .4s ease .3s both}
+.chat-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cmode{background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;white-space:nowrap}
+.cmode:hover{border-color:var(--teal);color:var(--teal-dark)}
+.cmode.active{background:var(--teal-light);border-color:rgba(0,201,167,.4);color:var(--teal-dark)}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;height:300px;padding-right:4px}
+.msgs::-webkit-scrollbar{width:4px}.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.mrow{display:flex;flex-direction:column}
+.mrow.bot{align-items:flex-start}.mrow.usr{align-items:flex-end}
+.m-sender{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;padding:0 2px}
+.mrow.bot .m-sender{color:var(--teal-dark)}.mrow.usr .m-sender{color:var(--muted)}
+.m-bub{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65;max-width:88%}
+.mrow.bot .m-bub{background:var(--bg);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px}
+.mrow.usr .m-bub{background:var(--teal);color:var(--white);border-radius:12px 4px 12px 12px}
+.m-bub strong{color:var(--teal-dark)}
+.mrow.usr .m-bub strong{color:rgba(255,255,255,.9)}
+.typing{display:flex;gap:4px;padding:10px 14px}
+.tdot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+.inp-row{display:flex;gap:8px}
+.chat-inp{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--navy);font-size:13px;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.chat-inp:focus{border-color:var(--teal);background:var(--white)}
+.chat-inp::placeholder{color:var(--dim)}
+.chat-send{background:var(--teal);border:none;border-radius:8px;padding:10px 18px;cursor:pointer;color:var(--white);font-weight:700;font-size:13px;font-family:var(--font-body);transition:all .2s}
+.chat-send:hover{background:var(--teal-dark)}
+.chat-send:disabled{background:var(--border);cursor:not-allowed}
+
+/* PRO LOCK */
+.pro-lock{background:linear-gradient(135deg,var(--blue-light),var(--teal-light));border:1px solid rgba(0,201,167,.3);border-radius:14px;padding:32px;text-align:center}
+.pro-lock h3{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--navy);margin-bottom:8px}
+.pro-lock p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.btn-lock{background:var(--teal);color:var(--white);border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-lock:hover{background:var(--teal-dark)}
+
+@media(max-width:900px){
+  .sidebar{width:100%;height:auto;position:relative}
+  .main{margin-left:0;padding:16px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}.card.full{grid-column:span 1}
+}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loadingScreen">
+  <div class="loading-logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="spinner"></div>
+</div>
+
+<div class="layout" id="app" style="display:none">
+  <div class="sidebar">
+    <div class="sb-logo"><div class="logo"><i>Sum</i> <span>Goals</span></div></div>
+    <div class="sb-user">
+      <div class="sb-av" id="sbAv">R</div>
+      <div><div class="sb-name" id="sbName">Loading...</div><span class="sb-plan free" id="sbPlan">Free</span></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Main</div>
+      <button class="sb-btn active" onclick="showSec('home',this)">Dashboard</button>
+      <button class="sb-btn" onclick="showSec('maya',this)">Chat with Maya</button>
+      <button class="sb-btn" onclick="showSec('budget',this)">Budget Builder</button>
+      <div class="sb-sec">Track</div>
+      <button class="sb-btn" onclick="showSec('debt',this)">Debt Race</button>
+      <button class="sb-btn" onclick="showSec('score',this)">Health Score</button>
+      <div class="sb-sec">Premium</div>
+      <button class="sb-btn" onclick="showPro('90-Day Plan')">90-Day Plan</button>
+      <button class="sb-btn" onclick="showPro('Money Mirror')">Money Mirror</button>
+      <button class="sb-btn" onclick="showPro('Couples Mode')">Couples Mode</button>
+      <button class="sb-btn" onclick="showPro('Senior Mode')">Senior Mode</button>
+      <button class="sb-btn" onclick="showPro('Emergency Kit')">Emergency Kit</button>
+    </div>
+    <div class="sb-bottom">
+      <button class="btn-upgrade" id="upBtn" onclick="doUpgrade('pro')" style="display:none">Upgrade to Pro — $9/mo</button>
+      <button class="btn-signout" onclick="doSignout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- HOME -->
+    <div id="sec-home">
+      <div class="page-head">
+        <div class="page-title">Good <span id="greeting">morning</span>, <span id="userName">there</span></div>
+        <div class="page-sub">Here is your financial snapshot today.</div>
+      </div>
+      <div class="stats-row">
+        <div class="sc hl"><div class="sc-lbl">Health Score</div><div class="sc-val teal">74</div><div class="sc-note">+12 this month</div></div>
+        <div class="sc"><div class="sc-lbl">Total Saved</div><div class="sc-val green">$580</div><div class="sc-note">Keep it up</div></div>
+        <div class="sc"><div class="sc-lbl">Debt Remaining</div><div class="sc-val red">$1,840</div><div class="sc-note">Paying it down</div></div>
+        <div class="sc"><div class="sc-lbl">Days to Payday</div><div class="sc-val gold">5</div><div class="sc-note">$44 daily budget</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Financial Health Score</div><button class="card-action" onclick="showSec('score',null)">Details</button></div>
+          <div class="score-display">
+            <div class="score-circle"><div class="score-num-big">74</div></div>
+            <div class="score-bars">
+              <div class="sbar-row"><span class="sbar-lbl">Budget</span><div class="sbar-track"><div class="sbar-fill" style="width:80%"></div></div><span class="sbar-val">20</span></div>
+              <div class="sbar-row"><span class="sbar-lbl">Debt</span><div class="sbar-track"><div class="sbar-fill" style="width:60%"></div></div><span class="sbar-val">15</span></div>
+              <div class="sbar-row"><span class="sbar-lbl">Savings</span><div class="sbar-track"><div class="sbar-fill" style="width:72%"></div></div><span class="sbar-val">18</span></div>
+              <div class="sbar-row"><span class="sbar-lbl">Emergency</span><div class="sbar-track"><div class="sbar-fill" style="width:84%"></div></div><span class="sbar-val">21</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Payday Countdown</div></div>
+          <div class="pd-center">
+            <div class="pd-lbl">Days until payday</div>
+            <div class="pd-big">5</div>
+            <div class="pd-budget">$44.00 daily budget remaining</div>
+            <div class="pd-track"><div class="pd-fill" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="card full">
+          <div class="card-head"><div class="card-title">90-Day Financial Transformation</div><button class="card-action" onclick="showPro('90-Day Plan')">Start program</button></div>
+          <div class="tp-top"><div class="tp-day">Day 0 of 90 — Start your transformation today</div><div class="tp-pct">0%</div></div>
+          <div class="tp-track"><div class="tp-fill" style="width:0%"></div></div>
+          <div class="milestones">
+            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 1 — Audit</div><div class="ms-sub">Build your foundation</div></div>
+            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 2 — Plan</div><div class="ms-sub">Systems in place</div></div>
+            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 3 — Momentum</div><div class="ms-sub">Habits locked in</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card chat-wrap">
+        <div class="card-head"><div class="card-title">Ask Maya</div></div>
+        <div class="chat-modes">
+          <button class="cmode active" onclick="setMode('coach',this)">Coach</button>
+          <button class="cmode" onclick="setMode('budget',this)">Budget</button>
+          <button class="cmode" onclick="setMode('payday',this)">Payday</button>
+          <button class="cmode" onclick="setMode('debt',this)">Debt Race</button>
+          <button class="cmode" onclick="setMode('score',this)">Health Score</button>
+          <button class="cmode" onclick="setMode('survival',this)">Survival</button>
+        </div>
+        <div class="msgs" id="msgs">
+          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Hey — I'm Maya, your Sum Goals coach. <strong>What do you need help with today?</strong> Tell me your currency and situation.</div></div>
+        </div>
+        <div class="inp-row">
+          <input class="chat-inp" id="chatInp" placeholder="Ask Maya anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
+          <button class="chat-send" id="sendBtn" onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAYA FULL -->
+    <div id="sec-maya" style="display:none">
+      <div class="page-head"><div class="page-title"><em>Chat with Maya</em></div><div class="page-sub">Your personal finance coach — 24/7</div></div>
+      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
+        <div class="chat-modes">
+          <button class="cmode active" onclick="setMode2('coach',this)">Maya Coach</button>
+          <button class="cmode" onclick="setMode2('budget',this)">Budget Builder</button>
+          <button class="cmode" onclick="setMode2('payday',this)">Payday Countdown</button>
+          <button class="cmode" onclick="setMode2('debt',this)">Debt Race</button>
+          <button class="cmode" onclick="setMode2('score',this)">Health Score</button>
+          <button class="cmode" onclick="setMode2('personality',this)">Personality Quiz</button>
+          <button class="cmode" onclick="setMode2('hustle',this)">Side Hustle</button>
+          <button class="cmode" onclick="setMode2('emergency',this)">Emergency Kit</button>
+          <button class="cmode" onclick="setMode2('survival',this)">Survival Mode</button>
+        </div>
+        <div class="msgs" id="msgs2" style="height:calc(100% - 120px)"></div>
+        <div class="inp-row">
+          <input class="chat-inp" id="chatInp2" placeholder="Tell Maya your currency and situation..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg2()}">
+          <button class="chat-send" id="sendBtn2" onclick="sendMsg2()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div id="sec-budget" style="display:none">
+      <div class="page-head"><div class="page-title"><em>Budget Builder</em></div><div class="page-sub">Build your complete monthly budget with Maya</div></div>
+      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
+        <div class="msgs" id="budgetMsgs" style="height:calc(100% - 60px)">
+          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Let's build your complete budget. <strong>What is your monthly income after taxes? And what currency are you using?</strong></div></div>
+        </div>
+        <div class="inp-row">
+          <input class="chat-inp" id="budgetInp" placeholder="Enter your income and currency..." onkeydown="if(event.key==='Enter'){sendSpec('budget','budgetInp','budgetMsgs')}">
+          <button class="chat-send" onclick="sendSpec('budget','budgetInp','budgetMsgs')">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEBT -->
+    <div id="sec-debt" style="display:none">
+      <div class="page-head"><div class="page-title"><em>Debt Race</em></div><div class="page-sub">Watch your debts get eliminated one by one</div></div>
+      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
+        <div class="msgs" id="debtMsgs" style="height:calc(100% - 60px)">
+          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub"><strong>Tell me all your debts</strong> — name, balance, interest rate, minimum payment. What currency? I will build your complete payoff plan.</div></div>
+        </div>
+        <div class="inp-row">
+          <input class="chat-inp" id="debtInp" placeholder="List your debts..." onkeydown="if(event.key==='Enter'){sendSpec('debt','debtInp','debtMsgs')}">
+          <button class="chat-send" onclick="sendSpec('debt','debtInp','debtMsgs')">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORE -->
+    <div id="sec-score" style="display:none">
+      <div class="page-head"><div class="page-title"><em>Health Score</em></div><div class="page-sub">Your financial wellness rated 0 to 100</div></div>
+      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
+        <div class="msgs" id="scoreMsgs" style="height:calc(100% - 60px)">
+          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Let's calculate your score. Tell me:<br><br>→ Monthly income<br>→ Monthly expenses<br>→ Total debt<br>→ Monthly savings<br>→ Emergency fund balance<br>→ Currency</div></div>
+        </div>
+        <div class="inp-row">
+          <input class="chat-inp" id="scoreInp" placeholder="Share your numbers..." onkeydown="if(event.key==='Enter'){sendSpec('score','scoreInp','scoreMsgs')}">
+          <button class="chat-send" onclick="sendSpec('score','scoreInp','scoreMsgs')">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRO LOCK -->
+    <div id="sec-pro" style="display:none">
+      <div class="page-head"><div class="page-title" id="proTitle">Pro Feature</div><div class="page-sub">Upgrade to access this feature</div></div>
+      <div class="pro-lock">
+        <h3>This is a Pro feature</h3>
+        <p>Upgrade to Sum Goals Pro to unlock this and all premium features — 90-Day Transformation, Money Mirror, Couples Mode, Senior Mode, Emergency Kit and more. Less than a coffee per month.</p>
+        <button class="btn-lock" onclick="doUpgrade('pro')">Upgrade to Pro — $9/month</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+let user = null, profile = null, mode = 'coach', mode2 = 'coach';
+let h = [], h2 = [], hSpec = {}, count = 0;
+const LIMIT = 5;
+
+async function init() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/index.html'; return; }
+    user = session.user;
+    try {
+      const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
+      profile = data || { full_name: user.user_metadata?.full_name || user.email.split('@')[0], plan: 'free' };
+    } catch(e) {
+      profile = { full_name: user.user_metadata?.full_name || user.email.split('@')[0], plan: 'free' };
+    }
+    setupUI();
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  } catch(e) {
+    document.getElementById('loadingScreen').innerHTML = '<div style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#0A1628">Sum <span style="color:#00C9A7">Goals</span></div><p style="color:#64748B;font-size:14px;margin-top:12px">Session expired. <a href="/index.html" style="color:#00C9A7">Sign in again</a></p>';
+  }
+}
+
+function setupUI() {
+  const name = profile?.full_name || user.email.split('@')[0];
+  document.getElementById('sbAv').textContent = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('sbName').textContent = name;
+  document.getElementById('userName').textContent = name.split(' ')[0];
+  const hr = new Date().getHours();
+  document.getElementById('greeting').textContent = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
+  const plan = profile?.plan || 'free';
+  const planEl = document.getElementById('sbPlan');
+  planEl.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+  planEl.className = 'sb-plan ' + plan;
+  if (plan === 'free') document.getElementById('upBtn').style.display = 'block';
+}
+
+function showSec(id, btn) {
+  document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('sec-' + id).style.display = 'block';
+  if (btn) { document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+}
+
+function showPro(feature) {
+  const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
+  if (isPro) { showSec('maya', null); return; }
+  document.getElementById('proTitle').textContent = feature;
+  showSec('pro', null);
+}
+
+async function doUpgrade(plan) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = '/index.html'; return; }
+  const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ plan }) });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+}
+
+async function doSignout() { await sb.auth.signOut(); window.location.href = '/index.html'; }
+
+function fmt(t) { return t.replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>'); }
+
+function addMsg(role, html, msgsId = 'msgs') {
+  const c = document.getElementById(msgsId);
+  const row = document.createElement('div'); row.className = 'mrow ' + (role==='bot'?'bot':'usr');
+  const s = document.createElement('div'); s.className = 'm-sender'; s.textContent = role==='bot'?'Maya':'You';
+  const b = document.createElement('div'); b.className = 'm-bub'; b.innerHTML = html;
+  row.appendChild(s); row.appendChild(b); c.appendChild(row); c.scrollTop = c.scrollHeight;
+  return b;
+}
+
+function setMode(m, btn) {
+  mode = m; h = [];
+  document.querySelectorAll('.chat-modes:first-of-type .cmode').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const welcome = getWelcome(m);
+  document.getElementById('msgs').innerHTML = '';
+  addMsg('bot', welcome);
+}
+
+function setMode2(m, btn) {
+  mode2 = m; h2 = [];
+  btn.closest('.chat-modes').querySelectorAll('.cmode').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('msgs2').innerHTML = '';
+  addMsg('bot', getWelcome(m), 'msgs2');
+}
+
+function getWelcome(m) {
+  const w = {
+    coach: "Hey — I'm Maya. <strong>What do you need help with today?</strong> Tell me your currency and situation.",
+    budget: "<strong>What is your monthly income after taxes?</strong> And what currency are you using?",
+    payday: "<strong>How many days until payday?</strong> What is your current balance and currency?",
+    debt: "<strong>Tell me all your debts</strong> — name, balance, interest rate. What currency?",
+    score: "<strong>Tell me:</strong> monthly income, expenses, total debt, savings, and currency.",
+    personality: "Money Personality Quiz! Ready? <strong>Question 1: When you get paid, what is the very first thing you do?</strong>",
+    hustle: "<strong>Tell me all your income sources</strong> and currency. Let's track and optimize your earnings.",
+    emergency: "<strong>What type of crisis?</strong> Job loss, medical bill, divorce, or other?",
+    survival: "<strong>How much money do you have right now</strong> and how many days until your next payday?"
+  };
+  return w[m] || w.coach;
+}
+
+async function sendMsg() {
+  const inp = document.getElementById('chatInp');
+  const text = inp.value.trim();
+  if (!text) return;
+  const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
+  if (!isPro && count >= LIMIT) { addMsg('bot', "You have used your <strong>5 free sessions</strong> today. <a href='#' onclick='doUpgrade(\"pro\");return false' style='color:var(--teal-dark)'>Upgrade to Pro for unlimited coaching</a>."); return; }
+  inp.value = '';
+  document.getElementById('sendBtn').disabled = true;
+  addMsg('usr', text);
+  h.push({ role: 'user', content: text });
+  count++;
+  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: h, mode }) });
+    const d = await r.json();
+    t.innerHTML = fmt(d.reply || 'Something went wrong. Please try again.');
+    if (d.reply) h.push({ role: 'assistant', content: d.reply });
+  } catch(e) { t.textContent = 'Connection error. Please try again.'; }
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('msgs').scrollTop = 99999;
+}
+
+async function sendMsg2() {
+  const inp = document.getElementById('chatInp2');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  document.getElementById('sendBtn2').disabled = true;
+  addMsg('usr', text, 'msgs2');
+  h2.push({ role: 'user', content: text });
+  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'msgs2');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: h2, mode: mode2 }) });
+    const d = await r.json();
+    t.innerHTML = fmt(d.reply || 'Something went wrong.');
+    if (d.reply) h2.push({ role: 'assistant', content: d.reply });
+  } catch(e) { t.textContent = 'Connection error.'; }
+  document.getElementById('sendBtn2').disabled = false;
+}
+
+async function sendSpec(m, inpId, msgsId) {
+  const inp = document.getElementById(inpId);
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  if (!hSpec[m]) hSpec[m] = [];
+  addMsg('usr', text, msgsId);
+  hSpec[m].push({ role: 'user', content: text });
+  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', msgsId);
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: hSpec[m], mode: m }) });
+    const d = await r.json();
+    t.innerHTML = fmt(d.reply || 'Something went wrong.');
+    if (d.reply) hSpec[m].push({ role: 'assistant', content: d.reply });
+  } catch(e) { t.textContent = 'Connection error.'; }
+}
+
+init();
+</script>
+</body>
+</html>
