@@ -5,315 +5,258 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sum Goals — Your Financial Life, Transformed</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --bg:#060D16;
-  --bg2:#08111C;
-  --bg3:#0C1A28;
-  --card:#0F2035;
-  --card2:#132540;
-  --teal:#00C9A7;
-  --teal-dark:#00A888;
-  --teal-dim:rgba(0,201,167,0.1);
-  --teal-border:rgba(0,201,167,0.2);
-  --gold:#FFB347;
-  --gold-dark:#E09030;
-  --gold-dim:rgba(255,179,71,0.1);
-  --gold-border:rgba(255,179,71,0.2);
-  --white:#E8F4F8;
-  --muted:#7AA8C0;
-  --dim:#2A4A62;
-  --border:rgba(255,255,255,0.07);
-  --red:#FF6B6B;
-  --green:#4CAF82;
-  --font-head:'Playfair Display',serif;
-  --font-body:'Plus Jakarta Sans',sans-serif;
+  --bg:#060D16;--bg2:#08111C;--bg3:#0C1A28;--card:#0F2035;--card2:#132540;
+  --teal:#00C9A7;--teal-dark:#00A888;--teal-dim:rgba(0,201,167,0.1);--teal-border:rgba(0,201,167,0.2);
+  --gold:#FFB347;--gold-dark:#E09030;--gold-dim:rgba(255,179,71,0.1);--gold-border:rgba(255,179,71,0.2);
+  --white:#E8F4F8;--muted:#7AA8C0;--dim:#2A4A62;--border:rgba(255,255,255,0.07);
+  --red:#FF6B6B;--green:#4CAF82;
+  --font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:15px;line-height:1.6;overflow-x:hidden}
-.page{display:none}.page.active{display:block}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
-
 @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-7px);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* NAV */
 nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;position:sticky;top:0;z-index:100;background:rgba(6,13,22,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.logo{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--white)}.logo span{color:var(--teal)}
-.nav-r{display:flex;align-items:center;gap:28px}
+.logo{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--white);cursor:pointer}.logo span{color:var(--teal)}
+.nav-r{display:flex;align-items:center;gap:16px}
 .nav-a{color:var(--muted);font-size:13px;text-decoration:none;font-weight:500;transition:color .2s}.nav-a:hover{color:var(--white)}
-.btn-cta{background:var(--teal);color:#060D16;padding:9px 22px;border-radius:6px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s}.btn-cta:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-login{background:transparent;color:var(--white);padding:8px 20px;border-radius:6px;font-weight:600;font-size:13px;border:1px solid var(--border);cursor:pointer;font-family:var(--font-body);transition:all .2s}.btn-login:hover{border-color:rgba(255,255,255,.2)}
+.btn-signup{background:var(--teal);color:#060D16;padding:8px 20px;border-radius:6px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s}.btn-signup:hover{background:var(--teal-dark)}
 
 /* HERO */
 .hero{min-height:94vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:80px 48px;gap:60px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:0;right:0;width:55%;height:100%;background:linear-gradient(135deg,rgba(0,201,167,0.04) 0%,transparent 60%);pointer-events:none}
 .hero-l{position:relative;z-index:1}
-.eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);margin-bottom:24px;opacity:0;animation:up .6s ease .1s forwards}
-.ebar{width:20px;height:1.5px;background:var(--teal)}
-h1{font-family:var(--font-head);font-size:clamp(44px,5vw,70px);line-height:.97;letter-spacing:-1px;margin-bottom:24px;opacity:0;animation:up .7s ease .2s forwards}
+.maya-intro{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--teal-border);border-radius:14px;padding:14px 18px;margin-bottom:28px;opacity:0;animation:up .6s ease .1s forwards}
+.maya-av{width:40px;height:40px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:16px;font-style:italic;color:#060D16;flex-shrink:0}
+.maya-name{font-size:13px;font-weight:700;color:var(--white)}
+.maya-bio{font-size:11px;color:var(--muted)}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);margin-bottom:20px;opacity:0;animation:up .6s ease .15s forwards}
+.ebar{width:16px;height:1.5px;background:var(--teal)}
+h1{font-family:var(--font-head);font-size:clamp(42px,5vw,68px);line-height:.97;letter-spacing:-1px;margin-bottom:22px;opacity:0;animation:up .7s ease .2s forwards}
 h1 i{color:var(--teal)}
-h1 .ol{-webkit-text-stroke:1.5px rgba(232,244,248,0.35);color:transparent;display:block}
-.hero-p{font-size:17px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:40px;font-weight:300;opacity:0;animation:up .7s ease .3s forwards}
+h1 .ol{-webkit-text-stroke:1.5px rgba(232,244,248,0.3);color:transparent;display:block}
+.hero-p{font-size:16px;color:var(--muted);max-width:460px;line-height:1.7;margin-bottom:36px;font-weight:300;opacity:0;animation:up .7s ease .3s forwards}
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:up .7s ease .4s forwards}
 .btn-main{background:var(--teal);color:#060D16;padding:14px 32px;border-radius:6px;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .25s}.btn-main:hover{background:var(--teal-dark);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,201,167,.25)}
 .btn-ghost{background:transparent;color:var(--white);padding:14px 32px;border-radius:6px;font-weight:500;font-size:14px;border:1px solid var(--border);cursor:pointer;font-family:var(--font-body);transition:all .2s}.btn-ghost:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
-.hero-note{margin-top:16px;font-size:12px;color:var(--dim);opacity:0;animation:up .7s ease .5s forwards}
+.hero-note{margin-top:14px;font-size:12px;color:var(--dim);opacity:0;animation:up .7s ease .5s forwards}
+.trust-badges{display:flex;gap:20px;flex-wrap:wrap;margin-top:20px;opacity:0;animation:up .7s ease .6s forwards}
+.tbadge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600}
+.tbadge-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--teal);flex-shrink:0}
 
-/* MAYA INTRO */
-.maya-intro{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--teal-border);border-radius:14px;padding:16px 20px;margin-bottom:28px;opacity:0;animation:up .6s ease .2s forwards}
-.maya-av{width:44px;height:44px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:18px;font-style:italic;color:#060D16;flex-shrink:0}
-.maya-text .maya-name{font-size:14px;font-weight:700;color:var(--white);margin-bottom:2px}
-.maya-text .maya-bio{font-size:12px;color:var(--muted)}
-
-/* DASHBOARD MOCKUP */
+/* DASHBOARD PREVIEW */
 .hero-r{position:relative;z-index:1;opacity:0;animation:up .8s ease .4s forwards}
-.dash{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;width:100%;max-width:440px;margin-left:auto}
-.dash-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg3)}
-.dash-brand{font-family:var(--font-head);font-size:15px;font-style:italic}.dash-brand span{color:var(--teal)}
-.dash-user{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
-.dash-av{width:26px;height:26px;border-radius:50%;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--teal)}
-.dash-body{padding:16px}
-.score-hero{background:linear-gradient(135deg,var(--card2),var(--bg3));border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:space-between}
-.score-left .score-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-.score-left .score-num{font-family:var(--font-head);font-size:52px;font-style:italic;color:var(--teal);line-height:1}
-.score-left .score-change{font-size:12px;color:var(--green);margin-top:4px}
-.score-right{text-align:right}
-.score-ring{width:60px;height:60px;border-radius:50%;border:3px solid var(--teal-border);display:flex;align-items:center;justify-content:center;position:relative}
-.score-ring::before{content:'';position:absolute;inset:3px;border-radius:50%;border:3px solid var(--teal);clip-path:polygon(50% 0%,100% 0%,100% 100%,50% 100%)}
-.score-ring-val{font-size:13px;font-weight:700;color:var(--teal)}
+.dash{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;width:100%;max-width:420px;margin-left:auto}
+.dash-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.dash-brand{font-family:var(--font-head);font-size:14px;font-style:italic}.dash-brand span{color:var(--teal)}
+.dash-user{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.dash-av{width:22px;height:22px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#060D16}
+.dash-body{padding:14px}
+.score-card{background:linear-gradient(135deg,var(--card2),var(--bg3));border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:space-between}
+.score-num{font-family:var(--font-head);font-size:48px;font-style:italic;color:var(--teal);line-height:1}
+.score-info .score-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.score-info .score-change{font-size:11px;color:var(--green);font-weight:600}
+.score-info .score-bar{height:4px;background:var(--bg);border-radius:2px;width:100px;margin-top:8px}
+.score-info .score-fill{height:4px;background:var(--teal);border-radius:2px;width:74%}
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.dash-stat{background:var(--bg3);border-radius:8px;padding:10px;border:1px solid var(--border)}
-.ds-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.ds-val{font-family:var(--font-head);font-size:20px;font-style:italic}
-.ds-val.g{color:var(--green)}.ds-val.r{color:var(--red)}.ds-val.t{color:var(--teal)}.ds-val.gold{color:var(--gold)}
-.payday-card{background:linear-gradient(135deg,rgba(255,179,71,0.08),rgba(0,201,167,0.05));border:1px solid var(--gold-border);border-radius:10px;padding:12px;margin-bottom:10px}
-.pc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.pc-lbl{font-size:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-.pc-days{font-family:var(--font-head);font-size:30px;font-style:italic;color:var(--gold)}
-.pc-sub{font-size:11px;color:var(--muted)}
-.pc-bar{height:4px;background:var(--bg);border-radius:2px;margin-top:8px}
-.pc-fill{height:4px;background:var(--gold);border-radius:2px;width:58%}
-.maya-tip{background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.5}
+.ds{background:var(--bg3);border-radius:8px;padding:10px;border:1px solid var(--border)}
+.ds-l{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.ds-v{font-family:var(--font-head);font-size:18px;font-style:italic}
+.ds-v.g{color:var(--green)}.ds-v.r{color:var(--red)}.ds-v.t{color:var(--teal)}.ds-v.gold{color:var(--gold)}
+.payday{background:linear-gradient(135deg,rgba(255,179,71,.08),rgba(0,201,167,.04));border:1px solid var(--gold-border);border-radius:8px;padding:10px;margin-bottom:10px}
+.pd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.pd-lbl{font-size:9px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.pd-days{font-family:var(--font-head);font-size:26px;font-style:italic;color:var(--gold)}
+.pd-sub{font-size:10px;color:var(--muted)}
+.maya-tip{background:var(--bg3);border-radius:8px;padding:10px;border:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.5}
 .maya-tip strong{color:var(--white)}
 
 /* MARQUEE */
-.mq{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:12px 0;overflow:hidden;background:var(--bg2)}
+.mq{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:11px 0;overflow:hidden;background:var(--bg2)}
 .mq-track{display:flex;animation:mq 30s linear infinite;width:max-content}
-.mq-item{display:flex;align-items:center;gap:12px;padding:0 28px;font-size:11px;font-weight:600;color:#5A8AA0;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
-.mq-dot{width:4px;height:4px;background:var(--teal);border-radius:50%}
+.mq-item{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:11px;font-weight:600;color:#5A8AA0;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.mq-dot{width:3px;height:3px;background:var(--teal);border-radius:50%}
 
 /* TRUST BAR */
-.trust-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 48px;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
-.trust-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#7AA8C0;font-weight:600}
-.trust-check{width:18px;height:18px;border:1.5px solid var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--teal);flex-shrink:0}
+.trust-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 48px;display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap}
+.ti{display:flex;align-items:center;gap:6px;font-size:11px;color:#7AA8C0;font-weight:600}
+.tc{width:16px;height:16px;border:1.5px solid var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--teal);flex-shrink:0}
 
 /* SECTIONS */
-.sec{padding:90px 48px;max-width:1200px;margin:0 auto}
-.sec-tag{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px}
-.sec-tag::before{content:'';width:16px;height:1.5px;background:var(--teal)}
-.sec-h{font-family:var(--font-head);font-size:clamp(32px,4vw,54px);line-height:.97;letter-spacing:-1px;margin-bottom:14px}
-.sec-h i{color:var(--teal);font-style:italic}
-.sec-h .d{color:var(--muted)}
-.sec-sub{font-size:16px;color:var(--muted);max-width:500px;font-weight:300;margin-bottom:52px}
+.sec{padding:80px 48px;max-width:1200px;margin:0 auto}
+.sec-tag{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+.sec-tag::before{content:'';width:14px;height:1.5px;background:var(--teal)}
+.sec-h{font-family:var(--font-head);font-size:clamp(30px,4vw,52px);line-height:.97;letter-spacing:-1px;margin-bottom:12px}
+.sec-h i{color:var(--teal)}
+.sec-sub{font-size:15px;color:var(--muted);max-width:480px;font-weight:300;margin-bottom:44px}
 
 /* MAYA SECTION */
-.maya-section{background:var(--bg2);padding:80px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.maya-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.maya-profile{display:flex;flex-direction:column;align-items:flex-start}
-.maya-big-av{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:48px;font-style:italic;color:#060D16;margin-bottom:20px;border:3px solid var(--teal-border)}
-.maya-profile h2{font-family:var(--font-head);font-size:36px;font-style:italic;margin-bottom:8px}
-.maya-profile h2 span{color:var(--teal)}
-.maya-tagline{font-size:16px;color:var(--muted);margin-bottom:20px;font-weight:300}
-.maya-stats{display:flex;gap:24px;flex-wrap:wrap}
-.maya-stat{text-align:center}
-.maya-stat-num{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--teal)}
-.maya-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px}
-.maya-chat-preview{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
-.maya-msg{font-size:14px;line-height:1.65;color:var(--white);background:var(--bg3);border-radius:12px;padding:12px 16px;position:relative}
-.maya-msg::before{content:'Maya';position:absolute;top:-18px;left:0;font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.08em}
-.user-msg{font-size:14px;line-height:1.65;color:var(--white);background:rgba(0,201,167,.08);border:1px solid var(--teal-border);border-radius:12px;padding:12px 16px;align-self:flex-end;position:relative}
-.user-msg::before{content:'You';position:absolute;top:-18px;right:0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.maya-sec{background:var(--bg2);padding:70px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.maya-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center}
+.maya-big-av{width:100px;height:100px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:40px;font-style:italic;color:#060D16;margin-bottom:18px;border:3px solid rgba(0,201,167,.3)}
+.maya-sec h2{font-family:var(--font-head);font-size:34px;font-style:italic;margin-bottom:8px}.maya-sec h2 span{color:var(--teal)}
+.maya-tagline{font-size:15px;color:var(--muted);margin-bottom:18px;font-weight:300}
+.maya-stats{display:flex;gap:20px;flex-wrap:wrap}
+.ms{text-align:center}.ms-num{font-family:var(--font-head);font-size:26px;font-style:italic;color:var(--teal)}.ms-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.maya-chat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.mc-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.mc-lbl.m{color:var(--teal)}.mc-lbl.u{color:var(--muted);text-align:right}
+.mc-msg{font-size:13px;line-height:1.65;padding:10px 14px;border-radius:10px}
+.mc-msg.m{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-radius:4px 10px 10px 10px}
+.mc-msg.u{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.15);color:var(--white);border-radius:10px 4px 10px 10px}
+.mc-msg strong{color:var(--teal)}
 
 /* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.feat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;transition:all .3s;position:relative;overflow:hidden}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;transition:all .3s;position:relative;overflow:hidden}
 .feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .3s}
 .feat:hover{border-color:var(--teal-border);transform:translateY(-3px)}.feat:hover::before{opacity:1;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
-.feat.wide{grid-column:span 2}.feat.full{grid-column:span 3}
-.feat-num{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.15em;text-transform:uppercase;margin-bottom:14px}
-.feat-icon-num{width:36px;height:36px;border-radius:8px;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);margin-bottom:14px;font-family:var(--font-body)}
-.feat-icon-num.gold{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
-.feat-t{font-family:var(--font-head);font-size:20px;font-style:italic;margin-bottom:10px;line-height:1.1}
-.feat-d{font-size:13px;color:var(--muted);line-height:1.65}
-.feat-badge{display:inline-block;margin-top:10px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
+.feat.wide{grid-column:span 2}
+.feat-num{width:32px;height:32px;border-radius:8px;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--teal);margin-bottom:12px;font-family:var(--font-body)}
+.feat-num.gold{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
+.feat-t{font-family:var(--font-head);font-size:18px;font-style:italic;margin-bottom:8px;line-height:1.1}
+.feat-d{font-size:12px;color:var(--muted);line-height:1.6}
+.feat-badge{display:inline-block;margin-top:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em}
 .feat-badge.excl{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-border)}
 .feat-badge.new{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
-.feat-badge.hot{background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2)}
 
-/* AUDIENCE SECTIONS */
-.audience-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.aud-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:all .3s}
-.aud-card:hover{border-color:var(--teal-border);transform:translateY(-2px)}
-.aud-icon{font-size:28px;margin-bottom:12px}
-.aud-label{font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px}
-.aud-desc{font-size:12px;color:var(--muted);line-height:1.5}
+/* 90 DAY */
+.plan-sec{background:var(--bg2);padding:70px 48px;border-top:1px solid var(--border)}
+.plan-inner{max-width:1000px;margin:0 auto}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px}
+.week{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.week.highlight{border-color:var(--teal-border)}
+.wk-num{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.wk-title{font-family:var(--font-head);font-size:16px;font-style:italic;margin-bottom:8px}
+.wk-items{list-style:none;display:flex;flex-direction:column;gap:5px}
+.wk-items li{font-size:11px;color:var(--muted);display:flex;gap:5px}
+.wk-items li::before{content:'→';color:var(--teal);flex-shrink:0}
 
 /* STATS */
-.stats-section{background:var(--bg2);padding:60px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
-.stat-big{font-family:var(--font-head);font-size:44px;font-style:italic;color:var(--teal);letter-spacing:-1px}
-.stat-lbl{font-size:13px;color:var(--muted);margin-top:4px}
+.stats-sec{background:var(--bg2);padding:50px 48px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-inner{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.stat-big{font-family:var(--font-head);font-size:42px;font-style:italic;color:var(--teal);letter-spacing:-1px}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:3px}
 
 /* PROOF */
-.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.proof{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px}
-.proof-stars{color:var(--gold);font-size:13px;letter-spacing:2px;margin-bottom:12px}
-.proof-t{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;font-style:italic}
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.proof{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.proof-stars{color:var(--gold);font-size:12px;letter-spacing:2px;margin-bottom:10px}
+.proof-t{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px;font-style:italic}
 .proof-t strong{color:var(--white);font-style:normal}
-.proof-a{display:flex;align-items:center;gap:10px}
-.proof-av{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:var(--font-head);font-style:italic;flex-shrink:0}
-.proof-n{font-size:13px;font-weight:600}.proof-loc{font-size:11px;color:var(--muted)}
-
-/* 90 DAY SECTION */
-.plan-section{background:var(--bg2);padding:80px 48px;border-top:1px solid var(--border)}
-.plan-inner{max-width:1000px;margin:0 auto}
-.plan-weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px}
-.week-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative}
-.week-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.week-title{font-family:var(--font-head);font-size:18px;font-style:italic;margin-bottom:8px}
-.week-items{list-style:none;display:flex;flex-direction:column;gap:6px}
-.week-items li{font-size:12px;color:var(--muted);display:flex;gap:6px}
-.week-items li::before{content:'→';color:var(--teal);flex-shrink:0}
+.proof-a{display:flex;align-items:center;gap:8px}
+.proof-av{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--font-head);font-style:italic;flex-shrink:0}
+.proof-n{font-size:12px;font-weight:600}.proof-loc{font-size:10px;color:var(--muted)}
 
 /* PRICING */
-.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:900px}
-.plan{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;position:relative}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:860px}
+.plan{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;position:relative}
 .plan.hot{border-color:var(--teal-border);background:linear-gradient(150deg,rgba(0,201,167,.06) 0%,var(--card) 60%)}
-.plan-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--teal);color:#060D16;font-size:10px;font-weight:700;padding:3px 14px;border-radius:4px;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
-.plan-tier{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-.plan-price{font-family:var(--font-head);font-size:50px;font-style:italic;line-height:1;margin-bottom:4px;letter-spacing:-1px}
-.plan-price sub{font-size:16px;color:var(--muted);font-family:var(--font-body);font-style:normal}
-.plan-cycle{font-size:12px;color:var(--dim);margin-bottom:22px}
-.plan-ul{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
-.plan-ul li{font-size:13px;color:var(--muted);display:flex;gap:8px}
+.plan-tag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--teal);color:#060D16;font-size:9px;font-weight:700;padding:3px 12px;border-radius:4px;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
+.plan-tier{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.plan-price{font-family:var(--font-head);font-size:46px;font-style:italic;line-height:1;margin-bottom:4px;letter-spacing:-1px}
+.plan-price sub{font-size:14px;color:var(--muted);font-family:var(--font-body);font-style:normal}
+.plan-cycle{font-size:11px;color:var(--dim);margin-bottom:18px}
+.plan-ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.plan-ul li{font-size:12px;color:var(--muted);display:flex;gap:7px}
 .plan-ul li::before{content:'→';color:var(--teal);flex-shrink:0}
 .plan-ul li.off::before{content:'→';color:var(--dim)}.plan-ul li.off{color:var(--dim)}
-.btn-plan{width:100%;padding:12px;border-radius:6px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-plan.o{background:transparent;color:var(--white);border:1px solid var(--border)}.btn-plan.o:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
+.btn-plan{width:100%;padding:11px;border-radius:6px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-plan.o{background:transparent;color:var(--white);border:1px solid var(--border)}.btn-plan.o:hover{border-color:rgba(255,255,255,.15)}
 .btn-plan.s{background:var(--teal);color:#060D16}.btn-plan.s:hover{background:var(--teal-dark);transform:translateY(-1px)}
 .btn-plan.b{background:transparent;color:var(--teal);border:1px solid var(--teal-border)}.btn-plan.b:hover{background:var(--teal-dim)}
 
 /* FOOTER */
-footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.foot-logo{font-family:var(--font-head);font-size:20px;font-style:italic}.foot-logo span{color:var(--teal)}
-.foot-copy{font-size:13px;color:var(--dim)}
-.foot-links{display:flex;gap:20px}
-.foot-links a{font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s}.foot-links a:hover{color:var(--white)}
+footer{border-top:1px solid var(--border);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.foot-logo{font-family:var(--font-head);font-size:18px;font-style:italic;cursor:pointer}.foot-logo span{color:var(--teal)}
+.foot-copy{font-size:12px;color:var(--dim)}
+.foot-links{display:flex;gap:18px}
+.foot-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}.foot-links a:hover{color:var(--white)}
 
-/* ═══ CHAT PAGE ═══ */
-.chat-wrap{height:100vh;display:flex;flex-direction:column;background:var(--bg)}
-.chat-top{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:rgba(6,13,22,.96);backdrop-filter:blur(20px);flex-shrink:0}
-.chat-brand{font-family:var(--font-head);font-size:19px;font-style:italic}.chat-brand span{color:var(--teal)}
-.chat-maya{display:flex;align-items:center;gap:8px}
-.chat-maya-av{width:30px;height:30px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:13px;font-style:italic;color:#060D16}
-.chat-maya-info .chat-maya-name{font-size:13px;font-weight:600;color:var(--white)}
-.chat-maya-info .chat-maya-status{font-size:10px;color:var(--teal);display:flex;align-items:center;gap:4px}
-.odot{width:5px;height:5px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite}
-.btn-back{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:500;transition:all .2s}.btn-back:hover{color:var(--white);border-color:rgba(255,255,255,.15)}
-.free-bar{background:rgba(0,201,167,.04);border-bottom:1px solid rgba(0,201,167,.08);padding:7px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);flex-shrink:0}
-.free-bar strong{color:var(--teal)}
-.btn-up{background:var(--teal);color:#060D16;border:none;padding:4px 14px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body)}.btn-up:hover{background:var(--teal-dark)}
-.ftabs{display:flex;gap:6px;padding:8px 24px;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
-.ftabs::-webkit-scrollbar{display:none}
-.ftab{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);white-space:nowrap;transition:all .2s;flex-shrink:0}.ftab:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}.ftab.active{background:var(--teal-dim);border-color:var(--teal-border);color:var(--teal)}
-.msgs{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
-.msgs::-webkit-scrollbar{width:3px}.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.mrow{display:flex;gap:0;max-width:820px;animation:up .3s ease both;flex-direction:column}
-.mrow.bot{margin-right:auto;align-items:flex-start}
-.mrow.usr{margin-left:auto;align-items:flex-end}
-.sender-name{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;padding-left:2px}
-.mrow.usr .sender-name{color:var(--muted);text-align:right;padding-right:2px}
-.mbub{padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.7;max-width:680px}
-.mrow.bot .mbub{background:var(--card);border:1px solid var(--border);border-radius:4px 12px 12px 12px;color:var(--white)}
-.mrow.usr .mbub{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.15);border-radius:12px 4px 12px 12px;color:var(--white)}
-.mbub strong{color:var(--teal)}
-.mbub .gold{color:var(--gold)}
-.typing-wrap{display:flex;gap:5px;padding:12px 16px;align-items:center}
-.tdot{width:7px;height:7px;background:var(--teal);border-radius:50%;animation:td 1.2s infinite}.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
-.chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 24px 10px;flex-shrink:0}
-.chip{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 13px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-body);transition:all .2s;white-space:nowrap}.chip:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
-.inp-zone{border-top:1px solid var(--border);padding:12px 24px;background:var(--bg);flex-shrink:0}
-.inp-box{display:flex;align-items:flex-end;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;transition:border-color .2s}.inp-box:focus-within{border-color:rgba(0,201,167,.25)}
-.inp{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-size:14px;font-family:var(--font-body);resize:none;min-height:24px;max-height:120px;line-height:1.5}.inp::placeholder{color:var(--dim)}
-.send-btn{width:36px;height:36px;background:var(--teal);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}.send-btn:hover{background:var(--teal-dark);transform:scale(1.05)}.send-btn:disabled{background:var(--card2);cursor:not-allowed;transform:none}
-.send-btn svg{width:15px;height:15px;fill:#060D16}
-.inp-note{font-size:10px;color:var(--dim);text-align:center;margin-top:6px}
+/* AUTH MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--card);border:1px solid var(--teal-border);border-radius:20px;padding:36px;width:100%;max-width:420px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1;transition:color .2s}.modal-close:hover{color:var(--white)}
+.modal-logo{font-family:var(--font-head);font-size:24px;font-style:italic;margin-bottom:6px;text-align:center}.modal-logo span{color:var(--teal)}
+.modal-subtitle{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.modal-tabs{display:flex;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:24px;gap:3px}
+.mtab{flex:1;padding:8px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.mtab.active{background:var(--card2);color:var(--white)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--white);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--teal-border)}
+.form-input::placeholder{color:var(--dim)}
+.btn-auth{width:100%;padding:13px;background:var(--teal);color:#060D16;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin-top:6px}
+.btn-auth:hover{background:var(--teal-dark)}
+.btn-auth:disabled{background:var(--dim);cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;font-size:12px;color:var(--dim)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{width:100%;padding:11px;background:transparent;color:var(--white);border:1px solid var(--border);border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-google:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
+.google-icon{width:18px;height:18px}
+.auth-error{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+.auth-success{background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--teal);margin-bottom:14px;display:none}
+.spinner{width:16px;height:16px;border:2px solid rgba(6,13,22,.3);border-top-color:#060D16;border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
 
-/* SUPPORT CHAT */
-.support-fab{position:fixed;bottom:28px;right:28px;z-index:1000;width:52px;height:52px;background:var(--teal);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,201,167,.3);transition:all .2s;font-family:var(--font-body)}.support-fab:hover{background:var(--teal-dark);transform:scale(1.08)}
-.support-fab svg{width:22px;height:22px;fill:#060D16}
-.support-panel{position:fixed;bottom:92px;right:28px;z-index:1000;width:340px;background:var(--card);border:1px solid var(--teal-border);border-radius:16px;overflow:hidden;display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.support-panel.open{display:flex}
-.sup-top{padding:14px 16px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.sup-title{display:flex;align-items:center;gap:8px}
-.sup-av{width:32px;height:32px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#060D16;flex-shrink:0}
-.sup-name{font-size:13px;font-weight:700;color:var(--white)}
+/* SUPPORT WIDGET */
+.sup-fab{position:fixed;bottom:24px;right:24px;z-index:500;width:48px;height:48px;background:var(--teal);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,201,167,.3);transition:all .2s}
+.sup-fab:hover{background:var(--teal-dark);transform:scale(1.08)}
+.sup-fab svg{width:20px;height:20px;fill:#060D16}
+.sup-panel{position:fixed;bottom:84px;right:24px;z-index:500;width:320px;background:var(--card);border:1px solid var(--teal-border);border-radius:14px;overflow:hidden;display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.sup-panel.open{display:flex}
+.sup-top{padding:12px 14px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sup-info{display:flex;align-items:center;gap:8px}
+.sup-av{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#060D16}
+.sup-name{font-size:12px;font-weight:700;color:var(--white)}
 .sup-status{font-size:10px;color:var(--teal)}
-.sup-close{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1}.sup-close:hover{color:var(--white)}
-.sup-msgs{height:280px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.sup-msgs::-webkit-scrollbar{width:3px}.sup-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.sup-msg{font-size:13px;line-height:1.55;padding:10px 13px;border-radius:10px;max-width:90%}
-.sup-msg.bot{background:var(--bg3);border:1px solid var(--border);color:var(--white);border-radius:4px 10px 10px 10px;align-self:flex-start}
-.sup-msg.usr{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.15);color:var(--white);border-radius:10px 4px 10px 10px;align-self:flex-end}
-.sup-inp-row{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px}
-.sup-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--white);font-size:13px;font-family:var(--font-body);outline:none}.sup-inp:focus{border-color:var(--teal-border)}.sup-inp::placeholder{color:var(--dim)}
-.sup-send{background:var(--teal);border:none;border-radius:8px;padding:8px 12px;cursor:pointer;color:#060D16;font-weight:700;font-size:12px;font-family:var(--font-body);transition:all .2s}.sup-send:hover{background:var(--teal-dark)}
-
-/* LEGAL */
-.legal-wrap{max-width:760px;margin:0 auto;padding:60px 40px}
-.legal-tag{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
-.legal-h{font-family:var(--font-head);font-size:42px;font-style:italic;letter-spacing:-1px;margin-bottom:6px}
-.legal-date{font-size:13px;color:var(--muted);margin-bottom:40px}
-.legal-body{display:flex;flex-direction:column;gap:28px;color:var(--muted);font-size:15px;line-height:1.75}
-.legal-body h2{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--white);margin-bottom:8px}
-.faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;margin-top:4px}
-.faq-item summary{font-size:14px;font-weight:600;color:var(--white);list-style:none;display:flex;justify-content:space-between}
-.faq-item summary::after{content:'+';color:var(--teal);font-size:16px}.faq-item[open] summary::after{content:'−'}
-.faq-item p{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.6}
+.sup-close{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px}
+.sup-msgs{height:240px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.sup-msg{font-size:12px;line-height:1.55;padding:8px 11px;border-radius:8px;max-width:88%}
+.sup-msg.bot{background:var(--bg3);border:1px solid var(--border);color:var(--white);align-self:flex-start;border-radius:4px 8px 8px 8px}
+.sup-msg.usr{background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.15);color:var(--white);align-self:flex-end;border-radius:8px 4px 8px 8px}
+.sup-inp-row{padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:6px}
+.sup-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--white);font-size:12px;font-family:var(--font-body);outline:none}
+.sup-inp:focus{border-color:var(--teal-border)}
+.sup-inp::placeholder{color:var(--dim)}
+.sup-send{background:var(--teal);border:none;border-radius:6px;padding:7px 11px;cursor:pointer;color:#060D16;font-weight:700;font-size:11px;font-family:var(--font-body)}
 
 @media(max-width:900px){
-  nav{padding:14px 20px}.nav-r .nav-a{display:none}
+  nav{padding:12px 20px}.nav-r .nav-a{display:none}
   .hero{grid-template-columns:1fr;padding:50px 20px;gap:40px}.hero-r{justify-content:center}
   .maya-inner{grid-template-columns:1fr}
-  .sec{padding:60px 20px}
-  .feat-grid{grid-template-columns:1fr}.feat.wide,.feat.full{grid-column:span 1}
-  .audience-grid{grid-template-columns:repeat(2,1fr)}
-  .plan-weeks{grid-template-columns:repeat(2,1fr)}
+  .sec{padding:50px 20px}
+  .feat-grid{grid-template-columns:1fr}.feat.wide{grid-column:span 1}
   .proof-grid,.plan-grid{grid-template-columns:1fr;max-width:100%}
+  .weeks{grid-template-columns:repeat(2,1fr)}
   .stats-inner{grid-template-columns:repeat(2,1fr)}
-  footer{flex-direction:column;gap:14px;text-align:center;padding:24px 20px}
-  .msgs{padding:16px 12px}.inp-zone{padding:10px 12px}.chips{padding:0 12px 8px}.ftabs{padding:8px 12px}.chat-top{padding:12px 14px}
-  .support-panel{width:calc(100vw - 40px);right:20px}
-  .legal-wrap{padding:40px 20px}
-  .trust-bar{padding:12px 20px;gap:16px}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:20px}
+  .trust-bar{padding:10px 20px;gap:14px}
+  .sup-panel{width:calc(100vw - 32px);right:16px}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ LANDING ══ -->
-<div id="land" class="page active">
 <nav>
-  <div class="logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="logo" onclick="window.scrollTo(0,0)"><i>Sum</i> <span>Goals</span></div>
   <div class="nav-r">
     <a href="#features" class="nav-a">Features</a>
     <a href="#plan" class="nav-a">90-Day Plan</a>
     <a href="#pricing" class="nav-a">Pricing</a>
-    <button class="btn-cta" onclick="goChat()">Start free</button>
+    <button class="btn-login" onclick="openAuth('login')">Sign in</button>
+    <button class="btn-signup" onclick="openAuth('signup')">Start free</button>
   </div>
 </nav>
 
@@ -321,60 +264,47 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
   <div class="hero-l">
     <div class="maya-intro">
       <div class="maya-av">M</div>
-      <div class="maya-text">
+      <div>
         <div class="maya-name">Hi, I'm Maya — your Sum Goals coach</div>
-        <div class="maya-bio">I've helped thousands of people transform their financial lives. I'm here for you too.</div>
+        <div class="maya-bio">I've helped thousands transform their financial lives. Ready when you are.</div>
       </div>
     </div>
     <div class="eyebrow"><div class="ebar"></div>Personal Finance Transformation</div>
-    <h1>
-      Your money.<br>
-      <i>Finally working</i><br>
-      <span class="ol">for you.</span>
-    </h1>
+    <h1>Your money.<br><i>Finally working</i><br><span class="ol">for you.</span></h1>
     <p class="hero-p">Sum Goals gives you a personal finance coach in your pocket — building budgets, crushing debt, and transforming your financial life in 90 days. Any currency. Any language. Any country.</p>
     <div class="hero-btns">
-      <button class="btn-main" onclick="goChat()">Start my transformation</button>
+      <button class="btn-main" onclick="openAuth('signup')">Start my transformation</button>
       <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See how it works</button>
     </div>
-    <p class="hero-note">Free to start · No credit card · 150+ currencies · 50+ languages</p>
+    <p class="hero-note">Free to start · No credit card · Cancel anytime</p>
+    <div class="trust-badges">
+      <div class="tbadge"><div class="tbadge-dot">✓</div>150+ currencies</div>
+      <div class="tbadge"><div class="tbadge-dot">✓</div>50+ languages</div>
+      <div class="tbadge"><div class="tbadge-dot">✓</div>Bank-grade security</div>
+    </div>
   </div>
   <div class="hero-r">
     <div class="dash">
       <div class="dash-top">
         <div class="dash-brand"><i>Sum</i> <span>Goals</span></div>
-        <div class="dash-user"><div class="dash-av">R</div>Rachid's dashboard</div>
+        <div class="dash-user"><div class="dash-av">R</div>My Dashboard</div>
       </div>
       <div class="dash-body">
-        <div class="score-hero">
-          <div class="score-left">
-            <div class="score-lbl">Financial Health</div>
-            <div class="score-num">74</div>
-            <div class="score-change">↑ +12 this month</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Day 47 of 90</div>
-            <div style="height:6px;background:var(--bg);border-radius:3px;width:120px"><div style="height:6px;background:var(--teal);border-radius:3px;width:52%"></div></div>
-            <div style="font-size:10px;color:var(--muted);margin-top:4px">90-Day Transformation</div>
-          </div>
+        <div class="score-card">
+          <div><div class="score-lbl" style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Financial Health</div><div class="score-num">74</div><div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px">+12 this month</div></div>
+          <div><div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-align:right">Day 47 of 90</div><div style="height:5px;background:var(--bg);border-radius:3px;width:100px"><div style="height:5px;background:var(--teal);border-radius:3px;width:52%"></div></div><div style="font-size:9px;color:var(--muted);margin-top:4px;text-align:right">Transformation</div></div>
         </div>
         <div class="dash-grid">
-          <div class="dash-stat"><div class="ds-lbl">Saved</div><div class="ds-val g">$580</div></div>
-          <div class="dash-stat"><div class="ds-lbl">Debt left</div><div class="ds-val r">$1,840</div></div>
-          <div class="dash-stat"><div class="ds-lbl">Score</div><div class="ds-val t">74/100</div></div>
-          <div class="dash-stat"><div class="ds-lbl">Days to go</div><div class="ds-val gold">43</div></div>
+          <div class="ds"><div class="ds-l">Saved</div><div class="ds-v g">$580</div></div>
+          <div class="ds"><div class="ds-l">Debt left</div><div class="ds-v r">$1,840</div></div>
+          <div class="ds"><div class="ds-l">Score</div><div class="ds-v t">74/100</div></div>
+          <div class="ds"><div class="ds-l">Days left</div><div class="ds-v gold">43</div></div>
         </div>
-        <div class="payday-card">
-          <div class="pc-top">
-            <div>
-              <div class="pc-lbl">Payday Countdown</div>
-              <div class="pc-sub">$44 daily budget remaining</div>
-            </div>
-            <div class="pc-days">5</div>
-          </div>
-          <div class="pc-bar"><div class="pc-fill"></div></div>
+        <div class="payday">
+          <div class="pd-top"><div><div class="pd-lbl">Payday Countdown</div><div class="pd-sub">$44 daily budget</div></div><div class="pd-days">5</div></div>
+          <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:6px"><div style="height:3px;background:var(--gold);border-radius:2px;width:58%"></div></div>
         </div>
-        <div class="maya-tip"><strong>Maya says:</strong> You're ahead of schedule. Move $80 to savings today — you'll hit your emergency fund goal 2 weeks early.</div>
+        <div class="maya-tip"><strong>Maya:</strong> Move $80 to savings today — you'll hit your emergency fund goal 2 weeks early.</div>
       </div>
     </div>
   </div>
@@ -382,227 +312,104 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
 
 <div class="mq">
   <div class="mq-track">
-    <div class="mq-item"><div class="mq-dot"></div>Meet Maya — your personal coach</div>
+    <div class="mq-item"><div class="mq-dot"></div>Personal dashboard</div>
+    <div class="mq-item"><div class="mq-dot"></div>Maya your coach</div>
     <div class="mq-item"><div class="mq-dot"></div>90-Day Transformation</div>
-    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
     <div class="mq-item"><div class="mq-dot"></div>Debt Race</div>
-    <div class="mq-item"><div class="mq-dot"></div>Payday Countdown</div>
+    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
     <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
     <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>Stripe payments</div>
+    <div class="mq-item"><div class="mq-dot"></div>Google login</div>
     <div class="mq-item"><div class="mq-dot"></div>Couples Mode</div>
     <div class="mq-item"><div class="mq-dot"></div>Senior Mode</div>
-    <div class="mq-item"><div class="mq-dot"></div>24/7 support</div>
-    <div class="mq-item"><div class="mq-dot"></div>Meet Maya — your personal coach</div>
+    <div class="mq-item"><div class="mq-dot"></div>Personal dashboard</div>
+    <div class="mq-item"><div class="mq-dot"></div>Maya your coach</div>
     <div class="mq-item"><div class="mq-dot"></div>90-Day Transformation</div>
-    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
     <div class="mq-item"><div class="mq-dot"></div>Debt Race</div>
-    <div class="mq-item"><div class="mq-dot"></div>Payday Countdown</div>
+    <div class="mq-item"><div class="mq-dot"></div>Money Mirror</div>
     <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
     <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>Stripe payments</div>
+    <div class="mq-item"><div class="mq-dot"></div>Google login</div>
     <div class="mq-item"><div class="mq-dot"></div>Couples Mode</div>
     <div class="mq-item"><div class="mq-dot"></div>Senior Mode</div>
-    <div class="mq-item"><div class="mq-dot"></div>24/7 support</div>
   </div>
 </div>
 
 <div class="trust-bar">
-  <div class="trust-item"><div class="trust-check">✓</div>Bank-grade privacy</div>
-  <div class="trust-item"><div class="trust-check">✓</div>No data stored</div>
-  <div class="trust-item"><div class="trust-check">✓</div>No bank connection needed</div>
-  <div class="trust-item"><div class="trust-check">✓</div>150+ currencies</div>
-  <div class="trust-item"><div class="trust-check">✓</div>7-day money back guarantee</div>
-  <div class="trust-item"><div class="trust-check">✓</div>24/7 automated support</div>
+  <div class="ti"><div class="tc">✓</div>Bank-grade security</div>
+  <div class="ti"><div class="tc">✓</div>Google login</div>
+  <div class="ti"><div class="tc">✓</div>Stripe payments</div>
+  <div class="ti"><div class="tc">✓</div>Your data, your privacy</div>
+  <div class="ti"><div class="tc">✓</div>7-day money back</div>
+  <div class="ti"><div class="tc">✓</div>24/7 support</div>
 </div>
 
 <!-- MAYA SECTION -->
-<div class="maya-section">
+<div class="maya-sec">
   <div class="maya-inner">
-    <div class="maya-profile">
+    <div>
       <div class="maya-big-av">M</div>
       <h2>Meet <span>Maya</span></h2>
-      <p class="maya-tagline">Your personal finance coach. Available 24/7. Judgment-free. In your language.</p>
+      <p class="maya-tagline">Your personal finance coach. Available 24/7. Judgment-free. In your language and currency.</p>
       <div class="maya-stats">
-        <div class="maya-stat"><div class="maya-stat-num">10K+</div><div class="maya-stat-lbl">People helped</div></div>
-        <div class="maya-stat"><div class="maya-stat-num">150+</div><div class="maya-stat-lbl">Currencies</div></div>
-        <div class="maya-stat"><div class="maya-stat-num">24/7</div><div class="maya-stat-lbl">Always here</div></div>
-        <div class="maya-stat"><div class="maya-stat-num">$0</div><div class="maya-stat-lbl">To start</div></div>
+        <div class="ms"><div class="ms-num">10K+</div><div class="ms-lbl">Helped</div></div>
+        <div class="ms"><div class="ms-num">150+</div><div class="ms-lbl">Currencies</div></div>
+        <div class="ms"><div class="ms-num">24/7</div><div class="ms-lbl">Available</div></div>
       </div>
     </div>
-    <div class="maya-chat-preview">
-      <div style="margin-top:18px">
-        <div class="user-msg">I make $2,400/month and I'm always broke. I have $3,800 in credit card debt and zero savings.</div>
+    <div class="maya-chat">
+      <div style="margin-top:14px">
+        <div class="mc-lbl u">You</div>
+        <div class="mc-msg u">I make $2,400/month and I'm always broke. $3,800 in credit card debt and zero savings.</div>
       </div>
-      <div style="margin-top:18px">
-        <div class="maya-msg">Honestly? You're not bad with money — you just never had a real plan. Let's fix that right now.<br><br>Here's what I see: you're spending everything because nothing has a job yet. We're going to change that today.<br><br><strong>Your 3 moves this week:</strong><br>→ $480 to debt (minimum + $200 extra)<br>→ $240 to emergency fund<br>→ $1,440 for all living expenses<br><br>At this rate — debt free in 8 months. What are your biggest monthly expenses?</div>
+      <div style="margin-top:14px">
+        <div class="mc-lbl m">Maya</div>
+        <div class="mc-msg m">Honestly? You're not bad with money — you just never had a real plan. Let's fix that right now.<br><br><strong>Your 3 moves this week:</strong><br>→ $480 to debt (minimum + $200 extra)<br>→ $240 to emergency fund<br>→ $1,440 for all expenses<br><br>At this rate — debt free in 8 months. What are your biggest expenses?</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- WHO IS IT FOR -->
-<section class="sec" id="features">
-  <div class="sec-tag">Built for everyone</div>
-  <h2 class="sec-h">Whatever your situation.<br><span class="d"><i>Maya has your plan.</i></span></h2>
-  <p class="sec-sub" style="margin-bottom:36px">Sum Goals works for every age, income, country and currency.</p>
-  <div class="audience-grid">
-    <div class="aud-card">
-      <div class="aud-icon" style="font-size:28px;color:var(--teal)">&#9679;</div>
-      <div class="aud-label">Young Adults</div>
-      <div class="aud-desc">First paycheck guide, side hustle tracker, student debt plans. Build wealth from day one.</div>
-    </div>
-    <div class="aud-card">
-      <div class="aud-icon" style="font-size:28px;color:var(--gold)">&#9679;</div>
-      <div class="aud-label">Families</div>
-      <div class="aud-desc">Couples mode, family budget, shared goals. Get on the same financial page together.</div>
-    </div>
-    <div class="aud-card">
-      <div class="aud-icon" style="font-size:28px;color:var(--teal)">&#9679;</div>
-      <div class="aud-label">Professionals</div>
-      <div class="aud-desc">Advanced debt strategies, investment readiness, tax prep budgeting. Optimize every dollar.</div>
-    </div>
-    <div class="aud-card">
-      <div class="aud-icon" style="font-size:28px;color:var(--gold)">&#9679;</div>
-      <div class="aud-label">Seniors</div>
-      <div class="aud-desc">Large text mode, retirement runway, fixed income optimizer. Built for life after 60.</div>
-    </div>
-  </div>
-</section>
-
 <!-- FEATURES -->
-<section class="sec" style="padding-top:0">
+<section class="sec" id="features">
   <div class="sec-tag">What makes Sum Goals different</div>
   <h2 class="sec-h">Features nobody else<br><i>has built yet.</i></h2>
-  <p class="sec-sub">Every feature was designed around one question: what do real people actually need when they're stressed about money?</p>
-
+  <p class="sec-sub">Every feature built around one question: what do real people actually need when stressed about money?</p>
   <div class="feat-grid">
-    <div class="feat wide">
-      <div class="feat-icon-num">01</div>
-      <h3 class="feat-t">The Money Mirror</h3>
-      <p class="feat-d">The world's most honest financial reality check. Maya analyzes your spending patterns and shows you exactly what your money habits say about you psychologically. Raw, eye-opening, life-changing. Nobody else does this.</p>
-      <span class="feat-badge excl">Only on Sum Goals</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">02</div>
-      <h3 class="feat-t">Financial Pressure Meter</h3>
-      <p class="feat-d">A real-time gauge showing how much financial pressure you're under — and the exact steps to reduce it today. Unique to Sum Goals.</p>
-      <span class="feat-badge excl">Exclusive</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">03</div>
-      <h3 class="feat-t">Debt Race Tracker</h3>
-      <p class="feat-d">Your debts visualized as a race. Watch them get eliminated one by one as you follow Maya's payoff plan. Turns stress into a game you can win.</p>
-      <span class="feat-badge excl">Exclusive</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num gold">04</div>
-      <h3 class="feat-t">Payday Countdown</h3>
-      <p class="feat-d">Real-time countdown to payday with automatic daily survival budget. Know exactly how much you can spend each day. No more panic.</p>
-      <span class="feat-badge excl">Exclusive</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num gold">05</div>
-      <h3 class="feat-t">Couples Mode</h3>
-      <p class="feat-d">Two people, one shared financial plan. Maya coaches you as a team — handling shared goals, different spending habits, and money conversations.</p>
-      <span class="feat-badge new">New</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num gold">06</div>
-      <h3 class="feat-t">Financial Emergency Kit</h3>
-      <p class="feat-d">Job loss, medical bill, divorce — one tap launches a complete emergency response plan for your specific crisis. When you need help most, Maya is there.</p>
-      <span class="feat-badge new">New</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">07</div>
-      <h3 class="feat-t">Money Personality Quiz</h3>
-      <p class="feat-d">60-second quiz reveals if you're a Spender, Saver, Avoider, or Optimizer. Maya then builds a custom plan for YOUR psychology.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">08</div>
-      <h3 class="feat-t">Financial Health Score</h3>
-      <p class="feat-d">Your money rated 0-100. Track your score improving week by week as you follow Maya's plan. See exactly what's holding you back.</p>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">09</div>
-      <h3 class="feat-t">Side Hustle Tracker</h3>
-      <p class="feat-d">Track income from multiple gig sources. Budget irregular income. Calculate taxes. Built for the gig economy generation.</p>
-      <span class="feat-badge new">New</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num gold">10</div>
-      <h3 class="feat-t">Senior Mode</h3>
-      <p class="feat-d">Large text, retirement runway calculator, fixed income optimizer. Built specifically for life after 60. No other finance app does this properly.</p>
-      <span class="feat-badge new">New</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num gold">11</div>
-      <h3 class="feat-t">Monthly Report Card</h3>
-      <p class="feat-d">Budget A+, Savings B-, Debt C. A shareable monthly grade card. People post these on TikTok. Your free marketing every month.</p>
-      <span class="feat-badge hot">Viral</span>
-    </div>
-    <div class="feat">
-      <div class="feat-icon-num">12</div>
-      <h3 class="feat-t">150+ Currencies · 50+ Languages</h3>
-      <p class="feat-d">Maya detects your language and currency automatically. USD, EUR, MAD, MXN, PKR, BRL — every country, every currency, your plan.</p>
-    </div>
+    <div class="feat wide"><div class="feat-num">01</div><h3 class="feat-t">The Money Mirror</h3><p class="feat-d">The world's most honest financial reality check. Maya analyzes your spending patterns and reveals exactly what your money habits say about you psychologically. Nobody else does this.</p><span class="feat-badge excl">Only on Sum Goals</span></div>
+    <div class="feat"><div class="feat-num">02</div><h3 class="feat-t">Financial Pressure Meter</h3><p class="feat-d">A real-time gauge showing your financial stress level and exact steps to reduce it today.</p><span class="feat-badge excl">Exclusive</span></div>
+    <div class="feat"><div class="feat-num">03</div><h3 class="feat-t">Debt Race Tracker</h3><p class="feat-d">Your debts visualized as a race. Watch them get eliminated one by one following Maya's plan.</p><span class="feat-badge excl">Exclusive</span></div>
+    <div class="feat"><div class="feat-num gold">04</div><h3 class="feat-t">Payday Countdown</h3><p class="feat-d">Real-time countdown with automatic daily survival budget. No more panic before payday.</p></div>
+    <div class="feat"><div class="feat-num gold">05</div><h3 class="feat-t">Couples Mode</h3><p class="feat-d">Two people, one financial plan. Maya coaches you as a team — shared goals, different habits, money conversations handled.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">06</div><h3 class="feat-t">Senior Mode</h3><p class="feat-d">Large text, retirement runway, fixed income optimizer. Built specifically for life after 60.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">07</div><h3 class="feat-t">Money Personality Quiz</h3><p class="feat-d">60-second quiz reveals if you're Spender, Saver, Avoider, or Optimizer. Custom plan for your psychology.</p></div>
+    <div class="feat"><div class="feat-num gold">08</div><h3 class="feat-t">Emergency Kit</h3><p class="feat-d">Job loss, medical bill, divorce — one tap launches a complete emergency response plan.</p><span class="feat-badge new">New</span></div>
+    <div class="feat"><div class="feat-num">09</div><h3 class="feat-t">150+ Currencies · 50+ Languages</h3><p class="feat-d">Maya detects your language and currency automatically. USD, EUR, MAD, MXN, PKR, BRL — every country.</p></div>
   </div>
 </section>
 
-<!-- 90 DAY PLAN -->
-<div class="plan-section" id="plan">
+<!-- 90 DAY -->
+<div class="plan-sec" id="plan">
   <div class="plan-inner">
     <div class="sec-tag">The transformation</div>
-    <h2 class="sec-h">90 days.<br><i>A completely new financial life.</i></h2>
-    <p class="sec-sub">The only structured financial transformation program in the world. Maya guides you through every single day.</p>
-    <div class="plan-weeks">
-      <div class="week-card">
-        <div class="week-num">Month 1 — Weeks 1-4</div>
-        <div class="week-title">The Audit</div>
-        <ul class="week-items">
-          <li>Complete financial picture</li>
-          <li>Identify every money leak</li>
-          <li>Personality assessment</li>
-          <li>Emergency fund started</li>
-        </ul>
-      </div>
-      <div class="week-card" style="border-color:var(--teal-border)">
-        <div class="week-num">Month 2 — Weeks 5-8</div>
-        <div class="week-title">The Plan</div>
-        <ul class="week-items">
-          <li>Complete budget built</li>
-          <li>Debt race started</li>
-          <li>Savings automation</li>
-          <li>First milestone hit</li>
-        </ul>
-      </div>
-      <div class="week-card">
-        <div class="week-num">Month 3 — Weeks 9-12</div>
-        <div class="week-title">The Momentum</div>
-        <ul class="week-items">
-          <li>Debt visibly shrinking</li>
-          <li>Emergency fund complete</li>
-          <li>Score above 70</li>
-          <li>New financial habits locked in</li>
-        </ul>
-      </div>
-      <div class="week-card" style="border-color:var(--gold-border)">
-        <div class="week-num">Day 90</div>
-        <div class="week-title">The New You</div>
-        <ul class="week-items">
-          <li>Financial report card</li>
-          <li>Next 90-day plan</li>
-          <li>Shareable milestone badge</li>
-          <li>Financial freedom on track</li>
-        </ul>
-      </div>
+    <h2 class="sec-h">90 days.<br><i>A new financial life.</i></h2>
+    <p class="sec-sub">The only structured financial transformation program in the world. Maya guides every single day.</p>
+    <div class="weeks">
+      <div class="week"><div class="wk-num">Month 1</div><div class="wk-title">The Audit</div><ul class="wk-items"><li>Complete financial picture</li><li>Identify money leaks</li><li>Personality assessment</li><li>Emergency fund started</li></ul></div>
+      <div class="week highlight"><div class="wk-num">Month 2</div><div class="wk-title">The Plan</div><ul class="wk-items"><li>Complete budget built</li><li>Debt race started</li><li>Savings automation</li><li>First milestone hit</li></ul></div>
+      <div class="week"><div class="wk-num">Month 3</div><div class="wk-title">The Momentum</div><ul class="wk-items"><li>Debt visibly shrinking</li><li>Emergency fund done</li><li>Score above 70</li><li>New habits locked in</li></ul></div>
+      <div class="week" style="border-color:var(--gold-border)"><div class="wk-num">Day 90</div><div class="wk-title">The New You</div><ul class="wk-items"><li>Financial report card</li><li>Next 90-day plan</li><li>Shareable milestone</li><li>Freedom on track</li></ul></div>
     </div>
   </div>
 </div>
 
 <!-- STATS -->
-<div class="stats-section">
+<div class="stats-sec">
   <div class="stats-inner">
-    <div><div class="stat-big">150+</div><div class="stat-lbl">Currencies supported</div></div>
-    <div><div class="stat-big">50+</div><div class="stat-lbl">Languages available</div></div>
+    <div><div class="stat-big">150+</div><div class="stat-lbl">Currencies</div></div>
+    <div><div class="stat-big">50+</div><div class="stat-lbl">Languages</div></div>
     <div><div class="stat-big">90</div><div class="stat-lbl">Days to transform</div></div>
     <div><div class="stat-big">$0</div><div class="stat-lbl">To start today</div></div>
   </div>
@@ -611,48 +418,36 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
 <!-- PROOF -->
 <section class="sec">
   <div class="sec-tag">Real results</div>
-  <h2 class="sec-h" style="margin-bottom:12px">Real people.<br><i>Real change.</i></h2>
-  <p class="sec-sub" style="margin-bottom:36px">From Morocco to Mexico to Pakistan — Maya works everywhere.</p>
+  <h2 class="sec-h" style="margin-bottom:10px">Real people.<br><i>Real change.</i></h2>
+  <p class="sec-sub" style="margin-bottom:32px">From Morocco to Mexico — Maya works everywhere.</p>
   <div class="proof-grid">
-    <div class="proof">
-      <div class="proof-stars">★★★★★</div>
-      <p class="proof-t">"Maya built me a budget in 2 minutes and I <strong>saved $380 my first month.</strong> I've never saved anything in my life before this."</p>
-      <div class="proof-a"><div class="proof-av" style="background:#0D2A1A;color:#4CAF82">M</div><div><div class="proof-n">Maria R.</div><div class="proof-loc">Texas, USA · USD</div></div></div>
-    </div>
-    <div class="proof">
-      <div class="proof-stars">★★★★★</div>
-      <p class="proof-t">"Maya habla español y usa pesos. <strong>Pagué $31,000 MXN de deuda en 4 meses.</strong> Increíble."</p>
-      <div class="proof-a"><div class="proof-av" style="background:#1A1A0D;color:#FFB347">C</div><div><div class="proof-n">Carlos M.</div><div class="proof-loc">Ciudad de México · MXN</div></div></div>
-    </div>
-    <div class="proof">
-      <div class="proof-stars">★★★★★</div>
-      <p class="proof-t">"تكلمت مع مايا بالعربية بالدرهم المغربي. <strong>أول مرة في حياتي عندي مدخرات.</strong>"</p>
-      <div class="proof-a"><div class="proof-av" style="background:#1A0D0D;color:#FF6B6B">Y</div><div><div class="proof-n">Youssef A.</div><div class="proof-loc">Casablanca, Morocco · MAD</div></div></div>
-    </div>
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"The Payday Countdown alone changed my life. <strong>Saved $380 my first month.</strong> Never saved anything before."</p><div class="proof-a"><div class="proof-av" style="background:#0D2A1A;color:#4CAF82">M</div><div><div class="proof-n">Maria R.</div><div class="proof-loc">Texas, USA · USD</div></div></div></div>
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"Maya en español con pesos. <strong>Pagué $31,000 MXN de deuda en 4 meses.</strong> Increíble."</p><div class="proof-a"><div class="proof-av" style="background:#1A1A0D;color:#FFB347">C</div><div><div class="proof-n">Carlos M.</div><div class="proof-loc">México · MXN</div></div></div></div>
+    <div class="proof"><div class="proof-stars">★★★★★</div><p class="proof-t">"تكلمت مع مايا بالعربية. <strong>أول مرة في حياتي عندي مدخرات.</strong>"</p><div class="proof-a"><div class="proof-av" style="background:#1A0D0D;color:#FF6B6B">Y</div><div><div class="proof-n">Youssef A.</div><div class="proof-loc">Casablanca · MAD</div></div></div></div>
   </div>
 </section>
 
 <!-- PRICING -->
 <section class="sec" style="padding-top:0" id="pricing">
   <div class="sec-tag">Pricing</div>
-  <h2 class="sec-h" style="margin-bottom:12px">Your currency.<br><i>Your transformation.</i></h2>
-  <p class="sec-sub" style="margin-bottom:36px">Less than a coffee. More valuable than any financial advisor.</p>
+  <h2 class="sec-h" style="margin-bottom:10px">Simple pricing.<br><i>Life-changing results.</i></h2>
+  <p class="sec-sub" style="margin-bottom:32px">Less than a coffee. More valuable than any financial advisor.</p>
   <div class="plan-grid">
     <div class="plan">
       <div class="plan-tier">Starter</div>
       <div class="plan-price">$0</div>
       <div class="plan-cycle">free forever</div>
       <ul class="plan-ul">
-        <li>Meet Maya — your coach</li>
+        <li>Personal dashboard</li>
+        <li>Maya coaching — 5 sessions/day</li>
         <li>Budget builder</li>
         <li>Payday countdown</li>
         <li>150+ currencies · 50+ languages</li>
-        <li>5 sessions per day</li>
         <li class="off">90-Day Transformation</li>
         <li class="off">Debt Race + Money Mirror</li>
         <li class="off">Couples + Senior Mode</li>
       </ul>
-      <button class="btn-plan o" onclick="goChat()">Start free with Maya</button>
+      <button class="btn-plan o" onclick="openAuth('signup')">Create free account</button>
     </div>
     <div class="plan hot">
       <div class="plan-tag">Most popular</div>
@@ -661,17 +456,15 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
       <div class="plan-cycle">cancel anytime</div>
       <ul class="plan-ul">
         <li>Everything in Starter</li>
-        <li>Unlimited sessions with Maya</li>
-        <li>90-Day Transformation program</li>
-        <li>Debt Race tracker</li>
-        <li>Money Mirror</li>
+        <li>Unlimited Maya sessions</li>
+        <li>90-Day Transformation</li>
+        <li>Debt Race + Money Mirror</li>
         <li>Financial Pressure Meter</li>
         <li>Couples + Senior Mode</li>
-        <li>Monthly Report Card</li>
         <li>Emergency Kit</li>
-        <li>Priority support</li>
+        <li>Monthly Report Card</li>
       </ul>
-      <button class="btn-plan s" onclick="goChat()">Start 90-Day Transformation</button>
+      <button class="btn-plan s" onclick="handleUpgrade('pro')">Start transformation — $9/mo</button>
     </div>
     <div class="plan">
       <div class="plan-tier">Lifetime</div>
@@ -680,10 +473,10 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
       <ul class="plan-ul">
         <li>Everything in Pro</li>
         <li>Pay once, use forever</li>
-        <li>All future features included</li>
+        <li>All future features</li>
         <li>No monthly fees ever</li>
       </ul>
-      <button class="btn-plan b" onclick="goChat()">Own it forever — $29</button>
+      <button class="btn-plan b" onclick="handleUpgrade('lifetime')">Own it forever — $29</button>
     </div>
   </div>
 </section>
@@ -692,145 +485,54 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
   <div class="foot-logo"><i>Sum</i> <span>Goals</span></div>
   <div class="foot-copy">© 2026 Sum Goals. Built for everyone, everywhere.</div>
   <div class="foot-links">
-    <a href="#" onclick="showPage('privacy');return false">Privacy</a>
-    <a href="#" onclick="showPage('terms');return false">Terms</a>
-    <a href="#" onclick="showPage('support-page');return false">Support</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/support">Support</a>
   </div>
 </footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <div class="modal-logo"><i>Sum</i> <span>Goals</span></div>
+    <div class="modal-subtitle" id="modalSubtitle">Transform your financial life today</div>
+    <div class="modal-tabs">
+      <button class="mtab active" id="tabSignup" onclick="switchTab('signup')">Create account</button>
+      <button class="mtab" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+    </div>
+    <div id="authError" class="auth-error"></div>
+    <div id="authSuccess" class="auth-success"></div>
+    <div id="signupForm">
+      <div class="form-group"><label>Full name</label><input class="form-input" id="signupName" type="text" placeholder="Your name"></div>
+      <div class="form-group"><label>Email</label><input class="form-input" id="signupEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label>Password</label><input class="form-input" id="signupPassword" type="password" placeholder="Min 8 characters"></div>
+      <button class="btn-auth" id="signupBtn" onclick="handleSignup()">Create my free account</button>
+    </div>
+    <div id="loginForm" style="display:none">
+      <div class="form-group"><label>Email</label><input class="form-input" id="loginEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label>Password</label><input class="form-input" id="loginPassword" type="password" placeholder="Your password"></div>
+      <button class="btn-auth" id="loginBtn" onclick="handleLogin()">Sign in to my account</button>
+    </div>
+    <div class="divider">or continue with</div>
+    <button class="btn-google" onclick="handleGoogle()">
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
 </div>
 
-<!-- ══ CHAT PAGE ══ -->
-<div id="chat" class="page">
-<div class="chat-wrap">
-  <div class="chat-top">
-    <div class="chat-brand"><i>Sum</i> <span>Goals</span></div>
-    <div class="chat-maya">
-      <div class="chat-maya-av">M</div>
-      <div class="chat-maya-info">
-        <div class="chat-maya-name">Maya</div>
-        <div class="chat-maya-status"><div class="odot"></div>Available now</div>
-      </div>
-    </div>
-    <button class="btn-back" onclick="showPage('land')">← Back</button>
-  </div>
-  <div class="free-bar">
-    <span>You're on the <strong>free plan</strong> — 5 sessions today</span>
-    <button class="btn-up" onclick="showPage('land');setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),100)">Upgrade to Pro</button>
-  </div>
-  <div class="ftabs">
-    <button class="ftab active" onclick="setMode('coach',this)">Maya — Coach</button>
-    <button class="ftab" onclick="setMode('budget',this)">Budget Builder</button>
-    <button class="ftab" onclick="setMode('payday',this)">Payday Countdown</button>
-    <button class="ftab" onclick="setMode('debt',this)">Debt Race</button>
-    <button class="ftab" onclick="setMode('score',this)">Health Score</button>
-    <button class="ftab" onclick="setMode('mirror',this)">Money Mirror</button>
-    <button class="ftab" onclick="setMode('personality',this)">Personality Quiz</button>
-    <button class="ftab" onclick="setMode('transformation',this)">90-Day Plan</button>
-    <button class="ftab" onclick="setMode('couples',this)">Couples Mode</button>
-    <button class="ftab" onclick="setMode('senior',this)">Senior Mode</button>
-    <button class="ftab" onclick="setMode('emergency',this)">Emergency Kit</button>
-    <button class="ftab" onclick="setMode('survival',this)">Survival Mode</button>
-    <button class="ftab" onclick="setMode('hustle',this)">Side Hustle</button>
-  </div>
-  <div class="msgs" id="msgs">
-    <div class="mrow bot">
-      <div class="sender-name">Maya</div>
-      <div class="mbub">
-        Hey — I'm Maya, your Sum Goals coach. Really glad you're here. 💚<br><br>
-        I work in <strong>your currency</strong> and <strong>your language</strong> — just tell me where you're from.<br><br>
-        I can help you <strong>build a budget</strong>, <strong>crush your debt</strong>, <strong>survive until payday</strong>, <strong>start your 90-day transformation</strong>, or anything else money-related.<br><br>
-        <strong>What's your money situation right now?</strong>
-      </div>
-    </div>
-  </div>
-  <div class="chips" id="chips">
-    <button class="chip" onclick="quickSend('Build me a complete budget — I will tell you my income')">Build my budget</button>
-    <button class="chip" onclick="quickSend('Start my 90-Day Financial Transformation')">90-Day Plan</button>
-    <button class="chip" onclick="quickSend('Show me the Money Mirror — analyze my money habits')">Money Mirror</button>
-    <button class="chip" onclick="quickSend('Payday countdown — help me survive until payday')">Payday survival</button>
-    <button class="chip" onclick="quickSend('Start the Debt Race — help me pay off my debts')">Debt Race</button>
-    <button class="chip" onclick="quickSend('Give me my Financial Health Score')">Health Score</button>
-    <button class="chip" onclick="quickSend('Take me through the Money Personality Quiz')">Personality Quiz</button>
-    <button class="chip" onclick="quickSend('I need the Emergency Kit — financial crisis')">Emergency Kit</button>
-  </div>
-  <div class="inp-zone">
-    <div class="inp-box">
-      <textarea id="inp" class="inp" placeholder="Tell Maya your currency and situation..." rows="1" onkeydown="hk(event)" oninput="ag(this)"></textarea>
-      <button class="send-btn" id="sb" onclick="send()">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
-    </div>
-    <p class="inp-note">Sum Goals provides personalized guidance, not certified financial advice · Global · All currencies · All languages</p>
-  </div>
-</div>
-</div>
-
-<!-- ══ SUPPORT PAGES ══ -->
-<div id="privacy" class="page">
-  <nav><div class="logo"><i>Sum</i> <span>Goals</span></div><div class="nav-r"><button class="btn-cta" onclick="showPage('land')">← Back</button></div></nav>
-  <div class="legal-wrap">
-    <div class="legal-tag">Legal</div><h1 class="legal-h">Privacy Policy</h1><p class="legal-date">Last updated: April 2026</p>
-    <div class="legal-body">
-      <div><h2>1. Who we are</h2><p>Sum Goals is a personal finance coaching platform serving users globally across all currencies and languages.</p></div>
-      <div><h2>2. What data we collect</h2><p>Sum Goals collects minimal data. Conversations are processed in real-time but <strong style="color:var(--white)">not stored on our servers</strong>. We never collect bank credentials or financial account details.</p></div>
-      <div><h2>3. How we use your data</h2><p>Data is used solely to provide and improve Sum Goals. We never sell your data or use it for advertising.</p></div>
-      <div><h2>4. Payments</h2><p>Payments are processed by secure third-party providers. We never store payment card details.</p></div>
-      <div><h2>5. Contact</h2><p>Questions? Email <a href="mailto:support@sumgoals.com" style="color:var(--teal)">support@sumgoals.com</a></p></div>
-    </div>
-  </div>
-  <footer><div class="foot-logo"><i>Sum</i> <span>Goals</span></div><div class="foot-copy">© 2026 Sum Goals</div><div class="foot-links"><a href="#" onclick="showPage('privacy');return false">Privacy</a><a href="#" onclick="showPage('terms');return false">Terms</a><a href="#" onclick="showPage('support-page');return false">Support</a></div></footer>
-</div>
-
-<div id="terms" class="page">
-  <nav><div class="logo"><i>Sum</i> <span>Goals</span></div><div class="nav-r"><button class="btn-cta" onclick="showPage('land')">← Back</button></div></nav>
-  <div class="legal-wrap">
-    <div class="legal-tag">Legal</div><h1 class="legal-h">Terms of Service</h1><p class="legal-date">Last updated: April 2026</p>
-    <div class="legal-body">
-      <div><h2>1. Acceptance</h2><p>By using Sum Goals, you agree to these Terms.</p></div>
-      <div><h2>2. Service</h2><p>Sum Goals is a personal finance coaching platform. <strong style="color:var(--white)">Sum Goals is not a licensed financial advisor.</strong> All guidance is educational and should not replace professional advice.</p></div>
-      <div><h2>3. Payments and refunds</h2><p>Monthly subscriptions cancel anytime. 7-day money-back guarantee on all paid plans. Email support@sumgoals.com.</p></div>
-      <div><h2>4. Contact</h2><p>Questions? <a href="mailto:support@sumgoals.com" style="color:var(--teal)">support@sumgoals.com</a></p></div>
-    </div>
-  </div>
-  <footer><div class="foot-logo"><i>Sum</i> <span>Goals</span></div><div class="foot-copy">© 2026 Sum Goals</div><div class="foot-links"><a href="#" onclick="showPage('privacy');return false">Privacy</a><a href="#" onclick="showPage('terms');return false">Terms</a><a href="#" onclick="showPage('support-page');return false">Support</a></div></footer>
-</div>
-
-<div id="support-page" class="page">
-  <nav><div class="logo"><i>Sum</i> <span>Goals</span></div><div class="nav-r"><button class="btn-cta" onclick="showPage('land')">← Back</button></div></nav>
-  <div class="legal-wrap">
-    <div class="legal-tag">Help</div><h1 class="legal-h">Support</h1><p class="legal-date">Automated support available 24/7. Email responses within 24 hours.</p>
-    <div style="margin-bottom:28px">
-      <a href="mailto:support@sumgoals.com" style="display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;text-decoration:none">
-        <div style="width:38px;height:38px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--teal);font-size:16px;flex-shrink:0">→</div>
-        <div><div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:2px">Email support</div><div style="font-size:12px;color:var(--muted)">support@sumgoals.com · reply within 24h</div></div>
-      </a>
-    </div>
-    <h2 style="font-family:var(--font-head);font-size:24px;font-style:italic;margin-bottom:14px">FAQ</h2>
-    <details class="faq-item"><summary>How do I upgrade to Pro?</summary><p>Click "Upgrade to Pro" inside the app or visit our pricing page. Instant access after payment.</p></details>
-    <details class="faq-item"><summary>Which currencies does Sum Goals support?</summary><p>150+ currencies including USD, EUR, GBP, MAD, MXN, PKR, BRL, AED, INR and more. Just tell Maya your currency.</p></details>
-    <details class="faq-item"><summary>Which languages does Sum Goals support?</summary><p>Maya detects your language automatically. English, Spanish, French, Arabic, Portuguese, Italian, and 40+ more.</p></details>
-    <details class="faq-item"><summary>Is my data safe?</summary><p>Yes. Sum Goals does not store conversations. Each session is private and independent. We never connect to bank accounts.</p></details>
-    <details class="faq-item"><summary>Can I get a refund?</summary><p>Yes — 7-day money-back guarantee. Email support@sumgoals.com with your purchase details.</p></details>
-    <details class="faq-item"><summary>What is the 90-Day Transformation?</summary><p>A structured 3-month program where Maya guides you step by step through auditing, budgeting, debt elimination and savings — completely personalized to your situation.</p></details>
-  </div>
-  <footer><div class="foot-logo"><i>Sum</i> <span>Goals</span></div><div class="foot-copy">© 2026 Sum Goals</div><div class="foot-links"><a href="#" onclick="showPage('privacy');return false">Privacy</a><a href="#" onclick="showPage('terms');return false">Terms</a><a href="#" onclick="showPage('support-page');return false">Support</a></div></footer>
-</div>
-
-<!-- ══ SUPPORT CHAT WIDGET ══ -->
-<button class="support-fab" onclick="toggleSupport()" id="supportFab" title="Sum Goals Support">
-  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+<!-- SUPPORT WIDGET -->
+<button class="sup-fab" onclick="toggleSupport()">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
 </button>
-
-<div class="support-panel" id="supportPanel">
+<div class="sup-panel" id="supPanel">
   <div class="sup-top">
-    <div class="sup-title">
-      <div class="sup-av">SG</div>
-      <div><div class="sup-name">Sum Goals Support</div><div class="sup-status">Automated · Always available</div></div>
-    </div>
+    <div class="sup-info"><div class="sup-av">SG</div><div><div class="sup-name">Sum Goals Support</div><div class="sup-status">Always available</div></div></div>
     <button class="sup-close" onclick="toggleSupport()">×</button>
   </div>
   <div class="sup-msgs" id="supMsgs">
-    <div class="sup-msg bot">Hi! I'm Sum Goals Support — I'm here to help 24/7. Ask me anything about the app, your subscription, or how to get the most out of Maya.</div>
+    <div class="sup-msg bot">Hi! I'm here to help 24/7. Ask me anything about Sum Goals.</div>
   </div>
   <div class="sup-inp-row">
     <input class="sup-inp" id="supInp" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendSupport()">
@@ -839,134 +541,149 @@ footer{border-top:1px solid var(--border);padding:32px 48px;display:flex;align-i
 </div>
 
 <script>
-const MODES = {
-  coach:`You are Maya, a warm, sharp, and deeply practical personal finance coach for Sum Goals. Your personality: direct and honest like a smart friend, never preachy, always specific with numbers. NEVER mention AI, bots, ChatGPT, Claude, or any technology. You ARE Maya — a real finance coach. Always detect language and respond in it. Always use the user's currency. End every response with "**Your move today:** [one specific action]". Never use emojis or hashtags.`,
-  budget:`You are Maya, Sum Goals budget specialist. Build complete personalized monthly budgets in the user's currency. Ask for income and all expenses. Deliver exact amounts per category using 50/30/20 as a starting point. Never mention AI. Match language. End with "**Your move today:**"`,
-  payday:`You are Maya, Sum Goals payday survival specialist. Ask: days until payday, current balance, fixed costs, currency. Calculate daily survival budget, give day-by-day spending plan, tips to stretch money. Never mention AI. Match language. End with "**Your move today:**"`,
-  debt:`You are Maya, Sum Goals Debt Race specialist. Ask all debts: name, balance, rate, minimum payment, currency. Provide snowball AND avalanche plans with exact payoff dates. Show which debt gets eliminated first. Never mention AI. Match language. End with "**Your move today:**"`,
-  score:`You are Maya, Sum Goals Health Score specialist. Ask: income, expenses, total debt, monthly savings, emergency fund, currency. Score 0-100 across 4 areas. Give 3 specific improvement actions. Never mention AI. Match language. End with "**Your move today:**"`,
-  mirror:`You are Maya running the Money Mirror — the most honest financial reality check available. Ask the user about their spending patterns, then give a brutally honest but compassionate analysis of what their money habits reveal about them psychologically. Be specific, insightful, eye-opening. This should feel like a revelation. Never mention AI. Match language. End with "**Your move today:**"`,
-  personality:`You are Maya running the Sum Goals Money Personality Quiz. Ask 5 questions one at a time. After all answers reveal: Spender, Avoider, Saver, or Optimizer. Give fun detailed description and custom 3-step plan for their type. Never mention AI. Match language.`,
-  transformation:`You are Maya running the 90-Day Financial Transformation. This is a structured program. Ask: current financial situation, income, biggest challenges, currency. Then outline their personalized 90-day program: Month 1 audit and foundation, Month 2 debt and savings systems, Month 3 momentum and habits. Give week 1 specific daily actions. Never mention AI. Match language. End with "**Your move today:**"`,
-  couples:`You are Maya running Couples Mode. Two people, one financial plan. Ask about both people's incomes, expenses, shared goals, and any financial disagreements. Build a unified plan that respects both personalities. Handle money conversations with care. Never mention AI. Match language. End with "**Your move today:**"`,
-  senior:`You are Maya in Senior Mode. Use clear simple language. Larger text implied. Focus on: fixed income optimization, retirement runway (how long savings will last), Social Security or pension budgeting, healthcare cost planning, legacy and estate basics. Ask about their income source, monthly expenses, and savings. Never mention AI. Match language. End with "**Your move today:**"`,
-  emergency:`You are Maya running the Financial Emergency Kit. Ask what type of crisis: job loss, medical bill, divorce, major unexpected expense, or other. Then give a complete immediate action plan for their specific crisis type. Be calm, practical, and compassionate. Cover: immediate cash needs, what to pause, who to call, 30-day survival plan. Never mention AI. Match language. End with "**Your move today:**"`,
-  survival:`You are Maya in Survival Mode. Someone is broke before payday. Ask: exact balance now, days until payday, must-pay expenses, currency. Give immediate day-by-day survival plan. Be like a calm friend. Never mention AI. Match language. End with "**Your move today:**"`,
-  hustle:`You are Maya, Sum Goals Side Hustle Tracker specialist. Help track income from multiple gig sources. Ask about all income streams. Calculate taxes owed, build a budget for irregular income, and help maximize take-home pay. Perfect for freelancers, gig workers, creators. Never mention AI. Match language. End with "**Your move today:**"`
-};
+const SUPABASE_URL = 'SUPABASE_URL_PLACEHOLDER';
+const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const SUPPORT_PROMPT=`You are Sum Goals Support — a friendly, helpful automated support assistant for the Sum Goals personal finance app. Answer questions about: how the app works, subscription plans (Free: 5 sessions/day, Pro: $9/month unlimited, Lifetime: $29 one-time), refund policy (7-day guarantee), currencies (150+), languages (50+), Maya the coach, features like 90-Day Transformation, Debt Race, Money Mirror, Payday Countdown, Couples Mode, Senior Mode. Always be helpful and warm. If you cannot answer, say to email support@sumgoals.com. Never mention AI or Claude. You are Sum Goals Support.`;
+// Check auth state on load
+sb.auth.onAuthStateChange((event, session) => {
+  if (session && event === 'SIGNED_IN') {
+    window.location.href = '/dashboard.html';
+  }
+});
 
-let currentMode='coach',history=[],count=0,supHistory=[];
-const LIMIT=5;
-
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
-function goChat(){showPage('chat')}
-
-function setMode(mode,btn){
-  currentMode=mode;
-  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  history=[];
-  const msgs=document.getElementById('msgs');
-  msgs.innerHTML='';
-  const welcomes={
-    coach:"Hey — I'm Maya. Tell me your currency and what's going on with your money. <strong>What do you need help with today?</strong>",
-    budget:"Let's build your budget. <strong>What's your monthly income after taxes? And what currency?</strong>",
-    payday:"Payday Countdown. <strong>How many days until payday? What's your current balance and currency?</strong>",
-    debt:"Debt Race starting. <strong>Tell me all your debts — name, balance, interest rate. What currency?</strong>",
-    score:"Health Score check. <strong>Tell me your monthly income, expenses, total debt, and savings. What currency?</strong>",
-    mirror:"The Money Mirror — I'm going to show you exactly what your money habits reveal about you. <strong>Tell me: what do you spend most of your money on, and what was your last impulse purchase?</strong>",
-    personality:"Money Personality Quiz — 5 questions, 60 seconds, and I'll know exactly how your mind works with money. Ready? <strong>Question 1: When you get paid, what's the very first thing you do?</strong>",
-    transformation:"Your 90-Day Financial Transformation starts now. This is the program that changes everything. <strong>First — tell me your current situation: income, biggest financial problem, and what currency you use.</strong>",
-    couples:"Couples Mode activated. Let's get you both on the same financial page. <strong>Start by telling me both your incomes and your biggest shared financial challenge. What currency?</strong>",
-    senior:"Senior Mode. I'll keep everything clear and simple. <strong>Tell me about your income — pension, Social Security, or other fixed income — and your currency.</strong>",
-    emergency:"Financial Emergency Kit. I'm here to help you through this. <strong>What type of crisis are you facing — job loss, medical bill, divorce, or something else?</strong>",
-    survival:"Survival Mode. Let's get you through this. <strong>How much money do you have right now, and how many days until your next payday? What currency?</strong>",
-    hustle:"Side Hustle Tracker. Let's organize all your income streams. <strong>Tell me all the ways you earn money and your currency.</strong>"
-  };
-  addMsg('bot',welcomes[mode]);
-  document.getElementById('chips').style.display='none';
+function openAuth(tab) {
+  document.getElementById('authModal').classList.add('open');
+  switchTab(tab);
+  document.body.style.overflow = 'hidden';
+}
+function closeAuth() {
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow = '';
+  clearErrors();
+}
+function switchTab(tab) {
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('modalSubtitle').textContent = tab === 'signup' ? 'Transform your financial life today' : 'Welcome back to Sum Goals';
+  clearErrors();
+}
+function showError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
+}
+function clearErrors() {
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.innerHTML = loading ? '<span class="spinner"></span>' : btn.dataset.label || btn.textContent;
 }
 
-function ag(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
-function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}}
-function quickSend(t){document.getElementById('inp').value=t;document.getElementById('chips').style.display='none';send()}
-
-function addMsg(role,html){
-  const c=document.getElementById('msgs');
-  const row=document.createElement('div');row.className='mrow '+(role==='bot'?'bot':'usr');
-  const name=document.createElement('div');name.className='sender-name';name.textContent=role==='bot'?'Maya':'You';
-  const bub=document.createElement('div');bub.className='mbub';bub.innerHTML=html;
-  row.appendChild(name);row.appendChild(bub);c.appendChild(row);
-  c.scrollTop=c.scrollHeight;
+async function handleSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPassword').value;
+  if (!name || !email || !pass) return showError('Please fill in all fields');
+  if (pass.length < 8) return showError('Password must be at least 8 characters');
+  setLoading('signupBtn', true);
+  const { error } = await sb.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name } }
+  });
+  setLoading('signupBtn', false);
+  if (error) return showError(error.message);
+  showSuccess('Account created! Check your email to confirm, then sign in.');
 }
 
-function showTyping(){
-  const c=document.getElementById('msgs');
-  const row=document.createElement('div');row.className='mrow bot';row.id='typing';
-  const name=document.createElement('div');name.className='sender-name';name.textContent='Maya';
-  const bub=document.createElement('div');bub.className='mbub';
-  bub.innerHTML='<div class="typing-wrap"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
-  row.appendChild(name);row.appendChild(bub);c.appendChild(row);c.scrollTop=c.scrollHeight;
-}
-function rmTyping(){const el=document.getElementById('typing');if(el)el.remove()}
-function fmt(t){
-  return t
-    .replace(/#{1,3}\s+/g,'')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    .replace(/\n\n/g,'<br><br>')
-    .replace(/\n/g,'<br>')
-    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu,'')
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  if (!email || !pass) return showError('Please enter email and password');
+  setLoading('loginBtn', true);
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  setLoading('loginBtn', false);
+  if (error) return showError(error.message);
 }
 
-async function send(){
-  const inp=document.getElementById('inp');
-  const text=inp.value.trim();
-  if(!text)return;
-  if(count>=LIMIT){addMsg('bot',"You've used your <strong>5 free sessions</strong> for today.<br><br>Upgrade to <strong>Pro for $9/month</strong> for unlimited sessions with Maya, the full 90-Day Transformation, and all premium features.<br><br><a href='#' style='color:var(--teal)' onclick='showPage(\"land\")'>See plans →</a>");return}
-  inp.value='';inp.style.height='auto';
-  document.getElementById('sb').disabled=true;
-  addMsg('user',text);history.push({role:'user',content:text});count++;showTyping();
-  try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history,mode:currentMode})});
-    const data=await res.json();rmTyping();
-    if(data.reply){history.push({role:'assistant',content:data.reply});addMsg('bot',fmt(data.reply))}
-    else addMsg('bot','Something went wrong. Please try again.');
-  }catch(e){rmTyping();addMsg('bot','Connection issue. Please try again.')}
-  document.getElementById('sb').disabled=false;inp.focus();
+async function handleGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
+  if (error) showError(error.message);
 }
 
-/* SUPPORT CHAT */
-function toggleSupport(){
-  const p=document.getElementById('supportPanel');
-  p.classList.toggle('open');
+async function handleUpgrade(plan) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    openAuth('signup');
+    return;
+  }
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ plan })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch(e) {
+    alert('Something went wrong. Please try again.');
+  }
 }
 
-function addSupMsg(role,text){
-  const c=document.getElementById('supMsgs');
-  const div=document.createElement('div');div.className='sup-msg '+(role==='bot'?'bot':'usr');div.textContent=text;
-  c.appendChild(div);c.scrollTop=c.scrollHeight;
+function toggleSupport() {
+  document.getElementById('supPanel').classList.toggle('open');
+}
+let supHistory = [];
+async function sendSupport() {
+  const inp = document.getElementById('supInp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  addSupMsg('usr', text);
+  supHistory.push({ role: 'user', content: text });
+  const thinking = addSupMsg('bot', '...');
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: supHistory, mode: 'support' })
+    });
+    const data = await res.json();
+    thinking.textContent = data.reply || 'Please email support@sumgoals.com';
+    if (data.reply) supHistory.push({ role: 'assistant', content: data.reply });
+  } catch(e) {
+    thinking.textContent = 'Please email support@sumgoals.com';
+  }
+}
+function addSupMsg(role, text) {
+  const c = document.getElementById('supMsgs');
+  const div = document.createElement('div');
+  div.className = 'sup-msg ' + role;
+  div.textContent = text;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+  return div;
 }
 
-async function sendSupport(){
-  const inp=document.getElementById('supInp');
-  const text=inp.value.trim();
-  if(!text)return;
-  inp.value='';
-  addSupMsg('user',text);
-  supHistory.push({role:'user',content:text});
-  const thinking=document.createElement('div');thinking.className='sup-msg bot';thinking.id='supTyping';thinking.textContent='...';
-  document.getElementById('supMsgs').appendChild(thinking);
-  try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:supHistory,mode:'support'})});
-    const data=await res.json();
-    document.getElementById('supTyping')?.remove();
-    if(data.reply){supHistory.push({role:'assistant',content:data.reply});addSupMsg('bot',data.reply)}
-    else addSupMsg('bot','Sorry, something went wrong. Please email support@sumgoals.com');
-  }catch(e){document.getElementById('supTyping')?.remove();addSupMsg('bot','Connection issue. Please try again or email support@sumgoals.com')}
-}
+document.getElementById('authModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAuth();
+});
 </script>
 </body>
 </html>
