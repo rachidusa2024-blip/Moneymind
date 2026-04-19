@@ -179,7 +179,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
       <button class="sb-btn" onclick="showPro('Emergency Kit')">Emergency Kit</button>
     </div>
     <div class="sb-bottom">
-      <button class="btn-upgrade" id="upBtn" onclick="doUpgrade('pro')" style="display:block">Upgrade to Pro — $9/mo</button>
+      <button class="btn-upgrade" id="upBtn" onclick="doUpgrade('pro')" style="display:block">Upgrade to Pro</button>
       <button class="btn-signout" onclick="doSignout()">Sign out</button>
     </div>
   </div>
@@ -321,7 +321,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
       <div class="pro-lock">
         <h3>This is a Pro feature</h3>
         <p>Upgrade to Sum Goals Pro to unlock this and all premium features — 90-Day Transformation, Money Mirror, Couples Mode, Senior Mode, Emergency Kit and more. Less than a coffee per month.</p>
-        <button class="btn-lock" onclick="doUpgrade('pro')">Upgrade to Pro — $9/month</button>
+        <button class="btn-lock" onclick="doUpgrade('pro')">Upgrade to Pronth</button>
       </div>
     </div>
   </div>
@@ -384,6 +384,10 @@ function showPro(feature) {
 }
 
 async function doUpgrade(plan) {
+  if (!plan || plan === 'pro') {
+    const choice = confirm('Choose your plan:\n\nClick OK for Pro — $9/month\nClick Cancel for Lifetime — $29 one-time (best value!)');
+    plan = choice ? 'pro' : 'lifetime';
+  }
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/index.html'; return; }
   try {
