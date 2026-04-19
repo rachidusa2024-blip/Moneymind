@@ -11,19 +11,18 @@ module.exports = async function handler(req, res) {
     : process.env.STRIPE_PRO_PRICE_ID;
   const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://sumgoals.com';
   const secretKey = process.env.STRIPE_SECRET_KEY;
+  const mode = plan === 'lifetime' ? 'payment' : 'subscription';
 
-  const params = new URLSearchParams({
-    'payment_method_types[]': 'card',
-    'line_items[0][price]': priceId,
-    'line_items[0][quantity]': '1',
-    'mode': plan === 'lifetime' ? 'payment' : 'subscription',
-    'success_url': baseUrl + '/success.html',
-    'cancel_url': baseUrl + '/dashboard.html',
-    
-  });
-
+  const params = new URLSearchParams();
+  params.append('payment_method_types[]', 'card');
+  params.append('line_items[0][price]', priceId);
+  params.append('line_items[0][quantity]', '1');
+  params.append('mode', mode);
+  params.append('success_url', baseUrl + '/success.html');
+  params.append('cancel_url', baseUrl + '/dashboard.html');
+  
   if (plan === 'pro') {
-   'discounts[0][coupon]', 'TmQYMJMD'
+    params.append('discounts[0][coupon]', 'TmQYMJMD');
   }
 
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
