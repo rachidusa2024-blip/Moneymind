@@ -243,6 +243,21 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 
     <button class="btn-save-goal" id="saveBtn" onclick="saveGoal()">Save this goal</button>
   </div>
+
+  <!-- MAYA ADVICE -->
+  <div id="mayaSection" style="display:none;background:var(--navy);border-radius:20px;padding:28px;margin-bottom:24px;animation:up .4s ease forwards">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:var(--navy);flex-shrink:0">M</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--white)">Maya's advice for your goal</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6)">Personalized tips to get there faster</div>
+      </div>
+    </div>
+    <div id="mayaAdviceContent" style="font-size:13px;line-height:1.7;color:rgba(255,255,255,.85)">
+      <div style="display:flex;gap:5px;align-items:center"><div style="width:6px;height:6px;background:var(--teal);border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:rgba(255,255,255,.6)">Maya is building your plan...</span></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- UPDATE MODAL -->
@@ -278,6 +293,46 @@ const goalColors = {
   emergency:{bg:'#E6FBF7',color:'#00A888',bar:'#00C9A7'},
   custom:{bg:'#FEF3C7',color:'#D97706',bar:'#F59E0B'}
 };
+
+
+async function getMayaAdvice(name, amount, monthly, months, currency, income) {
+  const section = document.getElementById('mayaSection');
+  const content = document.getElementById('mayaAdviceContent');
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  
+  const pct = income > 0 ? Math.round((monthly / income) * 100) : 0;
+  const prompt = `You are Maya, a warm personal finance coach. Give specific practical advice for this goal:
+
+Goal: ${name}
+Target amount: ${currency} ${amount.toLocaleString()}
+Monthly savings needed: ${currency} ${monthly.toLocaleString()}
+Timeline: ${months} months
+${income > 0 ? `Percentage of income: ${pct}%` : ''}
+
+Give 3 specific actionable tips to reach this goal faster. Be encouraging and realistic. Use simple clear language. No emojis. No hashtags. Format as short paragraphs. Under 180 words total.`;
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], mode: 'coach' })
+    });
+    const data = await res.json();
+    if (data.reply) {
+      content.innerHTML = data.reply
+        .replace(/#{1,3}\s*/g, '')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--teal)">$1</strong>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+    }
+  } catch(e) {
+    content.innerHTML = `<strong style="color:var(--teal)">Maya's tips for your ${name}:</strong><br><br>
+Set up a dedicated savings account just for this goal and automate the transfer on payday.<br><br>
+Every month you save extra, update your progress here — seeing the bar move keeps you motivated.<br><br>
+If ${currency} ${monthly.toLocaleString()} feels tight, look for one expense to cut this week. Small changes add up fast.`;
+  }
+}
 
 async function init() {
   const { data: { session } } = await sb.auth.getSession();
@@ -415,8 +470,8 @@ async function saveGoal() {
     });
     if (error) throw error;
     await loadGoals();
-    resetForm();
-    alert('Goal saved! Track your progress from your goals dashboard.');
+    getMayaAdvice(name, amount, monthly, months, currency, income);
+    alert('Goal saved! Check Maya\'s advice below.');
   } catch(e) {
     alert('Error saving goal. Please try again.');
   }
