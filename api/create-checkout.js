@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
   });
 
   if (plan === 'pro') {
-    params.append('discounts[0][coupon]', 'FIRST1');
+   'discounts[0][coupon]', 'TmQYMJMD'
   }
 
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
