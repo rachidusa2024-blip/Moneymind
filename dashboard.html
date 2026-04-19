@@ -165,21 +165,18 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
     </div>
     <div class="sb-nav">
       <div class="sb-sec">Main</div>
-      <button class="sb-btn active" onclick="showSec('home',this)">Dashboard</button>
+     <button class="sb-btn active" onclick="showSec('home',this)">Dashboard</button>
       <button class="sb-btn" onclick="showSec('maya',this)">Chat with Maya</button>
-      <button class="sb-btn" onclick="showSec('budget',this)">Budget Builder</button>
       <div class="sb-sec">Track</div>
-      <button class="sb-btn" onclick="showSec('debt',this)">Debt Race</button>
-      <button class="sb-btn" onclick="showSec('score',this)">Health Score</button>
-      <div class="sb-sec">Premium</div>
       <button class="sb-btn" onclick="window.location.href='/goals.html'">Life Goals</button>
       <button class="sb-btn" onclick="window.location.href='/debtrace.html'">Debt Race</button>
       <button class="sb-btn" onclick="window.location.href='/score.html'">Health Score</button>
+      <div class="sb-sec">Premium</div>
+      <button class="sb-btn" onclick="openUpgradeModal('Budget Builder','Unlock the complete visual budget builder and take full control of your money.')">Budget Builder</button>
       <button class="sb-btn" onclick="openUpgradeModal('90-Day Plan','Unlock the complete 90-day financial transformation program with Maya guiding every single day.')">90-Day Plan</button>
-      <button class="sb-btn" onclick="showPro('Money Mirror')">Money Mirror</button>
-      <button class="sb-btn" onclick="showPro('Couples Mode')">Couples Mode</button>
-      <button class="sb-btn" onclick="showPro('Senior Mode')">Senior Mode</button>
-      <button class="sb-btn" onclick="showPro('Emergency Kit')">Emergency Kit</button>
+      <button class="sb-btn" onclick="openUpgradeModal('Money Mirror','Discover what your spending habits reveal about your money psychology.')">Money Mirror</button>
+      <button class="sb-btn" onclick="openUpgradeModal('Gig Income Tracker','Track all your side hustle income and optimize your earnings with Maya.')">Gig Income</button>
+      <button class="sb-btn" onclick="openUpgradeModal('Couples Mode','One financial plan for two people. Maya coaches you as a team.')">Couples Mode</button>
     </div>
     <div class="sb-bottom">
       <button class="btn-upgrade" id="upBtn" onclick="openUpgradeModal('Upgrade to Pro', 'Unlock unlimited Maya coaching, all visual pages, unlimited goals and everything Sum Goals Pro has to offer.')" style="display:none">Upgrade to Pro — $9/mo</button>
