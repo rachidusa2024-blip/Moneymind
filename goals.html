@@ -46,6 +46,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 .goal-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
 .goal-card.selected{border-color:var(--teal);background:var(--teal-light)}
 .goal-icon{font-size:32px;margin-bottom:10px}
+.goal-icon-clean{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin:0 auto 10px;font-family:'Plus Jakarta Sans',sans-serif}
 .goal-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .goal-desc{font-size:11px;color:var(--muted)}
 .goal-check{position:absolute;top:10px;right:10px;width:20px;height:20px;background:var(--teal);border-radius:50%;display:none;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700}
@@ -164,49 +165,49 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
     <div class="goals-grid">
       <div class="goal-card" onclick="selectGoal('house','🏠','Buy a House','Your dream home')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">🏠</div>
+        <div class="goal-icon-clean" style="background:#EEF2FF;color:#1A56DB">H</div>
         <div class="goal-name">Buy a House</div>
         <div class="goal-desc">Down payment & costs</div>
       </div>
       <div class="goal-card" onclick="selectGoal('car','🚗','Buy a Car','Dream vehicle')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">🚗</div>
+        <div class="goal-icon-clean" style="background:#E6FBF7;color:#00A888">C</div>
         <div class="goal-name">Buy a Car</div>
         <div class="goal-desc">Full purchase or down payment</div>
       </div>
       <div class="goal-card" onclick="selectGoal('wedding','💍','Wedding','Your perfect day')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">💍</div>
+        <div class="goal-icon-clean" style="background:#FDF2F8;color:#EC4899">W</div>
         <div class="goal-name">Wedding</div>
         <div class="goal-desc">Plan your perfect day</div>
       </div>
       <div class="goal-card" onclick="selectGoal('travel','✈️','Travel & Vacation','See the world')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">✈️</div>
+        <div class="goal-icon-clean" style="background:#FEF3C7;color:#D97706">T</div>
         <div class="goal-name">Travel</div>
         <div class="goal-desc">Your dream vacation</div>
       </div>
       <div class="goal-card" onclick="selectGoal('baby','👶','Baby & Family','Growing your family')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">👶</div>
+        <div class="goal-icon-clean" style="background:#F5F3FF;color:#7C3AED">F</div>
         <div class="goal-name">Baby & Family</div>
         <div class="goal-desc">Prepare for the future</div>
       </div>
       <div class="goal-card" onclick="selectGoal('business','💼','Start a Business','Your entrepreneurship')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">💼</div>
+        <div class="goal-icon-clean" style="background:#F0F4FF;color:#1A56DB">B</div>
         <div class="goal-name">Start a Business</div>
         <div class="goal-desc">Fund your startup</div>
       </div>
       <div class="goal-card" onclick="selectGoal('emergency','🛡️','Emergency Fund','Financial safety net')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">🛡️</div>
+        <div class="goal-icon-clean" style="background:#E6FBF7;color:#00A888">E</div>
         <div class="goal-name">Emergency Fund</div>
         <div class="goal-desc">6 months of expenses</div>
       </div>
       <div class="goal-card" onclick="selectGoal('custom','⭐','Custom Goal','Whatever you dream')">
         <div class="goal-check">✓</div>
-        <div class="goal-icon">⭐</div>
+        <div class="goal-icon-clean" style="background:#FEF3C7;color:#D97706">+</div>
         <div class="goal-name">Custom Goal</div>
         <div class="goal-desc">Anything you want</div>
       </div>
@@ -333,7 +334,7 @@ function selectGoal(type, icon, name, desc) {
   event.currentTarget.classList.add('selected');
   const form = document.getElementById('goalForm');
   form.classList.add('show');
-  document.getElementById('formIcon').textContent = icon;
+  document.getElementById('formIcon').textContent = icon.replace(/[^\x00-\x7F]/g,'').trim() || name[0];
   document.getElementById('formIcon').style.background = goalColors[type] + '20';
   document.getElementById('formTitle').textContent = name;
   document.getElementById('formSub').textContent = desc + ' — fill in your details';
@@ -471,7 +472,7 @@ function renderActiveGoals() {
     const color = goalColors[g.type] || '#00C9A7';
     return `
     <div class="active-goal">
-      <div class="ag-icon" style="background:${color}20">${g.icon || '⭐'}</div>
+      <div class="ag-icon" style="background:${color}20">${g.goalName[0].toUpperCase()}</div>
       <div class="ag-info">
         <div class="ag-name">${g.goalName}</div>
         <div class="ag-sub">${g.months} months remaining · Target: ${g.currency} ${g.amount.toLocaleString()}</div>
