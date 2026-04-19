@@ -384,10 +384,25 @@ function showPro(feature) {
 }
 
 async function doUpgrade(plan) {
-  if (plan === 'lifetime') {
-    window.open('https://alrachid79.gumroad.com/l/lifetime', '_blank');
-  } else {
-    window.open('https://alrachid79.gumroad.com/l/yixue', '_blank');
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = '/index.html'; return; }
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': 'Bearer ' + session.access_token 
+      },
+      body: JSON.stringify({ plan })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Error: ' + (data.error || 'Please try again'));
+    }
+  } catch(e) {
+    alert('Connection error. Please try again.');
   }
 }
 
