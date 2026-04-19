@@ -297,7 +297,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
     </div>
     <div class="milestones" id="rMilestones"></div>
     <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
-      <button onclick="saveGoal()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.3)'" onmouseout="this.style.background='rgba(255,255,255,.2)'">Save this goal</button>
+      <button onclick="saveGoal()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.3)'" onmouseout="this.style.background='rgba(255,255,255,.2)'">Save this goal <span style="font-size:10px;background:rgba(255,255,255,.2);padding:2px 6px;border-radius:4px;margin-left:4px">Free: 2 max</span></button>
       <button onclick="resetForm()" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);padding:10px 20px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--font-body)">Plan another goal</button>
     </div>
   </div>
@@ -440,12 +440,32 @@ Give 3-4 specific actionable tips to reach this goal. Be encouraging but realist
   }
 }
 
-function saveGoal() {
+async function saveGoal() {
   if (!currentResult) return;
+  
+  // Check if free user has reached limit
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    try {
+      const { data: profile } = await sb.from('profiles').select('plan').eq('id', session.user.id).single();
+      const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
+      if (!isPro && savedGoals.length >= 2) {
+        const go = confirm('You have reached the free limit of 2 goals.\n\nUpgrade to Pro to save unlimited goals, get detailed tracking, and weekly progress reports.\n\nClick OK to upgrade now.');
+        if (go) window.location.href = '/upgrade.html';
+        return;
+      }
+    } catch(e) {
+      if (savedGoals.length >= 2) {
+        alert('Upgrade to Pro to save more than 2 goals.');
+        return;
+      }
+    }
+  }
+  
   savedGoals.push({ ...currentResult, id: Date.now(), createdAt: new Date().toISOString() });
   localStorage.setItem('sg_goals', JSON.stringify(savedGoals));
   renderActiveGoals();
-  alert('Goal saved! You can track it in your active goals.');
+  alert('Goal saved! Track it in your active goals.');
   resetForm();
 }
 
