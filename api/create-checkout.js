@@ -19,7 +19,12 @@ module.exports = async function handler(req, res) {
     'mode': plan === 'lifetime' ? 'payment' : 'subscription',
     'success_url': baseUrl + '/success.html',
     'cancel_url': baseUrl + '/dashboard.html',
+    'allow_promotion_codes': 'true',
   });
+
+  if (plan === 'pro') {
+    params.append('discounts[0][coupon]', 'FIRST1');
+  }
 
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
