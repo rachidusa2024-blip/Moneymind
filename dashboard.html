@@ -169,17 +169,17 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
       <button class="sb-btn" onclick="showSec('maya',this)">Chat with Maya</button>
       <button class="sb-btn" onclick="showSec('budget',this)">Budget Builder</button>
       <div class="sb-sec">Track</div>
-      <button class="sb-btn" onclick="window.location.href='/debtrace.html'">Debt Race</button>
-      <button class="sb-btn" onclick="window.location.href='/score.html'">Health Score</button>
+      <button class="sb-btn" onclick="showSec('debt',this)">Debt Race</button>
+      <button class="sb-btn" onclick="showSec('score',this)">Health Score</button>
       <div class="sb-sec">Premium</div>
-      <button class="sb-btn" onclick="window.location.href='/goals.html'">Life Goals</button>
+      <button class="sb-btn" onclick="showPro('90-Day Plan')">90-Day Plan</button>
       <button class="sb-btn" onclick="showPro('Money Mirror')">Money Mirror</button>
       <button class="sb-btn" onclick="showPro('Couples Mode')">Couples Mode</button>
       <button class="sb-btn" onclick="showPro('Senior Mode')">Senior Mode</button>
       <button class="sb-btn" onclick="showPro('Emergency Kit')">Emergency Kit</button>
     </div>
     <div class="sb-bottom">
-      <button class="btn-upgrade" id="upBtn" onclick="window.location.href='/upgrade.html'" style="display:block">Upgrade to Pro</button>
+      <button class="btn-upgrade" id="upBtn" onclick="openUpgradeModal('Upgrade to Pro', 'Unlock unlimited Maya coaching, all visual pages, unlimited goals and everything Sum Goals Pro has to offer.')" style="display:none">Upgrade to Pro — $9/mo</button>
       <button class="btn-signout" onclick="doSignout()">Sign out</button>
     </div>
   </div>
@@ -316,14 +316,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
     </div>
 
     <!-- PRO LOCK -->
-    <div id="sec-pro" style="display:none">
-      <div class="page-head"><div class="page-title" id="proTitle">Pro Feature</div><div class="page-sub">Upgrade to access this feature</div></div>
-      <div class="pro-lock">
-        <h3>This is a Pro feature</h3>
-        <p>Upgrade to Sum Goals Pro to unlock this and all premium features — 90-Day Transformation, Money Mirror, Couples Mode, Senior Mode, Emergency Kit and more. Less than a coffee per month.</p>
-        <button class="btn-lock" onclick="window.location.href='/upgrade.html'">Upgrade to Pronth</button>
-      </div>
-    </div>
+
   </div>
 </div>
 
@@ -379,35 +372,57 @@ function showSec(id, btn) {
 function showPro(feature) {
   const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
   if (isPro) { showSec('maya', null); return; }
-  document.getElementById('proTitle').textContent = feature;
-  showSec('pro', null);
+  openUpgradeModal(feature + ' — Pro Feature', 'This feature is part of Sum Goals Pro. Upgrade to unlock ' + feature + ' and all premium features.');
+}
+
+let selectedUpgradePlan = 'pro';
+function openUpgradeModal(featureName, reason) {
+  document.getElementById('lockedFeatureName').textContent = featureName || 'Pro Feature';
+  if (reason) document.getElementById('upgradeReason').textContent = reason;
+  document.getElementById('upgradeOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  selectedUpgradePlan = 'pro';
+  selectPlan('pro');
+}
+function closeUpgradeModal() {
+  document.getElementById('upgradeOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function selectPlan(plan) {
+  selectedUpgradePlan = plan;
+  const pro = document.getElementById('planPro');
+  const life = document.getElementById('planLifetime');
+  pro.style.borderColor = plan === 'pro' ? '#00C9A7' : '#E2E8F0';
+  pro.style.background = plan === 'pro' ? '#E6FBF7' : '#fff';
+  life.style.borderColor = plan === 'lifetime' ? '#00C9A7' : '#E2E8F0';
+  life.style.background = plan === 'lifetime' ? '#E6FBF7' : '#fff';
+  const btn = document.getElementById('upgradeMainBtn');
+  btn.textContent = plan === 'pro' ? 'Start my transformation — $1 first month' : 'Get lifetime access — $29 one-time';
+}
+async function goToCheckout() {
+  const btn = document.getElementById('upgradeMainBtn');
+  btn.innerHTML = '<span style="width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px"></span>Redirecting...';
+  btn.disabled = true;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '/index.html'; return; }
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ plan: selectedUpgradePlan })
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; }
+    else { alert('Error: ' + (data.error || 'Please try again')); btn.textContent = 'Start my transformation — $1 first month'; btn.disabled = false; }
+  } catch(e) { alert('Connection error.'); btn.textContent = 'Start my transformation — $1 first month'; btn.disabled = false; }
 }
 
 async function doUpgrade(plan) {
-  if (!plan || plan === 'pro') {
-    const choice = confirm('Choose your plan:\n\nClick OK for Pro — $9/month\nClick Cancel for Lifetime — $29 one-time (best value!)');
-    plan = choice ? 'pro' : 'lifetime';
-  }
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/index.html'; return; }
-  try {
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': 'Bearer ' + session.access_token 
-      },
-      body: JSON.stringify({ plan })
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert('Error: ' + (data.error || 'Please try again'));
-    }
-  } catch(e) {
-    alert('Connection error. Please try again.');
-  }
+  const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ plan }) });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
 }
 
 async function doSignout() { await sb.auth.signOut(); window.location.href = '/index.html'; }
@@ -517,5 +532,52 @@ async function sendSpec(m, inpId, msgsId) {
 
 init();
 </script>
+
+<!-- PROFESSIONAL UPGRADE MODAL -->
+<div class="upgrade-overlay" id="upgradeOverlay" style="position:fixed;inset:0;background:rgba(10,22,40,.7);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:24px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative;animation:up .3s ease">
+    <button onclick="closeUpgradeModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:#F0F4FF;border:1px solid #E2E8F0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748B;font-size:18px;z-index:10;font-family:var(--font-body)">×</button>
+    <div style="background:linear-gradient(135deg,#0A1628 0%,#1e3a5f 100%);padding:28px 28px 24px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(0,201,167,.15),transparent 60%);pointer-events:none"></div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px" id="lockedFeatureName">Pro Feature</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-style:italic;color:#fff;margin-bottom:8px;letter-spacing:-.5px">Unlock your full<br><span style="color:#00C9A7">financial transformation.</span></h2>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);max-width:340px;margin:0 auto;line-height:1.5" id="upgradeReason">Upgrade to Sum Goals Pro and unlock every tool Maya needs to transform your finances.</p>
+      <div style="background:#F59E0B;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;display:inline-block;margin-top:12px">First month only $1 — then $9/month</div>
+    </div>
+    <div style="padding:20px 20px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div id="planPro" onclick="selectPlan('pro')" style="border:2px solid #00C9A7;background:#E6FBF7;border-radius:14px;padding:16px;cursor:pointer;position:relative;transition:all .2s">
+        <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#00C9A7;color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">Most popular</div>
+        <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Pro Monthly</div>
+        <div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px">$9/month</div>
+        <div style="font-family:'Playfair Display',serif;font-size:30px;font-style:italic;color:#0A1628;line-height:1;margin-bottom:2px">$1<span style="font-size:12px;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif;font-style:normal">/first month</span></div>
+        <div style="font-size:11px;color:#64748B;margin-bottom:8px">then $9/month · cancel anytime</div>
+        <div style="font-size:11px;color:#64748B">Unlimited Maya · All features · Goals</div>
+      </div>
+      <div id="planLifetime" onclick="selectPlan('lifetime')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s">
+        <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Lifetime</div>
+        <div style="font-family:'Playfair Display',serif;font-size:30px;font-style:italic;color:#0A1628;line-height:1;margin-bottom:2px">$29</div>
+        <div style="font-size:11px;color:#64748B;margin-bottom:8px">one-time · yours forever</div>
+        <div style="font-size:11px;color:#64748B">Pay once · All future features · No fees</div>
+      </div>
+    </div>
+    <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:6px;border-top:1px solid #E2E8F0;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Unlimited Maya coaching</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Budget Builder page</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Unlimited Life Goals</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Debt Race tracker</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>90-Day Plan program</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Gig Income tracker</div>
+    </div>
+    <div style="padding:14px 20px 20px">
+      <button id="upgradeMainBtn" onclick="goToCheckout()" style="width:100%;padding:14px;background:#00C9A7;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;margin-bottom:8px">Start my transformation — $1 first month</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#64748B;margin-bottom:6px">
+        <div style="width:6px;height:6px;background:#10B981;border-radius:50%"></div>
+        7-day money back · Cancel anytime · Secure payment
+      </div>
+      <button onclick="closeUpgradeModal()" style="display:block;width:100%;text-align:center;font-size:12px;color:#94A3B8;cursor:pointer;background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif;padding:4px;transition:color .2s">Maybe later</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
