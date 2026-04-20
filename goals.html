@@ -631,6 +631,26 @@ function renderSavedGoals() {
   const section = document.getElementById('savedGoalsSection');
   if (savedGoals.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
+  
+  // Show free limit progress bar at top
+  const existing = document.getElementById('freeLimitBar');
+  if (existing) existing.remove();
+  if (!isPro) {
+    const bar = document.createElement('div');
+    bar.id = 'freeLimitBar';
+    bar.style.cssText = 'background:#FEF3C7;border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap';
+    const used = Math.min(savedGoals.length, 2);
+    bar.innerHTML = \`
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;gap:5px">
+          \${[1,2].map(i => \`<div style="width:12px;height:12px;border-radius:50%;background:\${i<=used?'#00C9A7':'#E2E8F0'};border:1px solid \${i<=used?'#00A888':'#CBD5E1'};transition:all .3s"></div>\`).join('')}
+        </div>
+        <span style="font-size:13px;color:#92400E;font-weight:500"><strong style="color:#78350F">\${used} of 2</strong> free goals used</span>
+      </div>
+      \${used >= 2 ? \`<button onclick="showGoalLimitModal()" style="background:#F59E0B;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Upgrade for unlimited</button>\` : \`<span style="font-size:12px;color:#92400E">\${2-used} goal slot remaining</span>\`}
+    \`;
+    section.insertBefore(bar, section.firstChild.nextSibling);
+  }
   const list = document.getElementById('sgList');
   list.innerHTML = savedGoals.map(g => {
     const c = goalColors[g.type] || '#00C9A7';
@@ -866,20 +886,51 @@ function updateScenario() {
 async function getMayaPlan(monthly, months, cur) {
   const content = document.getElementById('mpContent');
   const actions = document.getElementById('mpActions');
-  const prompt = `You are Maya, a direct personal finance coach. Analyze this situation and give a specific action plan:
+  
+  const gap = Math.max(0, monthly - financials.available);
+  const isDoable = analysis.achievable;
+  const gapPct = financials.income > 0 ? Math.round((gap / financials.income) * 100) : 0;
+  const yearsNeeded = months / 12;
+  const altMonths = financials.available > 0 ? Math.ceil((goalData.amount - goalData.saved) / financials.available) : 999;
+  const altYears = Math.round(altMonths / 12 * 10) / 10;
+  const affordableGoal = Math.round(financials.available * goalData.months + goalData.saved);
+  
+  const prompt = `You are Maya, a world-class personal finance coach. Be brutally honest but compassionate. Think like a CFO and a life coach combined.
 
+SITUATION:
 Goal: ${goalData.displayName}
-Target: ${cur} ${goalData.amount.toLocaleString()} in ${months} months
-Monthly savings needed: ${cur} ${Math.ceil(monthly).toLocaleString()}
-Monthly income: ${cur} ${financials.income.toLocaleString()}
-Monthly expenses: ${cur} ${financials.totalExp.toLocaleString()}
-Available after expenses: ${cur} ${financials.available.toLocaleString()}
-Total debt: ${cur} ${financials.totalDebt.toLocaleString()}
+Target amount: ${cur} ${goalData.amount.toLocaleString()}
+User's deadline: ${goalData.months} months (${Math.round(goalData.months/12*10)/10} years)
+Already saved: ${cur} ${goalData.saved.toLocaleString()}
+Monthly amount needed to hit deadline: ${cur} ${Math.ceil(monthly).toLocaleString()}
+
+FINANCES:
+Monthly income (total): ${cur} ${financials.income.toLocaleString()}
+Fixed expenses: ${cur} ${financials.fixedExp.toLocaleString()}
+Variable expenses: ${cur} ${financials.varExp.toLocaleString()}
+Debt payments: ${cur} ${financials.debtPayments.toLocaleString()}
+Total expenses: ${cur} ${financials.totalExp.toLocaleString()}
+Money left after expenses: ${cur} ${financials.available.toLocaleString()}
+Total debt owed: ${cur} ${financials.totalDebt.toLocaleString()}
 Emergency fund: ${cur} ${financials.emergencyFund.toLocaleString()}
-Expense breakdown: Fixed ${cur} ${financials.fixedExp.toLocaleString()}, Variable ${cur} ${financials.varExp.toLocaleString()}, Debt payments ${cur} ${financials.debtPayments.toLocaleString()}
+Dining out: ${cur} ${financials.dining || 0}
+Entertainment: ${cur} ${financials.entertainment || 0}
+Shopping: ${cur} ${financials.shopping || 0}
 Goal readiness score: ${analysis.score}/100
 
-Give a specific, personalized 3-step action plan. Be direct and concrete with specific numbers. Identify the biggest expense that can be cut. Mention if they need to increase income. No emojis. No hashtags. Max 200 words.`;
+${!isDoable ? `THIS GOAL IS NOT ACHIEVABLE with current income. They need ${cur} ${Math.ceil(monthly).toLocaleString()}/month but only have ${cur} ${Math.round(Math.max(0,financials.available)).toLocaleString()} available. Gap: ${cur} ${Math.ceil(gap).toLocaleString()}/month (${gapPct}% of income missing).` : `This goal IS achievable — but needs discipline.`}
+
+YOUR JOB:
+1. Be honest — if the goal is not doable in this timeline, SAY IT clearly with specific numbers
+2. Give 3 realistic scenarios with exact numbers:
+   - Scenario A: Extend the timeline (what realistic timeline looks like)  
+   - Scenario B: Reduce the goal amount (what they can actually afford)
+   - Scenario C: Increase income (specific gig ideas with realistic monthly earnings)
+3. Give the top 3 expense cuts with exact numbers from their data
+4. Give a 90-day starter plan — specific weekly actions for the first 3 months
+5. If debt is high, address whether to pay debt first or save simultaneously
+
+Write like a trusted advisor who has looked at their complete financial picture. Be specific with their actual numbers. No generic advice. No emojis. No hashtags. 300-400 words maximum. Use clear paragraph breaks.`;
 
   try {
     const res = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{role:'user',content:prompt}], mode:'coach' }) });
@@ -887,16 +938,32 @@ Give a specific, personalized 3-step action plan. Be direct and concrete with sp
     if (data.reply) {
       content.style.color = 'rgba(255,255,255,.9)';
       content.style.fontStyle = 'normal';
-      content.innerHTML = data.reply.replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--teal)">$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+      content.innerHTML = data.reply
+        .replace(/#{1,3}\s*/g,'')
+        .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--teal)">$1</strong>')
+        .replace(/Scenario A:/g,'<strong style="color:var(--teal)">Scenario A:</strong>')
+        .replace(/Scenario B:/g,'<strong style="color:var(--teal)">Scenario B:</strong>')
+        .replace(/Scenario C:/g,'<strong style="color:var(--teal)">Scenario C:</strong>')
+        .replace(/\n\n/g,'<br><br>')
+        .replace(/\n/g,'<br>');
     }
-  } catch(e) { content.innerHTML = 'Connection error — but here is the key: save ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + ' every month on payday before spending anything else.'; content.style.color='rgba(255,255,255,.9)'; }
+  } catch(e) { 
+    content.innerHTML = 'Could not connect to Maya. Key insight: you need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month to reach this goal — ' + (isDoable ? 'which is within your reach.' : 'which exceeds your current available savings of ' + cur + ' ' + Math.max(0,Math.round(financials.available)).toLocaleString() + '. Consider extending your timeline or reducing the target.'); 
+    content.style.color='rgba(255,255,255,.9)'; 
+  }
 
-  const topExpense = financials.dining > 100 ? 'Dining out (' + cur + ' ' + financials.dining.toLocaleString() + '/mo)' : financials.entertainment > 50 ? 'Entertainment' : financials.shopping > 100 ? 'Shopping' : 'Variable expenses';
-  actions.innerHTML = [
-    { title: 'Automate on payday', desc: 'Transfer ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + ' to a dedicated goal account the moment your salary arrives. This is non-negotiable.' },
-    { title: 'Cut ' + topExpense, desc: 'Reducing this by 20% frees up ' + cur + ' ' + Math.round(Math.max(financials.dining, financials.entertainment, financials.shopping) * 0.2).toLocaleString() + ' extra per month.' },
-    { title: 'Track weekly', desc: 'Every Sunday, update your progress here. Seeing the bar move keeps you motivated. Miss a week and the habit breaks.' }
-  ].map(a => `<div class="mp-action"><strong>${a.title}</strong>${a.desc}</div>`).join('');
+  const expCuts = [];
+  if ((financials.dining||0) > 100) expCuts.push({ title: 'Cut dining out by 40%', desc: 'Save ' + cur + ' ' + Math.round((financials.dining||0) * 0.4).toLocaleString() + '/month. Cook at home 4 nights more per week.' });
+  if ((financials.entertainment||0) > 50) expCuts.push({ title: 'Reduce entertainment', desc: 'Cut by 50% — save ' + cur + ' ' + Math.round((financials.entertainment||0) * 0.5).toLocaleString() + '/month. Audit subscriptions this week.' });
+  if ((financials.shopping||0) > 100) expCuts.push({ title: 'Pause non-essential shopping', desc: 'A 30-day shopping pause saves ' + cur + ' ' + (financials.shopping||0).toLocaleString() + ' immediately.' });
+  if (financials.subscriptions > 0) expCuts.push({ title: 'Cancel unused subscriptions', desc: 'Review all ' + cur + ' ' + financials.subscriptions.toLocaleString() + '/month in subscriptions. Cancel everything non-essential.' });
+  expCuts.push({ title: 'Automate savings on payday', desc: 'Transfer ' + cur + ' ' + Math.min(Math.ceil(monthly), Math.max(0, Math.round(financials.available))).toLocaleString() + ' to your goal account the moment salary arrives. This is the most important habit.' });
+  
+  if (!isDoable) {
+    expCuts.push({ title: 'Income gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month', desc: 'Consider freelancing, consulting, or a part-time role to close this gap. Even ' + cur + ' ' + Math.round(gap/2).toLocaleString() + '/month extra cuts your timeline in half.' });
+  }
+
+  actions.innerHTML = expCuts.slice(0,4).map(a => `<div class="mp-action"><strong>${a.title}</strong>${a.desc}</div>`).join('');
 }
 
 async function savePlanToDb() {
