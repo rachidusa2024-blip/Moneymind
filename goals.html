@@ -632,25 +632,18 @@ function renderSavedGoals() {
   if (savedGoals.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
   
-  // Show free limit progress bar at top
-  const existing = document.getElementById('freeLimitBar');
-  if (existing) existing.remove();
+  const oldBar = document.getElementById('freeLimitBar');
+  if (oldBar) oldBar.remove();
   if (!isPro) {
     const bar = document.createElement('div');
     bar.id = 'freeLimitBar';
-    bar.style.cssText = 'background:#FEF3C7;border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap';
     const used = Math.min(savedGoals.length, 2);
-    bar.innerHTML = \`
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="display:flex;gap:5px">
-          \${[1,2].map(i => \`<div style="width:12px;height:12px;border-radius:50%;background:\${i<=used?'#00C9A7':'#E2E8F0'};border:1px solid \${i<=used?'#00A888':'#CBD5E1'};transition:all .3s"></div>\`).join('')}
-        </div>
-        <span style="font-size:13px;color:#92400E;font-weight:500"><strong style="color:#78350F">\${used} of 2</strong> free goals used</span>
-      </div>
-      \${used >= 2 ? \`<button onclick="showGoalLimitModal()" style="background:#F59E0B;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Upgrade for unlimited</button>\` : \`<span style="font-size:12px;color:#92400E">\${2-used} goal slot remaining</span>\`}
-    \`;
-    section.insertBefore(bar, section.firstChild.nextSibling);
+    const dot = function(on) { return '<div style="width:11px;height:11px;border-radius:50%;background:' + (on ? '#00C9A7' : '#E2E8F0') + ';border:1px solid ' + (on ? '#00A888' : '#CBD5E1') + '"></div>'; };
+    bar.style.cssText = 'background:#FEF3C7;border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap';
+    bar.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><div style="display:flex;gap:5px">' + dot(used>=1) + dot(used>=2) + '</div><span style="font-size:13px;color:#92400E;font-weight:500"><strong style="color:#78350F">' + used + ' of 2</strong> free goals used</span></div>' + (used >= 2 ? '<button onclick="showGoalLimitModal()" style="background:#F59E0B;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body)">Upgrade for unlimited</button>' : '<span style="font-size:12px;color:#92400E">' + (2-used) + ' goal slot remaining</span>');
+    section.insertBefore(bar, section.querySelector('.sg-header').nextSibling);
   }
+
   const list = document.getElementById('sgList');
   list.innerHTML = savedGoals.map(g => {
     const c = goalColors[g.type] || '#00C9A7';
@@ -884,86 +877,116 @@ function updateScenario() {
 }
 
 async function getMayaPlan(monthly, months, cur) {
-  const content = document.getElementById('mpContent');
+  const mpContent = document.getElementById('mpContent');
   const actions = document.getElementById('mpActions');
   
   const gap = Math.max(0, monthly - financials.available);
   const isDoable = analysis.achievable;
   const gapPct = financials.income > 0 ? Math.round((gap / financials.income) * 100) : 0;
-  const yearsNeeded = months / 12;
   const altMonths = financials.available > 0 ? Math.ceil((goalData.amount - goalData.saved) / financials.available) : 999;
   const altYears = Math.round(altMonths / 12 * 10) / 10;
   const affordableGoal = Math.round(financials.available * goalData.months + goalData.saved);
-  
-  const prompt = `You are Maya, a world-class personal finance coach. Be brutally honest but compassionate. Think like a CFO and a life coach combined.
 
-SITUATION:
-Goal: ${goalData.displayName}
-Target amount: ${cur} ${goalData.amount.toLocaleString()}
-User's deadline: ${goalData.months} months (${Math.round(goalData.months/12*10)/10} years)
-Already saved: ${cur} ${goalData.saved.toLocaleString()}
-Monthly amount needed to hit deadline: ${cur} ${Math.ceil(monthly).toLocaleString()}
+  const doableText = isDoable 
+    ? 'This goal IS achievable with discipline.'
+    : 'THIS GOAL IS NOT ACHIEVABLE at this timeline. They need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month but only have ' + cur + ' ' + Math.max(0, Math.round(financials.available)).toLocaleString() + ' available. Gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month (' + gapPct + '% of income missing).';
 
-FINANCES:
-Monthly income (total): ${cur} ${financials.income.toLocaleString()}
-Fixed expenses: ${cur} ${financials.fixedExp.toLocaleString()}
-Variable expenses: ${cur} ${financials.varExp.toLocaleString()}
-Debt payments: ${cur} ${financials.debtPayments.toLocaleString()}
-Total expenses: ${cur} ${financials.totalExp.toLocaleString()}
-Money left after expenses: ${cur} ${financials.available.toLocaleString()}
-Total debt owed: ${cur} ${financials.totalDebt.toLocaleString()}
-Emergency fund: ${cur} ${financials.emergencyFund.toLocaleString()}
-Dining out: ${cur} ${financials.dining || 0}
-Entertainment: ${cur} ${financials.entertainment || 0}
-Shopping: ${cur} ${financials.shopping || 0}
-Goal readiness score: ${analysis.score}/100
+  const prompt = 'You are Maya, a world-class personal finance coach. Be brutally honest but compassionate. Think like a CFO and life coach combined.
 
-${!isDoable ? `THIS GOAL IS NOT ACHIEVABLE with current income. They need ${cur} ${Math.ceil(monthly).toLocaleString()}/month but only have ${cur} ${Math.round(Math.max(0,financials.available)).toLocaleString()} available. Gap: ${cur} ${Math.ceil(gap).toLocaleString()}/month (${gapPct}% of income missing).` : `This goal IS achievable — but needs discipline.`}
+' +
+    'SITUATION:
+' +
+    'Goal: ' + goalData.displayName + '
+' +
+    'Target: ' + cur + ' ' + goalData.amount.toLocaleString() + '
+' +
+    'Deadline: ' + goalData.months + ' months
+' +
+    'Already saved: ' + cur + ' ' + goalData.saved.toLocaleString() + '
+' +
+    'Monthly needed: ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '
 
-YOUR JOB:
-1. Be honest — if the goal is not doable in this timeline, SAY IT clearly with specific numbers
-2. Give 3 realistic scenarios with exact numbers:
-   - Scenario A: Extend the timeline (what realistic timeline looks like)  
-   - Scenario B: Reduce the goal amount (what they can actually afford)
-   - Scenario C: Increase income (specific gig ideas with realistic monthly earnings)
-3. Give the top 3 expense cuts with exact numbers from their data
-4. Give a 90-day starter plan — specific weekly actions for the first 3 months
-5. If debt is high, address whether to pay debt first or save simultaneously
+' +
+    'FINANCES:
+' +
+    'Total income: ' + cur + ' ' + financials.income.toLocaleString() + '/month
+' +
+    'Fixed expenses: ' + cur + ' ' + financials.fixedExp.toLocaleString() + '
+' +
+    'Variable expenses: ' + cur + ' ' + financials.varExp.toLocaleString() + '
+' +
+    'Debt payments: ' + cur + ' ' + financials.debtPayments.toLocaleString() + '
+' +
+    'Total expenses: ' + cur + ' ' + financials.totalExp.toLocaleString() + '
+' +
+    'Available after expenses: ' + cur + ' ' + financials.available.toLocaleString() + '
+' +
+    'Total debt owed: ' + cur + ' ' + financials.totalDebt.toLocaleString() + '
+' +
+    'Dining out: ' + cur + ' ' + (financials.dining || 0) + '
+' +
+    'Entertainment: ' + cur + ' ' + (financials.entertainment || 0) + '
+' +
+    'Shopping: ' + cur + ' ' + (financials.shopping || 0) + '
+' +
+    'Goal readiness score: ' + analysis.score + '/100
 
-Write like a trusted advisor who has looked at their complete financial picture. Be specific with their actual numbers. No generic advice. No emojis. No hashtags. 300-400 words maximum. Use clear paragraph breaks.`;
+' +
+    doableText + '
+
+' +
+    'YOUR JOB:
+' +
+    '1. Be honest - if goal is not doable in this timeline say it clearly with numbers
+' +
+    '2. Give 3 scenarios with exact numbers:
+' +
+    '   Scenario A: Extend timeline - what realistic timeline looks like
+' +
+    '   Scenario B: Reduce target - what they can actually afford
+' +
+    '   Scenario C: Increase income - specific gig ideas with realistic monthly earnings
+' +
+    '3. Top 3 expense cuts with exact numbers from their data
+' +
+    '4. 90-day starter plan with specific weekly actions
+' +
+    '5. If debt is high address debt vs save priority
+
+' +
+    'Write like a trusted advisor. Be specific with their actual numbers. No generic advice. No emojis. No hashtags. 350 words max.';
 
   try {
     const res = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{role:'user',content:prompt}], mode:'coach' }) });
     const data = await res.json();
     if (data.reply) {
-      content.style.color = 'rgba(255,255,255,.9)';
-      content.style.fontStyle = 'normal';
-      content.innerHTML = data.reply
+      mpContent.style.color = 'rgba(255,255,255,.9)';
+      mpContent.style.fontStyle = 'normal';
+      mpContent.innerHTML = data.reply
         .replace(/#{1,3}\s*/g,'')
         .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--teal)">$1</strong>')
         .replace(/Scenario A:/g,'<strong style="color:var(--teal)">Scenario A:</strong>')
         .replace(/Scenario B:/g,'<strong style="color:var(--teal)">Scenario B:</strong>')
         .replace(/Scenario C:/g,'<strong style="color:var(--teal)">Scenario C:</strong>')
-        .replace(/\n\n/g,'<br><br>')
-        .replace(/\n/g,'<br>');
+        .replace(/
+
+/g,'<br><br>')
+        .replace(/
+/g,'<br>');
     }
   } catch(e) { 
-    content.innerHTML = 'Could not connect to Maya. Key insight: you need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month to reach this goal — ' + (isDoable ? 'which is within your reach.' : 'which exceeds your current available savings of ' + cur + ' ' + Math.max(0,Math.round(financials.available)).toLocaleString() + '. Consider extending your timeline or reducing the target.'); 
-    content.style.color='rgba(255,255,255,.9)'; 
+    mpContent.textContent = 'Could not connect to Maya. Key insight: you need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month — ' + (isDoable ? 'which is within your reach.' : 'which exceeds your available savings. Consider extending your timeline.');
+    mpContent.style.color = 'rgba(255,255,255,.9)';
   }
 
-  const expCuts = [];
-  if ((financials.dining||0) > 100) expCuts.push({ title: 'Cut dining out by 40%', desc: 'Save ' + cur + ' ' + Math.round((financials.dining||0) * 0.4).toLocaleString() + '/month. Cook at home 4 nights more per week.' });
-  if ((financials.entertainment||0) > 50) expCuts.push({ title: 'Reduce entertainment', desc: 'Cut by 50% — save ' + cur + ' ' + Math.round((financials.entertainment||0) * 0.5).toLocaleString() + '/month. Audit subscriptions this week.' });
-  if ((financials.shopping||0) > 100) expCuts.push({ title: 'Pause non-essential shopping', desc: 'A 30-day shopping pause saves ' + cur + ' ' + (financials.shopping||0).toLocaleString() + ' immediately.' });
-  if (financials.subscriptions > 0) expCuts.push({ title: 'Cancel unused subscriptions', desc: 'Review all ' + cur + ' ' + financials.subscriptions.toLocaleString() + '/month in subscriptions. Cancel everything non-essential.' });
-  expCuts.push({ title: 'Automate savings on payday', desc: 'Transfer ' + cur + ' ' + Math.min(Math.ceil(monthly), Math.max(0, Math.round(financials.available))).toLocaleString() + ' to your goal account the moment salary arrives. This is the most important habit.' });
-  
-  if (!isDoable) {
-    expCuts.push({ title: 'Income gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month', desc: 'Consider freelancing, consulting, or a part-time role to close this gap. Even ' + cur + ' ' + Math.round(gap/2).toLocaleString() + '/month extra cuts your timeline in half.' });
-  }
+  const cuts = [];
+  if ((financials.dining||0) > 100) cuts.push({ title: 'Cut dining out by 40%', desc: 'Saves ' + cur + ' ' + Math.round((financials.dining||0)*0.4).toLocaleString() + '/month. Cook at home 4 more nights per week.' });
+  if ((financials.entertainment||0) > 50) cuts.push({ title: 'Reduce entertainment by 50%', desc: 'Saves ' + cur + ' ' + Math.round((financials.entertainment||0)*0.5).toLocaleString() + '/month. Audit all subscriptions this week.' });
+  if ((financials.shopping||0) > 100) cuts.push({ title: 'Pause non-essential shopping', desc: 'A 30-day pause saves ' + cur + ' ' + (financials.shopping||0).toLocaleString() + ' immediately.' });
+  cuts.push({ title: 'Automate savings on payday', desc: 'Transfer ' + cur + ' ' + Math.min(Math.ceil(monthly), Math.max(0, Math.round(financials.available))).toLocaleString() + ' to your goal account the moment salary arrives.' });
+  if (!isDoable) cuts.push({ title: 'Income gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month', desc: 'Freelancing or consulting just ' + cur + ' ' + Math.round(gap/2).toLocaleString() + '/month extra cuts your timeline significantly.' });
 
-  actions.innerHTML = expCuts.slice(0,4).map(a => `<div class="mp-action"><strong>${a.title}</strong>${a.desc}</div>`).join('');
+  actions.innerHTML = cuts.slice(0,4).map(function(a) { return '<div class="mp-action"><strong>' + a.title + '</strong>' + a.desc + '</div>'; }).join('');
 }
 
 async function savePlanToDb() {
@@ -1040,7 +1063,44 @@ async function saveUpdProgress() {
 }
 
 document.getElementById('updOverlay').addEventListener('click', function(e) { if (e.target === this) closeUpdModal(); });
+
+function showGoalLimitModal() {
+  document.getElementById('goalLimitOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeGoalLimitModal() {
+  document.getElementById('goalLimitOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
 init();
 </script>
+
+<!-- GOAL LIMIT MODAL -->
+<div id="goalLimitOverlay" onclick="if(event.target===this)closeGoalLimitModal()" style="position:fixed;inset:0;background:rgba(10,22,40,.65);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:24px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:up .3s ease">
+    <div style="background:linear-gradient(135deg,#0A1628,#1e3a5f);padding:28px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(0,201,167,.15),transparent 60%);pointer-events:none"></div>
+      <div style="width:50px;height:50px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:var(--font-body)">2/2</div>
+      <h3 style="font-family:var(--font-head);font-size:22px;font-style:italic;color:#fff;margin-bottom:8px">Free plan limit <span style="color:#00C9A7">reached.</span></h3>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;max-width:300px;margin:0 auto">You have used both free goal slots. Upgrade to Pro to save unlimited goals with full Maya analysis.</p>
+    </div>
+    <div style="padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid #E2E8F0">
+        <span style="font-size:13px;color:#64748B;font-weight:500">Free plan</span>
+        <div style="display:flex;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:#00C9A7"></div><div style="width:10px;height:10px;border-radius:50%;background:#00C9A7"></div><div style="width:10px;height:10px;border-radius:50%;background:#E2E8F0;border:1px solid #CBD5E1"></div></div>
+        <span style="font-size:12px;color:#94A3B8">2 of 2 used</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#E6FBF7;border:1px solid rgba(0,201,167,.3);border-radius:10px;padding:12px 14px;margin-bottom:18px">
+        <span style="font-size:13px;color:#0A1628;font-weight:600">Pro plan</span>
+        <span style="font-size:12px;color:#00A888;font-weight:700">Unlimited goals</span>
+        <span style="font-size:12px;color:#00A888;font-weight:700">$1 first month</span>
+      </div>
+      <button onclick="window.location.href='/upgrade.html'" style="width:100%;padding:13px;background:#00C9A7;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin-bottom:10px">Unlock unlimited goals — $1 first month</button>
+      <button onclick="closeGoalLimitModal()" style="width:100%;padding:9px;background:transparent;color:#94A3B8;border:none;font-size:13px;cursor:pointer;font-family:var(--font-body)">Maybe later</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
