@@ -14,230 +14,257 @@
   --teal:#00C9A7;--teal-dark:#00A888;--teal-light:#E6FBF7;
   --gold:#F59E0B;--gold-light:#FEF3C7;
   --muted:#64748B;--dim:#94A3B8;--border:#E2E8F0;
-  --red:#EF4444;--green:#10B981;--orange:#F97316;--purple:#8B5CF6;
-  --shadow:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 20px rgba(0,0,0,0.1);
-  --font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;
+  --red:#EF4444;--green:#10B981;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.1);
+  --font-head:'Playfair Display',serif;
+  --font-body:'Plus Jakarta Sans',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--navy);font-family:var(--font-body);min-height:100vh}
 @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes celebrate{0%{transform:scale(0) rotate(-10deg)}60%{transform:scale(1.1) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
-.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
 
+/* NAV */
 nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
-.logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}.logo span{color:var(--teal)}
+.logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}
+.logo span{color:var(--teal)}
 .btn-back{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
 .btn-back:hover{color:var(--navy);border-color:var(--navy)}
 
 .wrap{max-width:1100px;margin:0 auto;padding:32px 20px}
 
-/* WIZARD STEPS */
-.wizard-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px;animation:up .4s ease forwards}
-.step{display:flex;align-items:center;gap:8px}
-.step-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .3s;border:2px solid var(--border);color:var(--dim);background:var(--white)}
-.step-circle.active{background:var(--teal);color:var(--white);border-color:var(--teal)}
-.step-circle.done{background:var(--green);color:var(--white);border-color:var(--green)}
-.step-label{font-size:12px;font-weight:600;color:var(--dim);transition:color .3s;white-space:nowrap}
-.step-label.active{color:var(--teal)}
-.step-label.done{color:var(--green)}
-.step-line{width:40px;height:2px;background:var(--border);margin:0 4px;transition:background .3s;flex-shrink:0}
-.step-line.done{background:var(--green)}
+/* WIZARD */
+.wizard{display:flex;align-items:center;justify-content:center;margin-bottom:36px}
+.wstep{display:flex;align-items:center;gap:8px}
+.wcircle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--white);color:var(--dim);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.wcircle.active{background:var(--teal);color:var(--white);border-color:var(--teal)}
+.wcircle.done{background:var(--green);color:var(--white);border-color:var(--green)}
+.wlabel{font-size:12px;font-weight:600;color:var(--dim);white-space:nowrap}
+.wlabel.active{color:var(--teal)}
+.wlabel.done{color:var(--green)}
+.wline{width:40px;height:2px;background:var(--border);margin:0 4px;transition:background .3s}
+.wline.done{background:var(--green)}
 
-/* STEP PANELS */
-.step-panel{display:none;animation:up .4s ease forwards}
-.step-panel.active{display:block}
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block;animation:up .4s ease forwards}
 
-/* STEP 1 - GOAL PICKER */
-.step1-header{text-align:center;margin-bottom:28px}
-.step-tag{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);color:var(--teal-dark);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 12px;border-radius:20px;margin-bottom:10px}
-.step1-header h1{font-family:var(--font-head);font-size:clamp(24px,3.5vw,40px);font-style:italic;color:var(--navy);letter-spacing:-1px;margin-bottom:8px}
-.step1-header h1 span{color:var(--teal)}
-.step1-header p{font-size:14px;color:var(--muted)}
-.goal-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.gt-card{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .25s;position:relative}
-.gt-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.gt-card.sel{border-color:var(--teal);background:var(--teal-light)}
-.gt-icon{width:44px;height:44px;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-family:var(--font-body)}
-.gt-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px}
-.gt-desc{font-size:11px;color:var(--muted)}
-.gt-check{position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--teal);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700}
-.gt-card.sel .gt-check{display:flex}
+/* SAVED GOALS */
+.saved-section{margin-bottom:32px}
+.saved-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.saved-title{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}
+.btn-add-new{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-add-new:hover{background:var(--teal-dark)}
 
-/* GOAL DETAILS FORM */
-.goal-details-form{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;display:none}
-.goal-details-form.show{display:block}
-.gdf-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.gdf-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;font-family:var(--font-body)}
-.gdf-title{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}
-.gdf-sub{font-size:13px;color:var(--muted)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group.full{grid-column:span 2}
-.form-label{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em}
-.form-label span{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
-.inp{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--navy);font-size:14px;font-family:var(--font-body);outline:none;transition:all .2s;width:100%}
-.inp:focus{border-color:var(--teal);background:var(--white)}
-.inp::placeholder{color:var(--dim)}
-.inp-row{display:flex;gap:8px}
-.inp-pre{background:var(--blue-light);border:1.5px solid var(--border);border-right:none;border-radius:8px 0 0 8px;padding:10px 12px;color:var(--blue);font-size:13px;font-weight:700;display:flex;align-items:center;white-space:nowrap}
-.inp.attached{border-radius:0 8px 8px 0}
-.currency-sel{width:80px;flex-shrink:0}
-.btn-next{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-next:hover{background:var(--teal-dark);transform:translateY(-1px)}
-.btn-next:disabled{background:var(--dim);cursor:not-allowed;transform:none}
-.btn-prev{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin-right:10px}
-.btn-prev:hover{color:var(--navy);border-color:var(--navy)}
+.free-bar{background:var(--gold-light);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.free-dots{display:flex;gap:5px}
+.fdot{width:11px;height:11px;border-radius:50%}
+.fdot.on{background:var(--teal);border:1px solid var(--teal-dark)}
+.fdot.off{background:var(--border);border:1px solid #CBD5E1}
+.free-text{font-size:13px;color:#92400E;font-weight:500}
+.btn-upgrade-bar{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body)}
+
+.goals-list{display:flex;flex-direction:column;gap:10px}
+.goal-row{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);transition:all .2s}
+.goal-row:hover{border-color:var(--teal);transform:translateX(3px)}
+.gr-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;font-family:var(--font-body)}
+.gr-info{flex:1}
+.gr-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.gr-meta{font-size:11px;color:var(--muted);margin-bottom:6px}
+.gr-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.gr-fill{height:5px;border-radius:3px}
+.gr-pct{font-size:11px;font-weight:700;margin-top:3px}
+.gr-right{text-align:right;flex-shrink:0}
+.gr-saved{font-family:var(--font-head);font-size:18px;font-style:italic;color:var(--navy)}
+.gr-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.btn-upd{background:var(--teal-light);color:var(--teal-dark);border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-left:8px;transition:all .2s;flex-shrink:0}
+.btn-upd:hover{background:var(--teal);color:#fff}
+
+/* STEP 1 */
+.page-tag{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);color:var(--teal-dark);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.page-h1{font-family:var(--font-head);font-size:clamp(24px,3.5vw,40px);font-style:italic;color:var(--navy);letter-spacing:-1px;margin-bottom:8px}
+.page-h1 span{color:var(--teal)}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
+
+.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.type-card{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .25s;position:relative}
+.type-card:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.type-card.selected{border-color:var(--teal);background:var(--teal-light)}
+.type-check{position:absolute;top:8px;right:8px;width:18px;height:18px;background:var(--teal);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700}
+.type-card.selected .type-check{display:flex}
+.type-icon{width:44px;height:44px;border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-family:var(--font-body)}
+.type-name{font-size:13px;font-weight:700;color:var(--navy)}
+
+/* GOAL FORM */
+.goal-form{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;display:none}
+.goal-form.show{display:block;animation:up .3s ease forwards}
+.form-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.form-head-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;font-family:var(--font-body)}
+.form-head-title{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:span 2}
+.fl{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.06em}
+.fl em{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-style:normal}
+.fi{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--navy);font-size:14px;font-family:var(--font-body);outline:none;transition:all .2s;width:100%}
+.fi:focus{border-color:var(--teal);background:var(--white)}
+.fi::placeholder{color:var(--dim)}
+.fi-row{display:flex;gap:8px}
+.fi-cur{width:80px;flex-shrink:0}
+.btn-continue{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-continue:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-back-step{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:12px 20px;font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body);margin-right:10px;transition:all .2s}
+.btn-back-step:hover{color:var(--navy);border-color:var(--navy)}
 
 /* STEP 2 - EXPENSES */
-.expense-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.expense-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px}
+.live-bar{background:linear-gradient(135deg,var(--navy),#1e3a5f);border-radius:14px;padding:18px 20px;color:#fff;margin-bottom:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;text-align:center}
+.lb-label{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.lb-val{font-family:var(--font-head);font-size:22px;font-style:italic}
+.lb-val.r{color:#FF8080}.lb-val.g{color:#80FFD4}.lb-val.gold{color:#FFD180}
+.alert-box{border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
+.alert-box.danger{background:#FEF2F2;border:1px solid #FECACA;color:var(--red)}
+.alert-box.warn{background:var(--gold-light);border:1px solid rgba(245,158,11,.3);color:#92400E}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.exp-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px}
 .exp-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.exp-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--font-body)}
+.exp-badge{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:var(--font-body);flex-shrink:0}
 .exp-items{display:flex;flex-direction:column;gap:10px}
-.exp-item{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.exp-item label{font-size:12px;color:var(--muted);flex-shrink:0;width:120px}
-.exp-inp{background:var(--bg);border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--navy);font-size:13px;font-family:var(--font-body);outline:none;width:100%;transition:border-color .2s;text-align:right}
-.exp-inp:focus{border-color:var(--teal)}
-.live-total{background:linear-gradient(135deg,var(--navy),#1e3a5f);border-radius:14px;padding:20px;color:#fff;margin-bottom:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;text-align:center}
-.lt-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.lt-val{font-family:var(--font-head);font-size:22px;font-style:italic}
-.lt-val.red{color:#FF8080}.lt-val.green{color:#80FFD4}.lt-val.gold{color:#FFD180}.lt-val.white{color:#fff}
-.danger-banner{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
-.warning-banner{background:var(--gold-light);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#92400E;margin-bottom:14px;display:none}
+.exp-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.exp-label{font-size:12px;color:var(--muted);flex-shrink:0;width:130px}
+.exp-input{background:var(--bg);border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--navy);font-size:13px;font-family:var(--font-body);outline:none;width:100%;text-align:right;transition:border-color .2s}
+.exp-input:focus{border-color:var(--teal)}
 
-/* STEP 3 - DNA SCAN */
-.dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.dna-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px}
-.readiness-score{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:20px;padding:28px;color:#fff;text-align:center;margin-bottom:20px}
-.rs-label{font-size:12px;opacity:.8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.rs-ring{position:relative;width:120px;height:120px;margin:0 auto 16px}
-.rs-ring svg{width:120px;height:120px;transform:rotate(-90deg)}
-.rs-bg{fill:none;stroke:rgba(255,255,255,.2);stroke-width:10}
-.rs-arc{fill:none;stroke:#fff;stroke-width:10;stroke-linecap:round;stroke-dasharray:283;transition:stroke-dashoffset 1.5s ease}
-.rs-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.rs-num{font-family:var(--font-head);font-size:32px;font-style:italic;line-height:1}
-.rs-grade{font-size:14px;font-weight:700;margin-bottom:4px}
-.rs-desc{font-size:13px;opacity:.85}
-.rs-factors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-.rsf{background:rgba(255,255,255,.12);border-radius:10px;padding:10px;text-align:center}
-.rsf-lbl{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.rsf-val{font-size:16px;font-weight:700}
+/* STEP 3 - DNA */
+.dna-hero{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:20px;padding:28px;color:#fff;text-align:center;margin-bottom:20px}
+.dna-label{font-size:12px;opacity:.8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.dna-ring{position:relative;width:120px;height:120px;margin:0 auto 16px}
+.dna-ring svg{width:120px;height:120px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.2);stroke-width:10}
+.ring-arc{fill:none;stroke:#fff;stroke-width:10;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transition:stroke-dashoffset 1.5s ease}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-num{font-family:var(--font-head);font-size:32px;font-style:italic;line-height:1}
+.ring-sub{font-size:11px;opacity:.7}
+.dna-grade{font-size:22px;font-weight:700;margin-bottom:4px}
+.dna-desc{font-size:13px;opacity:.85;margin-bottom:18px}
+.dna-factors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.dna-fac{background:rgba(255,255,255,.12);border-radius:10px;padding:10px;text-align:center}
+.dna-fac-label{font-size:9px;opacity:.8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.dna-fac-val{font-size:16px;font-weight:700}
+.dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.dna-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px}
+.dna-card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.dna-finding{display:flex;gap:8px;margin-bottom:8px;font-size:13px;color:var(--muted);align-items:flex-start}
+.dna-finding::before{content:'→';color:var(--teal);flex-shrink:0;font-weight:700}
+.dna-num-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.dna-num-label{color:var(--muted)}
+.dna-num-val{font-weight:700}
 
-/* STEP 4 - THE PLAN */
+/* STEP 4 - PLAN */
 .plan-hero{background:linear-gradient(135deg,var(--navy),#1e3a5f);border-radius:20px;padding:28px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
 .plan-hero::before{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:radial-gradient(circle,rgba(0,201,167,.2),transparent 70%);pointer-events:none}
-.ph-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:14px}
-.ph-goal{font-size:12px;opacity:.7;margin-bottom:4px}
-.ph-title{font-family:var(--font-head);font-size:26px;font-style:italic;line-height:1}
-.ph-target{text-align:right}
-.ph-target-lbl{font-size:11px;opacity:.7;margin-bottom:4px}
-.ph-target-val{font-family:var(--font-head);font-size:30px;font-style:italic;color:var(--teal)}
+.ph-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.ph-left .ph-goal-name{font-size:12px;opacity:.7;margin-bottom:4px}
+.ph-left .ph-title{font-family:var(--font-head);font-size:26px;font-style:italic;line-height:1}
+.ph-right{text-align:right}
+.ph-right .ph-tlabel{font-size:11px;opacity:.7;margin-bottom:4px}
+.ph-right .ph-tval{font-family:var(--font-head);font-size:30px;font-style:italic;color:var(--teal)}
 .plan-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.ps{background:rgba(255,255,255,.1);border-radius:12px;padding:14px;text-align:center;backdrop-filter:blur(10px)}
-.ps-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.ps-val{font-family:var(--font-head);font-size:22px;font-style:italic}
-.plan-progress{margin-bottom:16px}
-.pp-top{display:flex;justify-content:space-between;font-size:12px;opacity:.8;margin-bottom:6px}
-.pp-track{height:8px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
-.pp-fill{height:8px;background:var(--teal);border-radius:4px;transition:width 1s ease}
+.pstat{background:rgba(255,255,255,.1);border-radius:12px;padding:14px;text-align:center}
+.pstat-label{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.pstat-val{font-family:var(--font-head);font-size:22px;font-style:italic}
+.progress-section{margin-bottom:4px}
+.prog-top{display:flex;justify-content:space-between;font-size:12px;opacity:.8;margin-bottom:6px}
+.prog-track{height:8px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
+.prog-fill{height:8px;background:var(--teal);border-radius:4px;transition:width 1s ease}
 
-/* CHARTS */
+.milestones{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.ms-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)}
+.ms-card.done{border-color:var(--teal);background:var(--teal-light)}
+.ms-month{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.ms-amount{font-family:var(--font-head);font-size:18px;font-style:italic;color:var(--navy)}
+.ms-pct{font-size:11px;color:var(--muted);margin-top:2px}
+.ms-card.done .ms-amount{color:var(--teal-dark)}
+.ms-card.done .ms-pct{color:var(--teal-dark)}
+
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .chart-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
 .chart-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .chart-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
 .chart-wrap{position:relative;height:200px}
 
-/* SCENARIO SLIDER */
 .scenario-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
 .scenario-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .scenario-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
-.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
-.slider-label{font-size:12px;color:var(--muted);width:140px;flex-shrink:0}
-.slider{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--border);outline:none;cursor:pointer}
+.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.slider-label{font-size:12px;color:var(--muted);width:130px;flex-shrink:0}
+.slider{flex:1;height:6px;border-radius:3px;background:var(--border);outline:none;cursor:pointer;-webkit-appearance:none}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,201,167,.3)}
-.slider-val{font-size:13px;font-weight:700;color:var(--teal);width:70px;text-align:right;flex-shrink:0}
+.slider-val{font-size:13px;font-weight:700;color:var(--teal);width:80px;text-align:right;flex-shrink:0}
 .scenario-result{background:var(--teal-light);border:1px solid rgba(0,201,167,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--navy);line-height:1.5}
-.scenario-result strong{color:var(--teal-dark)}
 
-/* MAYA PLAN */
-.maya-plan{background:var(--navy);border-radius:16px;padding:22px;margin-bottom:16px;color:#fff}
-.mp-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.mp-av{width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:14px;font-style:italic;color:var(--navy);flex-shrink:0}
-.mp-name{font-size:13px;font-weight:700}
-.mp-sub{font-size:11px;opacity:.7}
-.mp-content{font-size:13px;line-height:1.7;opacity:.9}
-.mp-content strong{color:var(--teal)}
-.mp-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-.mp-action{background:rgba(255,255,255,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px}
-.mp-action strong{color:var(--teal);display:block;margin-bottom:2px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.maya-card{background:var(--navy);border-radius:16px;padding:22px;margin-bottom:16px;color:#fff}
+.maya-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.maya-av{width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:14px;font-style:italic;color:var(--navy);flex-shrink:0}
+.maya-name{font-size:13px;font-weight:700;color:#fff}
+.maya-sub{font-size:11px;opacity:.7}
+.maya-content{font-size:13px;line-height:1.75;color:rgba(255,255,255,.85)}
+.maya-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.maya-action{background:rgba(255,255,255,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:rgba(255,255,255,.9)}
+.maya-action strong{color:var(--teal);display:block;margin-bottom:2px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
 
-/* MILESTONES */
-.milestones-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.ms{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)}
-.ms.active{border-color:var(--teal);background:var(--teal-light)}
-.ms-month{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.ms-amount{font-family:var(--font-head);font-size:18px;font-style:italic;color:var(--navy)}
-.ms-pct{font-size:11px;color:var(--muted);margin-top:2px}
-.ms.active .ms-amount{color:var(--teal-dark)}.ms.active .ms-pct{color:var(--teal-dark)}
-
-/* SHARE CARD */
-.share-card{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:16px;padding:22px;text-align:center;color:#fff;margin-bottom:16px}
-.sc-title{font-family:var(--font-head);font-size:20px;font-style:italic;margin-bottom:6px}
-.sc-sub{font-size:13px;opacity:.8;margin-bottom:14px}
-.btn-share{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin:0 4px}
-.btn-share:hover{background:rgba(255,255,255,.25)}
-.btn-save-plan{background:#fff;color:var(--teal-dark);border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s;margin:0 4px}
+.save-card{background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:16px;padding:22px;text-align:center;color:#fff;margin-bottom:16px}
+.save-title{font-family:var(--font-head);font-size:20px;font-style:italic;margin-bottom:6px}
+.save-sub{font-size:13px;opacity:.8;margin-bottom:14px}
+.btn-save-plan{background:#fff;color:var(--teal-dark);border:none;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin:0 4px;transition:all .2s}
 .btn-save-plan:hover{background:var(--teal-light)}
-
-/* ACTIVE GOALS LIST */
-.saved-goals{margin-bottom:28px;display:none}
-.sg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sg-title{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}
-.sg-list{display:flex;flex-direction:column;gap:10px}
-.sg-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s}
-.sg-item:hover{border-color:var(--teal);transform:translateX(3px)}
-.sg-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;font-family:var(--font-body)}
-.sg-info{flex:1}
-.sg-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
-.sg-meta{font-size:11px;color:var(--muted)}
-.sg-bar-wrap{width:120px;flex-shrink:0}
-.sg-bar-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:3px}
-.sg-bar-fill{height:5px;border-radius:3px;background:var(--teal)}
-.sg-pct{font-size:11px;font-weight:700;color:var(--teal-dark);text-align:right}
-.sg-amount{text-align:right;flex-shrink:0}
-.sg-saved{font-family:var(--font-head);font-size:16px;font-style:italic;color:var(--navy)}
-.sg-monthly{font-size:10px;color:var(--muted);margin-top:1px}
-.btn-update-goal{background:var(--teal-light);color:var(--teal-dark);border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);margin-left:8px;transition:all .2s;flex-shrink:0}
-.btn-update-goal:hover{background:var(--teal);color:#fff}
+.btn-another{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);margin:0 4px;transition:all .2s}
+.btn-another:hover{background:rgba(255,255,255,.25)}
 
 /* UPDATE MODAL */
-.upd-overlay{position:fixed;inset:0;background:rgba(10,22,40,.6);backdrop-filter:blur(4px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
-.upd-overlay.open{display:flex}
+.overlay{position:fixed;inset:0;background:rgba(10,22,40,.6);backdrop-filter:blur(4px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
 .upd-modal{background:var(--white);border-radius:16px;padding:28px;max-width:380px;width:100%;box-shadow:var(--shadow-md)}
 .upd-title{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy);margin-bottom:6px}
 .upd-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
 .upd-inp{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--navy);font-size:18px;font-family:var(--font-body);outline:none;margin-bottom:14px;text-align:right;transition:border-color .2s}
 .upd-inp:focus{border-color:var(--teal)}
 .upd-btns{display:flex;gap:10px}
-.btn-upd-save{flex:1;padding:11px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.btn-upd-ok{flex:1;padding:11px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-upd-ok:hover{background:var(--teal-dark)}
 .btn-upd-cancel{padding:11px 16px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font-body)}
-.confetti{font-size:32px;text-align:center;margin-bottom:10px;display:none;animation:celebrate .5s ease}
+.celebrate{font-size:15px;font-weight:700;color:var(--teal-dark);text-align:center;margin-bottom:10px;display:none}
+
+/* LIMIT MODAL */
+.limit-modal{background:#fff;border-radius:24px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.limit-header{background:linear-gradient(135deg,#0A1628,#1e3a5f);padding:28px;text-align:center}
+.limit-badge{width:50px;height:50px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:var(--font-body)}
+.limit-h{font-family:var(--font-head);font-size:22px;font-style:italic;color:#fff;margin-bottom:8px}
+.limit-h span{color:var(--teal)}
+.limit-p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;max-width:300px;margin:0 auto}
+.limit-body{padding:20px}
+.limit-row{display:flex;align-items:center;justify-content:space-between;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.limit-row.free{background:#F8FAFC;border:1px solid #E2E8F0}
+.limit-row.pro{background:var(--teal-light);border:1px solid rgba(0,201,167,.3)}
+.limit-dots{display:flex;gap:5px}
+.ldot{width:10px;height:10px;border-radius:50%}
+.ldot.on{background:var(--teal)}
+.ldot.off{background:#E2E8F0;border:1px solid #CBD5E1}
+.btn-limit-upgrade{width:100%;padding:13px;background:var(--teal);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);margin-bottom:10px;transition:all .2s}
+.btn-limit-upgrade:hover{background:var(--teal-dark)}
+.btn-limit-skip{width:100%;padding:9px;background:transparent;color:var(--dim);border:none;font-size:13px;cursor:pointer;font-family:var(--font-body)}
 
 @media(max-width:768px){
   nav{padding:0 16px}
-  .goal-type-grid{grid-template-columns:repeat(2,1fr)}
-  .form-row{grid-template-columns:1fr}.form-group.full{grid-column:span 1}
-  .expense-grid{grid-template-columns:1fr}
-  .live-total{grid-template-columns:repeat(2,1fr)}
+  .type-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}.fg.full{grid-column:span 1}
+  .exp-grid{grid-template-columns:1fr}
+  .live-bar{grid-template-columns:repeat(2,1fr)}
   .dna-grid{grid-template-columns:1fr}
   .charts-grid{grid-template-columns:1fr}
   .plan-stats{grid-template-columns:repeat(2,1fr)}
-  .milestones-row{grid-template-columns:repeat(2,1fr)}
-  .rs-factors{grid-template-columns:1fr 1fr}
-  .wizard-steps .step-label{display:none}
+  .milestones{grid-template-columns:repeat(2,1fr)}
+  .wizard .wlabel{display:none}
 }
 </style>
 </head>
@@ -250,833 +277,854 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px
 
 <div class="wrap">
 
-  <!-- WIZARD STEPS -->
-  <div class="wizard-steps">
-    <div class="step">
-      <div class="step-circle active" id="sc1">1</div>
-      <div class="step-label active" id="sl1">Your Goal</div>
-    </div>
-    <div class="step-line" id="line1"></div>
-    <div class="step">
-      <div class="step-circle" id="sc2">2</div>
-      <div class="step-label" id="sl2">Your Finances</div>
-    </div>
-    <div class="step-line" id="line2"></div>
-    <div class="step">
-      <div class="step-circle" id="sc3">3</div>
-      <div class="step-label" id="sl3">Reality Check</div>
-    </div>
-    <div class="step-line" id="line3"></div>
-    <div class="step">
-      <div class="step-circle" id="sc4">4</div>
-      <div class="step-label" id="sl4">Your Plan</div>
-    </div>
+  <!-- WIZARD -->
+  <div class="wizard">
+    <div class="wstep"><div class="wcircle active" id="wc1">1</div><div class="wlabel active" id="wl1">Your Goal</div></div>
+    <div class="wline" id="wln1"></div>
+    <div class="wstep"><div class="wcircle" id="wc2">2</div><div class="wlabel" id="wl2">Your Finances</div></div>
+    <div class="wline" id="wln2"></div>
+    <div class="wstep"><div class="wcircle" id="wc3">3</div><div class="wlabel" id="wl3">Reality Check</div></div>
+    <div class="wline" id="wln3"></div>
+    <div class="wstep"><div class="wcircle" id="wc4">4</div><div class="wlabel" id="wl4">Your Plan</div></div>
   </div>
 
   <!-- SAVED GOALS -->
-  <div class="saved-goals" id="savedGoalsSection">
-    <div class="sg-header">
-      <div class="sg-title">Your active goals</div>
-      <button onclick="showStep(1)" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body)">+ Add new goal</button>
+  <div class="saved-section" id="savedSection" style="display:none">
+    <div class="saved-header">
+      <div class="saved-title">Your active goals</div>
+      <button class="btn-add-new" onclick="startFresh()">+ Add new goal</button>
     </div>
-    <div class="sg-list" id="sgList"></div>
+    <div id="freeBar" style="display:none" class="free-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="free-dots">
+          <div class="fdot on"></div>
+          <div class="fdot on"></div>
+        </div>
+        <span class="free-text"><strong>2 of 2</strong> free goals used</span>
+      </div>
+      <button class="btn-upgrade-bar" onclick="showLimitModal()">Upgrade for unlimited</button>
+    </div>
+    <div class="goals-list" id="goalsList"></div>
   </div>
 
   <!-- STEP 1 -->
-  <div class="step-panel active" id="panel1">
-    <div class="step1-header">
-      <div class="step-tag">Step 1 of 4</div>
-      <h1>What is your<br><span>biggest dream right now?</span></h1>
-      <p>Choose your goal — Maya will build a complete financial roadmap to make it happen.</p>
-    </div>
-    <div class="goal-type-grid">
-      <div class="gt-card" onclick="selectGoalType('house','H','Buy a House','Down payment & costs','#1A56DB','#EEF2FF')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#EEF2FF;color:#1A56DB">H</div>
-        <div class="gt-name">Buy a House</div>
-        <div class="gt-desc">Down payment & costs</div>
+  <div class="panel active" id="panel1">
+    <div class="page-tag">Step 1 of 4</div>
+    <h1 class="page-h1">What is your<br><span>biggest dream right now?</span></h1>
+    <p class="page-sub">Choose your goal. Maya will build a complete financial roadmap to get you there.</p>
+
+    <div class="type-grid" id="typeGrid">
+      <div class="type-card" id="tc-house">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#EEF2FF;color:#1A56DB">H</div>
+        <div class="type-name">Buy a House</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('car','C','Buy a Car','Full purchase or deposit','#00A888','#E6FBF7')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#E6FBF7;color:#00A888">C</div>
-        <div class="gt-name">Buy a Car</div>
-        <div class="gt-desc">Full purchase or deposit</div>
+      <div class="type-card" id="tc-car">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#E6FBF7;color:#00A888">C</div>
+        <div class="type-name">Buy a Car</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('wedding','W','Wedding','Your perfect day','#C026D3','#FDF4FF')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#FDF4FF;color:#C026D3">W</div>
-        <div class="gt-name">Wedding</div>
-        <div class="gt-desc">Your perfect day</div>
+      <div class="type-card" id="tc-wedding">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#FDF4FF;color:#C026D3">W</div>
+        <div class="type-name">Wedding</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('travel','T','Travel','Dream vacation','#D97706','#FEF3C7')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#FEF3C7;color:#D97706">T</div>
-        <div class="gt-name">Travel</div>
-        <div class="gt-desc">Dream vacation</div>
+      <div class="type-card" id="tc-travel">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#FEF3C7;color:#D97706">T</div>
+        <div class="type-name">Travel</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('baby','F','Baby & Family','Growing your family','#7C3AED','#F5F3FF')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#F5F3FF;color:#7C3AED">F</div>
-        <div class="gt-name">Baby & Family</div>
-        <div class="gt-desc">Prepare for the future</div>
+      <div class="type-card" id="tc-baby">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#F5F3FF;color:#7C3AED">F</div>
+        <div class="type-name">Baby & Family</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('business','B','Start a Business','Fund your startup','#1A56DB','#EEF2FF')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#EEF2FF;color:#1A56DB">B</div>
-        <div class="gt-name">Start a Business</div>
-        <div class="gt-desc">Fund your startup</div>
+      <div class="type-card" id="tc-business">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#EEF2FF;color:#1A56DB">B</div>
+        <div class="type-name">Start a Business</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('emergency','E','Emergency Fund','6 months of expenses','#00A888','#E6FBF7')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#E6FBF7;color:#00A888">E</div>
-        <div class="gt-name">Emergency Fund</div>
-        <div class="gt-desc">Financial safety net</div>
+      <div class="type-card" id="tc-emergency">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#E6FBF7;color:#00A888">E</div>
+        <div class="type-name">Emergency Fund</div>
       </div>
-      <div class="gt-card" onclick="selectGoalType('custom','+','My Own Goal','Anything you want','#D97706','#FEF3C7')">
-        <div class="gt-check">✓</div>
-        <div class="gt-icon" style="background:#FEF3C7;color:#D97706">+</div>
-        <div class="gt-name">Custom Goal</div>
-        <div class="gt-desc">Anything you want</div>
+      <div class="type-card" id="tc-custom">
+        <div class="type-check">✓</div>
+        <div class="type-icon" style="background:#FEF3C7;color:#D97706">+</div>
+        <div class="type-name">Custom Goal</div>
       </div>
     </div>
 
-    <div class="goal-details-form" id="goalDetailsForm">
-      <div class="gdf-header">
-        <div class="gdf-icon" id="gdfIcon"></div>
+    <div class="goal-form" id="goalForm">
+      <div class="form-head">
+        <div class="form-head-icon" id="formIcon"></div>
         <div>
-          <div class="gdf-title" id="gdfTitle">Your Goal</div>
-          <div class="gdf-sub">Fill in the details below</div>
+          <div class="form-head-title" id="formTitle">Your Goal</div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group full" id="customNameGroup" style="display:none">
-          <label class="form-label">Goal name <span>(required)</span></label>
-          <input class="inp" id="goalName" type="text" placeholder="e.g. My dream home studio">
+      <div class="form-grid">
+        <div class="fg full" id="customNameRow" style="display:none">
+          <label class="fl">Goal name</label>
+          <input class="fi" id="goalName" type="text" placeholder="e.g. My dream home studio">
         </div>
-        <div class="form-group">
-          <label class="form-label">Target amount <span>(total cost)</span></label>
-          <div class="inp-row">
-            <select class="inp currency-sel" id="currency">
+        <div class="fg">
+          <label class="fl">Target amount <em>(total cost)</em></label>
+          <div class="fi-row">
+            <select class="fi fi-cur" id="currency">
               <option>USD</option><option>EUR</option><option>GBP</option><option>MAD</option>
               <option>MXN</option><option>CAD</option><option>AED</option><option>BRL</option>
-              <option>PKR</option><option>INR</option><option>TRY</option><option>Other</option>
+              <option>PKR</option><option>INR</option><option>Other</option>
             </select>
-            <input class="inp" id="goalAmount" type="number" placeholder="e.g. 25000" min="1">
+            <input class="fi" id="goalAmount" type="number" placeholder="e.g. 25000" min="1">
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Target date <span>(when do you want it?)</span></label>
-          <input class="inp" id="goalDate" type="date">
+        <div class="fg">
+          <label class="fl">Target date <em>(when do you want it?)</em></label>
+          <input class="fi" id="goalDate" type="date">
         </div>
-        <div class="form-group">
-          <label class="form-label">Already saved <span>(toward this goal)</span></label>
-          <input class="inp" id="alreadySaved" type="number" placeholder="0" min="0" value="0">
+        <div class="fg">
+          <label class="fl">Already saved <em>(toward this goal)</em></label>
+          <input class="fi" id="alreadySaved" type="number" placeholder="0" min="0" value="0">
         </div>
-        <div class="form-group">
-          <label class="form-label">Priority <span>(how important?)</span></label>
-          <select class="inp" id="goalPriority">
+        <div class="fg">
+          <label class="fl">Priority</label>
+          <select class="fi" id="goalPriority">
             <option value="high">High — my top priority</option>
             <option value="medium">Medium — important but flexible</option>
             <option value="low">Low — nice to have</option>
           </select>
         </div>
       </div>
-      <button class="btn-next" onclick="goToStep2()">Continue to financial analysis →</button>
+      <button class="btn-continue" onclick="goStep2()">Continue to financial analysis →</button>
     </div>
   </div>
 
   <!-- STEP 2 -->
-  <div class="step-panel" id="panel2">
-    <div class="step1-header">
-      <div class="step-tag">Step 2 of 4</div>
-      <h1>Your complete<br><span>financial picture.</span></h1>
-      <p>Be honest — the more accurate your numbers, the better Maya's plan. This stays private.</p>
+  <div class="panel" id="panel2">
+    <div class="page-tag">Step 2 of 4</div>
+    <h1 class="page-h1">Your complete<br><span>financial picture.</span></h1>
+    <p class="page-sub">Be honest — the more accurate, the better Maya's plan. Everything stays private.</p>
+
+    <div class="live-bar">
+      <div><div class="lb-label">Monthly income</div><div class="lb-val" id="lbIncome">—</div></div>
+      <div><div class="lb-label">Total expenses</div><div class="lb-val r" id="lbExpenses">—</div></div>
+      <div><div class="lb-label">Available to save</div><div class="lb-val g" id="lbAvailable">—</div></div>
+      <div><div class="lb-label">Goal needs/month</div><div class="lb-val gold" id="lbNeed">—</div></div>
     </div>
+    <div class="alert-box danger" id="alertDanger">Your expenses exceed your income. Maya will help you identify cuts to make this goal achievable.</div>
+    <div class="alert-box warn" id="alertWarn">This goal requires more than 40% of your available savings. Maya will suggest adjustments.</div>
 
-    <div class="live-total" id="liveTotal">
-      <div><div class="lt-lbl">Monthly income</div><div class="lt-val white" id="ltIncome">—</div></div>
-      <div><div class="lt-lbl">Total expenses</div><div class="lt-val red" id="ltExpenses">—</div></div>
-      <div><div class="lt-lbl">Available to save</div><div class="lt-val green" id="ltAvailable">—</div></div>
-      <div><div class="lt-lbl">Goal monthly need</div><div class="lt-val gold" id="ltNeed">—</div></div>
-    </div>
-
-    <div class="danger-banner" id="dangerBanner">Your expenses exceed your income. Maya will help you find ways to cut costs and make this goal achievable.</div>
-    <div class="warning-banner" id="warningBanner">This goal requires more than 40% of your available savings. Maya will suggest adjustments.</div>
-
-    <div class="expense-grid">
-      <div class="expense-card">
-        <div class="exp-title">
-          <div class="exp-icon" style="background:#EEF2FF;color:#1A56DB">IN</div>
-          Income
-        </div>
+    <div class="exp-grid">
+      <div class="exp-card">
+        <div class="exp-title"><div class="exp-badge" style="background:#EEF2FF;color:#1A56DB">IN</div>Income</div>
         <div class="exp-items">
-          <div class="exp-item"><label>Monthly salary</label><input class="exp-inp" id="salary" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Side income</label><input class="exp-inp" id="sideIncome" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Other income</label><input class="exp-inp" id="otherIncome" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Monthly salary</label><input class="exp-input" id="salary" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Side income</label><input class="exp-input" id="sideIncome" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Other income</label><input class="exp-input" id="otherIncome" type="number" placeholder="0" oninput="updateLive()"></div>
         </div>
       </div>
-      <div class="expense-card">
-        <div class="exp-title">
-          <div class="exp-icon" style="background:#FEF2F2;color:#EF4444">FX</div>
-          Fixed Expenses
-        </div>
+      <div class="exp-card">
+        <div class="exp-title"><div class="exp-badge" style="background:#FEF2F2;color:#EF4444">FX</div>Fixed Expenses</div>
         <div class="exp-items">
-          <div class="exp-item"><label>Rent / Mortgage</label><input class="exp-inp" id="rent" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Utilities</label><input class="exp-inp" id="utilities" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Insurance</label><input class="exp-inp" id="insurance" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Phone / Internet</label><input class="exp-inp" id="phone" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Subscriptions</label><input class="exp-inp" id="subscriptions" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Rent / Mortgage</label><input class="exp-input" id="rent" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Utilities</label><input class="exp-input" id="utilities" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Insurance</label><input class="exp-input" id="insurance" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Phone / Internet</label><input class="exp-input" id="phone" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Subscriptions</label><input class="exp-input" id="subscriptions" type="number" placeholder="0" oninput="updateLive()"></div>
         </div>
       </div>
-      <div class="expense-card">
-        <div class="exp-title">
-          <div class="exp-icon" style="background:var(--gold-light);color:#D97706">VA</div>
-          Variable Expenses
-        </div>
+      <div class="exp-card">
+        <div class="exp-title"><div class="exp-badge" style="background:#FEF3C7;color:#D97706">VA</div>Variable Expenses</div>
         <div class="exp-items">
-          <div class="exp-item"><label>Groceries</label><input class="exp-inp" id="groceries" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Dining out</label><input class="exp-inp" id="dining" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Transport / Gas</label><input class="exp-inp" id="transport" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Entertainment</label><input class="exp-inp" id="entertainment" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Shopping / Clothes</label><input class="exp-inp" id="shopping" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Groceries</label><input class="exp-input" id="groceries" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Dining out</label><input class="exp-input" id="dining" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Transport / Gas</label><input class="exp-input" id="transport" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Entertainment</label><input class="exp-input" id="entertainment" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Shopping / Clothes</label><input class="exp-input" id="shopping" type="number" placeholder="0" oninput="updateLive()"></div>
         </div>
       </div>
-      <div class="expense-card">
-        <div class="exp-title">
-          <div class="exp-icon" style="background:#FEF2F2;color:#EF4444">DE</div>
-          Debts & Savings
-        </div>
+      <div class="exp-card">
+        <div class="exp-title"><div class="exp-badge" style="background:#FEF2F2;color:#EF4444">DE</div>Debts & Savings</div>
         <div class="exp-items">
-          <div class="exp-item"><label>Debt payments</label><input class="exp-inp" id="debtPayments" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Total debt owed</label><input class="exp-inp" id="totalDebt" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Current savings</label><input class="exp-inp" id="currentSavings" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Emergency fund</label><input class="exp-inp" id="emergencyFund" type="number" placeholder="0" oninput="updateLive()"></div>
-          <div class="exp-item"><label>Other expenses</label><input class="exp-inp" id="otherExpenses" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Monthly debt payments</label><input class="exp-input" id="debtPayments" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Total debt owed</label><input class="exp-input" id="totalDebt" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Current savings total</label><input class="exp-input" id="currentSavings" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Emergency fund</label><input class="exp-input" id="emergencyFund" type="number" placeholder="0" oninput="updateLive()"></div>
+          <div class="exp-row"><label class="exp-label">Other expenses</label><input class="exp-input" id="otherExpenses" type="number" placeholder="0" oninput="updateLive()"></div>
         </div>
       </div>
     </div>
     <div>
-      <button class="btn-prev" onclick="goToStep(1)">← Back</button>
-      <button class="btn-next" onclick="goToStep3()">Run DNA scan →</button>
+      <button class="btn-back-step" onclick="goStep(1)">← Back</button>
+      <button class="btn-continue" onclick="goStep3()">Run reality check →</button>
     </div>
   </div>
 
   <!-- STEP 3 -->
-  <div class="step-panel" id="panel3">
-    <div class="step1-header">
-      <div class="step-tag">Step 3 of 4</div>
-      <h1>Your financial<br><span>DNA scan.</span></h1>
-      <p>Maya analyzed your complete financial picture. Here is the reality.</p>
-    </div>
+  <div class="panel" id="panel3">
+    <div class="page-tag">Step 3 of 4</div>
+    <h1 class="page-h1">Your financial<br><span>reality check.</span></h1>
+    <p class="page-sub">Maya analyzed your complete picture. Here is the honest truth.</p>
 
-    <div class="readiness-score" id="readinessCard">
-      <div class="rs-label">Goal Readiness Score</div>
-      <div class="rs-ring">
+    <div class="dna-hero">
+      <div class="dna-label">Goal Readiness Score</div>
+      <div class="dna-ring">
         <svg viewBox="0 0 100 100">
-          <circle class="rs-bg" cx="50" cy="50" r="45"/>
-          <circle class="rs-arc" id="rsArc" cx="50" cy="50" r="45" style="stroke-dashoffset:283"/>
+          <circle class="ring-bg" cx="50" cy="50" r="45"/>
+          <circle class="ring-arc" id="ringArc" cx="50" cy="50" r="45"/>
         </svg>
-        <div class="rs-center">
-          <div class="rs-num" id="rsNum">—</div>
-          <div style="font-size:11px;opacity:.7">/100</div>
+        <div class="ring-center">
+          <div class="ring-num" id="ringNum">—</div>
+          <div class="ring-sub">/100</div>
         </div>
       </div>
-      <div class="rs-grade" id="rsGrade">Analyzing...</div>
-      <div class="rs-desc" id="rsDesc">Maya is scanning your finances</div>
-      <div class="rs-factors">
-        <div class="rsf"><div class="rsf-lbl">Income strength</div><div class="rsf-val" id="rf1">—</div></div>
-        <div class="rsf"><div class="rsf-lbl">Expense control</div><div class="rsf-val" id="rf2">—</div></div>
-        <div class="rsf"><div class="rsf-lbl">Debt load</div><div class="rsf-val" id="rf3">—</div></div>
+      <div class="dna-grade" id="dnaGrade">Analyzing...</div>
+      <div class="dna-desc" id="dnaDesc">Maya is scanning your finances</div>
+      <div class="dna-factors">
+        <div class="dna-fac"><div class="dna-fac-label">Income strength</div><div class="dna-fac-val" id="fac1">—</div></div>
+        <div class="dna-fac"><div class="dna-fac-label">Expense control</div><div class="dna-fac-val" id="fac2">—</div></div>
+        <div class="dna-fac"><div class="dna-fac-label">Debt load</div><div class="dna-fac-val" id="fac3">—</div></div>
       </div>
     </div>
 
     <div class="dna-grid">
       <div class="dna-card">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">What Maya found</div>
-        <div id="dnaFindings" style="font-size:13px;color:var(--muted);line-height:1.7"></div>
+        <div class="dna-card-title">What Maya found</div>
+        <div id="dnaFindings"></div>
       </div>
       <div class="dna-card">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Key numbers</div>
-        <div id="dnaNumbers" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="dna-card-title">Your key numbers</div>
+        <div id="dnaNumbers"></div>
       </div>
     </div>
 
     <div>
-      <button class="btn-prev" onclick="goToStep(2)">← Back</button>
-      <button class="btn-next" onclick="buildPlan()">Build my complete plan →</button>
+      <button class="btn-back-step" onclick="goStep(2)">← Back</button>
+      <button class="btn-continue" onclick="buildPlan()">Build my complete plan →</button>
     </div>
   </div>
 
   <!-- STEP 4 -->
-  <div class="step-panel" id="panel4">
-    <div class="plan-hero" id="planHero">
+  <div class="panel" id="panel4">
+    <div class="plan-hero">
       <div class="ph-top">
-        <div>
-          <div class="ph-goal" id="phGoal">Your goal</div>
+        <div class="ph-left">
+          <div class="ph-goal-name" id="phGoalName">Your goal</div>
           <div class="ph-title" id="phTitle">Your savings roadmap</div>
         </div>
-        <div class="ph-target">
-          <div class="ph-target-lbl">Target</div>
-          <div class="ph-target-val" id="phTarget">—</div>
+        <div class="ph-right">
+          <div class="ph-tlabel">Target</div>
+          <div class="ph-tval" id="phTarget">—</div>
         </div>
       </div>
       <div class="plan-stats">
-        <div class="ps"><div class="ps-lbl">Save per month</div><div class="ps-val" id="psMonthly">—</div></div>
-        <div class="ps"><div class="ps-lbl">Save per day</div><div class="ps-val" id="psDaily">—</div></div>
-        <div class="ps"><div class="ps-lbl">Months to go</div><div class="ps-val" id="psMonths">—</div></div>
-        <div class="ps"><div class="ps-lbl">Achievable?</div><div class="ps-val" id="psAchievable">—</div></div>
+        <div class="pstat"><div class="pstat-label">Save per month</div><div class="pstat-val" id="psMonthly">—</div></div>
+        <div class="pstat"><div class="pstat-label">Save per day</div><div class="pstat-val" id="psDaily">—</div></div>
+        <div class="pstat"><div class="pstat-label">Months to go</div><div class="pstat-val" id="psMonths">—</div></div>
+        <div class="pstat"><div class="pstat-label">Achievable now</div><div class="pstat-val" id="psAchievable">—</div></div>
       </div>
-      <div class="plan-progress">
-        <div class="pp-top"><span>Progress</span><span id="ppPct">0% saved</span></div>
-        <div class="pp-track"><div class="pp-fill" id="ppFill" style="width:0%"></div></div>
+      <div class="progress-section">
+        <div class="prog-top"><span>Progress so far</span><span id="progPct">0% saved</span></div>
+        <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       </div>
     </div>
 
-    <div class="milestones-row" id="milestonesRow"></div>
+    <div class="milestones" id="milestonesRow"></div>
 
     <div class="charts-grid">
       <div class="chart-card">
         <div class="chart-title">Savings growth over time</div>
-        <div class="chart-sub">How your savings build month by month</div>
+        <div class="chart-sub">How your savings build month by month toward your goal</div>
         <div class="chart-wrap"><canvas id="growthChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Your money breakdown</div>
-        <div class="chart-sub">Where your income goes each month</div>
+        <div class="chart-title">Where your money goes</div>
+        <div class="chart-sub">Your monthly income breakdown including goal savings</div>
         <div class="chart-wrap"><canvas id="breakdownChart"></canvas></div>
       </div>
     </div>
 
     <div class="scenario-card">
-      <div class="scenario-title">What if I change my savings?</div>
-      <div class="scenario-sub">Move the slider to see how saving more or less changes your timeline</div>
+      <div class="scenario-title">What if I change how much I save?</div>
+      <div class="scenario-sub">Drag the slider to see how saving more or less changes your timeline instantly</div>
       <div class="slider-row">
         <span class="slider-label">Monthly savings</span>
         <input type="range" class="slider" id="savingsSlider" min="0" max="5000" step="50" oninput="updateScenario()">
         <span class="slider-val" id="sliderVal">$0</span>
       </div>
-      <div class="scenario-result" id="scenarioResult">Adjust the slider to see your new timeline.</div>
+      <div class="scenario-result" id="scenarioResult">Move the slider to see your new timeline.</div>
     </div>
 
-    <div class="maya-plan" id="mayaPlanCard">
-      <div class="mp-header">
-        <div class="mp-av">M</div>
-        <div><div class="mp-name">Maya's complete action plan</div><div class="mp-sub">Personalized for your exact financial situation</div></div>
+    <div class="maya-card">
+      <div class="maya-head">
+        <div class="maya-av">M</div>
+        <div>
+          <div class="maya-name">Maya's complete analysis</div>
+          <div class="maya-sub">Personalized for your exact financial situation</div>
+        </div>
       </div>
-      <div class="mp-content" id="mpContent" style="color:rgba(255,255,255,.6);font-style:italic">Building your personalized plan...</div>
-      <div class="mp-actions" id="mpActions"></div>
+      <div class="maya-content" id="mayaContent" style="color:rgba(255,255,255,.5);font-style:italic">Building your personalized plan...</div>
+      <div class="maya-actions" id="mayaActions"></div>
     </div>
 
-    <div class="share-card">
-      <div class="sc-title">Your goal is set. Now make it real.</div>
-      <div class="sc-sub">Save your plan and track progress every week. Maya celebrates every milestone with you.</div>
-      <button class="btn-save-plan" onclick="savePlanToDb()">Save this plan</button>
-      <button class="btn-share" onclick="startOver()">Plan another goal</button>
+    <div class="save-card">
+      <div class="save-title">Your plan is ready. Now make it real.</div>
+      <div class="save-sub">Save your goal and track your progress here every week.</div>
+      <button class="btn-save-plan" onclick="savePlan()">Save this goal</button>
+      <button class="btn-another" onclick="startFresh()">Plan another goal</button>
     </div>
   </div>
 
 </div>
 
 <!-- UPDATE MODAL -->
-<div class="upd-overlay" id="updOverlay">
+<div class="overlay" id="updOverlay">
   <div class="upd-modal">
-    <div class="confetti" id="confetti">Goal reached!</div>
-    <div class="upd-title" id="updTitle">Update your savings</div>
+    <div class="celebrate" id="celebrate">Goal reached! You did it!</div>
+    <div class="upd-title" id="updTitle">Update progress</div>
     <div class="upd-sub" id="updSub">How much have you saved so far?</div>
     <input class="upd-inp" id="updInp" type="number" placeholder="0" min="0">
     <div class="upd-btns">
       <button class="btn-upd-cancel" onclick="closeUpdModal()">Cancel</button>
-      <button class="btn-upd-save" onclick="saveUpdProgress()">Update progress</button>
+      <button class="btn-upd-ok" onclick="saveProgress()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIMIT MODAL -->
+<div class="overlay" id="limitOverlay">
+  <div class="limit-modal">
+    <div class="limit-header">
+      <div class="limit-badge">2/2</div>
+      <div class="limit-h">Free plan limit <span>reached.</span></div>
+      <p class="limit-p">You have used both free goal slots. Upgrade to Pro to save unlimited goals with full Maya analysis every time.</p>
+    </div>
+    <div class="limit-body">
+      <div class="limit-row free">
+        <span style="font-size:13px;color:#64748B;font-weight:500">Free plan</span>
+        <div class="limit-dots"><div class="ldot on"></div><div class="ldot on"></div><div class="ldot off"></div></div>
+        <span style="font-size:12px;color:#94A3B8">2 of 2 used</span>
+      </div>
+      <div class="limit-row pro">
+        <span style="font-size:13px;color:#0A1628;font-weight:600">Pro plan</span>
+        <span style="font-size:12px;color:#00A888;font-weight:700">Unlimited goals</span>
+        <span style="font-size:12px;color:#00A888;font-weight:700">$1 first month</span>
+      </div>
+      <button class="btn-limit-upgrade" onclick="window.location.href='/upgrade.html'">Unlock unlimited goals — $1 first month</button>
+      <button class="btn-limit-skip" onclick="closeLimitModal()">Maybe later</button>
     </div>
   </div>
 </div>
 
 <script>
-const SUPA_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const SURL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_KEY);
+const sb = createClient(SURL, SKEY);
 
-let user = null, isPro = false, savedGoals = [], editingGoalId = null;
-let goalData = {}, financials = {}, analysis = {}, currentStep = 1;
-let growthChartInst = null, breakdownChartInst = null;
+var user = null;
+var isPro = false;
+var savedGoals = [];
+var editingId = null;
+var gData = {};
+var fin = {};
+var ana = {};
+var growthChart = null;
+var breakdownChart = null;
 
-const goalColors = {
-  house:'#1A56DB',car:'#00A888',wedding:'#C026D3',travel:'#D97706',
-  baby:'#7C3AED',business:'#1A56DB',emergency:'#00A888',custom:'#D97706'
+var goalMeta = {
+  house:    { icon:'H', color:'#1A56DB', bg:'#EEF2FF', name:'Buy a House' },
+  car:      { icon:'C', color:'#00A888', bg:'#E6FBF7', name:'Buy a Car' },
+  wedding:  { icon:'W', color:'#C026D3', bg:'#FDF4FF', name:'Wedding' },
+  travel:   { icon:'T', color:'#D97706', bg:'#FEF3C7', name:'Travel' },
+  baby:     { icon:'F', color:'#7C3AED', bg:'#F5F3FF', name:'Baby & Family' },
+  business: { icon:'B', color:'#1A56DB', bg:'#EEF2FF', name:'Start a Business' },
+  emergency:{ icon:'E', color:'#00A888', bg:'#E6FBF7', name:'Emergency Fund' },
+  custom:   { icon:'+', color:'#D97706', bg:'#FEF3C7', name:'Custom Goal' }
 };
 
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = '/index.html'; return; }
-  user = session.user;
+  var res = await sb.auth.getSession();
+  if (!res.data.session) { window.location.href = '/index.html'; return; }
+  user = res.data.session.user;
   try {
-    const { data: profile } = await sb.from('profiles').select('plan').eq('id', user.id).single();
-    isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
+    var p = await sb.from('profiles').select('plan').eq('id', user.id).single();
+    isPro = p.data && (p.data.plan === 'pro' || p.data.plan === 'lifetime');
   } catch(e) { isPro = false; }
-  await loadSavedGoals();
-  const tomorrow = new Date(); tomorrow.setMonth(tomorrow.getMonth() + 6);
-  document.getElementById('goalDate').min = new Date().toISOString().split('T')[0];
+  await loadGoals();
+  setupTypeCards();
 }
 
-async function loadSavedGoals() {
+function setupTypeCards() {
+  var types = ['house','car','wedding','travel','baby','business','emergency','custom'];
+  types.forEach(function(t) {
+    var card = document.getElementById('tc-' + t);
+    if (card) {
+      card.addEventListener('click', function() {
+        selectType(t, card);
+      });
+    }
+  });
+}
+
+function selectType(type, cardEl) {
+  gData.type = type;
+  var meta = goalMeta[type];
+  gData.color = meta.color;
+  gData.bg = meta.bg;
+
+  document.querySelectorAll('.type-card').forEach(function(c) { c.classList.remove('selected'); });
+  cardEl.classList.add('selected');
+
+  var form = document.getElementById('goalForm');
+  var icon = document.getElementById('formIcon');
+  icon.textContent = meta.icon;
+  icon.style.background = meta.bg;
+  icon.style.color = meta.color;
+  document.getElementById('formTitle').textContent = meta.name;
+
+  var customRow = document.getElementById('customNameRow');
+  var nameInput = document.getElementById('goalName');
+  if (type === 'custom') {
+    customRow.style.display = 'block';
+    nameInput.value = '';
+  } else {
+    customRow.style.display = 'none';
+    nameInput.value = meta.name;
+  }
+
+  form.classList.add('show');
+  form.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+async function loadGoals() {
   try {
-    const { data } = await sb.from('user_goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    savedGoals = data || [];
+    var res = await sb.from('user_goals').select('*').eq('user_id', user.id).order('created_at', { ascending:false });
+    savedGoals = res.data || [];
   } catch(e) { savedGoals = []; }
-  renderSavedGoals();
+  renderGoals();
 }
 
-function renderSavedGoals() {
-  const section = document.getElementById('savedGoalsSection');
+function renderGoals() {
+  var section = document.getElementById('savedSection');
+  var list = document.getElementById('goalsList');
+  var freeBar = document.getElementById('freeBar');
+
   if (savedGoals.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
-  const list = document.getElementById('sgList');
-  list.innerHTML = savedGoals.map(g => {
-    const c = goalColors[g.type] || '#00C9A7';
-    const pct = g.target_amount > 0 ? Math.min(100, Math.round((g.saved_amount / g.target_amount) * 100)) : 0;
-    const remaining = Math.max(0, g.target_amount - g.saved_amount);
-    return `<div class="sg-item">
-      <div class="sg-icon" style="background:${c}18;color:${c}">${g.name[0].toUpperCase()}</div>
-      <div class="sg-info">
-        <div class="sg-name">${g.name}</div>
-        <div class="sg-meta">${g.currency} ${remaining.toLocaleString()} remaining · ${g.currency} ${Math.ceil(g.monthly_needed).toLocaleString()}/month</div>
-        <div class="sg-bar-wrap" style="width:100%;margin-top:6px">
-          <div class="sg-bar-track" style="width:100%"><div class="sg-bar-fill" style="width:${pct}%;background:${c}"></div></div>
-          <div class="sg-pct" style="color:${c};text-align:left">${pct}% complete</div>
-        </div>
-      </div>
-      <div class="sg-amount">
-        <div class="sg-saved" style="color:${c}">${g.currency} ${g.saved_amount.toLocaleString()}</div>
-        <div class="sg-monthly">saved so far</div>
-      </div>
-      <button class="btn-update-goal" onclick="openUpdModal('${g.id}','${g.name}',${g.saved_amount},'${g.currency}',${g.target_amount})">Update</button>
-    </div>`;
+
+  if (!isPro && savedGoals.length >= 2) {
+    freeBar.style.display = 'flex';
+  } else {
+    freeBar.style.display = 'none';
+  }
+
+  list.innerHTML = savedGoals.map(function(g) {
+    var meta = goalMeta[g.type] || goalMeta.custom;
+    var pct = g.target_amount > 0 ? Math.min(100, Math.round((g.saved_amount / g.target_amount) * 100)) : 0;
+    var remaining = Math.max(0, g.target_amount - g.saved_amount);
+    return '<div class="goal-row">' +
+      '<div class="gr-icon" style="background:' + meta.bg + ';color:' + meta.color + '">' + g.name[0].toUpperCase() + '</div>' +
+      '<div class="gr-info">' +
+        '<div class="gr-name">' + g.name + '</div>' +
+        '<div class="gr-meta">' + g.currency + ' ' + remaining.toLocaleString() + ' remaining · ' + g.currency + ' ' + Math.ceil(g.monthly_needed).toLocaleString() + '/month needed</div>' +
+        '<div class="gr-track"><div class="gr-fill" style="width:' + pct + '%;background:' + meta.color + '"></div></div>' +
+        '<div class="gr-pct" style="color:' + meta.color + '">' + pct + '% complete</div>' +
+      '</div>' +
+      '<div class="gr-right">' +
+        '<div class="gr-saved" style="color:' + meta.color + '">' + g.currency + ' ' + g.saved_amount.toLocaleString() + '</div>' +
+        '<div class="gr-sub">saved so far</div>' +
+      '</div>' +
+      '<button class="btn-upd" onclick="openUpdModal(\'' + g.id + '\',\'' + g.name.replace(/'/g,"\\'") + '\',' + g.saved_amount + ',\'' + g.currency + '\',' + g.target_amount + ')">Update</button>' +
+    '</div>';
   }).join('');
 }
 
-function selectGoalType(type, letter, name, desc, color, bg) {
-  goalData.type = type; goalData.letter = letter; goalData.name = name; goalData.color = color; goalData.bg = bg;
-  document.querySelectorAll('.gt-card').forEach(c => c.classList.remove('sel'));
-  event.currentTarget.classList.add('sel');
-  const form = document.getElementById('goalDetailsForm');
-  form.classList.add('show');
-  document.getElementById('gdfIcon').textContent = letter;
-  document.getElementById('gdfIcon').style.background = bg;
-  document.getElementById('gdfIcon').style.color = color;
-  document.getElementById('gdfTitle').textContent = name;
-  document.getElementById('customNameGroup').style.display = type === 'custom' ? 'block' : 'none';
-  if (type !== 'custom') document.getElementById('goalName').value = name;
-  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+function goStep2() {
+  var amount = parseFloat(document.getElementById('goalAmount').value);
+  var date = document.getElementById('goalDate').value;
+  var name = document.getElementById('goalName').value.trim();
 
-function goToStep2() {
-  const amount = parseFloat(document.getElementById('goalAmount').value);
-  const date = document.getElementById('goalDate').value;
-  const name = document.getElementById('goalName').value.trim();
-  if (!goalData.type) return alert('Please select a goal type');
-  if (!name) return alert('Please enter a goal name');
-  if (!amount || amount <= 0) return alert('Please enter the target amount');
-  if (!date) return alert('Please select a target date');
-  goalData.amount = amount;
-  goalData.date = date;
-  goalData.saved = parseFloat(document.getElementById('alreadySaved').value) || 0;
-  goalData.currency = document.getElementById('currency').value;
-  goalData.priority = document.getElementById('goalPriority').value;
-  goalData.displayName = name;
-  const months = Math.max(1, Math.ceil((new Date(date) - new Date()) / (1000*60*60*24*30)));
-  goalData.months = months;
-  goalData.monthly = Math.ceil((amount - goalData.saved) / months);
-  document.getElementById('ltNeed').textContent = goalData.currency + ' ' + goalData.monthly.toLocaleString();
-  goToStep(2);
+  if (!gData.type) { alert('Please select a goal type first'); return; }
+  if (!name) { alert('Please enter a goal name'); return; }
+  if (!amount || amount <= 0) { alert('Please enter the target amount'); return; }
+  if (!date) { alert('Please select a target date'); return; }
+
+  var months = Math.max(1, Math.ceil((new Date(date) - new Date()) / (1000*60*60*24*30)));
+  var saved = parseFloat(document.getElementById('alreadySaved').value) || 0;
+
+  gData.name = name;
+  gData.amount = amount;
+  gData.date = date;
+  gData.saved = saved;
+  gData.currency = document.getElementById('currency').value;
+  gData.priority = document.getElementById('goalPriority').value;
+  gData.months = months;
+  gData.monthly = Math.ceil((amount - saved) / months);
+
+  document.getElementById('lbNeed').textContent = gData.currency + ' ' + gData.monthly.toLocaleString();
+  goStep(2);
 }
 
 function updateLive() {
-  const cur = goalData.currency || 'USD';
-  const income = (parseFloat(document.getElementById('salary').value)||0) + (parseFloat(document.getElementById('sideIncome').value)||0) + (parseFloat(document.getElementById('otherIncome').value)||0);
-  const fixedExp = (parseFloat(document.getElementById('rent').value)||0) + (parseFloat(document.getElementById('utilities').value)||0) + (parseFloat(document.getElementById('insurance').value)||0) + (parseFloat(document.getElementById('phone').value)||0) + (parseFloat(document.getElementById('subscriptions').value)||0);
-  const varExp = (parseFloat(document.getElementById('groceries').value)||0) + (parseFloat(document.getElementById('dining').value)||0) + (parseFloat(document.getElementById('transport').value)||0) + (parseFloat(document.getElementById('entertainment').value)||0) + (parseFloat(document.getElementById('shopping').value)||0);
-  const debtPayments = parseFloat(document.getElementById('debtPayments').value)||0;
-  const otherExp = parseFloat(document.getElementById('otherExpenses').value)||0;
-  const totalExp = fixedExp + varExp + debtPayments + otherExp;
-  const available = income - totalExp;
-  financials = { income, fixedExp, varExp, debtPayments, otherExp, totalExp, available, totalDebt: parseFloat(document.getElementById('totalDebt').value)||0, currentSavings: parseFloat(document.getElementById('currentSavings').value)||0, emergencyFund: parseFloat(document.getElementById('emergencyFund').value)||0 };
-  document.getElementById('ltIncome').textContent = income > 0 ? cur + ' ' + income.toLocaleString() : '—';
-  document.getElementById('ltExpenses').textContent = totalExp > 0 ? cur + ' ' + totalExp.toLocaleString() : '—';
-  document.getElementById('ltAvailable').textContent = cur + ' ' + available.toLocaleString();
-  const db = document.getElementById('dangerBanner'), wb = document.getElementById('warningBanner');
-  db.style.display = available < 0 ? 'block' : 'none';
-  wb.style.display = (available >= 0 && goalData.monthly && goalData.monthly / available > 0.4) ? 'block' : 'none';
+  var cur = gData.currency || 'USD';
+  var income = (n('salary') + n('sideIncome') + n('otherIncome'));
+  var fixed = (n('rent') + n('utilities') + n('insurance') + n('phone') + n('subscriptions'));
+  var variable = (n('groceries') + n('dining') + n('transport') + n('entertainment') + n('shopping'));
+  var debtPay = n('debtPayments');
+  var other = n('otherExpenses');
+  var totalExp = fixed + variable + debtPay + other;
+  var available = income - totalExp;
+
+  fin = {
+    income: income, fixed: fixed, variable: variable,
+    debtPay: debtPay, other: other, totalExp: totalExp,
+    available: available,
+    totalDebt: n('totalDebt'), currentSavings: n('currentSavings'),
+    emergencyFund: n('emergencyFund'),
+    dining: n('dining'), entertainment: n('entertainment'),
+    shopping: n('shopping'), subscriptions: n('subscriptions')
+  };
+
+  document.getElementById('lbIncome').textContent = income > 0 ? cur + ' ' + income.toLocaleString() : '—';
+  document.getElementById('lbExpenses').textContent = totalExp > 0 ? cur + ' ' + totalExp.toLocaleString() : '—';
+  document.getElementById('lbAvailable').textContent = cur + ' ' + Math.round(available).toLocaleString();
+
+  document.getElementById('alertDanger').style.display = available < 0 ? 'block' : 'none';
+  document.getElementById('alertWarn').style.display = (available >= 0 && gData.monthly && gData.monthly / Math.max(1,available) > 0.4) ? 'block' : 'none';
 }
 
-function goToStep3() {
-  if (!financials.income) return alert('Please enter at least your monthly income');
+function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function goStep3() {
+  if (!fin.income) { alert('Please enter at least your monthly income'); return; }
   updateLive();
-  const cur = goalData.currency;
-  const expRatio = financials.income > 0 ? financials.totalExp / financials.income : 1;
-  const debtRatio = financials.income > 0 ? financials.totalDebt / (financials.income * 12) : 0;
-  const available = financials.available;
-  const canSave = Math.max(0, available);
-  const monthsNeeded = goalData.monthly > 0 ? Math.ceil((goalData.amount - goalData.saved) / Math.max(1, canSave)) : goalData.months;
-  const achievable = canSave >= goalData.monthly;
-  const months3 = financials.totalExp > 0 ? financials.emergencyFund / financials.totalExp : 0;
-  let score = 0;
-  if (expRatio <= 0.6) score += 30; else if (expRatio <= 0.75) score += 20; else if (expRatio <= 0.9) score += 10; else if (expRatio > 1) score += 0;
-  if (debtRatio <= 0.5) score += 25; else if (debtRatio <= 1) score += 18; else if (debtRatio <= 2) score += 10; else score += 3;
-  if (achievable) score += 30; else if (canSave >= goalData.monthly * 0.7) score += 18; else if (canSave >= goalData.monthly * 0.4) score += 10; else score += 3;
-  if (months3 >= 3) score += 15; else if (months3 >= 1) score += 8; else score += 0;
-  analysis = { score, achievable, canSave, monthsNeeded, expRatio, debtRatio, months3, available };
-  const arc = document.getElementById('rsArc');
-  const offset = 283 - (283 * score / 100);
-  arc.style.strokeDashoffset = offset;
+
+  var cur = gData.currency;
+  var expRatio = fin.income > 0 ? fin.totalExp / fin.income : 1;
+  var debtRatio = fin.income > 0 ? fin.totalDebt / (fin.income * 12) : 0;
+  var available = fin.available;
+  var canSave = Math.max(0, available);
+  var isDoable = canSave >= gData.monthly;
+  var monthsNeeded = gData.monthly > 0 ? Math.ceil((gData.amount - gData.saved) / Math.max(1, canSave)) : gData.months;
+  var months3 = fin.totalExp > 0 ? fin.emergencyFund / fin.totalExp : 0;
+
+  var score = 0;
+  if (expRatio <= 0.6) score += 30; else if (expRatio <= 0.75) score += 20; else if (expRatio <= 0.9) score += 10;
+  if (debtRatio === 0) score += 25; else if (debtRatio <= 0.5) score += 20; else if (debtRatio <= 1) score += 14; else if (debtRatio <= 2) score += 7;
+  if (isDoable) score += 30; else if (canSave >= gData.monthly * 0.7) score += 18; else if (canSave >= gData.monthly * 0.4) score += 10; else score += 3;
+  if (months3 >= 3) score += 15; else if (months3 >= 1) score += 8;
+
+  ana = { score: score, isDoable: isDoable, canSave: canSave, monthsNeeded: monthsNeeded, expRatio: expRatio, debtRatio: debtRatio, months3: months3 };
+
+  var arc = document.getElementById('ringArc');
+  arc.style.strokeDashoffset = 283 - (283 * score / 100);
   arc.style.stroke = score >= 70 ? '#80FFD4' : score >= 50 ? '#FFD180' : '#FF8080';
-  document.getElementById('rsNum').textContent = score;
-  let grade, desc;
-  if (score >= 80) { grade = 'Excellent readiness'; desc = 'You are in great financial shape to reach this goal on time.'; }
-  else if (score >= 65) { grade = 'Good readiness'; desc = 'With a few adjustments Maya will find a way to reach this goal.'; }
-  else if (score >= 50) { grade = 'Moderate readiness'; desc = 'Some work needed but this goal is achievable with Maya\'s plan.'; }
-  else if (score >= 35) { grade = 'Challenging'; desc = 'This goal needs a revised timeline or expense cuts — Maya will show you how.'; }
-  else { grade = 'Difficult right now'; desc = 'Your finances need restructuring first. Maya will start there.'; }
-  document.getElementById('rsGrade').textContent = grade;
-  document.getElementById('rsDesc').textContent = desc;
-  document.getElementById('rf1').textContent = financials.income > 3000 ? 'Strong' : financials.income > 1500 ? 'Moderate' : 'Limited';
-  document.getElementById('rf2').textContent = expRatio <= 0.7 ? 'Good' : expRatio <= 0.9 ? 'Tight' : 'Overspending';
-  document.getElementById('rf3').textContent = debtRatio <= 0.5 ? 'Low' : debtRatio <= 1.5 ? 'Moderate' : 'High';
-  const findings = [];
-  if (available < 0) findings.push('Your expenses exceed your income by ' + cur + ' ' + Math.abs(available).toLocaleString() + '/month. Maya will identify cuts.');
-  else findings.push('You have ' + cur + ' ' + available.toLocaleString() + ' available each month after expenses.');
-  if (achievable) findings.push('Your goal of ' + cur + ' ' + goalData.monthly.toLocaleString() + '/month is achievable within your current budget.');
-  else findings.push('Your goal needs ' + cur + ' ' + goalData.monthly.toLocaleString() + '/month but you can currently save ' + cur + ' ' + Math.round(canSave).toLocaleString() + '. Maya will adjust the plan.');
-  if (financials.totalDebt > 0) findings.push('You have ' + cur + ' ' + financials.totalDebt.toLocaleString() + ' in total debt. Maya will balance debt paydown with goal saving.');
-  if (months3 < 3) findings.push('Your emergency fund covers less than 3 months. Maya will factor this into the plan.');
-  document.getElementById('dnaFindings').innerHTML = findings.map(f => '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="color:var(--teal);flex-shrink:0;font-weight:700">→</span>' + f + '</div>').join('');
-  const nums = [
-    { label: 'Expense ratio', val: Math.round(expRatio * 100) + '%', good: expRatio <= 0.7 },
-    { label: 'Monthly surplus', val: cur + ' ' + Math.max(0, available).toLocaleString(), good: available > 0 },
-    { label: 'Savings capacity', val: cur + ' ' + Math.max(0, Math.round(canSave)).toLocaleString() + '/mo', good: canSave >= goalData.monthly },
-    { label: 'Realistic timeline', val: monthsNeeded + ' months', good: monthsNeeded <= goalData.months },
-    { label: 'Emergency fund', val: Math.round(months3 * 10) / 10 + ' months', good: months3 >= 3 },
+  document.getElementById('ringNum').textContent = score;
+
+  var grade, desc;
+  if (score >= 80) { grade = 'Excellent readiness'; desc = 'You are in strong financial shape. This goal is achievable.'; }
+  else if (score >= 65) { grade = 'Good readiness'; desc = 'With some adjustments, Maya has a clear path to your goal.'; }
+  else if (score >= 50) { grade = 'Moderate readiness'; desc = 'Achievable with a restructured budget. Maya will show you how.'; }
+  else if (score >= 35) { grade = 'Challenging'; desc = 'This needs a revised timeline or expense cuts. Maya will build the plan.'; }
+  else { grade = 'Needs work first'; desc = 'Your finances need restructuring before this goal is realistic. Maya starts there.'; }
+
+  document.getElementById('dnaGrade').textContent = grade;
+  document.getElementById('dnaDesc').textContent = desc;
+  document.getElementById('fac1').textContent = fin.income > 3000 ? 'Strong' : fin.income > 1500 ? 'Moderate' : 'Limited';
+  document.getElementById('fac2').textContent = expRatio <= 0.7 ? 'Good' : expRatio <= 0.9 ? 'Tight' : 'Over';
+  document.getElementById('fac3').textContent = debtRatio === 0 ? 'None' : debtRatio <= 0.5 ? 'Low' : debtRatio <= 1.5 ? 'Moderate' : 'High';
+
+  var findings = '';
+  if (available < 0) {
+    findings += '<div class="dna-finding">Your expenses exceed income by ' + cur + ' ' + Math.abs(Math.round(available)).toLocaleString() + '/month. Cuts are needed before saving.</div>';
+  } else {
+    findings += '<div class="dna-finding">You have ' + cur + ' ' + Math.round(available).toLocaleString() + ' available after expenses each month.</div>';
+  }
+  if (isDoable) {
+    findings += '<div class="dna-finding">Your goal needs ' + cur + ' ' + gData.monthly.toLocaleString() + '/month — within your current capacity.</div>';
+  } else {
+    findings += '<div class="dna-finding">Your goal needs ' + cur + ' ' + gData.monthly.toLocaleString() + '/month but you can save ' + cur + ' ' + Math.round(canSave).toLocaleString() + '. Maya will give you 3 options.</div>';
+  }
+  if (fin.totalDebt > 0) findings += '<div class="dna-finding">You have ' + cur + ' ' + fin.totalDebt.toLocaleString() + ' in total debt. Maya will address debt vs save strategy.</div>';
+  if (months3 < 3) findings += '<div class="dna-finding">Emergency fund covers less than 3 months. Maya will factor this in.</div>';
+  document.getElementById('dnaFindings').innerHTML = findings;
+
+  var nums = [
+    { label:'Expense ratio', val: Math.round(expRatio*100) + '%', good: expRatio <= 0.7 },
+    { label:'Monthly surplus', val: cur + ' ' + Math.max(0,Math.round(available)).toLocaleString(), good: available > 0 },
+    { label:'Can save/month', val: cur + ' ' + Math.round(canSave).toLocaleString(), good: canSave >= gData.monthly },
+    { label:'Realistic timeline', val: monthsNeeded + ' months', good: monthsNeeded <= gData.months },
+    { label:'Emergency cover', val: Math.round(months3*10)/10 + ' months', good: months3 >= 3 },
   ];
-  document.getElementById('dnaNumbers').innerHTML = nums.map(n => `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--muted)">${n.label}</span><span style="font-size:13px;font-weight:700;color:${n.good ? 'var(--green)' : 'var(--red)'}">${n.val}</span></div>`).join('');
-  goToStep(3);
+  document.getElementById('dnaNumbers').innerHTML = nums.map(function(item) {
+    return '<div class="dna-num-row"><span class="dna-num-label">' + item.label + '</span><span class="dna-num-val" style="color:' + (item.good ? 'var(--green)' : 'var(--red)') + '">' + item.val + '</span></div>';
+  }).join('');
+
+  goStep(3);
 }
 
-async function buildPlan() {
-  goToStep(4);
-  const cur = goalData.currency;
-  const realMonthly = Math.max(goalData.monthly, Math.min(analysis.canSave, goalData.monthly));
-  const actualMonths = realMonthly > 0 ? Math.ceil((goalData.amount - goalData.saved) / realMonthly) : goalData.months;
-  const pct = goalData.amount > 0 ? Math.round((goalData.saved / goalData.amount) * 100) : 0;
-  document.getElementById('phGoal').textContent = goalData.displayName;
+function buildPlan() {
+  goStep(4);
+  var cur = gData.currency;
+  var realMonthly = Math.max(1, Math.min(gData.monthly, Math.max(gData.monthly, ana.canSave)));
+  var actualMonths = gData.monthly > 0 ? Math.ceil((gData.amount - gData.saved) / Math.max(1, ana.canSave)) : gData.months;
+  if (ana.isDoable) actualMonths = gData.months;
+  var pct = gData.amount > 0 ? Math.round((gData.saved / gData.amount) * 100) : 0;
+
+  document.getElementById('phGoalName').textContent = gData.name;
   document.getElementById('phTitle').textContent = 'Your complete savings roadmap';
-  document.getElementById('phTarget').textContent = cur + ' ' + goalData.amount.toLocaleString();
-  document.getElementById('psMonthly').textContent = cur + ' ' + Math.ceil(realMonthly).toLocaleString();
-  document.getElementById('psDaily').textContent = cur + ' ' + Math.ceil(realMonthly / 30).toLocaleString();
+  document.getElementById('phTarget').textContent = cur + ' ' + gData.amount.toLocaleString();
+  document.getElementById('psMonthly').textContent = cur + ' ' + Math.ceil(ana.isDoable ? gData.monthly : Math.min(gData.monthly, ana.canSave)).toLocaleString();
+  document.getElementById('psDaily').textContent = cur + ' ' + Math.ceil((ana.isDoable ? gData.monthly : Math.min(gData.monthly, ana.canSave)) / 30).toLocaleString();
   document.getElementById('psMonths').textContent = actualMonths;
-  document.getElementById('psAchievable').textContent = analysis.achievable ? 'Yes' : 'Adjusted';
-  document.getElementById('ppPct').textContent = pct + '% saved';
-  document.getElementById('ppFill').style.width = pct + '%';
-  const ms = document.getElementById('milestonesRow');
-  ms.innerHTML = [25, 50, 75, 100].map(p => {
-    const msAmount = Math.round(goalData.amount * p / 100);
-    const msMonths = Math.round(actualMonths * p / 100);
-    const done = pct >= p;
-    return `<div class="ms ${done ? 'active' : ''}"><div class="ms-month">Month ${msMonths}</div><div class="ms-amount">${cur} ${msAmount.toLocaleString()}</div><div class="ms-pct">${p}% reached${done ? ' — done!' : ''}</div></div>`;
+  document.getElementById('psAchievable').textContent = ana.isDoable ? 'Yes' : 'Adjusted';
+  document.getElementById('progPct').textContent = pct + '% saved';
+  document.getElementById('progFill').style.width = pct + '%';
+
+  var ms = document.getElementById('milestonesRow');
+  ms.innerHTML = [25,50,75,100].map(function(p) {
+    var msAmt = Math.round(gData.amount * p / 100);
+    var msMo = Math.round(actualMonths * p / 100);
+    var done = pct >= p;
+    return '<div class="ms-card' + (done?' done':'') + '">' +
+      '<div class="ms-month">Month ' + msMo + '</div>' +
+      '<div class="ms-amount">' + cur + ' ' + msAmt.toLocaleString() + '</div>' +
+      '<div class="ms-pct">' + p + '% reached' + (done?' — done!':'') + '</div>' +
+    '</div>';
   }).join('');
-  buildCharts(realMonthly, actualMonths, cur);
-  const slider = document.getElementById('savingsSlider');
-  slider.max = Math.max(Math.ceil(realMonthly * 2), 2000);
-  slider.value = Math.ceil(realMonthly);
-  slider.step = Math.max(10, Math.ceil(realMonthly / 20));
-  document.getElementById('sliderVal').textContent = cur + ' ' + Math.ceil(realMonthly).toLocaleString();
+
+  buildCharts(Math.ceil(ana.isDoable ? gData.monthly : Math.min(gData.monthly, ana.canSave)), actualMonths, cur);
+
+  var sl = document.getElementById('savingsSlider');
+  sl.max = Math.max(Math.ceil(gData.monthly * 2.5), 3000);
+  sl.value = Math.ceil(ana.isDoable ? gData.monthly : Math.min(gData.monthly, ana.canSave));
+  sl.step = Math.max(10, Math.ceil(gData.monthly / 20));
+  document.getElementById('sliderVal').textContent = cur + ' ' + sl.value;
   updateScenario();
-  getMayaPlan(realMonthly, actualMonths, cur);
+  getMayaAnalysis(cur);
 }
 
 function buildCharts(monthly, months, cur) {
-  if (growthChartInst) { growthChartInst.destroy(); growthChartInst = null; }
-  if (breakdownChartInst) { breakdownChartInst.destroy(); breakdownChartInst = null; }
-  const labels = [], data = [];
-  let running = goalData.saved;
-  for (let m = 0; m <= Math.min(months, 36); m++) {
+  if (growthChart) { growthChart.destroy(); growthChart = null; }
+  if (breakdownChart) { breakdownChart.destroy(); breakdownChart = null; }
+
+  var labels = [], data = [];
+  var running = gData.saved;
+  var limit = Math.min(months, 48);
+  for (var m = 0; m <= limit; m++) {
     labels.push('M' + m);
     data.push(Math.round(running));
-    running = Math.min(running + monthly, goalData.amount);
+    running = Math.min(running + monthly, gData.amount);
   }
-  const gCtx = document.getElementById('growthChart').getContext('2d');
-  growthChartInst = new Chart(gCtx, {
+
+  var gCtx = document.getElementById('growthChart').getContext('2d');
+  growthChart = new Chart(gCtx, {
     type: 'line',
     data: {
-      labels,
-      datasets: [{
-        label: 'Savings',
-        data,
-        borderColor: '#00C9A7',
-        backgroundColor: 'rgba(0,201,167,0.08)',
-        borderWidth: 2.5,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-      }, {
-        label: 'Target',
-        data: Array(labels.length).fill(goalData.amount),
-        borderColor: 'rgba(239,68,68,0.4)',
-        borderWidth: 1.5,
-        borderDash: [5, 5],
-        fill: false,
-        pointRadius: 0,
-      }]
+      labels: labels,
+      datasets: [
+        { label:'Savings', data:data, borderColor:'#00C9A7', backgroundColor:'rgba(0,201,167,0.08)', borderWidth:2.5, fill:true, tension:0.4, pointRadius:0, pointHoverRadius:4 },
+        { label:'Target', data:Array(labels.length).fill(gData.amount), borderColor:'rgba(239,68,68,0.4)', borderWidth:1.5, borderDash:[5,5], fill:false, pointRadius:0 }
+      ]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true, ticks: { font: { size: 10 }, callback: v => cur + ' ' + v.toLocaleString() }, grid: { color: '#E2E8F0' } } } }
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ display:false }, y:{ ticks:{ font:{size:10}, callback:function(v){ return cur+' '+v.toLocaleString(); } }, grid:{ color:'#E2E8F0' } } } }
   });
-  const bCtx = document.getElementById('breakdownChart').getContext('2d');
-  const goalSave = Math.ceil(monthly);
-  const otherSave = Math.max(0, Math.round(financials.available - goalSave));
-  breakdownChartInst = new Chart(bCtx, {
+
+  var goalSave = Math.ceil(monthly);
+  var otherSave = Math.max(0, Math.round(fin.available - goalSave));
+  var bCtx = document.getElementById('breakdownChart').getContext('2d');
+  breakdownChart = new Chart(bCtx, {
     type: 'doughnut',
     data: {
-      labels: ['Fixed expenses', 'Variable expenses', 'Debt payments', 'Goal savings', 'Other savings', 'Other expenses'],
-      datasets: [{
-        data: [financials.fixedExp, financials.varExp, financials.debtPayments, goalSave, otherSave, financials.otherExp].map(v => Math.max(0, v)),
-        backgroundColor: ['#1A56DB', '#F97316', '#EF4444', '#00C9A7', '#10B981', '#94A3B8'],
-        borderWidth: 0,
-        hoverOffset: 4
-      }]
+      labels: ['Fixed expenses','Variable expenses','Debt payments','Goal savings','Other savings','Other'],
+      datasets: [{ data:[fin.fixed,fin.variable,fin.debtPay,goalSave,otherSave,fin.other].map(function(v){return Math.max(0,v);}), backgroundColor:['#1A56DB','#F97316','#EF4444','#00C9A7','#10B981','#94A3B8'], borderWidth:0, hoverOffset:4 }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } } }, cutout: '65%' }
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ font:{size:10}, boxWidth:10, padding:8 } } }, cutout:'65%' }
   });
 }
 
 function updateScenario() {
-  const cur = goalData.currency;
-  const val = parseFloat(document.getElementById('savingsSlider').value);
+  var cur = gData.currency;
+  var val = parseFloat(document.getElementById('savingsSlider').value);
   document.getElementById('sliderVal').textContent = cur + ' ' + val.toLocaleString();
-  const remaining = Math.max(0, goalData.amount - goalData.saved);
-  const months = val > 0 ? Math.ceil(remaining / val) : 999;
-  const originalMonths = goalData.months;
-  const diff = originalMonths - months;
-  let msg = '';
-  if (val === 0) { msg = 'With no savings you will never reach your goal.'; }
-  else if (months <= originalMonths) { msg = '<strong>Saving ' + cur + ' ' + val.toLocaleString() + '/month</strong> gets you there in <strong>' + months + ' months</strong>' + (diff > 0 ? ' — <strong>' + diff + ' months faster</strong> than your target.' : ' — exactly on time.'); }
-  else { msg = '<strong>Saving ' + cur + ' ' + val.toLocaleString() + '/month</strong> means reaching your goal in <strong>' + months + ' months</strong> — ' + Math.abs(diff) + ' months later than planned. Consider increasing savings or extending your deadline.'; }
+  var remaining = Math.max(0, gData.amount - gData.saved);
+  var months = val > 0 ? Math.ceil(remaining / val) : 9999;
+  var orig = gData.months;
+  var diff = orig - months;
+  var msg = '';
+  if (val === 0) {
+    msg = 'With no savings you will never reach your goal.';
+  } else if (months <= orig) {
+    msg = 'Saving <strong>' + cur + ' ' + val.toLocaleString() + '/month</strong> gets you there in <strong>' + months + ' months</strong>' + (diff > 0 ? ' — <strong>' + diff + ' months faster</strong> than your target.' : ' — exactly on time.');
+  } else {
+    msg = 'Saving <strong>' + cur + ' ' + val.toLocaleString() + '/month</strong> means reaching your goal in <strong>' + months + ' months</strong> — ' + Math.abs(diff) + ' months later than planned.';
+  }
   document.getElementById('scenarioResult').innerHTML = msg;
 }
 
-async function getMayaPlan(monthly, months, cur) {
-  var mpContent = document.getElementById('mpContent');
-  var mpActions = document.getElementById('mpActions');
-  
-  var gap = Math.max(0, monthly - financials.available);
-  var isDoable = analysis.achievable;
-  var gapPct = financials.income > 0 ? Math.round((gap / financials.income) * 100) : 0;
-  var altMonths = financials.available > 0 ? Math.ceil((goalData.amount - goalData.saved) / Math.max(1, financials.available)) : 999;
+async function getMayaAnalysis(cur) {
+  var mc = document.getElementById('mayaContent');
+  var ma = document.getElementById('mayaActions');
+  var gap = Math.max(0, gData.monthly - fin.available);
+  var isDoable = ana.isDoable;
+  var altMonths = fin.available > 0 ? Math.ceil((gData.amount - gData.saved) / Math.max(1,fin.available)) : 999;
   var altYears = Math.round(altMonths / 12 * 10) / 10;
-  var affordableGoal = Math.round(Math.max(0, financials.available) * goalData.months + goalData.saved);
+  var affordable = Math.round(Math.max(0,fin.available) * gData.months + gData.saved);
 
-  var doableText = isDoable 
-    ? 'This goal IS achievable with discipline.'
-    : 'THIS GOAL IS NOT ACHIEVABLE at this timeline. They need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month but only have ' + cur + ' ' + Math.max(0, Math.round(financials.available)).toLocaleString() + ' available. Gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month (' + gapPct + '% of income missing).';
+  var doableText = isDoable
+    ? 'This goal IS achievable on schedule with discipline.'
+    : 'THIS GOAL IS NOT ACHIEVABLE at this timeline. They need ' + cur + ' ' + Math.ceil(gData.monthly).toLocaleString() + '/month but only have ' + cur + ' ' + Math.max(0,Math.round(fin.available)).toLocaleString() + ' available. Gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month.';
 
-  var prompt = 'You are Maya, a world-class personal finance coach. Be brutally honest but compassionate. Think like a CFO and life coach combined.
-
-' +
-    'SITUATION:
-' +
-    'Goal: ' + goalData.displayName + '
-' +
-    'Target: ' + cur + ' ' + goalData.amount.toLocaleString() + '
-' +
-    'Deadline: ' + goalData.months + ' months
-' +
-    'Already saved: ' + cur + ' ' + goalData.saved.toLocaleString() + '
-' +
-    'Monthly needed to hit deadline: ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '
-
-' +
-    'FINANCES:
-' +
-    'Total income: ' + cur + ' ' + financials.income.toLocaleString() + '/month
-' +
-    'Fixed expenses: ' + cur + ' ' + financials.fixedExp.toLocaleString() + '
-' +
-    'Variable expenses: ' + cur + ' ' + financials.varExp.toLocaleString() + '
-' +
-    'Debt payments: ' + cur + ' ' + financials.debtPayments.toLocaleString() + '
-' +
-    'Available after all expenses: ' + cur + ' ' + Math.round(financials.available).toLocaleString() + '
-' +
-    'Total debt owed: ' + cur + ' ' + financials.totalDebt.toLocaleString() + '
-' +
-    'Dining out: ' + cur + ' ' + (financials.dining || 0) + '
-' +
-    'Entertainment: ' + cur + ' ' + (financials.entertainment || 0) + '
-' +
-    'Shopping: ' + cur + ' ' + (financials.shopping || 0) + '
-' +
-    'Goal readiness score: ' + analysis.score + '/100
-
-' +
-    doableText + '
-
-' +
-    'YOUR JOB - give a master coach analysis:
-' +
-    '1. Be honest - if goal not doable say it clearly with specific numbers from their data
-' +
-    '2. Give exactly 3 scenarios with real numbers:
-' +
-    'Scenario A: Extend timeline - if they save what they can, timeline is ' + altYears + ' years
-' +
-    'Scenario B: Reduce target - with current savings they can afford ' + cur + ' ' + affordableGoal.toLocaleString() + ' in ' + goalData.months + ' months
-' +
-    'Scenario C: Increase income - give 3 specific side hustles with realistic monthly earnings in their currency
-' +
-    '3. Top expense cuts with exact numbers from their spending
-' +
-    '4. Specific 90-day action plan with week by week actions
-' +
-    '5. If total debt over 6 months income, address debt vs save priority
-
-' +
-    'Use their actual numbers throughout. Be specific and direct. No generic advice. No emojis. No hashtags. Max 400 words.';
+  var prompt = 'You are Maya, a world-class personal finance coach. Be brutally honest but compassionate.\n\n' +
+    'GOAL: ' + gData.name + '\n' +
+    'Target: ' + cur + ' ' + gData.amount.toLocaleString() + ' in ' + gData.months + ' months\n' +
+    'Already saved: ' + cur + ' ' + gData.saved.toLocaleString() + '\n' +
+    'Monthly needed: ' + cur + ' ' + Math.ceil(gData.monthly).toLocaleString() + '\n\n' +
+    'FINANCES:\n' +
+    'Income: ' + cur + ' ' + fin.income.toLocaleString() + '/month\n' +
+    'Fixed expenses: ' + cur + ' ' + fin.fixed.toLocaleString() + '\n' +
+    'Variable expenses: ' + cur + ' ' + fin.variable.toLocaleString() + '\n' +
+    'Debt payments: ' + cur + ' ' + fin.debtPay.toLocaleString() + '\n' +
+    'Available after expenses: ' + cur + ' ' + Math.round(fin.available).toLocaleString() + '\n' +
+    'Total debt: ' + cur + ' ' + fin.totalDebt.toLocaleString() + '\n' +
+    'Dining: ' + cur + ' ' + fin.dining + ', Entertainment: ' + cur + ' ' + fin.entertainment + ', Shopping: ' + cur + ' ' + fin.shopping + '\n' +
+    'Readiness score: ' + ana.score + '/100\n\n' +
+    doableText + '\n\n' +
+    'INSTRUCTIONS:\n' +
+    '1. Be honest - state clearly if goal is not achievable with numbers\n' +
+    '2. Give 3 concrete scenarios:\n' +
+    'Scenario A - Extend timeline: at current savings capacity of ' + cur + ' ' + Math.round(Math.max(0,fin.available)).toLocaleString() + '/month, goal takes ' + altYears + ' years\n' +
+    'Scenario B - Reduce target: with current savings they can afford ' + cur + ' ' + affordable.toLocaleString() + ' in ' + gData.months + ' months\n' +
+    'Scenario C - Increase income: give 3 specific realistic side hustles with actual monthly earnings in ' + cur + '\n' +
+    '3. Name the top 2-3 expenses to cut with specific amounts\n' +
+    '4. Give a 90-day action plan with specific weekly actions\n' +
+    '5. If total debt is more than 6 months income, say whether to pay debt first or save simultaneously\n\n' +
+    'Use their real numbers throughout. Be specific. No emojis. No hashtags. Max 380 words.';
 
   try {
-    var res = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{role:'user',content:prompt}], mode:'coach' }) });
-    var data = await res.json();
-    if (data.reply) {
-      mpContent.style.color = 'rgba(255,255,255,.9)';
-      mpContent.style.fontStyle = 'normal';
-      mpContent.innerHTML = data.reply.split('
-
-').join('<br><br>').split('
-').join('<br>');
+    var res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ messages:[{role:'user',content:prompt}], mode:'coach' })
+    });
+    var d = await res.json();
+    if (d.reply) {
+      mc.style.color = 'rgba(255,255,255,.9)';
+      mc.style.fontStyle = 'normal';
+      mc.innerHTML = d.reply.split('\n\n').join('<br><br>').split('\n').join('<br>');
     }
-  } catch(e) { 
-    mpContent.textContent = 'Could not connect to Maya. Key: you need ' + cur + ' ' + Math.ceil(monthly).toLocaleString() + '/month — ' + (isDoable ? 'which is within your reach.' : 'which exceeds your available savings. Consider extending your timeline or reducing the target.');
-    mpContent.style.color = 'rgba(255,255,255,.9)';
+  } catch(e) {
+    mc.textContent = 'Could not connect to Maya. Key insight: you need ' + cur + ' ' + Math.ceil(gData.monthly).toLocaleString() + '/month — ' + (isDoable ? 'which is within your reach.' : 'which currently exceeds your available savings. Consider extending the timeline.');
+    mc.style.color = 'rgba(255,255,255,.9)';
+    mc.style.fontStyle = 'normal';
   }
 
   var cuts = [];
-  if ((financials.dining||0) > 100) cuts.push({ title: 'Cut dining out by 40%', desc: 'Saves ' + cur + ' ' + Math.round((financials.dining||0)*0.4).toLocaleString() + '/month. Cook at home 4 more nights per week.' });
-  if ((financials.entertainment||0) > 50) cuts.push({ title: 'Reduce entertainment by 50%', desc: 'Saves ' + cur + ' ' + Math.round((financials.entertainment||0)*0.5).toLocaleString() + '/month. Audit all subscriptions.' });
-  if ((financials.shopping||0) > 100) cuts.push({ title: 'Pause non-essential shopping', desc: 'A 30-day pause saves ' + cur + ' ' + (financials.shopping||0).toLocaleString() + ' immediately.' });
-  cuts.push({ title: 'Automate savings on payday', desc: 'Transfer ' + cur + ' ' + Math.min(Math.ceil(monthly), Math.max(0, Math.round(financials.available))).toLocaleString() + ' to your goal account the moment salary arrives.' });
-  if (!isDoable && gap > 0) cuts.push({ title: 'Income gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month', desc: 'Even ' + cur + ' ' + Math.round(gap/2).toLocaleString() + '/month in side income cuts your timeline significantly.' });
+  if (fin.dining > 100) cuts.push({ title:'Cut dining out by 40%', desc:'Saves ' + cur + ' ' + Math.round(fin.dining*0.4).toLocaleString() + '/month. Cook at home 4 more nights per week.' });
+  if (fin.entertainment > 50) cuts.push({ title:'Reduce entertainment by 50%', desc:'Saves ' + cur + ' ' + Math.round(fin.entertainment*0.5).toLocaleString() + '/month. Audit all subscriptions today.' });
+  if (fin.shopping > 100) cuts.push({ title:'Pause non-essential shopping', desc:'A 30-day pause saves ' + cur + ' ' + fin.shopping.toLocaleString() + ' immediately.' });
+  cuts.push({ title:'Automate savings on payday', desc:'Transfer ' + cur + ' ' + Math.min(Math.ceil(gData.monthly), Math.max(0,Math.round(fin.available))).toLocaleString() + ' to a dedicated goal account the moment salary arrives.' });
+  if (!isDoable && gap > 0) cuts.push({ title:'Income gap: ' + cur + ' ' + Math.ceil(gap).toLocaleString() + '/month', desc:'Even ' + cur + ' ' + Math.round(gap/2).toLocaleString() + '/month extra in side income cuts your timeline significantly.' });
 
-  mpActions.innerHTML = cuts.slice(0,4).map(function(a) { return '<div class="mp-action"><strong>' + a.title + '</strong>' + a.desc + '</div>'; }).join('');
+  ma.innerHTML = cuts.slice(0,4).map(function(a) {
+    return '<div class="maya-action"><strong>' + a.title + '</strong>' + a.desc + '</div>';
+  }).join('');
 }
 
-async function savePlanToDb() {
-  if (!isPro && savedGoals.length >= 2) {
-    showGoalLimitModal();
-    return;
-  }
-  const cur = goalData.currency;
-  const remaining = Math.max(0, goalData.amount - goalData.saved);
-  const monthly = remaining / Math.max(1, goalData.months);
+async function savePlan() {
+  if (!isPro && savedGoals.length >= 2) { showLimitModal(); return; }
+  var remaining = Math.max(0, gData.amount - gData.saved);
+  var monthly = remaining / Math.max(1, gData.months);
   try {
-    const { error } = await sb.from('user_goals').insert({
-      user_id: user.id, name: goalData.displayName, type: goalData.type,
-      target_amount: goalData.amount, saved_amount: goalData.saved,
-      currency: cur, target_date: goalData.date,
-      monthly_income: financials.income, monthly_needed: monthly,
-      months_total: goalData.months
+    var res = await sb.from('user_goals').insert({
+      user_id: user.id, name: gData.name, type: gData.type,
+      target_amount: gData.amount, saved_amount: gData.saved,
+      currency: gData.currency, target_date: gData.date,
+      monthly_income: fin.income, monthly_needed: monthly,
+      months_total: gData.months
     });
-    if (error) throw error;
-    await loadSavedGoals();
+    if (res.error) throw res.error;
+    await loadGoals();
     alert('Goal saved! Track your progress from the top of this page.');
-    startOver();
+    startFresh();
   } catch(e) { alert('Error saving. Please try again.'); }
 }
 
-function startOver() {
-  goalData = {}; financials = {}; analysis = {};
-  document.querySelectorAll('.gt-card').forEach(c => c.classList.remove('sel'));
-  document.getElementById('goalDetailsForm').classList.remove('show');
-  goToStep(1);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function startFresh() {
+  gData = {}; fin = {}; ana = {};
+  document.querySelectorAll('.type-card').forEach(function(c) { c.classList.remove('selected'); });
+  document.getElementById('goalForm').classList.remove('show');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalAmount').value = '';
+  document.getElementById('goalDate').value = '';
+  document.getElementById('alreadySaved').value = '0';
+  goStep(1);
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
-function goToStep(n) {
-  currentStep = n;
-  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i + 1 === n));
-  for (let i = 1; i <= 4; i++) {
-    const sc = document.getElementById('sc' + i);
-    const sl = document.getElementById('sl' + i);
-    if (i < n) { sc.className = 'step-circle done'; sc.textContent = '✓'; sl.className = 'step-label done'; }
-    else if (i === n) { sc.className = 'step-circle active'; sc.textContent = i; sl.className = 'step-label active'; }
-    else { sc.className = 'step-circle'; sc.textContent = i; sl.className = 'step-label'; }
-    if (i < 4) document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
+function goStep(n) {
+  document.querySelectorAll('.panel').forEach(function(p, i) {
+    p.classList.toggle('active', i+1 === n);
+  });
+  for (var i = 1; i <= 4; i++) {
+    var wc = document.getElementById('wc' + i);
+    var wl = document.getElementById('wl' + i);
+    if (i < n) { wc.className='wcircle done'; wc.textContent='✓'; wl.className='wlabel done'; }
+    else if (i === n) { wc.className='wcircle active'; wc.textContent=i; wl.className='wlabel active'; }
+    else { wc.className='wcircle'; wc.textContent=i; wl.className='wlabel'; }
+    if (i < 4) document.getElementById('wln' + i).className = 'wline' + (i < n ? ' done' : '');
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
-
-function showStep(n) { startOver(); goToStep(n); }
 
 function openUpdModal(id, name, saved, cur, target) {
-  editingGoalId = id;
+  editingId = id;
   document.getElementById('updTitle').textContent = 'Update: ' + name;
   document.getElementById('updSub').textContent = 'How much have you saved? (Target: ' + cur + ' ' + parseFloat(target).toLocaleString() + ')';
   document.getElementById('updInp').value = saved;
-  document.getElementById('confetti').style.display = 'none';
+  document.getElementById('celebrate').style.display = 'none';
   document.getElementById('updOverlay').classList.add('open');
 }
-function closeUpdModal() { document.getElementById('updOverlay').classList.remove('open'); editingGoalId = null; }
-async function saveUpdProgress() {
-  const newAmount = parseFloat(document.getElementById('updInp').value) || 0;
-  const goal = savedGoals.find(g => g.id === editingGoalId);
+
+function closeUpdModal() {
+  document.getElementById('updOverlay').classList.remove('open');
+  editingId = null;
+}
+
+async function saveProgress() {
+  var newAmt = parseFloat(document.getElementById('updInp').value) || 0;
+  var goal = savedGoals.find(function(g) { return g.id === editingId; });
   if (!goal) return;
-  if (newAmount >= goal.target_amount) {
-    document.getElementById('confetti').textContent = 'Goal reached! You did it!';
-    document.getElementById('confetti').style.display = 'block';
-    setTimeout(async () => {
-      await sb.from('user_goals').update({ saved_amount: newAmount, updated_at: new Date().toISOString() }).eq('id', editingGoalId);
-      closeUpdModal(); await loadSavedGoals();
+  if (newAmt >= goal.target_amount) {
+    document.getElementById('celebrate').style.display = 'block';
+    setTimeout(async function() {
+      await sb.from('user_goals').update({ saved_amount:newAmt, updated_at:new Date().toISOString() }).eq('id', editingId);
+      closeUpdModal();
+      await loadGoals();
     }, 2000);
     return;
   }
-  await sb.from('user_goals').update({ saved_amount: newAmount, updated_at: new Date().toISOString() }).eq('id', editingGoalId);
-  closeUpdModal(); await loadSavedGoals();
+  await sb.from('user_goals').update({ saved_amount:newAmt, updated_at:new Date().toISOString() }).eq('id', editingId);
+  closeUpdModal();
+  await loadGoals();
 }
 
-document.getElementById('updOverlay').addEventListener('click', function(e) { if (e.target === this) closeUpdModal(); });
-
-function showGoalLimitModal() {
-  document.getElementById('goalLimitOverlay').style.display = 'flex';
+function showLimitModal() {
+  document.getElementById('limitOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-function closeGoalLimitModal() {
-  document.getElementById('goalLimitOverlay').style.display = 'none';
+
+function closeLimitModal() {
+  document.getElementById('limitOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
 
+document.getElementById('updOverlay').addEventListener('click', function(e) { if (e.target === this) closeUpdModal(); });
+document.getElementById('limitOverlay').addEventListener('click', function(e) { if (e.target === this) closeLimitModal(); });
+
 init();
 </script>
-
-<div id="goalLimitOverlay" onclick="if(event.target===this)closeGoalLimitModal()" style="position:fixed;inset:0;background:rgba(10,22,40,.65);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:24px;width:100%;max-width:460px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2)">
-    <div style="background:linear-gradient(135deg,#0A1628,#1e3a5f);padding:28px;text-align:center">
-      <div style="width:50px;height:50px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:var(--font-body)">2/2</div>
-      <h3 style="font-family:var(--font-head);font-size:22px;font-style:italic;color:#fff;margin-bottom:8px">Free plan limit <span style="color:#00C9A7">reached.</span></h3>
-      <p style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;max-width:300px;margin:0 auto">You have used both free goal slots. Upgrade to Pro to save unlimited goals with full Maya analysis every time.</p>
-    </div>
-    <div style="padding:20px">
-      <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1px solid #E2E8F0">
-        <span style="font-size:13px;color:#64748B;font-weight:500">Free plan</span>
-        <div style="display:flex;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:#00C9A7"></div><div style="width:10px;height:10px;border-radius:50%;background:#00C9A7"></div><div style="width:10px;height:10px;border-radius:50%;background:#E2E8F0;border:1px solid #CBD5E1"></div></div>
-        <span style="font-size:12px;color:#94A3B8">2 of 2 used</span>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;background:#E6FBF7;border:1px solid rgba(0,201,167,.3);border-radius:10px;padding:12px 14px;margin-bottom:18px">
-        <span style="font-size:13px;color:#0A1628;font-weight:600">Pro plan</span>
-        <span style="font-size:12px;color:#00A888;font-weight:700">Unlimited goals</span>
-        <span style="font-size:12px;color:#00A888;font-weight:700">$1 first month</span>
-      </div>
-      <button onclick="window.location.href='/upgrade.html'" style="width:100%;padding:13px;background:#00C9A7;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);margin-bottom:10px">Unlock unlimited goals — $1 first month</button>
-      <button onclick="closeGoalLimitModal()" style="width:100%;padding:9px;background:transparent;color:#94A3B8;border:none;font-size:13px;cursor:pointer;font-family:var(--font-body)">Maybe later</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
