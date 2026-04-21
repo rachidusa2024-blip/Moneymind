@@ -3,149 +3,516 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Dashboard — Sum Goals</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<title>Dashboard — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#F0F4FF;--bg2:#E8EEFF;--white:#FFFFFF;--navy:#0A1628;
-  --blue:#1A56DB;--blue-dark:#1446C0;--blue-light:#EEF2FF;
-  --teal:#00C9A7;--teal-dark:#00A888;--teal-light:#E6FBF7;
-  --gold:#F59E0B;--muted:#64748B;--dim:#94A3B8;--border:#E2E8F0;
-  --red:#EF4444;--green:#10B981;
-  --shadow:0 1px 3px rgba(0,0,0,0.08);--shadow-md:0 4px 16px rgba(0,0,0,0.08);
-  --font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;
+  --bg:#080E1A;
+  --surface:#0F1829;
+  --surface2:#162035;
+  --gold:#C9A84C;
+  --gold-dim:rgba(201,168,76,0.08);
+  --gold-border:rgba(201,168,76,0.2);
+  --teal:#00C9A7;
+  --teal-dim:rgba(0,201,167,0.08);
+  --teal-border:rgba(0,201,167,0.2);
+  --white:#F0F4FF;
+  --muted:#8B9CB6;
+  --dim:#3D5073;
+  --border:rgba(255,255,255,0.06);
+  --red:#EF4444;
+  --green:#10B981;
+  --font-head:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-size:15px;min-height:100vh}
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:14px;min-height:100vh}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px 4px rgba(201,168,76,0.15)}}
+@keyframes scoreCount{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes barFill{from{width:0}to{width:var(--target-width)}}
 
-.loading{position:fixed;inset:0;background:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
-.loading-logo{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--navy)}.loading-logo span{color:var(--teal)}
-.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
+/* LOADING */
+.loading{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;gap:16px;
+}
+.loading-logo{font-family:var(--font-head);font-size:24px;font-style:italic;color:var(--white)}
+.loading-logo span{color:var(--gold)}
+.loader{width:32px;height:32px;border:2px solid var(--gold-border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 
-.layout{display:flex;min-height:100vh}
+/* LAYOUT */
+.layout{display:flex;min-height:100vh;opacity:0;transition:opacity 0.5s ease}
+.layout.visible{opacity:1}
 
 /* SIDEBAR */
-.sidebar{width:250px;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:10;box-shadow:var(--shadow)}
-.sb-logo{padding:20px;border-bottom:1px solid var(--border)}
-.logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy)}.logo span{color:var(--teal)}
-.sb-user{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sb-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));color:var(--white);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.sb-name{font-size:13px;font-weight:700;color:var(--navy)}
-.sb-plan{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:2px}
-.sb-plan.free{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.sb-plan.pro{background:var(--teal-light);color:var(--teal-dark);border:1px solid rgba(0,201,167,.3)}
-.sb-plan.lifetime{background:#FEF3C7;color:#92400E}
-.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
-.sb-sec{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;padding:10px 8px 6px}
-.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;background:transparent;width:100%;text-align:left;font-family:var(--font-body)}
-.sb-btn:hover{background:var(--bg);color:var(--navy)}
-.sb-btn.active{background:var(--teal-light);color:var(--teal-dark)}
-.sb-bottom{padding:12px;border-top:1px solid var(--border)}
-.btn-upgrade{width:100%;padding:10px;background:var(--teal);color:var(--white);border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);margin-bottom:8px;transition:all .2s}
-.btn-upgrade:hover{background:var(--teal-dark)}
-.btn-signout{width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-signout:hover{color:var(--navy);border-color:var(--navy)}
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;
+  z-index:10;
+}
+.sb-brand{
+  padding:24px 20px;
+  border-bottom:1px solid var(--border);
+}
+.brand-name{
+  font-family:var(--font-head);
+  font-size:18px;font-style:italic;
+  color:var(--white);
+}
+.brand-name span{color:var(--gold)}
+.brand-tagline{
+  font-size:10px;color:var(--dim);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-top:4px;
+}
+
+.sb-user{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.user-av{
+  width:36px;height:36px;
+  border-radius:50%;
+  background:var(--gold-dim);
+  border:1.5px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:14px;font-style:italic;
+  color:var(--gold);flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:500;color:var(--white)}
+.user-plan{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 8px;border-radius:10px;
+  display:inline-block;margin-top:3px;
+}
+.user-plan.free{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+.user-plan.pro{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+
+.sb-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);padding:10px 8px 6px;font-weight:600;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:9px 10px;
+  border-radius:8px;border:none;
+  background:transparent;color:var(--muted);
+  font-size:13px;font-weight:400;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;text-align:left;
+}
+.nav-btn:hover{background:var(--surface2);color:var(--white)}
+.nav-btn.active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.5}
+.nav-btn.active .nav-dot{opacity:1}
+
+.sb-bottom{padding:14px 12px;border-top:1px solid var(--border)}
+.btn-upgrade{
+  width:100%;padding:10px;
+  background:linear-gradient(135deg,var(--gold),#B8923C);
+  color:#080E1A;border:none;border-radius:8px;
+  font-weight:600;font-size:12px;
+  cursor:pointer;font-family:var(--font-body);
+  letter-spacing:.04em;
+  margin-bottom:8px;transition:all 0.2s;
+  display:none;
+}
+.btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,168,76,0.3)}
+.btn-signout{
+  width:100%;padding:8px;
+  background:transparent;color:var(--dim);
+  border:1px solid var(--border);border-radius:8px;
+  font-size:12px;cursor:pointer;
+  font-family:var(--font-body);transition:all 0.2s;
+}
+.btn-signout:hover{color:var(--muted);border-color:var(--dim)}
 
 /* MAIN */
-.main{flex:1;margin-left:250px;padding:28px}
-.page-head{margin-bottom:24px;animation:up .4s ease forwards}
-.page-title{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--navy);margin-bottom:4px}
-.page-sub{font-size:13px;color:var(--muted)}
+.main{margin-left:260px;padding:32px;min-height:100vh}
 
-/* STAT CARDS */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;animation:up .4s ease .1s both}
-.sc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
-.sc.hl{border-color:var(--teal);background:linear-gradient(135deg,rgba(0,201,167,.05),var(--white))}
-.sc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.sc-val{font-family:var(--font-head);font-size:32px;font-style:italic;line-height:1;margin-bottom:4px}
-.sc-val.teal{color:var(--teal)}.sc-val.green{color:var(--green)}.sc-val.red{color:var(--red)}.sc-val.gold{color:var(--gold)}
-.sc-note{font-size:11px;color:var(--muted)}
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:28px;
+  animation:up 0.4s ease forwards;
+}
+.greeting-time{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.greeting-name{
+  font-family:var(--font-head);
+  font-size:clamp(22px,2.5vw,32px);
+  font-style:italic;color:var(--white);
+  letter-spacing:-0.5px;
+}
+.greeting-name span{color:var(--gold)}
+.topbar-right{text-align:right}
+.topbar-date{font-size:11px;color:var(--dim);margin-bottom:4px}
+.topbar-secure{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:var(--dim);
+  letter-spacing:.06em;
+}
+.secure-dot{width:5px;height:5px;background:var(--green);border-radius:50%}
+
+/* VERA MESSAGE */
+.vera-daily{
+  background:var(--surface);
+  border:1px solid var(--gold-border);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:24px;
+  display:flex;gap:14px;
+  animation:up 0.4s ease 0.05s both;
+  position:relative;
+  overflow:hidden;
+}
+.vera-daily::before{
+  content:'';
+  position:absolute;top:0;right:0;
+  width:200px;height:100%;
+  background:radial-gradient(circle at right,rgba(201,168,76,0.06),transparent 70%);
+  pointer-events:none;
+}
+.vd-av{
+  width:38px;height:38px;
+  border-radius:50%;
+  background:var(--gold-dim);
+  border:1.5px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:15px;font-style:italic;
+  color:var(--gold);flex-shrink:0;
+}
+.vd-content{}
+.vd-label{
+  font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px;
+}
+.vd-text{font-size:13px;color:var(--muted);line-height:1.65}
+.vd-text strong{color:var(--white)}
+
+/* KEY METRICS */
+.metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:24px;
+  animation:up 0.4s ease 0.1s both;
+}
+.metric{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  position:relative;overflow:hidden;
+  transition:all 0.2s;
+}
+.metric:hover{border-color:var(--gold-border);transform:translateY(-2px)}
+.metric.highlight{border-color:var(--gold-border)}
+.metric::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);opacity:0;transition:opacity 0.2s;
+}
+.metric:hover::after{opacity:0.5}
+.metric-label{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;font-weight:500;
+}
+.metric-val{
+  font-family:var(--font-head);
+  font-size:clamp(20px,2vw,28px);
+  font-style:italic;line-height:1;
+  margin-bottom:6px;
+}
+.metric-val.gold{color:var(--gold)}
+.metric-val.teal{color:var(--teal)}
+.metric-val.red{color:var(--red)}
+.metric-val.green{color:var(--green)}
+.metric-change{
+  font-size:11px;font-weight:500;
+  display:flex;align-items:center;gap:4px;
+}
+.metric-change.up{color:var(--green)}
+.metric-change.down{color:var(--red)}
+.metric-change.neutral{color:var(--dim)}
 
 /* GRID */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;animation:up .4s ease .2s both}
-.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px;
+  animation:up 0.4s ease 0.15s both;
+}
 .card.full{grid-column:span 2}
-.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.card-title{font-size:14px;font-weight:700;color:var(--navy)}
-.card-action{font-size:12px;color:var(--teal-dark);cursor:pointer;border:none;background:transparent;font-family:var(--font-body);font-weight:600}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{
+  font-family:var(--font-head);
+  font-size:16px;font-style:italic;
+  color:var(--white);
+}
+.card-action{
+  font-size:11px;color:var(--gold);
+  letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;background:none;border:none;
+  font-family:var(--font-body);font-weight:500;
+  transition:opacity 0.2s;
+}
+.card-action:hover{opacity:0.7}
 
-/* HEALTH SCORE */
-.score-display{display:flex;gap:20px;align-items:center}
-.score-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.score-num-big{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--white)}
-.score-bars{flex:1}
-.sbar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
-.sbar-lbl{color:var(--muted);width:75px;flex-shrink:0}
-.sbar-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
-.sbar-fill{height:6px;background:var(--teal);border-radius:3px}
-.sbar-val{color:var(--teal-dark);font-weight:700;width:24px;text-align:right;flex-shrink:0}
+/* SCORE RING */
+.score-display{display:flex;align-items:center;gap:20px}
+.score-ring-wrap{position:relative;width:100px;height:100px;flex-shrink:0}
+.score-ring-wrap svg{width:100px;height:100px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:8}
+.ring-arc{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:283;transition:stroke-dashoffset 1.5s ease,stroke 0.5s ease}
+.ring-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-num{
+  font-family:var(--font-head);
+  font-size:26px;font-style:italic;
+  color:var(--gold);line-height:1;
+}
+.ring-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.score-details{flex:1}
+.score-bar-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:8px;font-size:11px;
+}
+.sbar-label{color:var(--muted);width:80px;flex-shrink:0}
+.sbar-track{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.sbar-fill{height:4px;background:var(--gold);border-radius:2px;transition:width 1s ease}
+.sbar-val{color:var(--gold);font-weight:500;width:24px;text-align:right;flex-shrink:0}
 
 /* PAYDAY */
-.pd-center{text-align:center;padding:8px 0}
-.pd-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-.pd-big{font-family:var(--font-head);font-size:64px;font-style:italic;color:var(--gold);line-height:1}
-.pd-budget{font-size:13px;color:var(--navy);font-weight:600;margin-top:8px}
-.pd-track{height:6px;background:var(--border);border-radius:3px;margin-top:12px}
-.pd-fill{height:6px;background:var(--gold);border-radius:3px}
+.payday-center{text-align:center;padding:8px 0}
+.pd-label{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.pd-days{
+  font-family:var(--font-head);
+  font-size:clamp(52px,6vw,72px);
+  font-style:italic;color:var(--gold);line-height:1;
+  animation:goldPulse 3s ease infinite;
+}
+.pd-unit{font-size:14px;color:var(--muted);margin-bottom:8px}
+.pd-budget{font-size:13px;color:var(--white);font-weight:500}
+.pd-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:12px;overflow:hidden}
+.pd-fill{height:4px;background:linear-gradient(90deg,var(--gold),rgba(201,168,76,0.3));border-radius:2px}
 
-/* TRANSFORM */
-.tp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.tp-day{font-size:13px;color:var(--muted)}
-.tp-pct{font-size:14px;font-weight:700;color:var(--teal-dark)}
-.tp-track{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:16px}
-.tp-fill{height:8px;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:4px}
-.milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.ms{background:var(--bg);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
-.ms.done{background:var(--teal-light);border-color:rgba(0,201,167,.3)}
-.ms-icon{font-size:16px;margin-bottom:4px;color:var(--dim)}
-.ms.done .ms-icon{color:var(--teal-dark)}
-.ms-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px}
-.ms-sub{font-size:10px;color:var(--muted)}
+/* DEBT */
+.debt-list{display:flex;flex-direction:column;gap:10px}
+.debt-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+}
+.debt-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.debt-name{font-size:13px;font-weight:500;color:var(--white)}
+.debt-amount{font-size:13px;font-weight:600;color:var(--red)}
+.debt-bar-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.debt-bar-fill{height:5px;background:linear-gradient(90deg,var(--red),rgba(239,68,68,0.4));border-radius:3px;transition:width 1s ease}
+.debt-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--dim)}
+.empty-debt{text-align:center;padding:24px;color:var(--dim);font-size:13px}
 
-/* MAYA CHAT */
-.chat-wrap{display:flex;flex-direction:column;animation:up .4s ease .3s both}
+/* VERA CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:340px}
 .chat-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.cmode{background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;white-space:nowrap}
-.cmode:hover{border-color:var(--teal);color:var(--teal-dark)}
-.cmode.active{background:var(--teal-light);border-color:rgba(0,201,167,.4);color:var(--teal-dark)}
-.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px;height:300px;padding-right:4px}
-.msgs::-webkit-scrollbar{width:4px}.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cmode{
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:20px;padding:4px 12px;
+  color:var(--dim);font-size:11px;font-weight:500;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;white-space:nowrap;
+  letter-spacing:.04em;
+}
+.cmode:hover{border-color:var(--gold-border);color:var(--gold)}
+.cmode.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
+.msgs{
+  flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;gap:10px;
+  margin-bottom:10px;padding-right:4px;
+}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .mrow{display:flex;flex-direction:column}
-.mrow.bot{align-items:flex-start}.mrow.usr{align-items:flex-end}
-.m-sender{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;padding:0 2px}
-.mrow.bot .m-sender{color:var(--teal-dark)}.mrow.usr .m-sender{color:var(--muted)}
-.m-bub{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65;max-width:88%}
-.mrow.bot .m-bub{background:var(--bg);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px}
-.mrow.usr .m-bub{background:var(--teal);color:var(--white);border-radius:12px 4px 12px 12px}
-.m-bub strong{color:var(--teal-dark)}
-.mrow.usr .m-bub strong{color:rgba(255,255,255,.9)}
-.typing{display:flex;gap:4px;padding:10px 14px}
-.tdot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:td 1.2s infinite}
-.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
-.inp-row{display:flex;gap:8px}
-.chat-inp{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--navy);font-size:13px;font-family:var(--font-body);outline:none;transition:border-color .2s}
-.chat-inp:focus{border-color:var(--teal);background:var(--white)}
+.mrow.vera{align-items:flex-start}.mrow.user{align-items:flex-end}
+.m-label{
+  font-size:9px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:4px;padding:0 2px;
+}
+.mrow.vera .m-label{color:var(--gold)}
+.mrow.user .m-label{color:var(--muted)}
+.m-bub{
+  font-size:13px;line-height:1.6;
+  padding:10px 14px;border-radius:12px;
+  max-width:90%;
+}
+.mrow.vera .m-bub{
+  background:rgba(201,168,76,0.05);
+  border:1px solid var(--gold-border);
+  color:var(--white);
+  border-radius:4px 12px 12px 12px;
+}
+.mrow.user .m-bub{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  color:var(--white);
+  border-radius:12px 4px 12px 12px;
+}
+.m-bub strong{color:var(--gold)}
+.typing-dots{display:flex;gap:4px;padding:10px 14px}
+.tdot{width:5px;height:5px;background:var(--gold);border-radius:50%}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-5px);opacity:1}}
+.tdot{animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}
+.tdot:nth-child(3){animation-delay:.4s}
+.chat-inp-row{display:flex;gap:8px}
+.chat-inp{
+  flex:1;background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;color:var(--white);font-size:13px;
+  font-family:var(--font-body);outline:none;
+  transition:border-color 0.2s;
+}
+.chat-inp:focus{border-color:var(--gold-border)}
 .chat-inp::placeholder{color:var(--dim)}
-.chat-send{background:var(--teal);border:none;border-radius:8px;padding:10px 18px;cursor:pointer;color:var(--white);font-weight:700;font-size:13px;font-family:var(--font-body);transition:all .2s}
-.chat-send:hover{background:var(--teal-dark)}
-.chat-send:disabled{background:var(--border);cursor:not-allowed}
+.chat-send{
+  background:var(--gold);border:none;border-radius:8px;
+  padding:10px 16px;cursor:pointer;
+  color:#080E1A;font-weight:600;font-size:12px;
+  font-family:var(--font-body);transition:all 0.2s;
+  letter-spacing:.04em;
+}
+.chat-send:hover{background:#D4B05A}
+.chat-send:disabled{background:var(--dim);cursor:not-allowed}
+
+/* TRANSFORMATION */
+.transform-bar{margin-bottom:12px}
+.tb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tb-label{font-size:12px;color:var(--muted)}
+.tb-pct{font-size:13px;font-weight:600;color:var(--gold)}
+.tb-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.tb-fill{height:6px;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:3px;transition:width 1s ease}
+.ms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.ms-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:8px;padding:10px;text-align:center;
+}
+.ms-item.done{border-color:var(--gold-border);background:var(--gold-dim)}
+.ms-name{font-size:11px;color:var(--white);font-weight:500;margin-bottom:2px}
+.ms-sub{font-size:10px;color:var(--dim)}
 
 /* PRO LOCK */
-.pro-lock{background:linear-gradient(135deg,var(--blue-light),var(--teal-light));border:1px solid rgba(0,201,167,.3);border-radius:14px;padding:32px;text-align:center}
-.pro-lock h3{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--navy);margin-bottom:8px}
-.pro-lock p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
-.btn-lock{background:var(--teal);color:var(--white);border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
-.btn-lock:hover{background:var(--teal-dark)}
+.pro-lock{
+  background:linear-gradient(135deg,var(--gold-dim),var(--teal-dim));
+  border:1px solid var(--gold-border);
+  border-radius:14px;padding:28px;text-align:center;
+}
+.pl-title{
+  font-family:var(--font-head);
+  font-size:20px;font-style:italic;
+  color:var(--white);margin-bottom:8px;
+}
+.pl-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.55}
+.btn-pl{
+  background:var(--gold);color:#080E1A;
+  border:none;border-radius:8px;
+  padding:11px 24px;font-weight:600;font-size:13px;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;
+}
+.btn-pl:hover{background:#D4B05A;transform:translateY(-1px)}
 
-@media(max-width:900px){
-  .sidebar{width:100%;height:auto;position:relative}
+/* UPGRADE MODAL */
+.upg-overlay{
+  position:fixed;inset:0;
+  background:rgba(8,14,26,0.85);
+  backdrop-filter:blur(8px);z-index:999;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.upg-overlay.open{display:flex;animation:fadeIn 0.2s ease}
+.upg-modal{
+  background:var(--surface);
+  border:1px solid var(--gold-border);
+  border-radius:24px;width:100%;max-width:500px;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.upg-header{
+  background:linear-gradient(135deg,#0A1020,#0F1829);
+  padding:28px;text-align:center;
+  border-bottom:1px solid var(--gold-border);
+}
+.upg-badge{
+  width:48px;height:48px;
+  background:var(--gold-dim);border:1.5px solid var(--gold-border);
+  border-radius:12px;margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:16px;font-style:italic;color:var(--gold);
+}
+.upg-h{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px}
+.upg-h span{color:var(--gold)}
+.upg-p{font-size:13px;color:var(--muted);line-height:1.5;max-width:320px;margin:0 auto}
+.upg-body{padding:20px}
+.plan-row{
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:10px;padding:12px 14px;margin-bottom:10px;
+}
+.plan-row.free{background:rgba(255,255,255,0.03);border:1px solid var(--border)}
+.plan-row.pro{background:var(--gold-dim);border:1px solid var(--gold-border)}
+.plan-label{font-size:13px;font-weight:500}
+.plan-row.free .plan-label{color:var(--muted)}
+.plan-row.pro .plan-label{color:var(--gold)}
+.plan-dots{display:flex;gap:5px}
+.pdot{width:10px;height:10px;border-radius:50%}
+.pdot.on{background:var(--gold)}
+.pdot.off{background:rgba(255,255,255,0.1);border:1px solid var(--border)}
+.plan-price{font-size:12px;font-weight:600;color:var(--gold)}
+.btn-upg-main{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--gold),#B8923C);
+  color:#080E1A;border:none;border-radius:10px;
+  font-weight:600;font-size:14px;
+  cursor:pointer;font-family:var(--font-body);
+  margin-bottom:10px;transition:all 0.2s;
+}
+.btn-upg-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.3)}
+.btn-upg-skip{
+  width:100%;padding:9px;
+  background:transparent;color:var(--dim);
+  border:none;font-size:12px;cursor:pointer;
+  font-family:var(--font-body);
+}
+
+@media(max-width:1000px){
+  .sidebar{width:220px}
+  .main{margin-left:220px;padding:20px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
   .main{margin-left:0;padding:16px}
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .grid2{grid-template-columns:1fr}.card.full{grid-column:span 1}
+  .grid2,.grid3{grid-template-columns:1fr}.card.full{grid-column:span 1}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .ms-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -153,431 +520,481 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-body);font-si
 
 <div class="loading" id="loadingScreen">
   <div class="loading-logo"><i>Sum</i> <span>Goals</span></div>
-  <div class="spinner"></div>
+  <div class="loader"></div>
 </div>
 
-<div class="layout" id="app" style="display:none">
+<div class="layout" id="app">
   <div class="sidebar">
-    <div class="sb-logo"><div class="logo"><i>Sum</i> <span>Goals</span></div></div>
+    <div class="sb-brand">
+      <div class="brand-name"><i>Sum</i> <span>Goals</span></div>
+      <div class="brand-tagline">Private Financial Coaching</div>
+    </div>
     <div class="sb-user">
-      <div class="sb-av" id="sbAv">R</div>
-      <div><div class="sb-name" id="sbName">Loading...</div><span class="sb-plan free" id="sbPlan">Free</span></div>
+      <div class="user-av" id="sbAv">V</div>
+      <div>
+        <div class="user-name" id="sbName">Loading...</div>
+        <span class="user-plan free" id="sbPlan">Free</span>
+      </div>
     </div>
     <div class="sb-nav">
-      <div class="sb-sec">Main</div>
-     <button class="sb-btn active" onclick="showSec('home',this)">Dashboard</button>
-      <button class="sb-btn" onclick="showSec('maya',this)">Chat with Maya</button>
-      <div class="sb-sec">Track</div>
-      <button class="sb-btn" onclick="window.location.href='/debtrace.html'">Debt Race</button>
-      <button class="sb-btn" onclick="window.location.href='/score.html'">Health Score</button>
-      <div class="sb-sec">Premium</div>
-      <button class="sb-btn" onclick="window.location.href='/goals.html'">Life Goals</button>
-      <button class="sb-btn" onclick="openUpgradeModal('Budget Builder','Unlock the complete visual budget builder and take full control of your money.')">Budget Builder</button>
-      <button class="sb-btn" onclick="openUpgradeModal('90-Day Plan','Unlock the complete 90-day financial transformation program with Maya guiding every single day.')">90-Day Plan</button>
-      <button class="sb-btn" onclick="openUpgradeModal('Money Mirror','Discover what your spending habits reveal about your money psychology.')">Money Mirror</button>
-      <button class="sb-btn" onclick="openUpgradeModal('Gig Income Tracker','Track all your side hustle income and optimize your earnings with Maya.')">Gig Income</button>
-      <button class="sb-btn" onclick="openUpgradeModal('Couples Mode','One financial plan for two people. Maya coaches you as a team.')">Couples Mode</button>
+      <div class="nav-section">Overview</div>
+      <button class="nav-btn active" onclick="showSection('home',this)"><div class="nav-dot"></div>Dashboard</button>
+      <button class="nav-btn" onclick="showSection('vera',this)"><div class="nav-dot"></div>Talk to Vera</button>
+      <div class="nav-section">My Finances</div>
+      <button class="nav-btn" onclick="window.location.href='/goals.html'"><div class="nav-dot"></div>Life Goals</button>
+      <button class="nav-btn" onclick="window.location.href='/debtrace.html'"><div class="nav-dot"></div>Debt Race</button>
+      <button class="nav-btn" onclick="window.location.href='/score.html'"><div class="nav-dot"></div>Health Score</button>
+      <div class="nav-section">Premium</div>
+      <button class="nav-btn" onclick="openUpgrade('90-Day Transformation')"><div class="nav-dot"></div>90-Day Plan</button>
+      <button class="nav-btn" onclick="openUpgrade('Budget Builder')"><div class="nav-dot"></div>Budget Builder</button>
+      <button class="nav-btn" onclick="openUpgrade('Gig Income Tracker')"><div class="nav-dot"></div>Gig Income</button>
+      <button class="nav-btn" onclick="openUpgrade('Money Mirror')"><div class="nav-dot"></div>Money Mirror</button>
     </div>
     <div class="sb-bottom">
-      <button class="btn-upgrade" id="upBtn" onclick="openUpgradeModal('Upgrade to Pro', 'Unlock unlimited Maya coaching, all visual pages, unlimited goals and everything Sum Goals Pro has to offer.')" style="display:none">Upgrade to Pro — $9/mo</button>
-      <button class="btn-signout" onclick="doSignout()">Sign out</button>
+      <button class="btn-upgrade" id="upgradeBtn" onclick="openUpgrade('Pro')">Upgrade to Pro — $9/mo</button>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
     </div>
   </div>
 
   <div class="main">
+
     <!-- HOME -->
     <div id="sec-home">
-      <div class="page-head">
-        <div class="page-title">Good <span id="greeting">morning</span>, <span id="userName">there</span></div>
-        <div class="page-sub">Here is your financial snapshot today.</div>
+      <div class="topbar">
+        <div>
+          <div class="greeting-time" id="greetingTime">Good morning</div>
+          <div class="greeting-name">Welcome back, <span id="greetingName">—</span></div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-date" id="topbarDate"></div>
+          <div class="topbar-secure"><div class="secure-dot"></div>Encrypted · Private</div>
+        </div>
       </div>
-      <div class="stats-row">
-        <div class="sc hl"><div class="sc-lbl">Health Score</div><div class="sc-val teal">74</div><div class="sc-note">+12 this month</div></div>
-        <div class="sc"><div class="sc-lbl">Total Saved</div><div class="sc-val green">$580</div><div class="sc-note">Keep it up</div></div>
-        <div class="sc"><div class="sc-lbl">Debt Remaining</div><div class="sc-val red">$1,840</div><div class="sc-note">Paying it down</div></div>
-        <div class="sc"><div class="sc-lbl">Days to Payday</div><div class="sc-val gold">5</div><div class="sc-note">$44 daily budget</div></div>
+
+      <!-- VERA DAILY MESSAGE -->
+      <div class="vera-daily">
+        <div class="vd-av">V</div>
+        <div class="vd-content">
+          <div class="vd-label">Vera — Today's briefing</div>
+          <div class="vd-text" id="veraDailyMsg">Loading your personalized briefing...</div>
+        </div>
       </div>
+
+      <!-- KEY METRICS -->
+      <div class="metrics">
+        <div class="metric highlight">
+          <div class="metric-label">Financial Health Score</div>
+          <div class="metric-val gold" id="mScore">—</div>
+          <div class="metric-change neutral" id="mScoreChange">Loading...</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Savings</div>
+          <div class="metric-val green" id="mSavings">—</div>
+          <div class="metric-change up" id="mSavingsChange">Your safety net</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Debt</div>
+          <div class="metric-val red" id="mDebt">—</div>
+          <div class="metric-change neutral" id="mDebtChange">Being eliminated</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Days to Payday</div>
+          <div class="metric-val gold" id="mPayday">—</div>
+          <div class="metric-change neutral" id="mPaydayChange">Daily budget: —</div>
+        </div>
+      </div>
+
       <div class="grid2">
+        <!-- HEALTH SCORE -->
         <div class="card">
-          <div class="card-head"><div class="card-title">Financial Health Score</div><button class="card-action" onclick="showSec('score',null)">Details</button></div>
+          <div class="card-head">
+            <div class="card-title">Financial Health</div>
+            <button class="card-action" onclick="window.location.href='/score.html'">Full report →</button>
+          </div>
           <div class="score-display">
-            <div class="score-circle"><div class="score-num-big">74</div></div>
-            <div class="score-bars">
-              <div class="sbar-row"><span class="sbar-lbl">Budget</span><div class="sbar-track"><div class="sbar-fill" style="width:80%"></div></div><span class="sbar-val">20</span></div>
-              <div class="sbar-row"><span class="sbar-lbl">Debt</span><div class="sbar-track"><div class="sbar-fill" style="width:60%"></div></div><span class="sbar-val">15</span></div>
-              <div class="sbar-row"><span class="sbar-lbl">Savings</span><div class="sbar-track"><div class="sbar-fill" style="width:72%"></div></div><span class="sbar-val">18</span></div>
-              <div class="sbar-row"><span class="sbar-lbl">Emergency</span><div class="sbar-track"><div class="sbar-fill" style="width:84%"></div></div><span class="sbar-val">21</span></div>
+            <div class="score-ring-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="45"/>
+                <circle class="ring-arc" id="scoreArc" cx="50" cy="50" r="45" style="stroke:var(--gold);stroke-dashoffset:283"/>
+              </svg>
+              <div class="ring-center">
+                <div class="ring-num" id="scoreRingNum">—</div>
+                <div class="ring-sub">/100</div>
+              </div>
+            </div>
+            <div class="score-details">
+              <div class="score-bar-row"><span class="sbar-label">Income</span><div class="sbar-track"><div class="sbar-fill" id="sb1" style="width:0%"></div></div><span class="sbar-val" id="sv1">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Expenses</span><div class="sbar-track"><div class="sbar-fill" id="sb2" style="width:0%"></div></div><span class="sbar-val" id="sv2">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Debt</span><div class="sbar-track"><div class="sbar-fill" id="sb3" style="width:0%"></div></div><span class="sbar-val" id="sv3">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Savings</span><div class="sbar-track"><div class="sbar-fill" id="sb4" style="width:0%"></div></div><span class="sbar-val" id="sv4">—</span></div>
             </div>
           </div>
         </div>
+
+        <!-- PAYDAY -->
         <div class="card">
-          <div class="card-head"><div class="card-title">Payday Countdown</div></div>
-          <div class="pd-center">
-            <div class="pd-lbl">Days until payday</div>
-            <div class="pd-big">5</div>
-            <div class="pd-budget">$44.00 daily budget remaining</div>
-            <div class="pd-track"><div class="pd-fill" style="width:60%"></div></div>
+          <div class="card-head">
+            <div class="card-title">Payday Countdown</div>
+            <button class="card-action" onclick="setupPayday()">Update →</button>
           </div>
-        </div>
-        <div class="card full">
-          <div class="card-head"><div class="card-title">90-Day Financial Transformation</div><button class="card-action" onclick="showPro('90-Day Plan')">Start program</button></div>
-          <div class="tp-top"><div class="tp-day">Day 0 of 90 — Start your transformation today</div><div class="tp-pct">0%</div></div>
-          <div class="tp-track"><div class="tp-fill" style="width:0%"></div></div>
-          <div class="milestones">
-            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 1 — Audit</div><div class="ms-sub">Build your foundation</div></div>
-            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 2 — Plan</div><div class="ms-sub">Systems in place</div></div>
-            <div class="ms"><div class="ms-icon">○</div><div class="ms-title">Month 3 — Momentum</div><div class="ms-sub">Habits locked in</div></div>
+          <div class="payday-center">
+            <div class="pd-label">Days until payday</div>
+            <div class="pd-days" id="pdDays">—</div>
+            <div class="pd-unit">days remaining</div>
+            <div class="pd-budget" id="pdBudget">Tell Vera your payday date</div>
+            <div class="pd-track"><div class="pd-fill" id="pdFill" style="width:60%"></div></div>
           </div>
         </div>
       </div>
-      <div class="card chat-wrap">
-        <div class="card-head"><div class="card-title">Ask Maya</div></div>
-        <div class="chat-modes">
-          <button class="cmode active" onclick="setMode('coach',this)">Coach</button>
-          <button class="cmode" onclick="setMode('budget',this)">Budget</button>
-          <button class="cmode" onclick="setMode('payday',this)">Payday</button>
-          <button class="cmode" onclick="setMode('debt',this)">Debt Race</button>
-          <button class="cmode" onclick="setMode('score',this)">Health Score</button>
-          <button class="cmode" onclick="setMode('survival',this)">Survival</button>
+
+      <!-- TRANSFORMATION + DEBT -->
+      <div class="grid3" style="animation:up 0.4s ease 0.2s both">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">90-Day Transformation</div>
+            <button class="card-action" onclick="openUpgrade('90-Day Plan')">View program →</button>
+          </div>
+          <div class="transform-bar">
+            <div class="tb-top"><div class="tb-label" id="tbDay">Day 0 of 90</div><div class="tb-pct" id="tbPct">0%</div></div>
+            <div class="tb-track"><div class="tb-fill" id="tbFill" style="width:0%"></div></div>
+          </div>
+          <div class="ms-grid">
+            <div class="ms-item"><div class="ms-name">Month 1 — Audit</div><div class="ms-sub">Foundation</div></div>
+            <div class="ms-item"><div class="ms-name">Month 2 — Plan</div><div class="ms-sub">Systems</div></div>
+            <div class="ms-item"><div class="ms-name">Month 3 — Momentum</div><div class="ms-sub">Habits locked</div></div>
+          </div>
         </div>
-        <div class="msgs" id="msgs">
-          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Hey — I'm Maya, your Sum Goals coach. <strong>What do you need help with today?</strong> Tell me your currency and situation.</div></div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Debt Status</div>
+            <button class="card-action" onclick="window.location.href='/debtrace.html'">Race →</button>
+          </div>
+          <div id="debtSummary">
+            <div class="empty-debt">Add your debts in the Debt Race to track elimination progress</div>
+          </div>
         </div>
-        <div class="inp-row">
-          <input class="chat-inp" id="chatInp" placeholder="Ask Maya anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}">
-          <button class="chat-send" id="sendBtn" onclick="sendMsg()">Send</button>
+      </div>
+
+      <!-- VERA CHAT -->
+      <div class="card" style="animation:up 0.4s ease 0.25s both">
+        <div class="card-head"><div class="card-title">Ask Vera</div></div>
+        <div class="chat-wrap">
+          <div class="chat-modes">
+            <button class="cmode active" onclick="setMode('coach',this)">Coaching</button>
+            <button class="cmode" onclick="setMode('budget',this)">Budget</button>
+            <button class="cmode" onclick="setMode('payday',this)">Payday</button>
+            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
+            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
+          </div>
+          <div class="msgs" id="chatMsgs">
+            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">Good to see you. What would you like to work on today? I have your complete financial profile and I am ready to give you specific advice.</div></div>
+          </div>
+          <div class="chat-inp-row">
+            <input class="chat-inp" id="chatInput" placeholder="Ask Vera anything about your finances..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+            <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- MAYA FULL -->
-    <div id="sec-maya" style="display:none">
-      <div class="page-head"><div class="page-title"><em>Chat with Maya</em></div><div class="page-sub">Your personal finance coach — 24/7</div></div>
-      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
-        <div class="chat-modes">
-          <button class="cmode active" onclick="setMode2('coach',this)">Maya Coach</button>
-          <button class="cmode" onclick="setMode2('budget',this)">Budget Builder</button>
-          <button class="cmode" onclick="setMode2('payday',this)">Payday Countdown</button>
-          <button class="cmode" onclick="setMode2('debt',this)">Debt Race</button>
-          <button class="cmode" onclick="setMode2('score',this)">Health Score</button>
-          <button class="cmode" onclick="setMode2('personality',this)">Personality Quiz</button>
-          <button class="cmode" onclick="setMode2('hustle',this)">Side Hustle</button>
-          <button class="cmode" onclick="setMode2('emergency',this)">Emergency Kit</button>
-          <button class="cmode" onclick="setMode2('survival',this)">Survival Mode</button>
+    <!-- VERA FULL SECTION -->
+    <div id="sec-vera" style="display:none">
+      <div class="topbar" style="animation:up 0.4s ease forwards">
+        <div>
+          <div class="greeting-time">Private Session</div>
+          <div class="greeting-name">Talk to <span>Vera</span></div>
         </div>
-        <div class="msgs" id="msgs2" style="height:calc(100% - 120px)"></div>
-        <div class="inp-row">
-          <input class="chat-inp" id="chatInp2" placeholder="Tell Maya your currency and situation..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg2()}">
-          <button class="chat-send" id="sendBtn2" onclick="sendMsg2()">Send</button>
+      </div>
+      <div class="card" style="height:calc(100vh - 160px);display:flex;flex-direction:column;animation:up 0.4s ease forwards">
+        <div class="chat-wrap" style="height:100%">
+          <div class="chat-modes">
+            <button class="cmode active" onclick="setMode('coach',this)">Financial Coach</button>
+            <button class="cmode" onclick="setMode('budget',this)">Budget Builder</button>
+            <button class="cmode" onclick="setMode('payday',this)">Payday Planning</button>
+            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
+            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
+            <button class="cmode" onclick="setMode('hustle',this)">Side Income</button>
+            <button class="cmode" onclick="setMode('survival',this)">Survival Mode</button>
+          </div>
+          <div class="msgs" id="veraFullMsgs" style="height:calc(100% - 100px)">
+            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">This is your private financial coaching session. Everything you share here is confidential. <strong>What would you like to work on today?</strong></div></div>
+          </div>
+          <div class="chat-inp-row">
+            <input class="chat-inp" id="veraInput" placeholder="Share your situation and I will give you specific advice..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendVeraMsg()}">
+            <button class="chat-send" id="veraSendBtn" onclick="sendVeraMsg()">Send</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- BUDGET -->
-    <div id="sec-budget" style="display:none">
-      <div class="page-head"><div class="page-title"><em>Budget Builder</em></div><div class="page-sub">Build your complete monthly budget with Maya</div></div>
-      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
-        <div class="msgs" id="budgetMsgs" style="height:calc(100% - 60px)">
-          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Let's build your complete budget. <strong>What is your monthly income after taxes? And what currency are you using?</strong></div></div>
-        </div>
-        <div class="inp-row">
-          <input class="chat-inp" id="budgetInp" placeholder="Enter your income and currency..." onkeydown="if(event.key==='Enter'){sendSpec('budget','budgetInp','budgetMsgs')}">
-          <button class="chat-send" onclick="sendSpec('budget','budgetInp','budgetMsgs')">Send</button>
-        </div>
-      </div>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="upg-overlay" id="upgOverlay">
+  <div class="upg-modal">
+    <div class="upg-header">
+      <div class="upg-badge">V</div>
+      <div class="upg-h">Unlock <span id="upgFeatureName">Pro</span></div>
+      <p class="upg-p">Upgrade to Sum Goals Pro — full access to every coaching tool Vera offers. First month only $1.</p>
     </div>
-
-    <!-- DEBT -->
-    <div id="sec-debt" style="display:none">
-      <div class="page-head"><div class="page-title"><em>Debt Race</em></div><div class="page-sub">Watch your debts get eliminated one by one</div></div>
-      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
-        <div class="msgs" id="debtMsgs" style="height:calc(100% - 60px)">
-          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub"><strong>Tell me all your debts</strong> — name, balance, interest rate, minimum payment. What currency? I will build your complete payoff plan.</div></div>
-        </div>
-        <div class="inp-row">
-          <input class="chat-inp" id="debtInp" placeholder="List your debts..." onkeydown="if(event.key==='Enter'){sendSpec('debt','debtInp','debtMsgs')}">
-          <button class="chat-send" onclick="sendSpec('debt','debtInp','debtMsgs')">Send</button>
-        </div>
+    <div class="upg-body">
+      <div class="plan-row free">
+        <span class="plan-label">Free plan</span>
+        <div class="plan-dots"><div class="pdot on"></div><div class="pdot on"></div><div class="pdot off"></div></div>
+        <span style="font-size:12px;color:var(--dim)">Limited access</span>
       </div>
-    </div>
-
-    <!-- SCORE -->
-    <div id="sec-score" style="display:none">
-      <div class="page-head"><div class="page-title"><em>Health Score</em></div><div class="page-sub">Your financial wellness rated 0 to 100</div></div>
-      <div class="card chat-wrap" style="height:calc(100vh - 180px)">
-        <div class="msgs" id="scoreMsgs" style="height:calc(100% - 60px)">
-          <div class="mrow bot"><div class="m-sender">Maya</div><div class="m-bub">Let's calculate your score. Tell me:<br><br>→ Monthly income<br>→ Monthly expenses<br>→ Total debt<br>→ Monthly savings<br>→ Emergency fund balance<br>→ Currency</div></div>
-        </div>
-        <div class="inp-row">
-          <input class="chat-inp" id="scoreInp" placeholder="Share your numbers..." onkeydown="if(event.key==='Enter'){sendSpec('score','scoreInp','scoreMsgs')}">
-          <button class="chat-send" onclick="sendSpec('score','scoreInp','scoreMsgs')">Send</button>
-        </div>
+      <div class="plan-row pro">
+        <span class="plan-label">Pro plan</span>
+        <span style="font-size:12px;color:var(--gold);font-weight:600">Full access</span>
+        <span class="plan-price">$1 first month</span>
       </div>
+      <button class="btn-upg-main" onclick="goToCheckout()">Start Pro — $1 first month →</button>
+      <button class="btn-upg-skip" onclick="closeUpgrade()">Maybe later</button>
     </div>
-
-    <!-- PRO LOCK -->
-
   </div>
 </div>
 
 <script>
-const SUPA_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const SURL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_KEY);
+const sb = createClient(SURL, SKEY);
 
-let user = null, profile = null, mode = 'coach', mode2 = 'coach';
-let h = [], h2 = [], hSpec = {}, count = 0;
-const LIMIT = 5;
+var user = null, profile = null, finData = null, isPro = false;
+var chatMode = 'coach', chatHistory = [], veraHistory = [], chatCount = 0;
+var FREE_LIMIT = 5;
 
 async function init() {
+  var res = await sb.auth.getSession();
+  if (!res.data.session) { window.location.href = '/index.html'; return; }
+  user = res.data.session.user;
+
   try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = '/index.html'; return; }
-    user = session.user;
-    try {
-      const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
-      profile = data || { full_name: user.user_metadata?.full_name || user.email.split('@')[0], plan: 'free' };
-    } catch(e) {
-      profile = { full_name: user.user_metadata?.full_name || user.email.split('@')[0], plan: 'free' };
-    }
-    setupUI();
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-  } catch(e) {
-    document.getElementById('loadingScreen').innerHTML = '<div style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#0A1628">Sum <span style="color:#00C9A7">Goals</span></div><p style="color:#64748B;font-size:14px;margin-top:12px">Session expired. <a href="/index.html" style="color:#00C9A7">Sign in again</a></p>';
+    var p = await sb.from('profiles').select('*').eq('id', user.id).single();
+    profile = p.data;
+    isPro = profile && (profile.plan === 'pro' || profile.plan === 'lifetime');
+  } catch(e) { profile = null; isPro = false; }
+
+  try {
+    var fd = await sb.from('financial_data').select('*').eq('user_id', user.id).single();
+    finData = fd.data;
+  } catch(e) { finData = null; }
+
+  if (!profile || !profile.onboarding_completed) {
+    window.location.href = '/onboarding.html';
+    return;
   }
+
+  setupUI();
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
 }
 
 function setupUI() {
-  const name = profile?.full_name || user.email.split('@')[0];
-  document.getElementById('sbAv').textContent = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  var name = profile.full_name || user.email.split('@')[0];
+  var initials = name.split(' ').map(function(n){return n[0]}).join('').toUpperCase().slice(0,2);
+  document.getElementById('sbAv').textContent = initials;
   document.getElementById('sbName').textContent = name;
-  document.getElementById('userName').textContent = name.split(' ')[0];
-  const hr = new Date().getHours();
-  document.getElementById('greeting').textContent = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
-  const plan = profile?.plan || 'free';
-  const planEl = document.getElementById('sbPlan');
+  document.getElementById('greetingName').textContent = name.split(' ')[0];
+
+  var plan = profile.plan || 'free';
+  var planEl = document.getElementById('sbPlan');
   planEl.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
-  planEl.className = 'sb-plan ' + plan;
-  if (plan === 'free') document.getElementById('upBtn').style.display = 'block';
+  planEl.className = 'user-plan ' + plan;
+  if (!isPro) document.getElementById('upgradeBtn').style.display = 'block';
+
+  var hr = new Date().getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingTime').textContent = greeting;
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  var score = finData ? finData.health_score : 0;
+  var debt = finData ? finData.total_debt : 0;
+  var savings = finData ? finData.total_savings : 0;
+  var cur = profile.currency || 'USD';
+
+  document.getElementById('mScore').textContent = score || '—';
+  document.getElementById('mScoreChange').textContent = score ? 'Out of 100' : 'Complete onboarding';
+  document.getElementById('mSavings').textContent = savings ? cur + ' ' + savings.toLocaleString() : '—';
+  document.getElementById('mDebt').textContent = debt ? cur + ' ' + debt.toLocaleString() : debt === 0 ? 'Debt free' : '—';
+
+  if (score) {
+    var offset = 283 - (283 * score / 100);
+    var arc = document.getElementById('scoreArc');
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = score >= 70 ? 'var(--teal)' : score >= 50 ? 'var(--gold)' : 'var(--red)';
+    document.getElementById('scoreRingNum').textContent = score;
+    var income = profile.monthly_income || 0;
+    var expenses = income - (finData ? finData.monthly_budget : 0);
+    var expRatio = income > 0 ? (expenses / income) : 0.5;
+    var debtRatio = debt > 0 && income > 0 ? Math.min(1, debt / (income * 24)) : 0;
+    var savingsRatio = savings > 0 && expenses > 0 ? Math.min(1, savings / (expenses * 6)) : 0;
+    var incomeRatio = income > 3000 ? 1 : income / 3000;
+    document.getElementById('sb1').style.width = (incomeRatio * 100) + '%';
+    document.getElementById('sb2').style.width = ((1 - expRatio) * 100) + '%';
+    document.getElementById('sb3').style.width = ((1 - debtRatio) * 100) + '%';
+    document.getElementById('sb4').style.width = (savingsRatio * 100) + '%';
+    document.getElementById('sv1').textContent = Math.round(incomeRatio * 25);
+    document.getElementById('sv2').textContent = Math.round((1 - expRatio) * 25);
+    document.getElementById('sv3').textContent = Math.round((1 - debtRatio) * 25);
+    document.getElementById('sv4').textContent = Math.round(savingsRatio * 25);
+  }
+
+  setVeraDailyMessage(name.split(' ')[0], score, debt, savings, cur);
 }
 
-function showSec(id, btn) {
-  document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = 'none');
+function setVeraDailyMessage(firstName, score, debt, savings, cur) {
+  var hr = new Date().getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  var msg = greeting + ', <strong>' + firstName + '</strong>. ';
+  if (score && score > 0) {
+    if (debt > 0 && savings >= 0) {
+      msg += 'Your financial health score stands at <strong>' + score + '/100</strong>. ';
+      if (debt > 0) msg += 'Focus on your debt elimination today — every payment moves you closer to freedom. ';
+      if (savings < 1000) msg += 'Your emergency fund needs attention. Aim to set aside something today, however small.';
+      else msg += 'Your savings foundation is building. Stay consistent.';
+    } else {
+      msg += 'Your score is <strong>' + score + '/100</strong>. Complete your financial profile so I can give you specific guidance.';
+    }
+  } else {
+    msg += 'I am ready to give you specific guidance based on your situation. Ask me anything about your finances — I have your complete profile from our first session.';
+  }
+  document.getElementById('veraDailyMsg').innerHTML = msg;
+}
+
+function showSection(id, btn) {
+  document.querySelectorAll('[id^="sec-"]').forEach(function(s) { s.style.display = 'none'; });
   document.getElementById('sec-' + id).style.display = 'block';
-  if (btn) { document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  if (btn) {
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
 }
 
-function showPro(feature) {
-  const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
-  if (isPro) { showSec('maya', null); return; }
-  openUpgradeModal(feature + ' — Pro Feature', 'This feature is part of Sum Goals Pro. Upgrade to unlock ' + feature + ' and all premium features.');
+function setMode(mode, btn) {
+  chatMode = mode;
+  chatHistory = [];
+  if (btn) {
+    btn.closest('.chat-modes').querySelectorAll('.cmode').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  var welcomes = {
+    coach: 'Coaching mode. What would you like to work on? Give me the specifics of your situation.',
+    budget: 'Budget mode. Share your income and I will build a precise budget for you. What currency are you using?',
+    payday: 'Payday planning. How many days until your next payday? What is your current balance?',
+    debt: 'Debt strategy. List your debts — name, balance, interest rate. I will build your elimination plan.',
+    score: 'Health score analysis. Share your income, expenses, debt total, savings, and currency.',
+    hustle: 'Side income optimization. Tell me your skills, available hours, and current income.',
+    survival: 'Survival mode. How much do you have right now and how many days until payday?'
+  };
+  addMsg('vera', welcomes[mode] || welcomes.coach, 'chatMsgs');
 }
 
-let selectedUpgradePlan = 'pro';
-function openUpgradeModal(featureName, reason) {
-  document.getElementById('lockedFeatureName').textContent = featureName || 'Pro Feature';
-  if (reason) document.getElementById('upgradeReason').textContent = reason;
-  document.getElementById('upgradeOverlay').style.display = 'flex';
+function addMsg(role, text, msgsId) {
+  msgsId = msgsId || 'chatMsgs';
+  var c = document.getElementById(msgsId);
+  if (!c) return null;
+  var row = document.createElement('div');
+  row.className = 'mrow ' + (role === 'vera' ? 'vera' : 'user');
+  var label = document.createElement('div');
+  label.className = 'm-label';
+  label.textContent = role === 'vera' ? 'Vera' : 'You';
+  var bub = document.createElement('div');
+  bub.className = 'm-bub';
+  bub.innerHTML = text;
+  row.appendChild(label);
+  row.appendChild(bub);
+  c.appendChild(row);
+  c.scrollTop = c.scrollHeight;
+  return bub;
+}
+
+function fmt(t) {
+  return t.split('\n\n').join('<br><br>').split('\n').join('<br>');
+}
+
+async function sendChat() {
+  var inp = document.getElementById('chatInput');
+  var text = inp.value.trim();
+  if (!text) return;
+  if (!isPro && chatCount >= FREE_LIMIT) {
+    openUpgrade('Unlimited Vera sessions');
+    return;
+  }
+  inp.value = '';
+  document.getElementById('chatSendBtn').disabled = true;
+  addMsg('user', text, 'chatMsgs');
+  chatHistory.push({ role:'user', content:text });
+  chatCount++;
+  var typing = addMsg('vera', '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'chatMsgs');
+  try {
+    var sRes = await sb.auth.getSession();
+    var token = sRes.data.session ? sRes.data.session.access_token : '';
+    var profileCtx = profile ? '\n\nClient profile: Income ' + (profile.monthly_income||'unknown') + ' ' + (profile.currency||'USD') + '/month. Biggest fear: ' + (profile.financial_challenge||'unknown') : '';
+    var msgs = chatHistory.slice();
+    if (msgs.length === 1) msgs[0] = { role:'user', content:text + profileCtx };
+    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:msgs, mode:chatMode }) });
+    var d = await r.json();
+    if (typing) { typing.innerHTML = fmt(d.reply || 'I apologize — please try again.'); }
+    if (d.reply) chatHistory.push({ role:'assistant', content:d.reply });
+  } catch(e) {
+    if (typing) typing.textContent = 'Connection error. Please try again.';
+  }
+  document.getElementById('chatSendBtn').disabled = false;
+  document.getElementById('chatMsgs').scrollTop = 99999;
+}
+
+async function sendVeraMsg() {
+  var inp = document.getElementById('veraInput');
+  var text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  document.getElementById('veraSendBtn').disabled = true;
+  addMsg('user', text, 'veraFullMsgs');
+  veraHistory.push({ role:'user', content:text });
+  var typing = addMsg('vera', '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'veraFullMsgs');
+  try {
+    var sRes = await sb.auth.getSession();
+    var token = sRes.data.session ? sRes.data.session.access_token : '';
+    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:veraHistory, mode:chatMode }) });
+    var d = await r.json();
+    if (typing) { typing.innerHTML = fmt(d.reply || 'I apologize — please try again.'); }
+    if (d.reply) veraHistory.push({ role:'assistant', content:d.reply });
+  } catch(e) {
+    if (typing) typing.textContent = 'Connection error. Please try again.';
+  }
+  document.getElementById('veraSendBtn').disabled = false;
+  document.getElementById('veraFullMsgs').scrollTop = 99999;
+}
+
+function setupPayday() {
+  addMsg('vera', 'To set up your Payday Countdown — <strong>how many days until your next payday?</strong> And what is your current account balance?', 'chatMsgs');
+  document.getElementById('chatInput').focus();
+}
+
+function openUpgrade(feature) {
+  if (isPro) return;
+  document.getElementById('upgFeatureName').textContent = feature;
+  document.getElementById('upgOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  selectedUpgradePlan = 'pro';
-  selectPlan('pro');
 }
-function closeUpgradeModal() {
-  document.getElementById('upgradeOverlay').style.display = 'none';
+function closeUpgrade() {
+  document.getElementById('upgOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-function selectPlan(plan) {
-  selectedUpgradePlan = plan;
-  const pro = document.getElementById('planPro');
-  const life = document.getElementById('planLifetime');
-  pro.style.borderColor = plan === 'pro' ? '#00C9A7' : '#E2E8F0';
-  pro.style.background = plan === 'pro' ? '#E6FBF7' : '#fff';
-  life.style.borderColor = plan === 'lifetime' ? '#00C9A7' : '#E2E8F0';
-  life.style.background = plan === 'lifetime' ? '#E6FBF7' : '#fff';
-  const btn = document.getElementById('upgradeMainBtn');
-  btn.textContent = plan === 'pro' ? 'Start my transformation — $1 first month' : 'Get lifetime access — $29 one-time';
-}
 async function goToCheckout() {
-  const btn = document.getElementById('upgradeMainBtn');
-  btn.innerHTML = '<span style="width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px"></span>Redirecting...';
-  btn.disabled = true;
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = '/index.html'; return; }
-    const res = await fetch('/api/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ plan: selectedUpgradePlan })
-    });
-    const data = await res.json();
-    if (data.url) { window.location.href = data.url; }
-    else { alert('Error: ' + (data.error || 'Please try again')); btn.textContent = 'Start my transformation — $1 first month'; btn.disabled = false; }
-  } catch(e) { alert('Connection error.'); btn.textContent = 'Start my transformation — $1 first month'; btn.disabled = false; }
+  var sRes = await sb.auth.getSession();
+  if (!sRes.data.session) { window.location.href = '/index.html'; return; }
+  var r = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sRes.data.session.access_token}, body:JSON.stringify({ plan:'pro' }) });
+  var d = await r.json();
+  if (d.url) window.location.href = d.url;
 }
+async function signOut() { await sb.auth.signOut(); window.location.href = '/index.html'; }
 
-async function doUpgrade(plan) {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = '/index.html'; return; }
-  const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token }, body: JSON.stringify({ plan }) });
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-}
-
-async function doSignout() { await sb.auth.signOut(); window.location.href = '/index.html'; }
-
-function fmt(t) { return t.replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>'); }
-
-function addMsg(role, html, msgsId = 'msgs') {
-  const c = document.getElementById(msgsId);
-  const row = document.createElement('div'); row.className = 'mrow ' + (role==='bot'?'bot':'usr');
-  const s = document.createElement('div'); s.className = 'm-sender'; s.textContent = role==='bot'?'Maya':'You';
-  const b = document.createElement('div'); b.className = 'm-bub'; b.innerHTML = html;
-  row.appendChild(s); row.appendChild(b); c.appendChild(row); c.scrollTop = c.scrollHeight;
-  return b;
-}
-
-function setMode(m, btn) {
-  mode = m; h = [];
-  document.querySelectorAll('.chat-modes:first-of-type .cmode').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const welcome = getWelcome(m);
-  document.getElementById('msgs').innerHTML = '';
-  addMsg('bot', welcome);
-}
-
-function setMode2(m, btn) {
-  mode2 = m; h2 = [];
-  btn.closest('.chat-modes').querySelectorAll('.cmode').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('msgs2').innerHTML = '';
-  addMsg('bot', getWelcome(m), 'msgs2');
-}
-
-function getWelcome(m) {
-  const w = {
-    coach: "Hey — I'm Maya. <strong>What do you need help with today?</strong> Tell me your currency and situation.",
-    budget: "<strong>What is your monthly income after taxes?</strong> And what currency are you using?",
-    payday: "<strong>How many days until payday?</strong> What is your current balance and currency?",
-    debt: "<strong>Tell me all your debts</strong> — name, balance, interest rate. What currency?",
-    score: "<strong>Tell me:</strong> monthly income, expenses, total debt, savings, and currency.",
-    personality: "Money Personality Quiz! Ready? <strong>Question 1: When you get paid, what is the very first thing you do?</strong>",
-    hustle: "<strong>Tell me all your income sources</strong> and currency. Let's track and optimize your earnings.",
-    emergency: "<strong>What type of crisis?</strong> Job loss, medical bill, divorce, or other?",
-    survival: "<strong>How much money do you have right now</strong> and how many days until your next payday?"
-  };
-  return w[m] || w.coach;
-}
-
-async function sendMsg() {
-  const inp = document.getElementById('chatInp');
-  const text = inp.value.trim();
-  if (!text) return;
-  const isPro = profile?.plan === 'pro' || profile?.plan === 'lifetime';
-  if (!isPro && count >= LIMIT) { addMsg('bot', "You have used your <strong>5 free sessions</strong> today. <a href='#' onclick='doUpgrade(\"pro\");return false' style='color:var(--teal-dark)'>Upgrade to Pro for unlimited coaching</a>."); return; }
-  inp.value = '';
-  document.getElementById('sendBtn').disabled = true;
-  addMsg('usr', text);
-  h.push({ role: 'user', content: text });
-  count++;
-  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>');
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: h, mode }) });
-    const d = await r.json();
-    t.innerHTML = fmt(d.reply || 'Something went wrong. Please try again.');
-    if (d.reply) h.push({ role: 'assistant', content: d.reply });
-  } catch(e) { t.textContent = 'Connection error. Please try again.'; }
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('msgs').scrollTop = 99999;
-}
-
-async function sendMsg2() {
-  const inp = document.getElementById('chatInp2');
-  const text = inp.value.trim();
-  if (!text) return;
-  inp.value = '';
-  document.getElementById('sendBtn2').disabled = true;
-  addMsg('usr', text, 'msgs2');
-  h2.push({ role: 'user', content: text });
-  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'msgs2');
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: h2, mode: mode2 }) });
-    const d = await r.json();
-    t.innerHTML = fmt(d.reply || 'Something went wrong.');
-    if (d.reply) h2.push({ role: 'assistant', content: d.reply });
-  } catch(e) { t.textContent = 'Connection error.'; }
-  document.getElementById('sendBtn2').disabled = false;
-}
-
-async function sendSpec(m, inpId, msgsId) {
-  const inp = document.getElementById(inpId);
-  const text = inp.value.trim();
-  if (!text) return;
-  inp.value = '';
-  if (!hSpec[m]) hSpec[m] = [];
-  addMsg('usr', text, msgsId);
-  hSpec[m].push({ role: 'user', content: text });
-  const t = addMsg('bot', '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', msgsId);
-  try {
-    const { data: { session } } = await sb.auth.getSession();
-    const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.access_token||'') }, body: JSON.stringify({ messages: hSpec[m], mode: m }) });
-    const d = await r.json();
-    t.innerHTML = fmt(d.reply || 'Something went wrong.');
-    if (d.reply) hSpec[m].push({ role: 'assistant', content: d.reply });
-  } catch(e) { t.textContent = 'Connection error.'; }
-}
+document.getElementById('upgOverlay').addEventListener('click', function(e) { if (e.target === this) closeUpgrade(); });
 
 init();
 </script>
-
-<!-- PROFESSIONAL UPGRADE MODAL -->
-<div class="upgrade-overlay" id="upgradeOverlay" style="position:fixed;inset:0;background:rgba(10,22,40,.7);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:24px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative;animation:up .3s ease">
-    <button onclick="closeUpgradeModal()" style="position:absolute;top:14px;right:14px;width:32px;height:32px;background:#F0F4FF;border:1px solid #E2E8F0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748B;font-size:18px;z-index:10;font-family:var(--font-body)">×</button>
-    <div style="background:linear-gradient(135deg,#0A1628 0%,#1e3a5f 100%);padding:28px 28px 24px;text-align:center;position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(0,201,167,.15),transparent 60%);pointer-events:none"></div>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px" id="lockedFeatureName">Pro Feature</div>
-      <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-style:italic;color:#fff;margin-bottom:8px;letter-spacing:-.5px">Unlock your full<br><span style="color:#00C9A7">financial transformation.</span></h2>
-      <p style="font-size:13px;color:rgba(255,255,255,.7);max-width:340px;margin:0 auto;line-height:1.5" id="upgradeReason">Upgrade to Sum Goals Pro and unlock every tool Maya needs to transform your finances.</p>
-      <div style="background:#F59E0B;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;display:inline-block;margin-top:12px">First month only $1 — then $9/month</div>
-    </div>
-    <div style="padding:20px 20px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div id="planPro" onclick="selectPlan('pro')" style="border:2px solid #00C9A7;background:#E6FBF7;border-radius:14px;padding:16px;cursor:pointer;position:relative;transition:all .2s">
-        <div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#00C9A7;color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap">Most popular</div>
-        <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Pro Monthly</div>
-        <div style="font-size:11px;color:#94A3B8;text-decoration:line-through;margin-bottom:2px">$9/month</div>
-        <div style="font-family:'Playfair Display',serif;font-size:30px;font-style:italic;color:#0A1628;line-height:1;margin-bottom:2px">$1<span style="font-size:12px;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif;font-style:normal">/first month</span></div>
-        <div style="font-size:11px;color:#64748B;margin-bottom:8px">then $9/month · cancel anytime</div>
-        <div style="font-size:11px;color:#64748B">Unlimited Maya · All features · Goals</div>
-      </div>
-      <div id="planLifetime" onclick="selectPlan('lifetime')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s">
-        <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Lifetime</div>
-        <div style="font-family:'Playfair Display',serif;font-size:30px;font-style:italic;color:#0A1628;line-height:1;margin-bottom:2px">$29</div>
-        <div style="font-size:11px;color:#64748B;margin-bottom:8px">one-time · yours forever</div>
-        <div style="font-size:11px;color:#64748B">Pay once · All future features · No fees</div>
-      </div>
-    </div>
-    <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:6px;border-top:1px solid #E2E8F0;margin-top:16px">
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Unlimited Maya coaching</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Budget Builder page</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Unlimited Life Goals</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Debt Race tracker</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>90-Day Plan program</div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><div style="width:16px;height:16px;background:#E6FBF7;color:#00A888;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">✓</div>Gig Income tracker</div>
-    </div>
-    <div style="padding:14px 20px 20px">
-      <button id="upgradeMainBtn" onclick="goToCheckout()" style="width:100%;padding:14px;background:#00C9A7;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;margin-bottom:8px">Start my transformation — $1 first month</button>
-      <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#64748B;margin-bottom:6px">
-        <div style="width:6px;height:6px;background:#10B981;border-radius:50%"></div>
-        7-day money back · Cancel anytime · Secure payment
-      </div>
-      <button onclick="closeUpgradeModal()" style="display:block;width:100%;text-align:center;font-size:12px;color:#94A3B8;cursor:pointer;background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif;padding:4px;transition:color .2s">Maybe later</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
