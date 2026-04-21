@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#F0F4FF;--white:#FFFFFF;--navy:#0A1628;
+  --teal:#00C9A7;--teal-dark:#00A888;--teal-light:#E6FBF7;
+  --gold:#F59E0B;--muted:#64748B;--border:#E2E8F0;
+  --green:#10B981;--shadow:0 4px 20px rgba(0,0,0,0.08);
+  --font-head:'Playfair Display',serif;--font-body:'Plus Jakarta Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--navy);font-family:var(--font-body);min-height:100vh}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.logo{font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--navy);text-decoration:none}.logo span{color:var(--teal)}
+.btn-back{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.btn-back:hover{color:var(--navy);border-color:var(--navy)}
+
+.hero{text-align:center;padding:60px 20px 40px;animation:up .5s ease forwards}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);color:var(--teal-dark);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:5px 14px;border-radius:20px;margin-bottom:16px}
+.hero h1{font-family:var(--font-head);font-size:clamp(32px,4vw,52px);font-style:italic;color:var(--navy);margin-bottom:12px;letter-spacing:-1px}
+.hero h1 span{color:var(--teal)}
+.hero p{font-size:16px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.6}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:960px;margin:0 auto;padding:0 20px 60px;animation:up .5s ease .1s both}
+
+.plan{background:var(--white);border:2px solid var(--border);border-radius:20px;padding:32px;position:relative;transition:all .25s}
+.plan:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.plan.popular{border-color:var(--teal);box-shadow:0 8px 32px rgba(0,201,167,.2)}
+.plan.lifetime{border-color:var(--gold)}
+
+.plan-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:3px 16px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
+.plan-tag.teal{background:var(--teal);color:#fff}
+.plan-tag.gold{background:var(--gold);color:#fff}
+
+.plan-tier{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
+.plan-price{font-family:var(--font-head);font-size:56px;font-style:italic;color:var(--navy);line-height:1;letter-spacing:-2px}
+.plan-price sub{font-size:16px;color:var(--muted);font-family:var(--font-body);font-style:normal;letter-spacing:0}
+.plan-cycle{font-size:12px;color:var(--muted);margin:6px 0 24px}
+
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.plan-features li{font-size:13px;color:var(--muted);display:flex;align-items:flex-start;gap:9px;line-height:1.4}
+.plan-features li .check{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px}
+.plan-features li .check.green{background:var(--teal-light);color:var(--teal-dark)}
+.plan-features li .check.gray{background:var(--bg);color:var(--muted)}
+.plan-features li.off{color:var(--border)}
+
+.btn-plan{width:100%;padding:14px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-body);transition:all .2s;border:none}
+.btn-plan.free{background:var(--bg);color:var(--navy);border:2px solid var(--border)}.btn-plan.free:hover{border-color:var(--navy)}
+.btn-plan.pro{background:var(--teal);color:#fff}.btn-plan.pro:hover{background:var(--teal-dark);transform:translateY(-1px)}
+.btn-plan.life{background:var(--gold);color:#fff}.btn-plan.life:hover{background:#D97706;transform:translateY(-1px)}
+
+.guarantee{text-align:center;padding:0 20px 60px;animation:up .5s ease .2s both}
+.guarantee-inner{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px 32px;max-width:600px;margin:0 auto;display:flex;align-items:center;gap:16px}
+.g-icon{width:48px;height:48px;background:var(--teal-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.g-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.g-text{font-size:13px;color:var(--muted);line-height:1.5}
+
+.faq{max-width:640px;margin:0 auto;padding:0 20px 80px;animation:up .5s ease .3s both}
+.faq h2{font-family:var(--font-head);font-size:28px;font-style:italic;color:var(--navy);text-align:center;margin-bottom:24px}
+.faq-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:10px;cursor:pointer}
+.faq-q{font-size:14px;font-weight:600;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+.faq-q span{color:var(--teal);font-size:18px;font-weight:400}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.6;margin-top:10px;display:none}
+
+@media(max-width:768px){
+  .plans{grid-template-columns:1fr}
+  nav{padding:0 20px}
+  .guarantee-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/dashboard.html" class="logo"><i>Sum</i> <span>Goals</span></a>
+  <button class="btn-back" onclick="window.location.href='/dashboard.html'">← Back to dashboard</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">Upgrade Sum Goals</div>
+  <h1>Choose your plan.<br><span>Start transforming today.</span></h1>
+  <p>Join thousands of people using Maya to take control of their money. Cancel anytime.</p>
+</div>
+
+<div class="plans">
+
+  <!-- FREE -->
+  <div class="plan">
+    <div class="plan-tier">Starter</div>
+    <div class="plan-price">$0</div>
+    <div class="plan-cycle">free forever</div>
+    <ul class="plan-features">
+      <li><div class="check green">✓</div>Personal dashboard</li>
+      <li><div class="check green">✓</div>Maya coaching — 5 sessions/day</li>
+      <li><div class="check green">✓</div>Budget builder</li>
+      <li><div class="check green">✓</div>Payday countdown</li>
+      <li><div class="check green">✓</div>150+ currencies · 50+ languages</li>
+      <li><div class="check gray">✗</div><span style="color:var(--border)">90-Day Transformation</span></li>
+      <li><div class="check gray">✗</div><span style="color:var(--border)">Debt Race + Money Mirror</span></li>
+      <li><div class="check gray">✗</div><span style="color:var(--border)">Couples + Senior Mode</span></li>
+      <li><div class="check gray">✗</div><span style="color:var(--border)">Emergency Kit</span></li>
+    </ul>
+    <button class="btn-plan free" onclick="window.location.href='/dashboard.html'">Continue with free</button>
+  </div>
+
+  <!-- PRO -->
+  <div class="plan popular">
+    <div class="plan-tag teal">Most popular</div>
+    <div class="plan-tier">Pro</div>
+    <div class="plan-price">$9<sub>/mo</sub></div>
+    <div class="plan-cycle">cancel anytime · billed monthly</div>
+    <ul class="plan-features">
+      <li><div class="check green">✓</div>Everything in Starter</li>
+      <li><div class="check green">✓</div><strong>Unlimited Maya sessions</strong></li>
+      <li><div class="check green">✓</div><strong>90-Day Transformation program</strong></li>
+      <li><div class="check green">✓</div>Debt Race tracker</li>
+      <li><div class="check green">✓</div>Money Mirror analysis</li>
+      <li><div class="check green">✓</div>Financial Pressure Meter</li>
+      <li><div class="check green">✓</div>Couples Mode + Senior Mode</li>
+      <li><div class="check green">✓</div>Emergency Kit</li>
+      <li><div class="check green">✓</div>Monthly Report Card</li>
+    </ul>
+    <button class="btn-plan pro" id="proBtn" onclick="startCheckout('pro')">Get Pro — $9/month</button>
+  </div>
+
+  <!-- LIFETIME -->
+  <div class="plan lifetime">
+    <div class="plan-tag gold">Best value</div>
+    <div class="plan-tier">Lifetime</div>
+    <div class="plan-price">$29</div>
+    <div class="plan-cycle">one-time payment · yours forever</div>
+    <ul class="plan-features">
+      <li><div class="check green">✓</div>Everything in Pro</li>
+      <li><div class="check green">✓</div><strong>Pay once — use forever</strong></li>
+      <li><div class="check green">✓</div>All future features included</li>
+      <li><div class="check green">✓</div>No monthly fees ever</li>
+      <li><div class="check green">✓</div>Priority support</li>
+      <li><div class="check green">✓</div>Unlimited Maya sessions</li>
+      <li><div class="check green">✓</div>90-Day Transformation</li>
+      <li><div class="check green">✓</div>All exclusive features</li>
+      <li><div class="check green">✓</div>Lock in today's price forever</li>
+    </ul>
+    <button class="btn-plan life" id="lifeBtn" onclick="startCheckout('lifetime')">Get Lifetime — $29</button>
+  </div>
+
+</div>
+
+<div class="guarantee">
+  <div class="guarantee-inner">
+    <div class="g-icon">✓</div>
+    <div>
+      <div class="g-title">7-day money back guarantee</div>
+      <div class="g-text">Not happy? Email us within 7 days for a full refund — no questions asked. support@sumgoals.com</div>
+    </div>
+  </div>
+</div>
+
+<div class="faq">
+  <h2>Common questions</h2>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Can I cancel anytime? <span>+</span></div>
+    <div class="faq-a">Yes — cancel your Pro subscription anytime with no penalty. Your access continues until the end of the billing period.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">What payment methods are accepted? <span>+</span></div>
+    <div class="faq-a">We accept all major credit and debit cards via Stripe — Visa, Mastercard, American Express. Apple Pay and Google Pay also available.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Is the Lifetime deal really one payment? <span>+</span></div>
+    <div class="faq-a">Yes — pay $29 once and you have Sum Goals Pro forever. All future features included. No hidden fees.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">Does it work in my currency and language? <span>+</span></div>
+    <div class="faq-a">Yes — Sum Goals works in 150+ currencies and 50+ languages. Maya automatically detects your language and uses your currency.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">What is the 90-Day Transformation? <span>+</span></div>
+    <div class="faq-a">A structured 3-month program where Maya guides you step by step through auditing your finances, building a budget, eliminating debt, and building savings habits that stick.</div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+async function startCheckout(plan) {
+  const btnId = plan === 'pro' ? 'proBtn' : 'lifeBtn';
+  const btn = document.getElementById(btnId);
+  btn.innerHTML = '<span class="spinner"></span> Processing...';
+  btn.disabled = true;
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = '/index.html';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token
+      },
+      body: JSON.stringify({ plan })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Error: ' + (data.error || 'Please try again'));
+      btn.innerHTML = plan === 'pro' ? 'Get Pro — $9/month' : 'Get Lifetime — $29';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Connection error. Please try again.');
+    btn.innerHTML = plan === 'pro' ? 'Get Pro — $9/month' : 'Get Lifetime — $29';
+    btn.disabled = false;
+  }
+}
+
+function toggleFaq(el) {
+  const a = el.querySelector('.faq-a');
+  const s = el.querySelector('.faq-q span');
+  const open = a.style.display === 'block';
+  a.style.display = open ? 'none' : 'block';
+  s.textContent = open ? '+' : '−';
+}
+</script>
+</body>
+</html>
