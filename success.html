@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to Pro — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080E1A;color:#F0F4FF;font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.3)}50%{box-shadow:0 0 40px rgba(201,168,76,0.6)}}
+.wrap{max-width:480px;width:100%;text-align:center}
+.logo{font-family:'Playfair Display',serif;font-size:18px;font-style:italic;color:#F0F4FF;margin-bottom:32px;letter-spacing:.1em;text-transform:uppercase;font-size:11px;color:#8B9CB6}.logo span{color:#C9A84C}
+.icon{width:80px;height:80px;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:glow 2s ease infinite}
+.checkmark{width:36px;height:36px;stroke:#C9A84C;stroke-width:2.5;fill:none}
+h1{font-family:'Playfair Display',serif;font-size:38px;font-style:italic;margin-bottom:12px;letter-spacing:-1px;animation:up .6s ease .2s both}
+h1 span{color:#C9A84C}
+.sub{font-size:15px;color:#8B9CB6;margin-bottom:32px;line-height:1.6;animation:up .6s ease .3s both}
+.features{background:#0F1829;border:1px solid rgba(201,168,76,0.2);border-radius:16px;padding:24px;margin-bottom:28px;text-align:left;animation:up .6s ease .4s both}
+.feat{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:#8B9CB6}
+.feat:last-child{border-bottom:none}
+.feat-check{width:20px;height:20px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:#C9A84C;flex-shrink:0}
+.feat span{color:#F0F4FF}
+.btn{display:block;background:#C9A84C;color:#080E1A;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;transition:all .2s;margin-bottom:12px;animation:up .6s ease .5s both}
+.btn:hover{background:#D4B05A;transform:translateY(-2px)}
+.note{font-size:12px;color:#3D5073;animation:up .6s ease .6s both}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Sum <span>Goals</span> — Private Financial Coaching</div>
+  <div class="icon">
+    <svg class="checkmark" viewBox="0 0 52 52"><circle cx="26" cy="26" r="25" stroke="rgba(201,168,76,0.3)"/><path stroke="#C9A84C" d="M14 26l8 8 16-16"/></svg>
+  </div>
+  <h1>Welcome to <span>Pro.</span></h1>
+  <p class="sub">Your payment was successful. Vera and all Pro features are now unlocked. Your financial transformation starts today.</p>
+  <div class="features">
+    <div class="feat"><div class="feat-check">✓</div><span>Unlimited Vera coaching sessions</span></div>
+    <div class="feat"><div class="feat-check">✓</div><span>90-Day Transformation program</span></div>
+    <div class="feat"><div class="feat-check">✓</div><span>Complete Goal DNA analysis</span></div>
+    <div class="feat"><div class="feat-check">✓</div><span>Debt Race visual tracker</span></div>
+    <div class="feat"><div class="feat-check">✓</div><span>Budget Builder and all premium tools</span></div>
+    <div class="feat"><div class="feat-check">✓</div><span>Gig Income optimizer</span></div>
+  </div>
+  <a href="/dashboard.html" class="btn">Enter my Pro dashboard →</a>
+  <p class="note">Confirmation sent to your email · Questions? support@sumgoals.com</p>
+</div>
+</body>
+</html>
