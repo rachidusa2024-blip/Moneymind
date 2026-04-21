@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080E1A;
+  --surface:#0F1829;
+  --surface2:#162035;
+  --gold:#C9A84C;
+  --gold-dim:rgba(201,168,76,0.08);
+  --gold-border:rgba(201,168,76,0.2);
+  --teal:#00C9A7;
+  --teal-dim:rgba(0,201,167,0.08);
+  --teal-border:rgba(0,201,167,0.2);
+  --white:#F0F4FF;
+  --muted:#8B9CB6;
+  --dim:#3D5073;
+  --border:rgba(255,255,255,0.06);
+  --red:#EF4444;
+  --green:#10B981;
+  --font-head:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:14px;min-height:100vh}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 20px 4px rgba(201,168,76,0.15)}}
+@keyframes scoreCount{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes barFill{from{width:0}to{width:var(--target-width)}}
+
+/* LOADING */
+.loading{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;gap:16px;
+}
+.loading-logo{font-family:var(--font-head);font-size:24px;font-style:italic;color:var(--white)}
+.loading-logo span{color:var(--gold)}
+.loader{width:32px;height:32px;border:2px solid var(--gold-border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+
+/* LAYOUT */
+.layout{display:flex;min-height:100vh;opacity:0;transition:opacity 0.5s ease}
+.layout.visible{opacity:1}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;
+  z-index:10;
+}
+.sb-brand{
+  padding:24px 20px;
+  border-bottom:1px solid var(--border);
+}
+.brand-name{
+  font-family:var(--font-head);
+  font-size:18px;font-style:italic;
+  color:var(--white);
+}
+.brand-name span{color:var(--gold)}
+.brand-tagline{
+  font-size:10px;color:var(--dim);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-top:4px;
+}
+
+.sb-user{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.user-av{
+  width:36px;height:36px;
+  border-radius:50%;
+  background:var(--gold-dim);
+  border:1.5px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:14px;font-style:italic;
+  color:var(--gold);flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:500;color:var(--white)}
+.user-plan{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 8px;border-radius:10px;
+  display:inline-block;margin-top:3px;
+}
+.user-plan.free{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+.user-plan.pro{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+
+.sb-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{
+  font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--dim);padding:10px 8px 6px;font-weight:600;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:9px 10px;
+  border-radius:8px;border:none;
+  background:transparent;color:var(--muted);
+  font-size:13px;font-weight:400;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;text-align:left;
+}
+.nav-btn:hover{background:var(--surface2);color:var(--white)}
+.nav-btn.active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.5}
+.nav-btn.active .nav-dot{opacity:1}
+
+.sb-bottom{padding:14px 12px;border-top:1px solid var(--border)}
+.btn-upgrade{
+  width:100%;padding:10px;
+  background:linear-gradient(135deg,var(--gold),#B8923C);
+  color:#080E1A;border:none;border-radius:8px;
+  font-weight:600;font-size:12px;
+  cursor:pointer;font-family:var(--font-body);
+  letter-spacing:.04em;
+  margin-bottom:8px;transition:all 0.2s;
+  display:none;
+}
+.btn-upgrade:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,168,76,0.3)}
+.btn-signout{
+  width:100%;padding:8px;
+  background:transparent;color:var(--dim);
+  border:1px solid var(--border);border-radius:8px;
+  font-size:12px;cursor:pointer;
+  font-family:var(--font-body);transition:all 0.2s;
+}
+.btn-signout:hover{color:var(--muted);border-color:var(--dim)}
+
+/* MAIN */
+.main{margin-left:260px;padding:32px;min-height:100vh}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:28px;
+  animation:up 0.4s ease forwards;
+}
+.greeting-time{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.greeting-name{
+  font-family:var(--font-head);
+  font-size:clamp(22px,2.5vw,32px);
+  font-style:italic;color:var(--white);
+  letter-spacing:-0.5px;
+}
+.greeting-name span{color:var(--gold)}
+.topbar-right{text-align:right}
+.topbar-date{font-size:11px;color:var(--dim);margin-bottom:4px}
+.topbar-secure{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:var(--dim);
+  letter-spacing:.06em;
+}
+.secure-dot{width:5px;height:5px;background:var(--green);border-radius:50%}
+
+/* VERA MESSAGE */
+.vera-daily{
+  background:var(--surface);
+  border:1px solid var(--gold-border);
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:24px;
+  display:flex;gap:14px;
+  animation:up 0.4s ease 0.05s both;
+  position:relative;
+  overflow:hidden;
+}
+.vera-daily::before{
+  content:'';
+  position:absolute;top:0;right:0;
+  width:200px;height:100%;
+  background:radial-gradient(circle at right,rgba(201,168,76,0.06),transparent 70%);
+  pointer-events:none;
+}
+.vd-av{
+  width:38px;height:38px;
+  border-radius:50%;
+  background:var(--gold-dim);
+  border:1.5px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:15px;font-style:italic;
+  color:var(--gold);flex-shrink:0;
+}
+.vd-content{}
+.vd-label{
+  font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px;
+}
+.vd-text{font-size:13px;color:var(--muted);line-height:1.65}
+.vd-text strong{color:var(--white)}
+
+/* KEY METRICS */
+.metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:24px;
+  animation:up 0.4s ease 0.1s both;
+}
+.metric{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+  position:relative;overflow:hidden;
+  transition:all 0.2s;
+}
+.metric:hover{border-color:var(--gold-border);transform:translateY(-2px)}
+.metric.highlight{border-color:var(--gold-border)}
+.metric::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);opacity:0;transition:opacity 0.2s;
+}
+.metric:hover::after{opacity:0.5}
+.metric-label{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;font-weight:500;
+}
+.metric-val{
+  font-family:var(--font-head);
+  font-size:clamp(20px,2vw,28px);
+  font-style:italic;line-height:1;
+  margin-bottom:6px;
+}
+.metric-val.gold{color:var(--gold)}
+.metric-val.teal{color:var(--teal)}
+.metric-val.red{color:var(--red)}
+.metric-val.green{color:var(--green)}
+.metric-change{
+  font-size:11px;font-weight:500;
+  display:flex;align-items:center;gap:4px;
+}
+.metric-change.up{color:var(--green)}
+.metric-change.down{color:var(--red)}
+.metric-change.neutral{color:var(--dim)}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px;
+  animation:up 0.4s ease 0.15s both;
+}
+.card.full{grid-column:span 2}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{
+  font-family:var(--font-head);
+  font-size:16px;font-style:italic;
+  color:var(--white);
+}
+.card-action{
+  font-size:11px;color:var(--gold);
+  letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;background:none;border:none;
+  font-family:var(--font-body);font-weight:500;
+  transition:opacity 0.2s;
+}
+.card-action:hover{opacity:0.7}
+
+/* SCORE RING */
+.score-display{display:flex;align-items:center;gap:20px}
+.score-ring-wrap{position:relative;width:100px;height:100px;flex-shrink:0}
+.score-ring-wrap svg{width:100px;height:100px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:8}
+.ring-arc{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:283;transition:stroke-dashoffset 1.5s ease,stroke 0.5s ease}
+.ring-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-num{
+  font-family:var(--font-head);
+  font-size:26px;font-style:italic;
+  color:var(--gold);line-height:1;
+}
+.ring-sub{font-size:10px;color:var(--dim);margin-top:2px}
+.score-details{flex:1}
+.score-bar-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:8px;font-size:11px;
+}
+.sbar-label{color:var(--muted);width:80px;flex-shrink:0}
+.sbar-track{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.sbar-fill{height:4px;background:var(--gold);border-radius:2px;transition:width 1s ease}
+.sbar-val{color:var(--gold);font-weight:500;width:24px;text-align:right;flex-shrink:0}
+
+/* PAYDAY */
+.payday-center{text-align:center;padding:8px 0}
+.pd-label{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.pd-days{
+  font-family:var(--font-head);
+  font-size:clamp(52px,6vw,72px);
+  font-style:italic;color:var(--gold);line-height:1;
+  animation:goldPulse 3s ease infinite;
+}
+.pd-unit{font-size:14px;color:var(--muted);margin-bottom:8px}
+.pd-budget{font-size:13px;color:var(--white);font-weight:500}
+.pd-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:12px;overflow:hidden}
+.pd-fill{height:4px;background:linear-gradient(90deg,var(--gold),rgba(201,168,76,0.3));border-radius:2px}
+
+/* DEBT */
+.debt-list{display:flex;flex-direction:column;gap:10px}
+.debt-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+}
+.debt-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.debt-name{font-size:13px;font-weight:500;color:var(--white)}
+.debt-amount{font-size:13px;font-weight:600;color:var(--red)}
+.debt-bar-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.debt-bar-fill{height:5px;background:linear-gradient(90deg,var(--red),rgba(239,68,68,0.4));border-radius:3px;transition:width 1s ease}
+.debt-meta{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--dim)}
+.empty-debt{text-align:center;padding:24px;color:var(--dim);font-size:13px}
+
+/* VERA CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:340px}
+.chat-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cmode{
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:20px;padding:4px 12px;
+  color:var(--dim);font-size:11px;font-weight:500;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;white-space:nowrap;
+  letter-spacing:.04em;
+}
+.cmode:hover{border-color:var(--gold-border);color:var(--gold)}
+.cmode.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
+.msgs{
+  flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;gap:10px;
+  margin-bottom:10px;padding-right:4px;
+}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.mrow{display:flex;flex-direction:column}
+.mrow.vera{align-items:flex-start}.mrow.user{align-items:flex-end}
+.m-label{
+  font-size:9px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:4px;padding:0 2px;
+}
+.mrow.vera .m-label{color:var(--gold)}
+.mrow.user .m-label{color:var(--muted)}
+.m-bub{
+  font-size:13px;line-height:1.6;
+  padding:10px 14px;border-radius:12px;
+  max-width:90%;
+}
+.mrow.vera .m-bub{
+  background:rgba(201,168,76,0.05);
+  border:1px solid var(--gold-border);
+  color:var(--white);
+  border-radius:4px 12px 12px 12px;
+}
+.mrow.user .m-bub{
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  color:var(--white);
+  border-radius:12px 4px 12px 12px;
+}
+.m-bub strong{color:var(--gold)}
+.typing-dots{display:flex;gap:4px;padding:10px 14px}
+.tdot{width:5px;height:5px;background:var(--gold);border-radius:50%}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-5px);opacity:1}}
+.tdot{animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}
+.tdot:nth-child(3){animation-delay:.4s}
+.chat-inp-row{display:flex;gap:8px}
+.chat-inp{
+  flex:1;background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;color:var(--white);font-size:13px;
+  font-family:var(--font-body);outline:none;
+  transition:border-color 0.2s;
+}
+.chat-inp:focus{border-color:var(--gold-border)}
+.chat-inp::placeholder{color:var(--dim)}
+.chat-send{
+  background:var(--gold);border:none;border-radius:8px;
+  padding:10px 16px;cursor:pointer;
+  color:#080E1A;font-weight:600;font-size:12px;
+  font-family:var(--font-body);transition:all 0.2s;
+  letter-spacing:.04em;
+}
+.chat-send:hover{background:#D4B05A}
+.chat-send:disabled{background:var(--dim);cursor:not-allowed}
+
+/* TRANSFORMATION */
+.transform-bar{margin-bottom:12px}
+.tb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tb-label{font-size:12px;color:var(--muted)}
+.tb-pct{font-size:13px;font-weight:600;color:var(--gold)}
+.tb-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.tb-fill{height:6px;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:3px;transition:width 1s ease}
+.ms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.ms-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:8px;padding:10px;text-align:center;
+}
+.ms-item.done{border-color:var(--gold-border);background:var(--gold-dim)}
+.ms-name{font-size:11px;color:var(--white);font-weight:500;margin-bottom:2px}
+.ms-sub{font-size:10px;color:var(--dim)}
+
+/* PRO LOCK */
+.pro-lock{
+  background:linear-gradient(135deg,var(--gold-dim),var(--teal-dim));
+  border:1px solid var(--gold-border);
+  border-radius:14px;padding:28px;text-align:center;
+}
+.pl-title{
+  font-family:var(--font-head);
+  font-size:20px;font-style:italic;
+  color:var(--white);margin-bottom:8px;
+}
+.pl-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.55}
+.btn-pl{
+  background:var(--gold);color:#080E1A;
+  border:none;border-radius:8px;
+  padding:11px 24px;font-weight:600;font-size:13px;
+  cursor:pointer;font-family:var(--font-body);
+  transition:all 0.2s;
+}
+.btn-pl:hover{background:#D4B05A;transform:translateY(-1px)}
+
+/* UPGRADE MODAL */
+.upg-overlay{
+  position:fixed;inset:0;
+  background:rgba(8,14,26,0.85);
+  backdrop-filter:blur(8px);z-index:999;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.upg-overlay.open{display:flex;animation:fadeIn 0.2s ease}
+.upg-modal{
+  background:var(--surface);
+  border:1px solid var(--gold-border);
+  border-radius:24px;width:100%;max-width:500px;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.upg-header{
+  background:linear-gradient(135deg,#0A1020,#0F1829);
+  padding:28px;text-align:center;
+  border-bottom:1px solid var(--gold-border);
+}
+.upg-badge{
+  width:48px;height:48px;
+  background:var(--gold-dim);border:1.5px solid var(--gold-border);
+  border-radius:12px;margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:16px;font-style:italic;color:var(--gold);
+}
+.upg-h{font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px}
+.upg-h span{color:var(--gold)}
+.upg-p{font-size:13px;color:var(--muted);line-height:1.5;max-width:320px;margin:0 auto}
+.upg-body{padding:20px}
+.plan-row{
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:10px;padding:12px 14px;margin-bottom:10px;
+}
+.plan-row.free{background:rgba(255,255,255,0.03);border:1px solid var(--border)}
+.plan-row.pro{background:var(--gold-dim);border:1px solid var(--gold-border)}
+.plan-label{font-size:13px;font-weight:500}
+.plan-row.free .plan-label{color:var(--muted)}
+.plan-row.pro .plan-label{color:var(--gold)}
+.plan-dots{display:flex;gap:5px}
+.pdot{width:10px;height:10px;border-radius:50%}
+.pdot.on{background:var(--gold)}
+.pdot.off{background:rgba(255,255,255,0.1);border:1px solid var(--border)}
+.plan-price{font-size:12px;font-weight:600;color:var(--gold)}
+.btn-upg-main{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--gold),#B8923C);
+  color:#080E1A;border:none;border-radius:10px;
+  font-weight:600;font-size:14px;
+  cursor:pointer;font-family:var(--font-body);
+  margin-bottom:10px;transition:all 0.2s;
+}
+.btn-upg-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.3)}
+.btn-upg-skip{
+  width:100%;padding:9px;
+  background:transparent;color:var(--dim);
+  border:none;font-size:12px;cursor:pointer;
+  font-family:var(--font-body);
+}
+
+@media(max-width:1000px){
+  .sidebar{width:220px}
+  .main{margin-left:220px;padding:20px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:16px}
+  .grid2,.grid3{grid-template-columns:1fr}.card.full{grid-column:span 1}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .ms-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loadingScreen">
+  <div class="loading-logo"><i>Sum</i> <span>Goals</span></div>
+  <div class="loader"></div>
+</div>
+
+<div class="layout" id="app">
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="brand-name"><i>Sum</i> <span>Goals</span></div>
+      <div class="brand-tagline">Private Financial Coaching</div>
+    </div>
+    <div class="sb-user">
+      <div class="user-av" id="sbAv">V</div>
+      <div>
+        <div class="user-name" id="sbName">Loading...</div>
+        <span class="user-plan free" id="sbPlan">Free</span>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="nav-section">Overview</div>
+      <button class="nav-btn active" onclick="showSection('home',this)"><div class="nav-dot"></div>Dashboard</button>
+      <button class="nav-btn" onclick="showSection('vera',this)"><div class="nav-dot"></div>Talk to Vera</button>
+      <div class="nav-section">My Finances</div>
+      <button class="nav-btn" onclick="window.location.href='/goals.html'"><div class="nav-dot"></div>Life Goals</button>
+      <button class="nav-btn" onclick="window.location.href='/debtrace.html'"><div class="nav-dot"></div>Debt Race</button>
+      <button class="nav-btn" onclick="window.location.href='/score.html'"><div class="nav-dot"></div>Health Score</button>
+      <div class="nav-section">Premium</div>
+      <button class="nav-btn" onclick="openUpgrade('90-Day Transformation')"><div class="nav-dot"></div>90-Day Plan</button>
+      <button class="nav-btn" onclick="openUpgrade('Budget Builder')"><div class="nav-dot"></div>Budget Builder</button>
+      <button class="nav-btn" onclick="openUpgrade('Gig Income Tracker')"><div class="nav-dot"></div>Gig Income</button>
+      <button class="nav-btn" onclick="openUpgrade('Money Mirror')"><div class="nav-dot"></div>Money Mirror</button>
+    </div>
+    <div class="sb-bottom">
+      <button class="btn-upgrade" id="upgradeBtn" onclick="openUpgrade('Pro')">Upgrade to Pro — $9/mo</button>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- HOME -->
+    <div id="sec-home">
+      <div class="topbar">
+        <div>
+          <div class="greeting-time" id="greetingTime">Good morning</div>
+          <div class="greeting-name">Welcome back, <span id="greetingName">—</span></div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-date" id="topbarDate"></div>
+          <div class="topbar-secure"><div class="secure-dot"></div>Encrypted · Private</div>
+        </div>
+      </div>
+
+      <!-- VERA DAILY MESSAGE -->
+      <div class="vera-daily">
+        <div class="vd-av">V</div>
+        <div class="vd-content">
+          <div class="vd-label">Vera — Today's briefing</div>
+          <div class="vd-text" id="veraDailyMsg">Loading your personalized briefing...</div>
+        </div>
+      </div>
+
+      <!-- KEY METRICS -->
+      <div class="metrics">
+        <div class="metric highlight">
+          <div class="metric-label">Financial Health Score</div>
+          <div class="metric-val gold" id="mScore">—</div>
+          <div class="metric-change neutral" id="mScoreChange">Loading...</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Savings</div>
+          <div class="metric-val green" id="mSavings">—</div>
+          <div class="metric-change up" id="mSavingsChange">Your safety net</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Debt</div>
+          <div class="metric-val red" id="mDebt">—</div>
+          <div class="metric-change neutral" id="mDebtChange">Being eliminated</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Days to Payday</div>
+          <div class="metric-val gold" id="mPayday">—</div>
+          <div class="metric-change neutral" id="mPaydayChange">Daily budget: —</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <!-- HEALTH SCORE -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Financial Health</div>
+            <button class="card-action" onclick="window.location.href='/score.html'">Full report →</button>
+          </div>
+          <div class="score-display">
+            <div class="score-ring-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle class="ring-bg" cx="50" cy="50" r="45"/>
+                <circle class="ring-arc" id="scoreArc" cx="50" cy="50" r="45" style="stroke:var(--gold);stroke-dashoffset:283"/>
+              </svg>
+              <div class="ring-center">
+                <div class="ring-num" id="scoreRingNum">—</div>
+                <div class="ring-sub">/100</div>
+              </div>
+            </div>
+            <div class="score-details">
+              <div class="score-bar-row"><span class="sbar-label">Income</span><div class="sbar-track"><div class="sbar-fill" id="sb1" style="width:0%"></div></div><span class="sbar-val" id="sv1">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Expenses</span><div class="sbar-track"><div class="sbar-fill" id="sb2" style="width:0%"></div></div><span class="sbar-val" id="sv2">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Debt</span><div class="sbar-track"><div class="sbar-fill" id="sb3" style="width:0%"></div></div><span class="sbar-val" id="sv3">—</span></div>
+              <div class="score-bar-row"><span class="sbar-label">Savings</span><div class="sbar-track"><div class="sbar-fill" id="sb4" style="width:0%"></div></div><span class="sbar-val" id="sv4">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYDAY -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Payday Countdown</div>
+            <button class="card-action" onclick="setupPayday()">Update →</button>
+          </div>
+          <div class="payday-center">
+            <div class="pd-label">Days until payday</div>
+            <div class="pd-days" id="pdDays">—</div>
+            <div class="pd-unit">days remaining</div>
+            <div class="pd-budget" id="pdBudget">Tell Vera your payday date</div>
+            <div class="pd-track"><div class="pd-fill" id="pdFill" style="width:60%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSFORMATION + DEBT -->
+      <div class="grid3" style="animation:up 0.4s ease 0.2s both">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">90-Day Transformation</div>
+            <button class="card-action" onclick="openUpgrade('90-Day Plan')">View program →</button>
+          </div>
+          <div class="transform-bar">
+            <div class="tb-top"><div class="tb-label" id="tbDay">Day 0 of 90</div><div class="tb-pct" id="tbPct">0%</div></div>
+            <div class="tb-track"><div class="tb-fill" id="tbFill" style="width:0%"></div></div>
+          </div>
+          <div class="ms-grid">
+            <div class="ms-item"><div class="ms-name">Month 1 — Audit</div><div class="ms-sub">Foundation</div></div>
+            <div class="ms-item"><div class="ms-name">Month 2 — Plan</div><div class="ms-sub">Systems</div></div>
+            <div class="ms-item"><div class="ms-name">Month 3 — Momentum</div><div class="ms-sub">Habits locked</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Debt Status</div>
+            <button class="card-action" onclick="window.location.href='/debtrace.html'">Race →</button>
+          </div>
+          <div id="debtSummary">
+            <div class="empty-debt">Add your debts in the Debt Race to track elimination progress</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERA CHAT -->
+      <div class="card" style="animation:up 0.4s ease 0.25s both">
+        <div class="card-head"><div class="card-title">Ask Vera</div></div>
+        <div class="chat-wrap">
+          <div class="chat-modes">
+            <button class="cmode active" onclick="setMode('coach',this)">Coaching</button>
+            <button class="cmode" onclick="setMode('budget',this)">Budget</button>
+            <button class="cmode" onclick="setMode('payday',this)">Payday</button>
+            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
+            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
+          </div>
+          <div class="msgs" id="chatMsgs">
+            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">Good to see you. What would you like to work on today? I have your complete financial profile and I am ready to give you specific advice.</div></div>
+          </div>
+          <div class="chat-inp-row">
+            <input class="chat-inp" id="chatInput" placeholder="Ask Vera anything about your finances..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+            <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERA FULL SECTION -->
+    <div id="sec-vera" style="display:none">
+      <div class="topbar" style="animation:up 0.4s ease forwards">
+        <div>
+          <div class="greeting-time">Private Session</div>
+          <div class="greeting-name">Talk to <span>Vera</span></div>
+        </div>
+      </div>
+      <div class="card" style="height:calc(100vh - 160px);display:flex;flex-direction:column;animation:up 0.4s ease forwards">
+        <div class="chat-wrap" style="height:100%">
+          <div class="chat-modes">
+            <button class="cmode active" onclick="setMode('coach',this)">Financial Coach</button>
+            <button class="cmode" onclick="setMode('budget',this)">Budget Builder</button>
+            <button class="cmode" onclick="setMode('payday',this)">Payday Planning</button>
+            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
+            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
+            <button class="cmode" onclick="setMode('hustle',this)">Side Income</button>
+            <button class="cmode" onclick="setMode('survival',this)">Survival Mode</button>
+          </div>
+          <div class="msgs" id="veraFullMsgs" style="height:calc(100% - 100px)">
+            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">This is your private financial coaching session. Everything you share here is confidential. <strong>What would you like to work on today?</strong></div></div>
+          </div>
+          <div class="chat-inp-row">
+            <input class="chat-inp" id="veraInput" placeholder="Share your situation and I will give you specific advice..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendVeraMsg()}">
+            <button class="chat-send" id="veraSendBtn" onclick="sendVeraMsg()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="upg-overlay" id="upgOverlay">
+  <div class="upg-modal">
+    <div class="upg-header">
+      <div class="upg-badge">V</div>
+      <div class="upg-h">Unlock <span id="upgFeatureName">Pro</span></div>
+      <p class="upg-p">Upgrade to Sum Goals Pro — full access to every coaching tool Vera offers. First month only $1.</p>
+    </div>
+    <div class="upg-body">
+      <div class="plan-row free">
+        <span class="plan-label">Free plan</span>
+        <div class="plan-dots"><div class="pdot on"></div><div class="pdot on"></div><div class="pdot off"></div></div>
+        <span style="font-size:12px;color:var(--dim)">Limited access</span>
+      </div>
+      <div class="plan-row pro">
+        <span class="plan-label">Pro plan</span>
+        <span style="font-size:12px;color:var(--gold);font-weight:600">Full access</span>
+        <span class="plan-price">$1 first month</span>
+      </div>
+      <button class="btn-upg-main" onclick="goToCheckout()">Start Pro — $1 first month →</button>
+      <button class="btn-upg-skip" onclick="closeUpgrade()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SURL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+const { createClient } = supabase;
+const sb = createClient(SURL, SKEY);
+
+var user = null, profile = null, finData = null, isPro = false;
+var chatMode = 'coach', chatHistory = [], veraHistory = [], chatCount = 0;
+var FREE_LIMIT = 5;
+
+async function init() {
+  var res = await sb.auth.getSession();
+  if (!res.data.session) { window.location.href = '/index.html'; return; }
+  user = res.data.session.user;
+
+  try {
+    var p = await sb.from('profiles').select('*').eq('id', user.id).single();
+    profile = p.data;
+    isPro = profile && (profile.plan === 'pro' || profile.plan === 'lifetime');
+  } catch(e) { profile = null; isPro = false; }
+
+  try {
+    var fd = await sb.from('financial_data').select('*').eq('user_id', user.id).single();
+    finData = fd.data;
+  } catch(e) { finData = null; }
+
+  if (!profile || !profile.onboarding_completed) {
+    window.location.href = '/onboarding.html';
+    return;
+  }
+
+  setupUI();
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+}
+
+function setupUI() {
+  var name = profile.full_name || user.email.split('@')[0];
+  var initials = name.split(' ').map(function(n){return n[0]}).join('').toUpperCase().slice(0,2);
+  document.getElementById('sbAv').textContent = initials;
+  document.getElementById('sbName').textContent = name;
+  document.getElementById('greetingName').textContent = name.split(' ')[0];
+
+  var plan = profile.plan || 'free';
+  var planEl = document.getElementById('sbPlan');
+  planEl.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+  planEl.className = 'user-plan ' + plan;
+  if (!isPro) document.getElementById('upgradeBtn').style.display = 'block';
+
+  var hr = new Date().getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingTime').textContent = greeting;
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  var score = finData ? finData.health_score : 0;
+  var debt = finData ? finData.total_debt : 0;
+  var savings = finData ? finData.total_savings : 0;
+  var cur = profile.currency || 'USD';
+
+  document.getElementById('mScore').textContent = score || '—';
+  document.getElementById('mScoreChange').textContent = score ? 'Out of 100' : 'Complete onboarding';
+  document.getElementById('mSavings').textContent = savings ? cur + ' ' + savings.toLocaleString() : '—';
+  document.getElementById('mDebt').textContent = debt ? cur + ' ' + debt.toLocaleString() : debt === 0 ? 'Debt free' : '—';
+
+  if (score) {
+    var offset = 283 - (283 * score / 100);
+    var arc = document.getElementById('scoreArc');
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = score >= 70 ? 'var(--teal)' : score >= 50 ? 'var(--gold)' : 'var(--red)';
+    document.getElementById('scoreRingNum').textContent = score;
+    var income = profile.monthly_income || 0;
+    var expenses = income - (finData ? finData.monthly_budget : 0);
+    var expRatio = income > 0 ? (expenses / income) : 0.5;
+    var debtRatio = debt > 0 && income > 0 ? Math.min(1, debt / (income * 24)) : 0;
+    var savingsRatio = savings > 0 && expenses > 0 ? Math.min(1, savings / (expenses * 6)) : 0;
+    var incomeRatio = income > 3000 ? 1 : income / 3000;
+    document.getElementById('sb1').style.width = (incomeRatio * 100) + '%';
+    document.getElementById('sb2').style.width = ((1 - expRatio) * 100) + '%';
+    document.getElementById('sb3').style.width = ((1 - debtRatio) * 100) + '%';
+    document.getElementById('sb4').style.width = (savingsRatio * 100) + '%';
+    document.getElementById('sv1').textContent = Math.round(incomeRatio * 25);
+    document.getElementById('sv2').textContent = Math.round((1 - expRatio) * 25);
+    document.getElementById('sv3').textContent = Math.round((1 - debtRatio) * 25);
+    document.getElementById('sv4').textContent = Math.round(savingsRatio * 25);
+  }
+
+  setVeraDailyMessage(name.split(' ')[0], score, debt, savings, cur);
+}
+
+function setVeraDailyMessage(firstName, score, debt, savings, cur) {
+  var hr = new Date().getHours();
+  var greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  var msg = greeting + ', <strong>' + firstName + '</strong>. ';
+  if (score && score > 0) {
+    if (debt > 0 && savings >= 0) {
+      msg += 'Your financial health score stands at <strong>' + score + '/100</strong>. ';
+      if (debt > 0) msg += 'Focus on your debt elimination today — every payment moves you closer to freedom. ';
+      if (savings < 1000) msg += 'Your emergency fund needs attention. Aim to set aside something today, however small.';
+      else msg += 'Your savings foundation is building. Stay consistent.';
+    } else {
+      msg += 'Your score is <strong>' + score + '/100</strong>. Complete your financial profile so I can give you specific guidance.';
+    }
+  } else {
+    msg += 'I am ready to give you specific guidance based on your situation. Ask me anything about your finances — I have your complete profile from our first session.';
+  }
+  document.getElementById('veraDailyMsg').innerHTML = msg;
+}
+
+function showSection(id, btn) {
+  document.querySelectorAll('[id^="sec-"]').forEach(function(s) { s.style.display = 'none'; });
+  document.getElementById('sec-' + id).style.display = 'block';
+  if (btn) {
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+}
+
+function setMode(mode, btn) {
+  chatMode = mode;
+  chatHistory = [];
+  if (btn) {
+    btn.closest('.chat-modes').querySelectorAll('.cmode').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+  var welcomes = {
+    coach: 'Coaching mode. What would you like to work on? Give me the specifics of your situation.',
+    budget: 'Budget mode. Share your income and I will build a precise budget for you. What currency are you using?',
+    payday: 'Payday planning. How many days until your next payday? What is your current balance?',
+    debt: 'Debt strategy. List your debts — name, balance, interest rate. I will build your elimination plan.',
+    score: 'Health score analysis. Share your income, expenses, debt total, savings, and currency.',
+    hustle: 'Side income optimization. Tell me your skills, available hours, and current income.',
+    survival: 'Survival mode. How much do you have right now and how many days until payday?'
+  };
+  addMsg('vera', welcomes[mode] || welcomes.coach, 'chatMsgs');
+}
+
+function addMsg(role, text, msgsId) {
+  msgsId = msgsId || 'chatMsgs';
+  var c = document.getElementById(msgsId);
+  if (!c) return null;
+  var row = document.createElement('div');
+  row.className = 'mrow ' + (role === 'vera' ? 'vera' : 'user');
+  var label = document.createElement('div');
+  label.className = 'm-label';
+  label.textContent = role === 'vera' ? 'Vera' : 'You';
+  var bub = document.createElement('div');
+  bub.className = 'm-bub';
+  bub.innerHTML = text;
+  row.appendChild(label);
+  row.appendChild(bub);
+  c.appendChild(row);
+  c.scrollTop = c.scrollHeight;
+  return bub;
+}
+
+function fmt(t) {
+  return t.split('\n\n').join('<br><br>').split('\n').join('<br>');
+}
+
+async function sendChat() {
+  var inp = document.getElementById('chatInput');
+  var text = inp.value.trim();
+  if (!text) return;
+  if (!isPro && chatCount >= FREE_LIMIT) {
+    openUpgrade('Unlimited Vera sessions');
+    return;
+  }
+  inp.value = '';
+  document.getElementById('chatSendBtn').disabled = true;
+  addMsg('user', text, 'chatMsgs');
+  chatHistory.push({ role:'user', content:text });
+  chatCount++;
+  var typing = addMsg('vera', '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'chatMsgs');
+  try {
+    var sRes = await sb.auth.getSession();
+    var token = sRes.data.session ? sRes.data.session.access_token : '';
+    var profileCtx = profile ? '\n\nClient profile: Income ' + (profile.monthly_income||'unknown') + ' ' + (profile.currency||'USD') + '/month. Biggest fear: ' + (profile.financial_challenge||'unknown') : '';
+    var msgs = chatHistory.slice();
+    if (msgs.length === 1) msgs[0] = { role:'user', content:text + profileCtx };
+    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:msgs, mode:chatMode }) });
+    var d = await r.json();
+    if (typing) { typing.innerHTML = fmt(d.reply || 'I apologize — please try again.'); }
+    if (d.reply) chatHistory.push({ role:'assistant', content:d.reply });
+  } catch(e) {
+    if (typing) typing.textContent = 'Connection error. Please try again.';
+  }
+  document.getElementById('chatSendBtn').disabled = false;
+  document.getElementById('chatMsgs').scrollTop = 99999;
+}
+
+async function sendVeraMsg() {
+  var inp = document.getElementById('veraInput');
+  var text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  document.getElementById('veraSendBtn').disabled = true;
+  addMsg('user', text, 'veraFullMsgs');
+  veraHistory.push({ role:'user', content:text });
+  var typing = addMsg('vera', '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'veraFullMsgs');
+  try {
+    var sRes = await sb.auth.getSession();
+    var token = sRes.data.session ? sRes.data.session.access_token : '';
+    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:veraHistory, mode:chatMode }) });
+    var d = await r.json();
+    if (typing) { typing.innerHTML = fmt(d.reply || 'I apologize — please try again.'); }
+    if (d.reply) veraHistory.push({ role:'assistant', content:d.reply });
+  } catch(e) {
+    if (typing) typing.textContent = 'Connection error. Please try again.';
+  }
+  document.getElementById('veraSendBtn').disabled = false;
+  document.getElementById('veraFullMsgs').scrollTop = 99999;
+}
+
+function setupPayday() {
+  addMsg('vera', 'To set up your Payday Countdown — <strong>how many days until your next payday?</strong> And what is your current account balance?', 'chatMsgs');
+  document.getElementById('chatInput').focus();
+}
+
+function openUpgrade(feature) {
+  if (isPro) return;
+  document.getElementById('upgFeatureName').textContent = feature;
+  document.getElementById('upgOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeUpgrade() {
+  document.getElementById('upgOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+async function goToCheckout() {
+  var sRes = await sb.auth.getSession();
+  if (!sRes.data.session) { window.location.href = '/index.html'; return; }
+  var r = await fetch('/api/create-checkout', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sRes.data.session.access_token}, body:JSON.stringify({ plan:'pro' }) });
+  var d = await r.json();
+  if (d.url) window.location.href = d.url;
+}
+async function signOut() { await sb.auth.signOut(); window.location.href = '/index.html'; }
+
+document.getElementById('upgOverlay').addEventListener('click', function(e) { if (e.target === this) closeUpgrade(); });
+
+init();
+</script>
+</body>
+</html>
