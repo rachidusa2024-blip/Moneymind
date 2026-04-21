@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/chat", "destination": "/api/chat.js" },
-    { "source": "/api/create-checkout", "destination": "/api/create-checkout.js" },
-    { "source": "/api/webhook", "destination": "/api/webhook.js" }
-  ]
-}
