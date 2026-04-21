@@ -550,7 +550,7 @@ const sb = createClient(SUPA_URL, SUPA_KEY);
 // Check if already logged in — redirect to dashboard
 async function checkAuth() {
   const { data: { session } } = await sb.auth.getSession();
-  if (session) window.location.href = '/dashboard.html';
+  if (session) window.location.href = '/onboarding.html';;
 }
 checkAuth();
 
@@ -593,7 +593,7 @@ async function doSignup() {
   showOk('Account created! Signing you in...');
   setTimeout(async () => {
     const { error: e2 } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (!e2) window.location.href = '/dashboard.html';
+    if (!e2) window.location.href = '/onboarding.html';;
   }, 1000);
 }
 
@@ -607,7 +607,7 @@ async function doLogin() {
   document.getElementById('lBtn').innerHTML = 'Sign in to my account';
   document.getElementById('lBtn').disabled = false;
   if (error) return showErr(error.message);
-  window.location.href = '/dashboard.html';
+  window.location.href = '/onboarding.html';;
 }
 
 async function doGoogle() {
