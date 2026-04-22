@@ -726,6 +726,24 @@ async function calculateAndShow() {
 }
 
 async function saveToSupabase(score, available, totalExp) {
+  var profileData = {
+    monthly_income: answers.income,
+    currency: answers.currency,
+    language: answers.language,
+    financial_challenge: answers.fear,
+    onboarding_completed: true
+  };
+  var finData = {
+    health_score: score,
+    total_debt: answers.debt,
+    total_savings: answers.savings,
+    monthly_budget: available,
+    emergency_fund: answers.savings
+  };
+  localStorage.setItem('vera_profile', JSON.stringify(profileData));
+  localStorage.setItem('vera_fin', JSON.stringify(finData));
+  localStorage.setItem('vera_onboarding_done', 'true');
+
   try {
     await sb.from('profiles').update({
       financial_challenge: answers.fear,
@@ -735,7 +753,9 @@ async function saveToSupabase(score, available, totalExp) {
       onboarding_completed: true,
       updated_at: new Date().toISOString()
     }).eq('id', user.id);
+  } catch(e) { console.log('Profile update error:', e); }
 
+  try {
     await sb.from('financial_data').upsert({
       user_id: user.id,
       health_score: score,
@@ -745,7 +765,19 @@ async function saveToSupabase(score, available, totalExp) {
       emergency_fund: answers.savings,
       updated_at: new Date().toISOString()
     }, { onConflict: 'user_id' });
-  } catch(e) { console.log('Save error:', e); }
+  } catch(e) {
+    try {
+      await sb.from('financial_data').insert({
+        user_id: user.id,
+        health_score: score,
+        total_debt: answers.debt,
+        total_savings: answers.savings,
+        monthly_budget: available,
+        emergency_fund: answers.savings,
+        updated_at: new Date().toISOString()
+      });
+    } catch(e2) { console.log('Financial data error:', e2); }
+  }
 }
 
 function showResult(score, grade, cur, available, debt, savings, monthsToDebtFree, actions) {
