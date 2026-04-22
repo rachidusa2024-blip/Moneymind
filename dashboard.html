@@ -676,24 +676,11 @@ body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-s
       </div>
 
       <!-- VERA CHAT -->
-      <div class="card" style="animation:up 0.4s ease 0.25s both">
-        <div class="card-head"><div class="card-title">Ask Vera</div></div>
-        <div class="chat-wrap">
-          <div class="chat-modes">
-            <button class="cmode active" onclick="setMode('coach',this)">Coaching</button>
-            <button class="cmode" onclick="setMode('budget',this)">Budget</button>
-            <button class="cmode" onclick="setMode('payday',this)">Payday</button>
-            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
-            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
-          </div>
-          <div class="msgs" id="chatMsgs">
-            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">Good to see you. What would you like to work on today? I have your complete financial profile and I am ready to give you specific advice.</div></div>
-          </div>
-          <div class="chat-inp-row">
-            <input class="chat-inp" id="chatInput" placeholder="Ask Vera anything about your finances..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
-            <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
-          </div>
-        </div>
+      <div class="card" style="animation:up 0.4s ease 0.25s both;text-align:center;padding:36px">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-style:italic;color:var(--gold);margin:0 auto 16px;animation:goldPulse 3s ease infinite">V</div>
+        <div style="font-family:var(--font-head);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px">Ready for your session?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;max-width:400px;margin-left:auto;margin-right:auto">Vera remembers your complete financial profile and every previous conversation. Start a session to get specific advice, build roadmaps, and track your progress.</div>
+        <button onclick="showSection('vera',document.querySelector('.nav-btn:nth-child(2)'))" style="background:var(--gold);color:#080E1A;border:none;border-radius:10px;padding:13px 32px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-body);transition:all .2s;letter-spacing:.02em">Start session with Vera →</button>
       </div>
     </div>
 
@@ -701,28 +688,33 @@ body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-s
     <div id="sec-vera" style="display:none">
       <div class="topbar" style="animation:up 0.4s ease forwards">
         <div>
-          <div class="greeting-time">Private Session</div>
+          <div class="greeting-time">Private Coaching Session</div>
           <div class="greeting-name">Talk to <span>Vera</span></div>
         </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button onclick="downloadRoadmap()" id="downloadBtn" style="display:none;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s">Download roadmap</button>
+          <button onclick="clearVeraHistory()" style="background:transparent;color:var(--dim);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;font-family:var(--font-body)">New session</button>
+        </div>
       </div>
-      <div class="card" style="height:calc(100vh - 160px);display:flex;flex-direction:column;animation:up 0.4s ease forwards">
-        <div class="chat-wrap" style="height:100%">
-          <div class="chat-modes">
-            <button class="cmode active" onclick="setMode('coach',this)">Financial Coach</button>
-            <button class="cmode" onclick="setMode('budget',this)">Budget Builder</button>
-            <button class="cmode" onclick="setMode('payday',this)">Payday Planning</button>
-            <button class="cmode" onclick="setMode('debt',this)">Debt Strategy</button>
-            <button class="cmode" onclick="setMode('score',this)">Health Score</button>
-            <button class="cmode" onclick="setMode('hustle',this)">Side Income</button>
-            <button class="cmode" onclick="setMode('survival',this)">Survival Mode</button>
-          </div>
-          <div class="msgs" id="veraFullMsgs" style="height:calc(100% - 100px)">
-            <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub">This is your private financial coaching session. Everything you share here is confidential. <strong>What would you like to work on today?</strong></div></div>
-          </div>
+      <div class="card" style="height:calc(100vh - 180px);display:flex;flex-direction:column;animation:up 0.4s ease forwards">
+        <div class="chat-modes" style="flex-shrink:0;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px">
+          <button class="cmode active" onclick="setVeraMode('coach',this)">Coaching</button>
+          <button class="cmode" onclick="setVeraMode('budget',this)">Budget</button>
+          <button class="cmode" onclick="setVeraMode('payday',this)">Payday</button>
+          <button class="cmode" onclick="setVeraMode('debt',this)">Debt Strategy</button>
+          <button class="cmode" onclick="setVeraMode('score',this)">Health Score</button>
+          <button class="cmode" onclick="setVeraMode('hustle',this)">Side Income</button>
+          <button class="cmode" onclick="setVeraMode('survival',this)">Survival Mode</button>
+        </div>
+        <div class="msgs" id="veraFullMsgs" style="flex:1;overflow-y:auto">
+          <div class="mrow vera"><div class="m-label">Vera</div><div class="m-bub" id="veraWelcome">Loading your session...</div></div>
+        </div>
+        <div style="flex-shrink:0;padding-top:12px;border-top:1px solid var(--border)">
           <div class="chat-inp-row">
-            <input class="chat-inp" id="veraInput" placeholder="Share your situation and I will give you specific advice..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendVeraMsg()}">
+            <input class="chat-inp" id="veraInput" placeholder="Ask Vera anything — she knows your complete financial profile..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendVeraMsg()}">
             <button class="chat-send" id="veraSendBtn" onclick="sendVeraMsg()">Send</button>
           </div>
+          <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:6px;letter-spacing:.06em">Your conversation is saved automatically · Everything is private and encrypted</div>
         </div>
       </div>
     </div>
@@ -881,6 +873,9 @@ function showSection(id, btn) {
     document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
   }
+  if (id === 'vera') {
+    initVeraSession();
+  }
 }
 
 function setMode(mode, btn) {
@@ -963,6 +958,111 @@ async function sendChat() {
   document.getElementById('chatMsgs').scrollTop = 99999;
 }
 
+var veraMode = 'coach';
+var lastRoadmap = '';
+
+function setVeraMode(mode, btn) {
+  veraMode = mode;
+  if (btn) {
+    btn.closest('.chat-modes').querySelectorAll('.cmode').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+}
+
+async function initVeraSession() {
+  var welcome = document.getElementById('veraWelcome');
+  if (!welcome) return;
+  var pData = profile ? Object.assign({}, profile) : {};
+  var fData = finData ? Object.assign({}, finData) : {};
+  try { var lp = localStorage.getItem('vera_profile'); if(lp) Object.assign(pData, JSON.parse(lp)); } catch(e){}
+  try { var lf = localStorage.getItem('vera_fin'); if(lf) Object.assign(fData, JSON.parse(lf)); } catch(e){}
+  var name = pData.full_name ? pData.full_name.split(' ')[0] : 'there';
+  var cur = pData.currency || 'USD';
+  var income = pData.monthly_income || 0;
+  var debt = fData.total_debt || 0;
+  var savings = fData.total_savings || 0;
+  var score = fData.health_score || 0;
+  var today = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  welcome.innerHTML = 'Good to see you, <strong style="color:var(--gold)">' + name + '</strong>. Today is ' + today + '.<br><br>I have your complete profile. Income: <strong>' + cur + ' ' + income.toLocaleString() + '/month</strong>. Debt: <strong style="color:var(--red)">' + cur + ' ' + debt.toLocaleString() + '</strong>. Savings: <strong style="color:var(--teal)">' + cur + ' ' + savings.toLocaleString() + '</strong>. Health score: <strong style="color:var(--gold)">' + score + '/100</strong>.<br><br>What would you like to work on today? I am ready to give you specific advice based on your exact numbers.';
+  await loadVeraHistory();
+}
+
+async function loadVeraHistory() {
+  try {
+    var sRes = await sb.auth.getSession();
+    if (!sRes.data.session) return;
+    var res = await sb.from('chat_history').select('*').eq('user_id', user.id).order('created_at', { ascending: true }).limit(50);
+    if (res.data && res.data.length > 0) {
+      var msgs = document.getElementById('veraFullMsgs');
+      res.data.forEach(function(row) {
+        var role = row.role === 'assistant' ? 'vera' : 'user';
+        addMsg(role, row.content, 'veraFullMsgs');
+        veraHistory.push({ role: row.role === 'assistant' ? 'assistant' : 'user', content: row.content });
+      });
+      msgs.scrollTop = msgs.scrollHeight;
+      if (veraHistory.length > 2) {
+        document.getElementById('downloadBtn').style.display = 'block';
+      }
+    }
+  } catch(e) { console.log('History load error:', e); }
+}
+
+async function saveMessage(role, content) {
+  try {
+    await sb.from('chat_history').insert({
+      user_id: user.id,
+      role: role,
+      content: content,
+      created_at: new Date().toISOString()
+    });
+  } catch(e) { console.log('Save message error:', e); }
+}
+
+async function clearVeraHistory() {
+  if (!confirm('Start a new session? Your conversation history will be cleared.')) return;
+  try {
+    await sb.from('chat_history').delete().eq('user_id', user.id);
+  } catch(e) {}
+  veraHistory = [];
+  var msgs = document.getElementById('veraFullMsgs');
+  msgs.innerHTML = '';
+  document.getElementById('downloadBtn').style.display = 'none';
+  lastRoadmap = '';
+  await initVeraSession();
+}
+
+function downloadRoadmap() {
+  var content = '';
+  var today = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  var pData = profile ? Object.assign({}, profile) : {};
+  try { var lp = localStorage.getItem('vera_profile'); if(lp) Object.assign(pData, JSON.parse(lp)); } catch(e){}
+  var name = pData.full_name || 'Client';
+  content += 'SUM GOALS — VERA FINANCIAL ROADMAP\n';
+  content += '=====================================\n';
+  content += 'Prepared for: ' + name + '\n';
+  content += 'Date: ' + today + '\n';
+  content += '=====================================\n\n';
+  veraHistory.forEach(function(msg) {
+    if (msg.role === 'assistant') {
+      content += 'VERA:\n' + msg.content.replace(/\*\*/g,'').replace(/\*/g,'') + '\n\n';
+    } else {
+      content += 'YOU:\n' + msg.content + '\n\n';
+    }
+  });
+  content += '=====================================\n';
+  content += 'Generated by Sum Goals — sumgoals.com\n';
+  content += 'Your personal financial coach, Vera\n';
+  var blob = new Blob([content], { type: 'text/plain' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'Vera-Financial-Roadmap-' + today.replace(/,/g,'').replace(/ /g,'-') + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 async function sendVeraMsg() {
   var inp = document.getElementById('veraInput');
   var text = inp.value.trim();
@@ -971,19 +1071,40 @@ async function sendVeraMsg() {
   document.getElementById('veraSendBtn').disabled = true;
   addMsg('user', text, 'veraFullMsgs');
   veraHistory.push({ role:'user', content:text });
+  await saveMessage('user', text);
+
   var typing = addMsg('vera', '<div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>', 'veraFullMsgs');
+
+  var pData = profile ? Object.assign({}, profile) : {};
+  var fData = finData ? Object.assign({}, finData) : {};
+  try { var lp = localStorage.getItem('vera_profile'); if(lp) Object.assign(pData, JSON.parse(lp)); } catch(e){}
+  try { var lf = localStorage.getItem('vera_fin'); if(lf) Object.assign(fData, JSON.parse(lf)); } catch(e){}
+
+  var today = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  var profileCtx = '[CLIENT PROFILE — today is ' + today + ']\nIncome: ' + (pData.monthly_income||0) + ' ' + (pData.currency||'USD') + '/month\nDebt: ' + (fData.total_debt||0) + ' ' + (pData.currency||'USD') + '\nSavings: ' + (fData.total_savings||0) + ' ' + (pData.currency||'USD') + '\nAvailable/month: ' + (fData.monthly_budget||0) + ' ' + (pData.currency||'USD') + '\nHealth score: ' + (fData.health_score||0) + '/100\nFear: ' + (pData.financial_challenge||'unknown') + '\nLanguage: ' + (pData.language||'en') + '\n[Never ask for this info again. Always use correct current months starting from today when giving timelines.]';
+
+  var msgs = veraHistory.slice();
+  if (msgs.length === 1) {
+    msgs[0] = { role:'user', content: profileCtx + '\n\nUser message: ' + text };
+  } else {
+    msgs[msgs.length-1] = { role:'user', content: profileCtx + '\n\nUser message: ' + text };
+  }
+
   try {
     var sRes = await sb.auth.getSession();
     var token = sRes.data.session ? sRes.data.session.access_token : '';
-    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:veraHistory, mode:chatMode }) });
+    var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:msgs, mode:veraMode }) });
     var d = await r.json();
-    if (typing) { typing.innerHTML = fmt(d.reply || 'I apologize — please try again.'); }
-    if (d.reply) veraHistory.push({ role:'assistant', content:d.reply });
+    var reply = d.reply || 'I apologize — please try again.';
+    if (typing) { typing.innerHTML = fmt(reply); }
+    veraHistory.push({ role:'assistant', content:reply });
+    await saveMessage('assistant', reply);
+    document.getElementById('downloadBtn').style.display = 'block';
+    document.getElementById('veraFullMsgs').scrollTop = 99999;
   } catch(e) {
     if (typing) typing.textContent = 'Connection error. Please try again.';
   }
   document.getElementById('veraSendBtn').disabled = false;
-  document.getElementById('veraFullMsgs').scrollTop = 99999;
 }
 
 function setupPayday() {
