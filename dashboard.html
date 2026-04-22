@@ -931,7 +931,10 @@ async function sendChat() {
   try {
     var sRes = await sb.auth.getSession();
     var token = sRes.data.session ? sRes.data.session.access_token : '';
-    var profileCtx = profile ? '\n\nClient profile: Income ' + (profile.monthly_income||'unknown') + ' ' + (profile.currency||'USD') + '/month. Biggest fear: ' + (profile.financial_challenge||'unknown') : '';
+   var profileCtx = '';
+if (profile && finData) {
+  profileCtx = '\n\n[CLIENT FINANCIAL PROFILE — use this in every response, never ask for information already here]\nName: ' + (profile.full_name || 'Client') + '\nMonthly income: ' + (profile.monthly_income || 0) + ' ' + (profile.currency || 'USD') + '\nTotal debt: ' + (finData.total_debt || 0) + ' ' + (profile.currency || 'USD') + '\nTotal savings: ' + (finData.total_savings || 0) + ' ' + (profile.currency || 'USD') + '\nMonthly budget available: ' + (finData.monthly_budget || 0) + ' ' + (profile.currency || 'USD') + '\nHealth score: ' + (finData.health_score || 0) + '/100\nBiggest financial fear: ' + (profile.financial_challenge || 'unknown') + '\nLanguage: ' + (profile.language || 'en') + '\n[END PROFILE — never ask the client to repeat this information]';
+}
     var msgs = chatHistory.slice();
     if (msgs.length === 1) msgs[0] = { role:'user', content:text + profileCtx };
     var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:msgs, mode:chatMode }) });
