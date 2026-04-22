@@ -781,7 +781,18 @@ async function init() {
     finData = fd.data;
   } catch(e) { finData = null; }
 
-  if (!profile || !profile.onboarding_completed) {
+  // Fallback to localStorage if Supabase data missing
+  if (!finData) {
+    var localFin = localStorage.getItem('vera_fin');
+    if (localFin) { try { finData = JSON.parse(localFin); } catch(e) {} }
+  }
+  if (profile && !profile.monthly_income) {
+    var localProf = localStorage.getItem('vera_profile');
+    if (localProf) { try { var lp = JSON.parse(localProf); Object.assign(profile, lp); } catch(e) {} }
+  }
+
+  var onboardingDone = (profile && profile.onboarding_completed) || localStorage.getItem('vera_onboarding_done') === 'true';
+  if (!onboardingDone) {
     window.location.href = '/onboarding.html';
     return;
   }
@@ -931,10 +942,14 @@ async function sendChat() {
   try {
     var sRes = await sb.auth.getSession();
     var token = sRes.data.session ? sRes.data.session.access_token : '';
-   var profileCtx = '';
-if (profile && finData) {
-  profileCtx = '\n\n[CLIENT FINANCIAL PROFILE — use this in every response, never ask for information already here]\nName: ' + (profile.full_name || 'Client') + '\nMonthly income: ' + (profile.monthly_income || 0) + ' ' + (profile.currency || 'USD') + '\nTotal debt: ' + (finData.total_debt || 0) + ' ' + (profile.currency || 'USD') + '\nTotal savings: ' + (finData.total_savings || 0) + ' ' + (profile.currency || 'USD') + '\nMonthly budget available: ' + (finData.monthly_budget || 0) + ' ' + (profile.currency || 'USD') + '\nHealth score: ' + (finData.health_score || 0) + '/100\nBiggest financial fear: ' + (profile.financial_challenge || 'unknown') + '\nLanguage: ' + (profile.language || 'en') + '\n[END PROFILE — never ask the client to repeat this information]';
-}
+    var profileCtx = '';
+    var pData = profile ? Object.assign({}, profile) : {};
+    var fData = finData ? Object.assign({}, finData) : {};
+    try { var lp = localStorage.getItem('vera_profile'); if(lp) Object.assign(pData, JSON.parse(lp)); } catch(e){}
+    try { var lf = localStorage.getItem('vera_fin'); if(lf) Object.assign(fData, JSON.parse(lf)); } catch(e){}
+    if (pData.monthly_income || fData.total_debt) {
+      profileCtx = '\n\n[CLIENT PROFILE]\nIncome: ' + (pData.monthly_income||0) + ' ' + (pData.currency||'USD') + '/month\nDebt: ' + (fData.total_debt||0) + ' ' + (pData.currency||'USD') + '\nSavings: ' + (fData.total_savings||0) + ' ' + (pData.currency||'USD') + '\nAvailable/month: ' + (fData.monthly_budget||0) + ' ' + (pData.currency||'USD') + '\nHealth score: ' + (fData.health_score||0) + '/100\nBiggest fear: ' + (pData.financial_challenge||'unknown') + '\nLanguage: ' + (pData.language||'en') + '\n[Do not ask for any of this info again]';
+    }
     var msgs = chatHistory.slice();
     if (msgs.length === 1) msgs[0] = { role:'user', content:text + profileCtx };
     var r = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ messages:msgs, mode:chatMode }) });
