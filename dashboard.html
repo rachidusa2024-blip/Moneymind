@@ -773,10 +773,16 @@ async function init() {
     finData = fd.data;
   } catch(e) { finData = null; }
 
-  // Fallback to localStorage if Supabase data missing
-  if (!finData) {
+  // Fallback to localStorage if Supabase data is missing or all zeros
+  var finIsEmpty = !finData || (!finData.health_score && !finData.total_debt && !finData.total_savings);
+  if (finIsEmpty) {
     var localFin = localStorage.getItem('vera_fin');
     if (localFin) { try { finData = JSON.parse(localFin); } catch(e) {} }
+  }
+  // Also merge localStorage data if Supabase has zeros
+  if (finData && finData.health_score === 0) {
+    var localFin2 = localStorage.getItem('vera_fin');
+    if (localFin2) { try { var lf2 = JSON.parse(localFin2); if (lf2.health_score > 0) finData = lf2; } catch(e) {} }
   }
   if (profile && !profile.monthly_income) {
     var localProf = localStorage.getItem('vera_profile');
