@@ -3,26 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sum Goals — Meet Vera. Your Personal Financial Coach.</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Sum Goals — The financial coach you never had. Now you do.</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #07090F;
-  --surface: #0D1117;
-  --surface2: #141B24;
-  --gold: #C9A84C;
-  --gold2: #E8C97A;
-  --gold-dim: rgba(201,168,76,0.07);
-  --gold-border: rgba(201,168,76,0.18);
+  --bg: #FAFAF8;
+  --white: #FFFFFF;
+  --navy: #0A1628;
+  --navy2: #162035;
   --teal: #00C9A7;
-  --teal-dim: rgba(0,201,167,0.08);
-  --white: #F5F0E8;
-  --muted: #8A9BB0;
-  --dim: #3A4A5C;
-  --border: rgba(255,255,255,0.06);
+  --teal-dark: #00A888;
+  --teal-light: #E8FBF7;
+  --teal-border: rgba(0,201,167,0.2);
+  --gold: #C9A84C;
+  --gold-light: #FBF5E8;
+  --gold-border: rgba(201,168,76,0.25);
+  --muted: #64748B;
+  --dim: #94A3B8;
+  --border: #E8EDF2;
+  --border2: #F1F5F9;
   --red: #EF4444;
   --green: #10B981;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 20px 48px rgba(0,0,0,0.12);
   --font-head: 'Cormorant Garamond', serif;
   --font-body: 'DM Sans', sans-serif;
 }
@@ -31,732 +36,463 @@
 html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
-  color: var(--white);
+  color: var(--navy);
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
   overflow-x: hidden;
 }
 
-/* ANIMATIONS */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); } 50% { box-shadow: 0 0 40px 8px rgba(201,168,76,0.12); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-@keyframes lineGrow { from { width: 0; } to { width: 100%; } }
-@keyframes countUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+@keyframes typing { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay1 { transition-delay: 0.1s; }
+.reveal-delay2 { transition-delay: 0.2s; }
+.reveal-delay3 { transition-delay: 0.3s; }
 
 /* NAV */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 0 48px; height: 68px;
+  height: 64px; padding: 0 48px;
   display: flex; align-items: center; justify-content: space-between;
-  background: rgba(7, 9, 15, 0.85);
-  backdrop-filter: blur(24px);
+  background: rgba(250,250,248,0.92);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  transition: all 0.3s;
+  transition: box-shadow 0.3s;
 }
-nav.scrolled { background: rgba(7, 9, 15, 0.97); }
+nav.scrolled { box-shadow: var(--shadow-sm); }
 .nav-logo {
   font-family: var(--font-head);
-  font-size: 22px; font-weight: 600;
-  color: var(--white); letter-spacing: 0.02em;
+  font-size: 22px; font-weight: 700;
+  color: var(--navy); letter-spacing: -0.5px;
+  cursor: pointer;
 }
-.nav-logo span { color: var(--gold); font-style: italic; }
-.nav-right { display: flex; align-items: center; gap: 14px; }
-.btn-nav-signin {
+.nav-logo span { color: var(--teal); font-style: italic; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.btn-nav-in {
   background: transparent; color: var(--muted);
   border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 20px; font-size: 13px; font-weight: 500;
-  cursor: pointer; font-family: var(--font-body);
-  transition: all 0.2s;
+  padding: 8px 18px; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: var(--font-body); transition: all 0.2s;
 }
-.btn-nav-signin:hover { color: var(--white); border-color: var(--dim); }
+.btn-nav-in:hover { color: var(--navy); border-color: var(--navy); }
 .btn-nav-start {
-  background: var(--gold); color: #07090F;
+  background: var(--navy); color: #fff;
   border: none; border-radius: 8px;
-  padding: 9px 22px; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: var(--font-body);
-  transition: all 0.2s; letter-spacing: 0.02em;
+  padding: 9px 20px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: var(--font-body); transition: all 0.2s;
 }
-.btn-nav-start:hover { background: var(--gold2); transform: translateY(-1px); }
+.btn-nav-start:hover { background: var(--navy2); transform: translateY(-1px); }
 
 /* HERO */
 .hero {
   min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 120px 48px 80px;
-  position: relative; overflow: hidden;
+  display: flex; align-items: center;
+  padding: 100px 48px 60px;
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
 }
-.hero-bg {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,201,167,0.04) 0%, transparent 50%);
-  pointer-events: none;
-}
-.hero-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-eyebrow {
+.hero-left { animation: fadeUp 0.8s ease forwards; }
+.hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
-  background: var(--gold-dim); border: 1px solid var(--gold-border);
-  color: var(--gold); font-size: 11px; font-weight: 500;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  padding: 6px 16px; border-radius: 20px;
-  margin-bottom: 28px;
-  animation: fadeUp 0.8s ease forwards;
+  background: var(--teal-light); border: 1px solid var(--teal-border);
+  color: var(--teal-dark); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
 }
-.hero-eyebrow-dot {
+.hero-badge-dot {
   width: 5px; height: 5px;
-  background: var(--gold); border-radius: 50%;
+  background: var(--teal); border-radius: 50%;
   animation: pulse 2s ease infinite;
 }
 .hero-h1 {
   font-family: var(--font-head);
-  font-size: clamp(44px, 7vw, 88px);
-  font-weight: 700; line-height: 1;
-  letter-spacing: -2px; color: var(--white);
-  margin-bottom: 10px;
-  animation: fadeUp 0.8s ease 0.1s both;
-}
-.hero-h1 em {
-  color: var(--gold); font-style: italic;
-  display: block; margin-top: 6px;
-}
-.hero-sub {
-  font-size: clamp(15px, 2vw, 18px);
-  color: var(--muted); max-width: 560px;
-  margin: 0 auto 40px; line-height: 1.7;
-  font-weight: 400;
-  animation: fadeUp 0.8s ease 0.2s both;
-}
-.hero-sub strong { color: var(--white); font-weight: 500; }
-.hero-cta {
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
-  animation: fadeUp 0.8s ease 0.3s both;
-}
-.btn-hero {
-  background: var(--gold); color: #07090F;
-  border: none; border-radius: 12px;
-  padding: 16px 40px; font-size: 16px; font-weight: 600;
-  cursor: pointer; font-family: var(--font-body);
-  letter-spacing: 0.02em;
-  transition: all 0.25s;
-  box-shadow: 0 0 0 0 rgba(201,168,76,0.4);
-  animation: glow 3s ease infinite;
-}
-.btn-hero:hover {
-  background: var(--gold2);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(201,168,76,0.3);
-}
-.hero-trust {
-  display: flex; align-items: center; gap: 20px;
-  flex-wrap: wrap; justify-content: center;
-}
-.ht {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--dim); font-weight: 500;
-}
-.ht-dot {
-  width: 5px; height: 5px;
-  background: var(--green); border-radius: 50%;
-}
-
-/* PAIN SECTION */
-.pain-section {
-  padding: 100px 48px;
-  text-align: center;
-  position: relative;
-}
-.pain-line {
-  width: 1px; height: 80px;
-  background: linear-gradient(to bottom, transparent, var(--gold-border), transparent);
-  margin: 0 auto 40px;
-}
-.pain-label {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; margin-bottom: 24px;
-}
-.pain-h {
-  font-family: var(--font-head);
-  font-size: clamp(32px, 5vw, 58px);
-  font-weight: 700; line-height: 1.05;
-  letter-spacing: -1px; color: var(--white);
+  font-size: clamp(40px, 5.5vw, 68px);
+  font-weight: 700; line-height: 1.02;
+  letter-spacing: -2px; color: var(--navy);
   margin-bottom: 20px;
 }
-.pain-h span { color: var(--gold); font-style: italic; }
-.pain-cards {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px; max-width: 900px; margin: 48px auto 0;
+.hero-h1 em { color: var(--teal); font-style: italic; display: block; }
+.hero-sub {
+  font-size: 16px; color: var(--muted);
+  line-height: 1.75; margin-bottom: 36px;
+  max-width: 460px; font-weight: 400;
 }
-.pain-card {
-  background: var(--surface);
+.hero-sub strong { color: var(--navy); font-weight: 600; }
+.hero-cta { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.btn-hero {
+  background: var(--teal); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 15px 32px; font-size: 16px; font-weight: 600;
+  cursor: pointer; font-family: var(--font-body);
+  transition: all 0.25s; letter-spacing: 0.01em;
+  box-shadow: 0 4px 14px rgba(0,201,167,0.3);
+}
+.btn-hero:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,201,167,0.35); }
+.hero-note { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.hero-note-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
+.hero-trust { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+.ht { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dim); font-weight: 500; }
+.ht-check { width: 16px; height: 16px; background: var(--teal-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--teal-dark); font-weight: 700; flex-shrink: 0; }
+
+/* VERA CARD */
+.vera-card {
+  background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 20px; padding: 28px;
-  text-align: left; position: relative; overflow: hidden;
-  transition: all 0.3s;
+  border-radius: 24px; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.8s ease 0.15s both, float 6s ease 1s infinite;
 }
-.pain-card:hover { border-color: var(--gold-border); transform: translateY(-4px); }
-.pain-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0; transition: opacity 0.3s;
+.vc-top {
+  background: var(--navy);
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.pain-card:hover::before { opacity: 1; }
-.pain-card-num {
-  font-family: var(--font-head);
-  font-size: 48px; font-style: italic;
-  color: var(--gold-border); line-height: 1;
-  margin-bottom: 12px;
-}
-.pain-card-text {
-  font-size: 14px; color: var(--muted); line-height: 1.65;
-}
-.pain-card-text strong { color: var(--white); display: block; margin-bottom: 6px; font-size: 15px; }
-
-/* VERA INTRO */
-.vera-section {
-  padding: 100px 48px;
-  max-width: 1000px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 80px; align-items: center;
-}
-.vera-left {}
-.vera-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; margin-bottom: 20px;
-}
-.vera-h {
-  font-family: var(--font-head);
-  font-size: clamp(36px, 5vw, 56px);
-  font-weight: 700; line-height: 1;
-  letter-spacing: -1.5px; color: var(--white);
-  margin-bottom: 16px;
-}
-.vera-h span { color: var(--gold); font-style: italic; }
-.vera-desc {
-  font-size: 15px; color: var(--muted);
-  line-height: 1.75; margin-bottom: 28px;
-}
-.vera-desc strong { color: var(--white); }
-.vera-stats { display: flex; gap: 28px; flex-wrap: wrap; }
-.vstat { text-align: center; }
-.vstat-num {
-  font-family: var(--font-head);
-  font-size: 32px; font-style: italic;
-  color: var(--gold); line-height: 1;
-}
-.vstat-label { font-size: 11px; color: var(--dim); margin-top: 4px; letter-spacing: 0.06em; }
-
-/* VERA CHAT PREVIEW */
-.vera-chat {
-  background: var(--surface);
-  border: 1px solid var(--gold-border);
-  border-radius: 20px; overflow: hidden;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-  animation: float 6s ease infinite;
-}
-.vc-header {
-  background: #0A1020;
-  padding: 14px 18px;
-  display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid var(--gold-border);
-}
+.vc-vera { display: flex; align-items: center; gap: 10px; }
 .vc-av {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--gold-dim); border: 1.5px solid var(--gold-border);
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--gold-light); border: 1.5px solid var(--gold-border);
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-head); font-size: 13px; font-style: italic;
+  font-family: var(--font-head); font-size: 15px; font-style: italic;
   color: var(--gold); flex-shrink: 0;
 }
-.vc-name { font-size: 13px; font-weight: 600; color: var(--white); }
-.vc-status { font-size: 10px; color: var(--green); display: flex; align-items: center; gap: 4px; }
-.vc-status-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
-.vc-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.vc-name { font-size: 14px; font-weight: 600; color: #fff; }
+.vc-status { font-size: 11px; color: var(--teal); display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+.vc-status-dot { width: 5px; height: 5px; background: var(--teal); border-radius: 50%; animation: pulse 2s ease infinite; }
+.vc-secure { font-size: 10px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 4px; }
+.vc-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .vc-msg {
-  font-size: 13px; line-height: 1.6;
+  font-size: 13px; line-height: 1.65;
   padding: 11px 14px; border-radius: 12px; max-width: 92%;
 }
 .vc-msg.vera {
-  background: var(--gold-dim); border: 1px solid var(--gold-border);
-  color: var(--white); border-radius: 4px 12px 12px 12px;
+  background: #F8FFFE; border: 1px solid var(--teal-border);
+  color: var(--navy); border-radius: 4px 12px 12px 12px;
 }
-.vc-msg.vera strong { color: var(--gold); }
+.vc-msg.vera strong { color: var(--teal-dark); }
 .vc-msg.user {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  color: var(--white); border-radius: 12px 4px 12px 12px;
+  background: var(--navy); color: #fff;
+  border-radius: 12px 4px 12px 12px;
   align-self: flex-end;
 }
 .vc-typing {
-  display: flex; gap: 4px; align-items: center;
-  padding: 10px 14px;
-  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; gap: 4px; padding: 11px 14px;
+  background: #F8FFFE; border: 1px solid var(--teal-border);
   border-radius: 4px 12px 12px 12px; width: fit-content;
 }
 .tdot {
-  width: 5px; height: 5px;
-  background: var(--gold); border-radius: 50%;
-  animation: pulse 1.2s ease infinite;
+  width: 6px; height: 6px; background: var(--teal);
+  border-radius: 50%; animation: typing 1.2s ease infinite;
 }
 .tdot:nth-child(2) { animation-delay: 0.2s; }
 .tdot:nth-child(3) { animation-delay: 0.4s; }
-
-/* HOW IT WORKS */
-.how-section {
-  padding: 100px 48px;
-  max-width: 1100px; margin: 0 auto;
+.vc-metrics {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 8px; padding: 0 20px 20px;
 }
-.section-label {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; margin-bottom: 16px;
+.vc-metric {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 10px; text-align: center;
 }
-.section-h {
-  font-family: var(--font-head);
-  font-size: clamp(32px, 4.5vw, 52px);
-  font-weight: 700; line-height: 1;
-  letter-spacing: -1.5px; color: var(--white);
-  margin-bottom: 12px;
-}
-.section-h span { color: var(--gold); font-style: italic; }
-.section-sub {
-  font-size: 15px; color: var(--muted);
-  max-width: 480px; margin-bottom: 56px; line-height: 1.7;
-}
-.steps {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 0; position: relative;
-}
-.steps::before {
-  content: '';
-  position: absolute; top: 28px; left: calc(16.66% + 14px); right: calc(16.66% + 14px);
-  height: 1px; background: linear-gradient(90deg, var(--gold-border), var(--gold-border));
-}
-.step {
-  padding: 0 24px; text-align: center;
-  position: relative;
-}
-.step-num {
-  width: 56px; height: 56px;
-  background: var(--surface);
-  border: 1.5px solid var(--gold-border);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-head);
-  font-size: 22px; font-style: italic;
-  color: var(--gold); margin: 0 auto 20px;
-  position: relative; z-index: 1;
-  transition: all 0.3s;
-}
-.step:hover .step-num {
-  background: var(--gold-dim);
-  box-shadow: 0 0 20px rgba(201,168,76,0.2);
-}
-.step-title {
-  font-family: var(--font-head);
-  font-size: 22px; font-style: italic;
-  color: var(--white); margin-bottom: 10px;
-}
-.step-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
-
-/* FEATURES */
-.features-section {
-  padding: 100px 48px;
-  background: linear-gradient(180deg, transparent, var(--surface) 30%, var(--surface) 70%, transparent);
-}
-.features-inner { max-width: 1100px; margin: 0 auto; }
-.feat-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px; margin-top: 56px;
-}
-.feat {
-  background: var(--surface2);
-  padding: 32px;
-  transition: all 0.3s;
-  cursor: default;
-  position: relative; overflow: hidden;
-}
-.feat:first-child { border-radius: 20px 0 0 0; }
-.feat:nth-child(3) { border-radius: 0 20px 0 0; }
-.feat:nth-child(4) { border-radius: 0 0 0 20px; }
-.feat:last-child { border-radius: 0 0 20px 0; }
-.feat::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: var(--gold-dim);
-  opacity: 0; transition: opacity 0.3s;
-}
-.feat:hover::after { opacity: 1; }
-.feat-wide { grid-column: span 2; }
-.feat-icon {
-  width: 40px; height: 40px;
-  background: var(--gold-dim);
-  border: 1px solid var(--gold-border);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; margin-bottom: 16px;
-  position: relative; z-index: 1;
-}
-.feat-title {
-  font-family: var(--font-head);
-  font-size: 20px; font-style: italic;
-  color: var(--white); margin-bottom: 8px;
-  position: relative; z-index: 1;
-}
-.feat-desc {
-  font-size: 13px; color: var(--muted);
-  line-height: 1.65;
-  position: relative; z-index: 1;
-}
-.feat-tag {
-  display: inline-block; margin-top: 12px;
-  font-size: 9px; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--gold); background: var(--gold-dim);
-  border: 1px solid var(--gold-border);
-  padding: 3px 10px; border-radius: 20px;
-  position: relative; z-index: 1;
-}
-
-/* SOCIAL PROOF */
-.proof-section { padding: 100px 48px; }
-.proof-inner { max-width: 1100px; margin: 0 auto; }
-.proof-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px; margin-top: 56px;
-}
-.proof-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px; padding: 28px;
-  transition: all 0.3s; position: relative;
-}
-.proof-card:hover { border-color: var(--gold-border); transform: translateY(-3px); }
-.proof-card::before {
-  content: '"';
-  position: absolute; top: 16px; right: 20px;
-  font-family: var(--font-head); font-size: 72px;
-  color: var(--gold-border); line-height: 1;
-}
-.proof-stars { color: var(--gold); font-size: 13px; letter-spacing: 3px; margin-bottom: 14px; }
-.proof-text {
-  font-size: 14px; color: var(--muted);
-  line-height: 1.75; margin-bottom: 20px; font-style: italic;
-}
-.proof-text strong { color: var(--white); font-style: normal; }
-.proof-author { display: flex; align-items: center; gap: 12px; }
-.proof-av {
-  width: 38px; height: 38px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: #07090F; flex-shrink: 0;
-}
-.proof-name { font-size: 13px; font-weight: 600; color: var(--white); }
-.proof-loc { font-size: 11px; color: var(--dim); margin-top: 2px; }
-
-/* STATS STRIP */
-.stats-strip {
-  padding: 60px 48px;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-.stats-inner {
-  max-width: 900px; margin: 0 auto;
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 20px; text-align: center;
-}
-.stat-num {
-  font-family: var(--font-head);
-  font-size: clamp(36px, 5vw, 52px);
-  font-style: italic; color: var(--gold); line-height: 1;
-}
-.stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
-
-/* PRICING */
-.pricing-section { padding: 100px 48px; }
-.pricing-inner { max-width: 900px; margin: 0 auto; }
-.pricing-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px; margin-top: 56px;
-}
-.plan {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px; padding: 32px;
-  position: relative; transition: all 0.3s;
-}
-.plan:hover { transform: translateY(-3px); border-color: var(--gold-border); }
-.plan.featured {
-  border-color: var(--gold-border);
-  background: linear-gradient(135deg, var(--surface), rgba(201,168,76,0.04));
-}
-.plan-badge {
-  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: var(--gold); color: #07090F;
-  font-size: 10px; font-weight: 700;
-  padding: 4px 14px; border-radius: 20px;
-  white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase;
-}
-.plan-tier {
-  font-size: 10px; font-weight: 600;
-  color: var(--muted); text-transform: uppercase;
-  letter-spacing: 0.14em; margin-bottom: 16px;
-}
-.plan-price-old {
-  font-size: 13px; color: var(--dim);
-  text-decoration: line-through; margin-bottom: 2px;
-}
-.plan-price {
-  font-family: var(--font-head);
-  font-size: clamp(36px, 4vw, 48px);
-  font-style: italic; color: var(--white);
-  line-height: 1; margin-bottom: 4px; letter-spacing: -1px;
-}
-.plan-price.gold { color: var(--gold); }
-.plan-price sub {
-  font-size: 14px; color: var(--muted);
-  font-family: var(--font-body); font-style: normal;
-}
-.plan-cycle { font-size: 12px; color: var(--dim); margin-bottom: 24px; }
-.plan-items { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 26px; }
-.plan-item {
-  font-size: 13px; color: var(--muted);
-  display: flex; gap: 8px; align-items: flex-start;
-}
-.plan-item::before { content: '✓'; color: var(--gold); flex-shrink: 0; font-weight: 700; }
-.plan-item.off::before { content: '✗'; color: var(--dim); }
-.plan-item.off { color: var(--dim); }
-.btn-plan {
-  width: 100%; padding: 13px; border-radius: 10px;
-  font-weight: 600; font-size: 14px; cursor: pointer;
-  font-family: var(--font-body); transition: all 0.2s;
-  letter-spacing: 0.02em;
-}
-.btn-plan.free {
-  background: transparent; color: var(--muted);
-  border: 1px solid var(--border);
-}
-.btn-plan.free:hover { color: var(--white); border-color: var(--dim); }
-.btn-plan.pro {
-  background: var(--gold); color: #07090F; border: none;
-}
-.btn-plan.pro:hover { background: var(--gold2); transform: translateY(-1px); }
-.btn-plan.life {
-  background: transparent; color: var(--gold);
-  border: 1px solid var(--gold-border);
-}
-.btn-plan.life:hover { background: var(--gold-dim); }
-
-/* FINAL CTA */
-.final-cta {
-  padding: 120px 48px;
-  text-align: center;
-  position: relative; overflow: hidden;
-}
-.final-cta-bg {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(201,168,76,0.07) 0%, transparent 65%);
-  pointer-events: none;
-}
-.final-h {
-  font-family: var(--font-head);
-  font-size: clamp(40px, 7vw, 82px);
-  font-weight: 700; line-height: 1;
-  letter-spacing: -2px; color: var(--white);
-  margin-bottom: 18px;
-}
-.final-h em { color: var(--gold); font-style: italic; }
-.final-sub {
-  font-size: 16px; color: var(--muted);
-  max-width: 440px; margin: 0 auto 40px; line-height: 1.7;
-}
-.final-note { font-size: 12px; color: var(--dim); margin-top: 16px; }
+.vc-metric-label { font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.vc-metric-val { font-family: var(--font-head); font-size: 18px; font-style: italic; color: var(--navy); }
+.vc-metric-val.teal { color: var(--teal-dark); }
+.vc-metric-val.red { color: var(--red); }
+.vc-metric-val.gold { color: var(--gold); }
 
 /* MARQUEE */
 .marquee-wrap {
-  padding: 14px 0; overflow: hidden;
+  padding: 12px 0; overflow: hidden;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--white);
 }
-.marquee-track {
-  display: flex; animation: marquee 30s linear infinite;
-  width: max-content;
-}
+.marquee-track { display: flex; animation: marquee 35s linear infinite; width: max-content; }
 .mq-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 28px;
-  font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 24px; font-size: 11px; font-weight: 500;
   color: var(--dim); text-transform: uppercase;
   letter-spacing: 0.1em; white-space: nowrap;
 }
-.mq-sep { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; opacity: 0.5; }
+.mq-dot { width: 4px; height: 4px; background: var(--teal); border-radius: 50%; }
+
+/* PRIVACY SECTION */
+.privacy-section {
+  padding: 80px 48px;
+  background: var(--navy);
+  text-align: center;
+}
+.privacy-inner { max-width: 700px; margin: 0 auto; }
+.privacy-icon {
+  width: 64px; height: 64px;
+  background: rgba(0,201,167,0.12);
+  border: 1px solid rgba(0,201,167,0.25);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px; font-size: 28px;
+}
+.privacy-h {
+  font-family: var(--font-head);
+  font-size: clamp(28px,4vw,44px);
+  font-style: italic; color: #fff;
+  letter-spacing: -1px; margin-bottom: 14px;
+}
+.privacy-h span { color: var(--teal); }
+.privacy-sub { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 36px; line-height: 1.7; }
+.privacy-grid {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  gap: 12px; text-align: left;
+}
+.privacy-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 16px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.privacy-item-icon {
+  width: 32px; height: 32px;
+  background: rgba(0,201,167,0.1);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.privacy-item-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.privacy-item-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+/* PAIN SECTION */
+.pain-section { padding: 100px 48px; }
+.pain-inner { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--teal-dark);
+  font-weight: 600; margin-bottom: 16px;
+}
+.section-h {
+  font-family: var(--font-head);
+  font-size: clamp(32px,4.5vw,54px);
+  font-weight: 700; line-height: 1.02;
+  letter-spacing: -1.5px; color: var(--navy);
+  margin-bottom: 14px;
+}
+.section-h em { color: var(--teal); font-style: italic; }
+.section-sub { font-size: 15px; color: var(--muted); max-width: 480px; margin-bottom: 52px; line-height: 1.7; }
+
+.pain-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.pain-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s; position: relative; overflow: hidden;
+}
+.pain-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--teal-border); }
+.pain-card-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+  opacity: 0; transition: opacity 0.3s;
+}
+.pain-card:hover .pain-card-accent { opacity: 1; }
+.pain-num {
+  font-family: var(--font-head);
+  font-size: 52px; font-style: italic;
+  color: var(--teal-light); line-height: 1;
+  margin-bottom: 14px; color: rgba(0,201,167,0.15);
+}
+.pain-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+.pain-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+/* HOW IT WORKS */
+.how-section { padding: 100px 48px; background: var(--white); }
+.how-inner { max-width: 1000px; margin: 0 auto; }
+.steps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; margin-top: 56px; position: relative; }
+.steps-grid::before {
+  content: '';
+  position: absolute; top: 28px;
+  left: calc(16.66% + 16px); right: calc(16.66% + 16px);
+  height: 1px; background: var(--border);
+}
+.step { text-align: center; }
+.step-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; position: relative; z-index: 1;
+  font-family: var(--font-head); font-size: 22px; font-style: italic;
+  color: var(--navy); transition: all 0.3s;
+}
+.step:hover .step-circle { border-color: var(--teal); color: var(--teal); background: var(--teal-light); }
+.step-title { font-family: var(--font-head); font-size: 22px; font-style: italic; color: var(--navy); margin-bottom: 10px; }
+.step-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+/* VERA INTRO */
+.vera-section { padding: 100px 48px; }
+.vera-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.vera-quote {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px; margin-bottom: 24px;
+  box-shadow: var(--shadow-sm); position: relative;
+}
+.vera-quote::before {
+  content: '"'; position: absolute; top: 12px; right: 20px;
+  font-family: var(--font-head); font-size: 60px;
+  color: var(--teal-light); line-height: 1;
+}
+.vera-quote-text { font-size: 14px; color: var(--muted); line-height: 1.7; font-style: italic; }
+.vera-quote-text strong { color: var(--navy); font-style: normal; }
+.vera-quote-author { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.vera-quote-av { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.vera-quote-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.vera-quote-loc { font-size: 11px; color: var(--dim); }
+.vera-h { font-family: var(--font-head); font-size: clamp(32px,4vw,50px); font-weight: 700; line-height: 1.05; letter-spacing: -1.5px; color: var(--navy); margin-bottom: 16px; }
+.vera-h em { color: var(--teal); font-style: italic; }
+.vera-desc { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 24px; }
+.vera-desc strong { color: var(--navy); }
+.vera-traits { display: flex; flex-direction: column; gap: 12px; }
+.vera-trait { display: flex; gap: 12px; align-items: flex-start; }
+.vera-trait-icon { width: 32px; height: 32px; background: var(--teal-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.vera-trait-title { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.vera-trait-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* FEATURES */
+.features-section { padding: 100px 48px; background: var(--white); }
+.features-inner { max-width: 1100px; margin: 0 auto; }
+.feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 52px; }
+.feat {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px; transition: all 0.3s;
+}
+.feat:hover { background: var(--white); border-color: var(--teal-border); transform: translateY(-3px); box-shadow: var(--shadow); }
+.feat.wide { grid-column: span 2; }
+.feat-icon { width: 44px; height: 44px; background: var(--teal-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 16px; }
+.feat-title { font-family: var(--font-head); font-size: 20px; font-style: italic; color: var(--navy); margin-bottom: 8px; }
+.feat-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+.feat-tag { display: inline-block; margin-top: 12px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-dark); background: var(--teal-light); border: 1px solid var(--teal-border); padding: 3px 10px; border-radius: 20px; }
+
+/* STATS */
+.stats-section { padding: 60px 48px; background: var(--teal); }
+.stats-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; text-align: center; }
+.stat-num { font-family: var(--font-head); font-size: clamp(36px,5vw,52px); font-style: italic; color: #fff; line-height: 1; }
+.stat-label { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 6px; }
+
+/* PROOF */
+.proof-section { padding: 100px 48px; }
+.proof-inner { max-width: 1100px; margin: 0 auto; }
+.proof-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 52px; }
+.proof-card { background: var(--white); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+.proof-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--teal-border); }
+.proof-stars { color: var(--gold); font-size: 13px; letter-spacing: 3px; margin-bottom: 14px; }
+.proof-text { font-size: 13px; color: var(--muted); line-height: 1.75; margin-bottom: 18px; font-style: italic; }
+.proof-text strong { color: var(--navy); font-style: normal; }
+.proof-author { display: flex; align-items: center; gap: 10px; }
+.proof-av { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.proof-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.proof-loc { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+/* PRICING */
+.pricing-section { padding: 100px 48px; background: var(--white); }
+.pricing-inner { max-width: 900px; margin: 0 auto; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 52px; }
+.plan { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 32px; position: relative; transition: all 0.3s; }
+.plan:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.plan.featured { background: var(--navy); border-color: var(--navy); }
+.plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--teal); color: #fff; font-size: 10px; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase; }
+.plan-tier { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 16px; color: var(--muted); }
+.plan.featured .plan-tier { color: rgba(255,255,255,0.5); }
+.plan-price-old { font-size: 13px; color: var(--dim); text-decoration: line-through; margin-bottom: 2px; }
+.plan.featured .plan-price-old { color: rgba(255,255,255,0.35); }
+.plan-price { font-family: var(--font-head); font-size: clamp(36px,4vw,48px); font-style: italic; color: var(--navy); line-height: 1; margin-bottom: 4px; letter-spacing: -1px; }
+.plan.featured .plan-price { color: var(--teal); }
+.plan-price sub { font-size: 14px; color: var(--muted); font-family: var(--font-body); font-style: normal; }
+.plan.featured .plan-price sub { color: rgba(255,255,255,0.5); }
+.plan-cycle { font-size: 12px; color: var(--dim); margin-bottom: 24px; }
+.plan.featured .plan-cycle { color: rgba(255,255,255,0.4); }
+.plan-items { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 26px; }
+.plan-item { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+.plan.featured .plan-item { color: rgba(255,255,255,0.7); }
+.plan-item::before { content: '✓'; color: var(--teal-dark); flex-shrink: 0; font-weight: 700; }
+.plan.featured .plan-item::before { color: var(--teal); }
+.plan-item.off::before { content: '✗'; color: var(--dim); }
+.plan-item.off { color: var(--dim); }
+.btn-plan { width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; letter-spacing: 0.01em; }
+.btn-plan.free { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
+.btn-plan.free:hover { border-color: var(--navy); }
+.btn-plan.pro { background: var(--teal); color: #fff; border: none; }
+.btn-plan.pro:hover { background: var(--teal-dark); transform: translateY(-1px); }
+.btn-plan.life { background: transparent; color: var(--teal); border: 1.5px solid var(--teal-border); }
+.btn-plan.life:hover { background: var(--teal-light); }
+
+/* FINAL CTA */
+.final-section { padding: 120px 48px; text-align: center; position: relative; overflow: hidden; }
+.final-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,201,167,0.06) 0%, transparent 65%); pointer-events: none; }
+.final-h { font-family: var(--font-head); font-size: clamp(40px,6vw,72px); font-weight: 700; line-height: 1; letter-spacing: -2px; color: var(--navy); margin-bottom: 18px; }
+.final-h em { color: var(--teal); font-style: italic; display: block; }
+.final-sub { font-size: 16px; color: var(--muted); max-width: 440px; margin: 0 auto 40px; line-height: 1.7; }
+.final-note { font-size: 12px; color: var(--dim); margin-top: 14px; }
 
 /* FOOTER */
-footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 28px 48px;
-  display: flex; align-items: center;
-  justify-content: space-between; flex-wrap: wrap; gap: 12px;
-}
-.foot-logo {
-  font-family: var(--font-head);
-  font-size: 18px; font-weight: 600;
-  color: var(--white);
-}
-.foot-logo span { color: var(--gold); font-style: italic; }
-.foot-copy { font-size: 12px; color: var(--dim); }
+footer { background: var(--navy); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.foot-logo { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: #fff; }
+.foot-logo span { color: var(--teal); font-style: italic; }
+.foot-copy { font-size: 12px; color: rgba(255,255,255,0.4); }
 .foot-links { display: flex; gap: 20px; }
-.foot-links a {
-  font-size: 12px; color: var(--dim);
-  text-decoration: none; transition: color 0.2s;
-}
-.foot-links a:hover { color: var(--white); }
+.foot-links a { font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+.foot-links a:hover { color: #fff; }
 
 /* AUTH MODAL */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(7,9,15,0.92);
-  backdrop-filter: blur(16px);
-  z-index: 999; display: none;
-  align-items: center; justify-content: center; padding: 20px;
-}
+.overlay { position: fixed; inset: 0; background: rgba(10,22,40,0.7); backdrop-filter: blur(12px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
 .overlay.open { display: flex; animation: fadeIn 0.2s ease; }
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--gold-border);
-  border-radius: 24px; padding: 36px;
-  width: 100%; max-width: 420px;
-  position: relative;
-  box-shadow: 0 40px 80px rgba(0,0,0,0.7);
-}
-.modal-close {
-  position: absolute; top: 16px; right: 18px;
-  background: transparent; border: none;
-  color: var(--dim); cursor: pointer;
-  font-size: 20px; line-height: 1; transition: color 0.2s;
-}
-.modal-close:hover { color: var(--white); }
-.modal-logo {
-  font-family: var(--font-head);
-  font-size: 22px; font-weight: 700;
-  color: var(--white); text-align: center; margin-bottom: 4px;
-}
-.modal-logo span { color: var(--gold); font-style: italic; }
+.modal { background: var(--white); border-radius: 24px; padding: 36px; width: 100%; max-width: 420px; position: relative; box-shadow: var(--shadow-lg); }
+.modal-close { position: absolute; top: 16px; right: 18px; background: transparent; border: none; color: var(--dim); cursor: pointer; font-size: 20px; line-height: 1; transition: color 0.2s; }
+.modal-close:hover { color: var(--navy); }
+.modal-logo { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--navy); text-align: center; margin-bottom: 4px; }
+.modal-logo span { color: var(--teal); font-style: italic; }
 .modal-sub { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 24px; }
-.modal-tabs {
-  display: flex; background: rgba(255,255,255,0.04);
-  border-radius: 10px; padding: 3px; margin-bottom: 22px; gap: 3px;
-}
-.mtab {
-  flex: 1; padding: 8px; border-radius: 8px; border: none;
-  background: transparent; color: var(--dim);
-  font-size: 13px; font-weight: 500; cursor: pointer;
-  font-family: var(--font-body); transition: all 0.2s;
-}
-.mtab.active { background: var(--surface2); color: var(--white); }
+.modal-tabs { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 22px; gap: 3px; }
+.mtab { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--dim); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; }
+.mtab.active { background: var(--white); color: var(--navy); box-shadow: var(--shadow-sm); }
 .form-group { margin-bottom: 14px; }
-.form-label {
-  display: block; font-size: 11px; font-weight: 600;
-  color: var(--muted); margin-bottom: 5px;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.form-input {
-  width: 100%; background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: 11px 14px; color: var(--white);
-  font-size: 14px; font-family: var(--font-body);
-  outline: none; transition: border-color 0.2s;
-}
-.form-input:focus { border-color: var(--gold-border); }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.08em; }
+.form-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 11px 14px; color: var(--navy); font-size: 14px; font-family: var(--font-body); outline: none; transition: border-color 0.2s; }
+.form-input:focus { border-color: var(--teal); background: var(--white); }
 .form-input::placeholder { color: var(--dim); }
-.btn-auth {
-  width: 100%; padding: 13px;
-  background: var(--gold); color: #07090F;
-  border: none; border-radius: 8px;
-  font-weight: 700; font-size: 15px; cursor: pointer;
-  font-family: var(--font-body); transition: all 0.2s; margin-top: 4px;
-}
-.btn-auth:hover { background: var(--gold2); }
+.btn-auth { width: 100%; padding: 13px; background: var(--teal); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; margin-top: 4px; }
+.btn-auth:hover { background: var(--teal-dark); }
 .btn-auth:disabled { background: var(--dim); cursor: not-allowed; }
-.divider {
-  display: flex; align-items: center;
-  gap: 12px; margin: 16px 0; font-size: 12px; color: var(--dim);
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
-.btn-google {
-  width: 100%; padding: 11px;
-  background: rgba(255,255,255,0.05);
-  color: var(--white); border: 1px solid var(--border);
-  border-radius: 8px; font-weight: 500; font-size: 14px;
-  cursor: pointer; font-family: var(--font-body);
-  transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.btn-google:hover { border-color: var(--dim); background: rgba(255,255,255,0.08); }
-.auth-msg {
-  padding: 10px 12px; border-radius: 8px;
-  font-size: 13px; margin-bottom: 14px; display: none;
-}
-.auth-msg.error { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
-.auth-msg.success { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(0,201,167,0.2); }
-@keyframes spin2 { to { transform: rotate(360deg); } }
-.spinner {
-  width: 15px; height: 15px;
-  border: 2px solid rgba(7,9,15,0.3);
-  border-top-color: #07090F;
-  border-radius: 50%; animation: spin2 0.6s linear infinite;
-  display: inline-block; vertical-align: middle; margin-right: 6px;
-}
+.divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; font-size: 12px; color: var(--dim); }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.btn-google { width: 100%; padding: 11px; background: var(--white); color: var(--navy); border: 1.5px solid var(--border); border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+.btn-google:hover { border-color: var(--navy); background: var(--bg); }
+.btn-apple { width: 100%; padding: 11px; background: var(--navy); color: #fff; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-apple:hover { background: var(--navy2); }
+.auth-msg { padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+.auth-msg.error { background: #FEF2F2; color: var(--red); border: 1px solid #FECACA; }
+.auth-msg.success { background: var(--teal-light); color: var(--teal-dark); border: 1px solid var(--teal-border); }
+.spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+.auth-verify { text-align: center; padding: 20px 0; }
+.auth-verify-icon { font-size: 48px; margin-bottom: 16px; }
+.auth-verify-title { font-family: var(--font-head); font-size: 22px; font-style: italic; color: var(--navy); margin-bottom: 8px; }
+.auth-verify-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-/* MOBILE */
-@media (max-width: 900px) {
+@media(max-width:960px) {
   nav { padding: 0 20px; }
-  .hero { padding: 100px 20px 60px; }
-  .pain-cards { grid-template-columns: 1fr; max-width: 420px; }
-  .vera-section { grid-template-columns: 1fr; padding: 60px 20px; gap: 48px; }
-  .how-section, .features-section .features-inner, .proof-inner, .pricing-inner { padding-left: 0; padding-right: 0; }
-  .how-section, .proof-section, .pricing-section, .features-section { padding: 60px 20px; }
-  .steps { grid-template-columns: 1fr; }
-  .steps::before { display: none; }
-  .feat-grid { grid-template-columns: 1fr; }
-  .feat-wide { grid-column: span 1; }
-  .feat:first-child, .feat:nth-child(3), .feat:nth-child(4), .feat:last-child { border-radius: 16px; }
-  .proof-grid { grid-template-columns: 1fr; }
-  .stats-inner { grid-template-columns: repeat(2, 1fr); }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .final-cta { padding: 80px 20px; }
+  .hero { grid-template-columns: 1fr; padding: 100px 20px 60px; gap: 48px; }
+  .vera-section .vera-inner { grid-template-columns: 1fr; padding: 0; gap: 48px; }
+  .pain-section, .how-section, .vera-section, .features-section, .proof-section, .pricing-section, .final-section { padding: 60px 20px; }
+  .pain-grid, .feat-grid, .proof-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .feat.wide { grid-column: span 1; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .steps-grid::before { display: none; }
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .privacy-grid { grid-template-columns: 1fr; }
   footer { padding: 24px 20px; flex-direction: column; text-align: center; }
-  .pain-section { padding: 60px 20px; }
 }
 </style>
 </head>
@@ -765,33 +501,53 @@ footer {
 <nav id="nav">
   <div class="nav-logo">Sum <span>Goals</span></div>
   <div class="nav-right">
-    <button class="btn-nav-signin" onclick="openAuth('login')">Sign in</button>
+    <button class="btn-nav-in" onclick="openAuth('login')">Sign in</button>
     <button class="btn-nav-start" onclick="openAuth('signup')">Get started free</button>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div class="hero-eyebrow">
-    <div class="hero-eyebrow-dot"></div>
-    Personal Financial Coaching
-  </div>
-  <h1 class="hero-h1">
-    The financial coach<br>
-    <em>you never had. Now you do.</em>
-  </h1>
-  <p class="hero-sub">
-    Meet <strong>Vera</strong> — the personal financial coach that costs $300/hour to hire, now available to you for $9/month. She speaks your language, knows your situation, and tells you exactly what to do.
-  </p>
-  <div class="hero-cta">
-    <button class="btn-hero" onclick="openAuth('signup')">Meet Vera — it's free to start</button>
-    <div class="hero-trust">
-      <div class="ht"><div class="ht-dot"></div>No credit card required</div>
-      <div class="ht"><div class="ht-dot"></div>150+ currencies</div>
-      <div class="ht"><div class="ht-dot"></div>50+ languages</div>
-      <div class="ht"><div class="ht-dot"></div>No ads ever</div>
+<section style="padding-top:64px;background:var(--bg)">
+  <div class="hero" style="min-height:calc(100vh - 64px)">
+    <div class="hero-left">
+      <div class="hero-badge"><div class="hero-badge-dot"></div>Personal Financial Coaching</div>
+      <h1 class="hero-h1">The financial coach<br>you never had.<br><em>Now you do.</em></h1>
+      <p class="hero-sub">Meet <strong>Vera</strong> — honest, caring, strict when needed. She speaks your language, knows your complete situation, and tells you exactly what to do. No judgment. No generic advice. Just the truth.</p>
+      <div class="hero-cta">
+        <button class="btn-hero" onclick="openAuth('signup')">Talk to Vera — it's free</button>
+        <div class="hero-note"><div class="hero-note-dot"></div>No credit card needed · Try before you sign up</div>
+        <div class="hero-trust">
+          <div class="ht"><div class="ht-check">✓</div>150+ currencies</div>
+          <div class="ht"><div class="ht-check">✓</div>50+ languages</div>
+          <div class="ht"><div class="ht-check">✓</div>No bank connection</div>
+          <div class="ht"><div class="ht-check">✓</div>No ads ever</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="vera-card">
+        <div class="vc-top">
+          <div class="vc-vera">
+            <div class="vc-av">V</div>
+            <div>
+              <div class="vc-name">Vera</div>
+              <div class="vc-status"><div class="vc-status-dot"></div>Your financial coach · Active now</div>
+            </div>
+          </div>
+          <div class="vc-secure">🔒 Private</div>
+        </div>
+        <div class="vc-body">
+          <div class="vc-msg vera">Good morning. I have been looking at your numbers. You have <strong>$2,000 available every month</strong> — but it disappears before payday. I know why. Want me to show you?</div>
+          <div class="vc-msg user">Yes — I never know where it goes</div>
+          <div class="vc-msg vera">I thought so. Your dining out and subscriptions are taking <strong>$680/month</strong> you do not notice. That is <strong>$8,160 per year</strong>. If we redirect just half of that — your credit card is gone in <strong>11 months</strong>. Shall we build the plan?</div>
+          <div class="vc-typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
+        </div>
+        <div class="vc-metrics">
+          <div class="vc-metric"><div class="vc-metric-label">Health Score</div><div class="vc-metric-val gold">68/100</div></div>
+          <div class="vc-metric"><div class="vc-metric-label">Debt free in</div><div class="vc-metric-val teal">11 mo</div></div>
+          <div class="vc-metric"><div class="vc-metric-label">Monthly save</div><div class="vc-metric-val">$340</div></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -799,133 +555,139 @@ footer {
 <!-- MARQUEE -->
 <div class="marquee-wrap">
   <div class="marquee-track">
-    <div class="mq-item"><div class="mq-sep"></div>Meet Vera your coach</div>
-    <div class="mq-item"><div class="mq-sep"></div>Goal DNA roadmap</div>
-    <div class="mq-item"><div class="mq-sep"></div>Debt elimination plan</div>
-    <div class="mq-item"><div class="mq-sep"></div>Payday survival plan</div>
-    <div class="mq-item"><div class="mq-sep"></div>150+ currencies</div>
-    <div class="mq-item"><div class="mq-sep"></div>50+ languages</div>
-    <div class="mq-item"><div class="mq-sep"></div>Conversation memory</div>
-    <div class="mq-item"><div class="mq-sep"></div>Downloadable roadmaps</div>
-    <div class="mq-item"><div class="mq-sep"></div>No bank connection needed</div>
-    <div class="mq-item"><div class="mq-sep"></div>Built for immigrants</div>
-    <div class="mq-item"><div class="mq-sep"></div>Meet Vera your coach</div>
-    <div class="mq-item"><div class="mq-sep"></div>Goal DNA roadmap</div>
-    <div class="mq-item"><div class="mq-sep"></div>Debt elimination plan</div>
-    <div class="mq-item"><div class="mq-sep"></div>Payday survival plan</div>
-    <div class="mq-item"><div class="mq-sep"></div>150+ currencies</div>
-    <div class="mq-item"><div class="mq-sep"></div>50+ languages</div>
-    <div class="mq-item"><div class="mq-sep"></div>Conversation memory</div>
-    <div class="mq-item"><div class="mq-sep"></div>Downloadable roadmaps</div>
-    <div class="mq-item"><div class="mq-sep"></div>No bank connection needed</div>
-    <div class="mq-item"><div class="mq-sep"></div>Built for immigrants</div>
+    <div class="mq-item"><div class="mq-dot"></div>Vera remembers everything</div>
+    <div class="mq-item"><div class="mq-dot"></div>Goal DNA roadmap</div>
+    <div class="mq-item"><div class="mq-dot"></div>Debt elimination plan</div>
+    <div class="mq-item"><div class="mq-dot"></div>Payday survival plan</div>
+    <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>No bank connection needed</div>
+    <div class="mq-item"><div class="mq-dot"></div>No ads ever</div>
+    <div class="mq-item"><div class="mq-dot"></div>Email verified · Secure</div>
+    <div class="mq-item"><div class="mq-dot"></div>Built for real people</div>
+    <div class="mq-item"><div class="mq-dot"></div>Vera remembers everything</div>
+    <div class="mq-item"><div class="mq-dot"></div>Goal DNA roadmap</div>
+    <div class="mq-item"><div class="mq-dot"></div>Debt elimination plan</div>
+    <div class="mq-item"><div class="mq-dot"></div>Payday survival plan</div>
+    <div class="mq-item"><div class="mq-dot"></div>150+ currencies</div>
+    <div class="mq-item"><div class="mq-dot"></div>50+ languages</div>
+    <div class="mq-item"><div class="mq-dot"></div>No bank connection needed</div>
+    <div class="mq-item"><div class="mq-dot"></div>No ads ever</div>
+    <div class="mq-item"><div class="mq-dot"></div>Email verified · Secure</div>
+    <div class="mq-item"><div class="mq-dot"></div>Built for real people</div>
   </div>
 </div>
 
-<!-- PAIN SECTION -->
+<!-- PRIVACY -->
+<div class="privacy-section reveal">
+  <div class="privacy-inner">
+    <div class="privacy-icon">🔒</div>
+    <h2 class="privacy-h">Your privacy is <span>sacred.</span></h2>
+    <p class="privacy-sub">Before Vera asks you anything — here is our promise to you. We know that talking about money requires trust. We take that seriously.</p>
+    <div class="privacy-grid">
+      <div class="privacy-item"><div class="privacy-item-icon">🏦</div><div><div class="privacy-item-title">We never connect to your bank</div><div class="privacy-item-desc">Vera only knows what you tell her. We cannot see your accounts, transactions, or balance.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon">🚫</div><div><div class="privacy-item-title">We never sell your data</div><div class="privacy-item-desc">Your financial information is never shared with advertisers, banks, or any third party. Ever.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon">🔐</div><div><div class="privacy-item-title">Everything is encrypted</div><div class="privacy-item-desc">Your data is encrypted at rest and in transit. Only you and Vera can see your information.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon">🗑️</div><div><div class="privacy-item-title">Delete anytime</div><div class="privacy-item-desc">You can delete your account and all your data at any time. No questions asked.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAIN -->
 <section class="pain-section">
-  <div class="pain-line"></div>
-  <div class="pain-label reveal">The financial reality most people face</div>
-  <h2 class="pain-h reveal">
-    You are not bad with money.<br>
-    You just never had a <span>real plan.</span>
-  </h2>
-  <div class="pain-cards reveal">
-    <div class="pain-card">
-      <div class="pain-card-num">78%</div>
-      <div class="pain-card-text">
-        <strong>Live paycheck to paycheck</strong>
-        Even with a decent salary — the money disappears and you never know where it went.
+  <div class="pain-inner">
+    <div class="section-label reveal">The reality most people face</div>
+    <h2 class="section-h reveal">You are not bad with money.<br>You just never had <em>a real plan.</em></h2>
+    <p class="section-sub reveal">The financial taboo is universal. Nobody talks about money. Nobody asks for help. And most people suffer in silence — unnecessarily.</p>
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="pain-card-accent"></div>
+        <div class="pain-num">78%</div>
+        <div class="pain-title">Live paycheck to paycheck</div>
+        <div class="pain-desc">Even with a decent salary — the money disappears and nobody knows where it went. This is not a discipline problem. It is a planning problem.</div>
       </div>
-    </div>
-    <div class="pain-card">
-      <div class="pain-card-num">$6K</div>
-      <div class="pain-card-text">
-        <strong>Average credit card debt</strong>
-        Interest eats hundreds every month. It feels impossible to escape. But it is not.
+      <div class="pain-card reveal reveal-delay1">
+        <div class="pain-card-accent"></div>
+        <div class="pain-num">$6K</div>
+        <div class="pain-title">Average credit card debt</div>
+        <div class="pain-desc">Interest eats hundreds every month. It feels impossible to escape. But with the right strategy — most people can be debt free in under 2 years.</div>
       </div>
-    </div>
-    <div class="pain-card">
-      <div class="pain-card-num">$300</div>
-      <div class="pain-card-text">
-        <strong>Per hour — a real coach costs</strong>
-        Most people never get one. Vera gives you that same expertise for $9/month.
+      <div class="pain-card reveal reveal-delay2">
+        <div class="pain-card-accent"></div>
+        <div class="pain-num">$300</div>
+        <div class="pain-title">Per hour — a real coach costs</div>
+        <div class="pain-desc">Most people never get access to real financial coaching. It has always been a privilege for the wealthy. Vera changes that for everyone.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- VERA INTRO -->
-<div style="padding: 0 48px; border-top: 1px solid var(--border)">
-  <div class="vera-section">
-    <div class="vera-left reveal">
-      <div class="vera-badge">Your personal coach</div>
-      <h2 class="vera-h">Meet <span>Vera.</span><br>She tells you the truth.</h2>
-      <p class="vera-desc">
-        Vera is not a chatbot. She is a <strong>strict, caring financial coach</strong> with decades of experience guiding people from financial chaos to real freedom. She remembers your situation, speaks your language, and never gives generic advice.
-      </p>
-      <p class="vera-desc">
-        She celebrates when you win. She calls you out when you fall behind. Like a great fitness coach — but for your money.
-      </p>
-      <div class="vera-stats">
-        <div class="vstat"><div class="vstat-num">24/7</div><div class="vstat-label">Always available</div></div>
-        <div class="vstat"><div class="vstat-num">150+</div><div class="vstat-label">Currencies</div></div>
-        <div class="vstat"><div class="vstat-num">50+</div><div class="vstat-label">Languages</div></div>
-      </div>
-    </div>
-    <div class="reveal">
-      <div class="vera-chat">
-        <div class="vc-header">
-          <div class="vc-av">V</div>
-          <div>
-            <div class="vc-name">Vera</div>
-            <div class="vc-status"><div class="vc-status-dot"></div>Active now</div>
-          </div>
-        </div>
-        <div class="vc-body">
-          <div class="vc-msg user">I make $3,400/month. $9,200 in credit card debt. $180 in savings. I feel stuck.</div>
-          <div class="vc-msg vera">
-            You are not stuck — you just never had a real plan. I can see your situation clearly.<br><br>
-            You have roughly <strong>$600-800 available</strong> each month. That is enough to change everything in under a year.<br><br>
-            <strong>Your 3 moves starting this week:</strong><br>
-            → $500/month to your highest-rate card<br>
-            → $150/month to emergency fund<br>
-            → Track every expense for 30 days<br><br>
-            At this rate — <strong>debt free in 14 months.</strong> What is your biggest monthly expense?
-          </div>
-          <div class="vc-typing">
-            <div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- HOW IT WORKS -->
 <section class="how-section">
-  <div class="section-label reveal">Simple process</div>
-  <h2 class="section-h reveal">How Sum Goals <span>works.</span></h2>
-  <p class="section-sub reveal">Three steps. Five minutes. A complete financial coaching experience unlike anything you have tried before.</p>
-  <div class="steps reveal">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-title">Tell Vera your situation</div>
-      <p class="step-desc">A 5-minute onboarding where Vera asks the right questions about your income, expenses, debt, and goals. No forms. No spreadsheets. Just a real conversation.</p>
+  <div class="how-inner">
+    <div class="section-label reveal">Simple process</div>
+    <h2 class="section-h reveal">Three steps.<br><em>One transformation.</em></h2>
+    <p class="section-sub reveal">No complicated setup. No bank connection. No spreadsheets. Just a real conversation with Vera.</p>
+    <div class="steps-grid">
+      <div class="step reveal">
+        <div class="step-circle">1</div>
+        <div class="step-title">Tell Vera your situation</div>
+        <p class="step-desc">A complete first coaching session. Vera asks every question a real financial coach asks — income, expenses, debt, goals, fears. You answer honestly. Everything stays private.</p>
+      </div>
+      <div class="step reveal reveal-delay1">
+        <div class="step-circle">2</div>
+        <div class="step-title">Get your honest assessment</div>
+        <p class="step-desc">Vera analyzes your complete picture and tells you the truth — not what you want to hear, but what you need to hear. With specific numbers and a clear path forward.</p>
+      </div>
+      <div class="step reveal reveal-delay2">
+        <div class="step-circle">3</div>
+        <div class="step-title">Follow the plan. Vera watches.</div>
+        <p class="step-desc">Every session continues where you left off. Vera remembers everything. She celebrates wins, asks about slipping, and adjusts when life happens. Like a real coach.</p>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-title">Get your honest assessment</div>
-      <p class="step-desc">Vera analyzes everything and gives you a Financial Health Score with a specific plan. Not generic advice — your exact numbers, your exact situation, your exact next steps.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-title">Follow the plan. Vera watches.</div>
-      <p class="step-desc">Vera remembers everything. Every session continues where you left off. She celebrates wins, calls out slipping, and adjusts the plan when life happens.</p>
+    <div style="text-align:center;margin-top:48px" class="reveal">
+      <button class="btn-hero" onclick="openAuth('signup')">Start my first session →</button>
+      <div style="font-size:12px;color:var(--dim);margin-top:12px">No account needed to start · Sign up only when you are ready</div>
     </div>
   </div>
-  <div style="text-align:center;margin-top:48px" class="reveal">
-    <button class="btn-hero" onclick="openAuth('signup')" style="font-size:15px;padding:14px 36px">Start my 5-minute session →</button>
+</section>
+
+<!-- VERA INTRO -->
+<section class="vera-section">
+  <div class="vera-inner">
+    <div class="reveal">
+      <div class="vera-quote">
+        <div class="vera-quote-text">"I was $14,000 in debt and too ashamed to tell anyone. Vera was the first one I could be completely honest with. <strong>She built me a plan and I followed it. 14 months later — debt free.</strong>"</div>
+        <div class="vera-quote-author"><div class="vera-quote-av" style="background:var(--teal)">M</div><div><div class="vera-quote-name">Maria R.</div><div class="vera-quote-loc">Houston, Texas · USD</div></div></div>
+      </div>
+      <div class="vera-quote">
+        <div class="vera-quote-text">"Vera me habló en español y entendió exactamente mi situación — enviando dinero a casa y sin poder ahorrar. <strong>Por fin alguien que entiende mi vida real.</strong>"</div>
+        <div class="vera-quote-author"><div class="vera-quote-av" style="background:var(--gold)">C</div><div><div class="vera-quote-name">Carlos M.</div><div class="vera-quote-loc">México · MXN</div></div></div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay1">
+      <div class="section-label">Meet your coach</div>
+      <h2 class="vera-h">Vera. Honest.<br>Caring. <em>Strict.</em></h2>
+      <p class="vera-desc">Vera is not a chatbot that gives generic tips. She is a <strong>financial coach who knows your complete situation</strong> and speaks to your reality — not a textbook scenario.</p>
+      <div class="vera-traits">
+        <div class="vera-trait">
+          <div class="vera-trait-icon">💬</div>
+          <div><div class="vera-trait-title">She remembers everything</div><div class="vera-trait-desc">Every session continues where you left off. Vera knows your income, your debts, your fears, your dreams. You never repeat yourself.</div></div>
+        </div>
+        <div class="vera-trait">
+          <div class="vera-trait-icon">🎯</div>
+          <div><div class="vera-trait-title">She tells the truth</div><div class="vera-trait-desc">Vera does not sell dreams. If your goal is not realistic today she tells you — and then shows you the real path to get there.</div></div>
+        </div>
+        <div class="vera-trait">
+          <div class="vera-trait-icon">🌍</div>
+          <div><div class="vera-trait-title">She speaks your language</div><div class="vera-trait-desc">Spanish, French, Arabic, English, Portuguese and 45 more. 150+ currencies. Vera understands your world — not just the American one.</div></div>
+        </div>
+        <div class="vera-trait">
+          <div class="vera-trait-icon">🔥</div>
+          <div><div class="vera-trait-title">She holds you accountable</div><div class="vera-trait-desc">Like a great fitness coach — she celebrates when you win and asks hard questions when you slip. That accountability is what makes the difference.</div></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -933,35 +695,35 @@ footer {
 <section class="features-section">
   <div class="features-inner">
     <div class="section-label reveal">What you get</div>
-    <h2 class="section-h reveal">Four tools. <span>One transformation.</span></h2>
-    <p class="section-sub reveal">We removed everything that was not essential. What remains is exactly what works.</p>
+    <h2 class="section-h reveal">Four tools built around<br><em>one purpose.</em></h2>
+    <p class="section-sub reveal">Relief from financial anxiety. The feeling of finally having someone on your backup.</p>
     <div class="feat-grid reveal">
-      <div class="feat feat-wide">
-        <div class="feat-icon">🎯</div>
+      <div class="feat wide">
+        <div class="feat-icon">🗺️</div>
         <div class="feat-title">Goal DNA — Your complete financial roadmap</div>
-        <div class="feat-desc">Tell Vera your dream — a house, car, wedding, business. She runs a complete 4-step financial DNA scan and builds an exact month-by-month plan. Growth charts, 3 realistic scenarios, what-if slider, and Vera's honest master analysis. Nothing like this exists anywhere else.</div>
-        <span class="feat-tag">Exclusive — nowhere else</span>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">💬</div>
-        <div class="feat-title">Vera — The coach who remembers</div>
-        <div class="feat-desc">Every conversation saved. Every number remembered. Vera knows your full story and picks up exactly where you left off — every single time.</div>
-        <span class="feat-tag">Multilingual · 50+ languages</span>
+        <div class="feat-desc">You tell Vera your dream — a house, car, business, wedding. She runs a complete 4-step financial DNA scan and builds an exact month-by-month plan to get you there. Not a generic calculator — a personalized roadmap based on your real numbers with 3 scenarios and a what-if slider. Vera suggests this at the right moment — when she knows you are ready.</div>
+        <span class="feat-tag">Exclusive — nowhere else on the market</span>
       </div>
       <div class="feat">
         <div class="feat-icon">⏳</div>
         <div class="feat-title">Debt Countdown</div>
-        <div class="feat-desc">The exact date you will be debt free. Visual progress. Vera reacts to every payment — celebrates extra payments, asks about missed ones.</div>
+        <div class="feat-desc">Every debt listed separately. Vera builds the right strategy — snowball or avalanche — based on your specific situation. The exact date you will be free. She reacts to every payment you make.</div>
       </div>
       <div class="feat">
         <div class="feat-icon">📅</div>
         <div class="feat-title">Payday Survival Plan</div>
-        <div class="feat-desc">Every payday, Vera tells you exactly what to do in the next 24 hours. What to transfer. What to pay first. Your daily budget for the month.</div>
+        <div class="feat-desc">When your salary arrives Vera tells you exactly what to do in the next 24 hours — what to pay first, what to transfer, your daily budget. When money is tight she activates survival mode.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">💬</div>
+        <div class="feat-title">Talk to Vera — anytime</div>
+        <div class="feat-desc">Your private coaching session. Available 24/7. Vera knows your complete history and picks up exactly where you left off. Every conversation saved.</div>
+        <span class="feat-tag">Conversation history saved</span>
       </div>
       <div class="feat">
         <div class="feat-icon">⬇️</div>
-        <div class="feat-title">Downloadable Roadmaps</div>
-        <div class="feat-desc">Every plan Vera builds can be downloaded as a document. Your personal financial roadmap — yours to keep and share.</div>
+        <div class="feat-title">Downloadable roadmaps</div>
+        <div class="feat-desc">Every plan Vera builds can be downloaded as a document. Your personal financial roadmap — yours to keep, print, and share.</div>
         <span class="feat-tag">Pro feature</span>
       </div>
     </div>
@@ -969,8 +731,8 @@ footer {
 </section>
 
 <!-- STATS -->
-<div class="stats-strip">
-  <div class="stats-inner reveal">
+<div class="stats-section reveal">
+  <div class="stats-inner">
     <div><div class="stat-num">150+</div><div class="stat-label">Currencies supported</div></div>
     <div><div class="stat-num">50+</div><div class="stat-label">Languages available</div></div>
     <div><div class="stat-num">$0</div><div class="stat-label">To start today</div></div>
@@ -982,41 +744,23 @@ footer {
 <section class="proof-section">
   <div class="proof-inner">
     <div class="section-label reveal">Real stories</div>
-    <h2 class="section-h reveal">Real people.<br><span>Real transformation.</span></h2>
-    <p class="section-sub reveal">From Texas to Morocco to Mexico City. Vera works everywhere.</p>
-    <div class="proof-grid reveal">
-      <div class="proof-card">
+    <h2 class="section-h reveal">Real people.<br><em>Real transformation.</em></h2>
+    <p class="section-sub reveal">From Texas to Morocco to Mexico City. Vera works everywhere — in every language, every currency, every situation.</p>
+    <div class="proof-grid">
+      <div class="proof-card reveal">
         <div class="proof-stars">★★★★★</div>
-        <p class="proof-text">"The Payday Survival Plan alone changed everything. I used to panic after payday. Now Vera tells me exactly what to do. <strong>Saved $380 in my first month.</strong> Never saved anything before."</p>
-        <div class="proof-author">
-          <div class="proof-av" style="background:var(--green)">M</div>
-          <div>
-            <div class="proof-name">Maria R.</div>
-            <div class="proof-loc">Houston, Texas · USD</div>
-          </div>
-        </div>
+        <p class="proof-text">"I was too ashamed to talk to anyone about my money. With Vera I could finally be honest. She never judged me. <strong>She just told me what to do. I followed it. $14,000 debt — gone in 14 months.</strong>"</p>
+        <div class="proof-author"><div class="proof-av" style="background:var(--teal)">M</div><div><div class="proof-name">Maria R.</div><div class="proof-loc">Houston, Texas · USD</div></div></div>
       </div>
-      <div class="proof-card">
+      <div class="proof-card reveal reveal-delay1">
         <div class="proof-stars">★★★★★</div>
-        <p class="proof-text">"Vera en español con pesos. Finalmente alguien que entiende mi situación real. <strong>Pagué $31,000 MXN de deuda en 4 meses</strong> siguiendo exactamente lo que me dijo."</p>
-        <div class="proof-author">
-          <div class="proof-av" style="background:var(--teal)">C</div>
-          <div>
-            <div class="proof-name">Carlos M.</div>
-            <div class="proof-loc">Ciudad de México · MXN</div>
-          </div>
-        </div>
+        <p class="proof-text">"Vera en español con pesos mexicanos. Por fin alguien que entiende que envío dinero a mi familia y que eso cambia todo. <strong>Pagué $31,000 MXN de deuda en 4 meses.</strong>"</p>
+        <div class="proof-author"><div class="proof-av" style="background:var(--gold)">C</div><div><div class="proof-name">Carlos M.</div><div class="proof-loc">Ciudad de México · MXN</div></div></div>
       </div>
-      <div class="proof-card">
+      <div class="proof-card reveal reveal-delay2">
         <div class="proof-stars">★★★★★</div>
-        <p class="proof-text">"تكلمت مع فيرا بالعربية وفهمت وضعي تماماً بدون أي حكم. <strong>أول مرة في حياتي عندي مدخرات حقيقية.</strong> شكراً فيرا."</p>
-        <div class="proof-author">
-          <div class="proof-av" style="background:var(--gold)">Y</div>
-          <div>
-            <div class="proof-name">Youssef A.</div>
-            <div class="proof-loc">Casablanca · MAD</div>
-          </div>
-        </div>
+        <p class="proof-text">"تكلمت مع فيرا بالعربية وكانت صريحة معي تماماً. أخبرتني بالحقيقة وليس ما أريد سماعه. <strong>أول مرة في حياتي عندي مدخرات حقيقية.</strong>"</p>
+        <div class="proof-author"><div class="proof-av" style="background:var(--navy)">Y</div><div><div class="proof-name">Youssef A.</div><div class="proof-loc">Casablanca · MAD</div></div></div>
       </div>
     </div>
   </div>
@@ -1026,8 +770,8 @@ footer {
 <section class="pricing-section" id="pricing">
   <div class="pricing-inner">
     <div class="section-label reveal">Simple pricing</div>
-    <h2 class="section-h reveal">Less than a coffee.<br><span>More powerful than any advisor.</span></h2>
-    <p class="section-sub reveal">Start free. Upgrade when you are ready. Cancel anytime. No tricks.</p>
+    <h2 class="section-h reveal">Less than a coffee.<br><em>More powerful than any advisor.</em></h2>
+    <p class="section-sub reveal">Start completely free. No credit card. No bank connection. Upgrade when you see the value — and you will.</p>
     <div class="pricing-grid reveal">
       <div class="plan">
         <div class="plan-tier">Starter</div>
@@ -1040,26 +784,27 @@ footer {
           <li class="plan-item">150+ currencies · 50+ languages</li>
           <li class="plan-item off">Full Goal DNA roadmap</li>
           <li class="plan-item off">Unlimited Vera sessions</li>
+          <li class="plan-item off">Conversation history saved</li>
           <li class="plan-item off">Downloadable roadmaps</li>
         </ul>
-        <button class="btn-plan free" onclick="openAuth('signup')">Create free account</button>
+        <button class="btn-plan free" onclick="openAuth('signup')">Start free — no card needed</button>
       </div>
       <div class="plan featured">
         <div class="plan-badge">Most popular</div>
         <div class="plan-tier">Pro</div>
         <div class="plan-price-old">$9/month</div>
-        <div class="plan-price gold">$1<sub>/first month</sub></div>
+        <div class="plan-price">$1<sub>/first month</sub></div>
         <div class="plan-cycle">then $9/month · cancel anytime</div>
         <ul class="plan-items">
           <li class="plan-item">Everything in Starter</li>
           <li class="plan-item">Unlimited Vera sessions</li>
           <li class="plan-item">Full Goal DNA roadmap</li>
-          <li class="plan-item">Debt Countdown tracker</li>
-          <li class="plan-item">Payday Survival Plan</li>
-          <li class="plan-item">Conversation history saved</li>
+          <li class="plan-item">Complete debt countdown</li>
+          <li class="plan-item">Payday survival plan</li>
+          <li class="plan-item">Full conversation history</li>
           <li class="plan-item">Downloadable roadmaps</li>
         </ul>
-        <button class="btn-plan pro" onclick="handleUpgrade('pro')">Start for $1 — first month</button>
+        <button class="btn-plan pro" onclick="handleUpgrade('pro')">Start for $1 — first month only</button>
       </div>
       <div class="plan">
         <div class="plan-tier">Lifetime</div>
@@ -1068,7 +813,7 @@ footer {
         <ul class="plan-items">
           <li class="plan-item">Everything in Pro</li>
           <li class="plan-item">Pay once — use forever</li>
-          <li class="plan-item">All future features</li>
+          <li class="plan-item">All future features included</li>
           <li class="plan-item">No monthly fees ever</li>
         </ul>
         <button class="btn-plan life" onclick="handleUpgrade('lifetime')">Own it forever — $29</button>
@@ -1078,29 +823,19 @@ footer {
 </section>
 
 <!-- FINAL CTA -->
-<section class="final-cta">
-  <div class="final-cta-bg"></div>
-  <h2 class="final-h reveal">
-    The financial coach<br>you never had.<br><em>Now you do.</em>
-  </h2>
-  <p class="final-sub reveal">
-    Join thousands of people who stopped worrying and started winning — with Vera by their side.
-  </p>
-  <button class="btn-hero reveal" onclick="openAuth('signup')" style="font-size:16px;padding:16px 48px">
-    Meet Vera — free to start
-  </button>
-  <p class="final-note reveal">No credit card · No bank connection · 5 minutes to your first plan</p>
+<section class="final-section">
+  <div class="final-bg"></div>
+  <h2 class="final-h reveal">Finally someone<br>on your backup.<br><em>That is Vera.</em></h2>
+  <p class="final-sub reveal">Join people around the world who stopped worrying about money — because they finally have someone honest in their corner.</p>
+  <button class="btn-hero reveal" onclick="openAuth('signup')" style="font-size:16px;padding:16px 48px">Talk to Vera — it's free</button>
+  <p class="final-note reveal">No credit card · No bank connection · Your privacy is protected</p>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="foot-logo">Sum <span>Goals</span></div>
   <div class="foot-copy">© 2026 Sum Goals. Built for everyone, everywhere. No ads. Ever.</div>
-  <div class="foot-links">
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="#">Support</a>
-  </div>
+  <div class="foot-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Support</a></div>
 </footer>
 
 <!-- AUTH MODAL -->
@@ -1108,49 +843,40 @@ footer {
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()">×</button>
     <div class="modal-logo">Sum <span>Goals</span></div>
-    <div class="modal-sub" id="modalSub">Meet Vera and start your transformation</div>
-    <div class="modal-tabs">
-      <button class="mtab active" id="tabSignup" onclick="switchTab('signup')">Create account</button>
-      <button class="mtab" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+    <div class="modal-sub" id="modalSub">Meet Vera — your financial coach</div>
+    <div id="verifyView" class="auth-verify" style="display:none">
+      <div class="auth-verify-icon">📧</div>
+      <div class="auth-verify-title">Check your email</div>
+      <div class="auth-verify-sub">We sent a verification link to <strong id="verifyEmail"></strong>. Click the link to confirm your account and Vera will be ready for you.</div>
     </div>
-    <div class="auth-msg error" id="authError"></div>
-    <div class="auth-msg success" id="authSuccess"></div>
-    <div id="signupForm">
-      <div class="form-group">
-        <label class="form-label">Full name</label>
-        <input class="form-input" id="sName" type="text" placeholder="Your name">
+    <div id="authView">
+      <div class="modal-tabs">
+        <button class="mtab active" id="tabSignup" onclick="switchTab('signup')">Create account</button>
+        <button class="mtab" id="tabLogin" onclick="switchTab('login')">Sign in</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="sEmail" type="email" placeholder="you@email.com">
+      <div class="auth-msg error" id="authError"></div>
+      <div class="auth-msg success" id="authSuccess"></div>
+      <div id="signupForm">
+        <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="sName" type="text" placeholder="Your name"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="sEmail" type="email" placeholder="you@email.com"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="sPass" type="password" placeholder="Min 8 characters"></div>
+        <button class="btn-auth" id="signupBtn" onclick="doSignup()">Create my free account</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="sPass" type="password" placeholder="Min 8 characters">
+      <div id="loginForm" style="display:none">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="lEmail" type="email" placeholder="you@email.com"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="lPass" type="password" placeholder="Your password"></div>
+        <button class="btn-auth" id="loginBtn" onclick="doLogin()">Sign in to my account</button>
       </div>
-      <button class="btn-auth" id="signupBtn" onclick="doSignup()">Create my free account</button>
+      <div class="divider">or continue with</div>
+      <button class="btn-google" onclick="doGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <button class="btn-apple" onclick="doApple()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Continue with Apple
+      </button>
     </div>
-    <div id="loginForm" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="lEmail" type="email" placeholder="you@email.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="lPass" type="password" placeholder="Your password">
-      </div>
-      <button class="btn-auth" id="loginBtn" onclick="doLogin()">Sign in to my account</button>
-    </div>
-    <div class="divider">or</div>
-    <button class="btn-google" onclick="doGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Continue with Google
-    </button>
   </div>
 </div>
 
@@ -1160,29 +886,25 @@ const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const { createClient } = supabase;
 const sb = createClient(SURL, SKEY);
 
-// Check if already logged in
 async function checkAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) window.location.href = '/dashboard.html';
+  var r = await sb.auth.getSession();
+  if (r.data.session) window.location.href = '/dashboard.html';
 }
 checkAuth();
 
-// Nav scroll effect
 window.addEventListener('scroll', function() {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 30);
 });
 
-// Scroll reveal
-const observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) {
-    if (e.isIntersecting) { e.target.classList.add('visible'); }
-  });
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
 
-// AUTH
 function openAuth(tab) {
   document.getElementById('authOverlay').classList.add('open');
+  document.getElementById('verifyView').style.display = 'none';
+  document.getElementById('authView').style.display = 'block';
   switchTab(tab);
   document.body.style.overflow = 'hidden';
 }
@@ -1196,23 +918,12 @@ function switchTab(tab) {
   document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
   document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
   document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-  document.getElementById('modalSub').textContent = tab === 'signup' ? 'Meet Vera and start your transformation' : 'Welcome back to Sum Goals';
+  document.getElementById('modalSub').textContent = tab === 'signup' ? 'Meet Vera — your financial coach' : 'Welcome back to Sum Goals';
   clearMsgs();
 }
-function showError(msg) {
-  var e = document.getElementById('authError');
-  e.textContent = msg; e.style.display = 'block';
-  document.getElementById('authSuccess').style.display = 'none';
-}
-function showSuccess(msg) {
-  var e = document.getElementById('authSuccess');
-  e.textContent = msg; e.style.display = 'block';
-  document.getElementById('authError').style.display = 'none';
-}
-function clearMsgs() {
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authSuccess').style.display = 'none';
-}
+function showError(msg) { var e = document.getElementById('authError'); e.textContent = msg; e.style.display = 'block'; document.getElementById('authSuccess').style.display = 'none'; }
+function showSuccess(msg) { var e = document.getElementById('authSuccess'); e.textContent = msg; e.style.display = 'block'; document.getElementById('authError').style.display = 'none'; }
+function clearMsgs() { document.getElementById('authError').style.display = 'none'; document.getElementById('authSuccess').style.display = 'none'; }
 
 async function doSignup() {
   var name = document.getElementById('sName').value.trim();
@@ -1224,15 +935,16 @@ async function doSignup() {
   var btn = document.getElementById('signupBtn');
   btn.innerHTML = '<span class="spinner"></span>Creating account...';
   btn.disabled = true;
-  var { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  var res = await sb.auth.signUp({
+    email: email, password: pass,
+    options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/onboarding.html' }
+  });
   btn.innerHTML = 'Create my free account';
   btn.disabled = false;
-  if (error) return showError(error.message);
-  showSuccess('Account created! Taking you to meet Vera...');
-  setTimeout(async function() {
-    var { error: e2 } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (!e2) window.location.href = '/onboarding.html';
-  }, 1200);
+  if (res.error) return showError(res.error.message);
+  document.getElementById('verifyEmail').textContent = email;
+  document.getElementById('authView').style.display = 'none';
+  document.getElementById('verifyView').style.display = 'block';
 }
 
 async function doLogin() {
@@ -1242,29 +954,37 @@ async function doLogin() {
   var btn = document.getElementById('loginBtn');
   btn.innerHTML = '<span class="spinner"></span>Signing in...';
   btn.disabled = true;
-  var { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  var res = await sb.auth.signInWithPassword({ email: email, password: pass });
   btn.innerHTML = 'Sign in to my account';
   btn.disabled = false;
-  if (error) return showError(error.message);
+  if (res.error) return showError(res.error.message);
   window.location.href = '/dashboard.html';
 }
 
 async function doGoogle() {
-  var { error } = await sb.auth.signInWithOAuth({
+  var res = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + '/dashboard.html' }
   });
-  if (error) showError(error.message);
+  if (res.error) showError(res.error.message);
+}
+
+async function doApple() {
+  var res = await sb.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: window.location.origin + '/dashboard.html' }
+  });
+  if (res.error) showError('Apple sign in not configured yet. Please use Google or email.');
 }
 
 async function handleUpgrade(plan) {
-  var { data: { session } } = await sb.auth.getSession();
-  if (!session) { openAuth('signup'); return; }
+  var r = await sb.auth.getSession();
+  if (!r.data.session) { openAuth('signup'); return; }
   try {
     var res = await fetch('/api/create-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-      body: JSON.stringify({ plan })
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + r.data.session.access_token },
+      body: JSON.stringify({ plan: plan })
     });
     var data = await res.json();
     if (data.url) window.location.href = data.url;
