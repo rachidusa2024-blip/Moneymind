@@ -302,9 +302,9 @@ nav.scrolled { box-shadow: var(--shadow-sm); }
 .pain-card:hover .pain-card-accent { opacity: 1; }
 .pain-num {
   font-family: var(--font-head);
-  font-size: 52px; font-style: italic;
-  color: var(--teal-light); line-height: 1;
-  margin-bottom: 14px; color: rgba(0,201,167,0.15);
+  font-size: 56px; font-style: italic;
+  color: var(--teal-dark); line-height: 1;
+  margin-bottom: 14px; opacity: 0.25;
 }
 .pain-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
 .pain-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
@@ -581,14 +581,14 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
 <!-- PRIVACY -->
 <div class="privacy-section reveal">
   <div class="privacy-inner">
-    <div class="privacy-icon">🔒</div>
+    <div class="privacy-icon"><div style="width:28px;height:28px;background:var(--teal);border-radius:8px;margin:0 auto"></div></div>
     <h2 class="privacy-h">Your privacy is <span>sacred.</span></h2>
     <p class="privacy-sub">Before Vera asks you anything — here is our promise to you. We know that talking about money requires trust. We take that seriously.</p>
     <div class="privacy-grid">
-      <div class="privacy-item"><div class="privacy-item-icon">🏦</div><div><div class="privacy-item-title">We never connect to your bank</div><div class="privacy-item-desc">Vera only knows what you tell her. We cannot see your accounts, transactions, or balance.</div></div></div>
-      <div class="privacy-item"><div class="privacy-item-icon">🚫</div><div><div class="privacy-item-title">We never sell your data</div><div class="privacy-item-desc">Your financial information is never shared with advertisers, banks, or any third party. Ever.</div></div></div>
-      <div class="privacy-item"><div class="privacy-item-icon">🔐</div><div><div class="privacy-item-title">Everything is encrypted</div><div class="privacy-item-desc">Your data is encrypted at rest and in transit. Only you and Vera can see your information.</div></div></div>
-      <div class="privacy-item"><div class="privacy-item-icon">🗑️</div><div><div class="privacy-item-title">Delete anytime</div><div class="privacy-item-desc">You can delete your account and all your data at any time. No questions asked.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon" style="background:rgba(0,201,167,0.15)"><div style="width:12px;height:12px;background:var(--teal);border-radius:3px"></div></div><div><div class="privacy-item-title">We never connect to your bank</div><div class="privacy-item-desc">Vera only knows what you tell her. We cannot see your accounts, transactions, or balance.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon" style="background:rgba(0,201,167,0.15)"><div style="width:12px;height:12px;background:var(--teal);border-radius:3px"></div></div><div><div class="privacy-item-title">We never sell your data</div><div class="privacy-item-desc">Your financial information is never shared with advertisers, banks, or any third party. Ever.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon" style="background:rgba(0,201,167,0.15)"><div style="width:12px;height:12px;background:var(--teal);border-radius:3px"></div></div><div><div class="privacy-item-title">Everything is encrypted</div><div class="privacy-item-desc">Your data is encrypted at rest and in transit. Only you and Vera can see your information.</div></div></div>
+      <div class="privacy-item"><div class="privacy-item-icon" style="background:rgba(0,201,167,0.15)"><div style="width:12px;height:12px;background:var(--teal);border-radius:3px"></div></div><div><div class="privacy-item-title">Delete anytime</div><div class="privacy-item-desc">You can delete your account and all your data at any time. No questions asked.</div></div></div>
     </div>
   </div>
 </div>
@@ -602,19 +602,19 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
     <div class="pain-grid">
       <div class="pain-card reveal">
         <div class="pain-card-accent"></div>
-        <div class="pain-num">78%</div>
+        <div class="pain-num" style="font-family:var(--font-head);font-size:56px;font-style:italic;color:var(--teal-dark);line-height:1;margin-bottom:14px;font-weight:700">78%</div>
         <div class="pain-title">Live paycheck to paycheck</div>
         <div class="pain-desc">Even with a decent salary — the money disappears and nobody knows where it went. This is not a discipline problem. It is a planning problem.</div>
       </div>
       <div class="pain-card reveal reveal-delay1">
         <div class="pain-card-accent"></div>
-        <div class="pain-num">$6K</div>
+        <div class="pain-num" style="font-family:var(--font-head);font-size:56px;font-style:italic;color:var(--teal-dark);line-height:1;margin-bottom:14px;font-weight:700">$6K</div>
         <div class="pain-title">Average credit card debt</div>
         <div class="pain-desc">Interest eats hundreds every month. It feels impossible to escape. But with the right strategy — most people can be debt free in under 2 years.</div>
       </div>
       <div class="pain-card reveal reveal-delay2">
         <div class="pain-card-accent"></div>
-        <div class="pain-num">$300</div>
+        <div class="pain-num" style="font-family:var(--font-head);font-size:56px;font-style:italic;color:var(--teal-dark);line-height:1;margin-bottom:14px;font-weight:700">$300</div>
         <div class="pain-title">Per hour — a real coach costs</div>
         <div class="pain-desc">Most people never get access to real financial coaching. It has always been a privilege for the wealthy. Vera changes that for everyone.</div>
       </div>
@@ -671,19 +671,19 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
       <p class="vera-desc">Vera is not a chatbot that gives generic tips. She is a <strong>financial coach who knows your complete situation</strong> and speaks to your reality — not a textbook scenario.</p>
       <div class="vera-traits">
         <div class="vera-trait">
-          <div class="vera-trait-icon">💬</div>
+          <div class="vera-trait-icon" style="background:var(--teal-light)"><div style="width:10px;height:10px;background:var(--teal);border-radius:50%"></div></div>
           <div><div class="vera-trait-title">She remembers everything</div><div class="vera-trait-desc">Every session continues where you left off. Vera knows your income, your debts, your fears, your dreams. You never repeat yourself.</div></div>
         </div>
         <div class="vera-trait">
-          <div class="vera-trait-icon">🎯</div>
+          <div class="vera-trait-icon" style="background:var(--teal-light)"><div style="width:10px;height:10px;background:var(--teal);border-radius:50%"></div></div>
           <div><div class="vera-trait-title">She tells the truth</div><div class="vera-trait-desc">Vera does not sell dreams. If your goal is not realistic today she tells you — and then shows you the real path to get there.</div></div>
         </div>
         <div class="vera-trait">
-          <div class="vera-trait-icon">🌍</div>
+          <div class="vera-trait-icon" style="background:var(--teal-light)"><div style="width:10px;height:10px;background:var(--teal);border-radius:50%"></div></div>
           <div><div class="vera-trait-title">She speaks your language</div><div class="vera-trait-desc">Spanish, French, Arabic, English, Portuguese and 45 more. 150+ currencies. Vera understands your world — not just the American one.</div></div>
         </div>
         <div class="vera-trait">
-          <div class="vera-trait-icon">🔥</div>
+          <div class="vera-trait-icon" style="background:var(--teal-light)"><div style="width:10px;height:10px;background:var(--teal);border-radius:50%"></div></div>
           <div><div class="vera-trait-title">She holds you accountable</div><div class="vera-trait-desc">Like a great fitness coach — she celebrates when you win and asks hard questions when you slip. That accountability is what makes the difference.</div></div>
         </div>
       </div>
@@ -699,18 +699,18 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
     <p class="section-sub reveal">Relief from financial anxiety. The feeling of finally having someone on your backup.</p>
     <div class="feat-grid reveal">
       <div class="feat wide">
-        <div class="feat-icon">🗺️</div>
+        <div class="feat-icon" style="background:var(--teal-light);color:var(--teal-dark);font-family:var(--font-head);font-style:italic;font-size:20px;font-weight:700">01</div>
         <div class="feat-title">Goal DNA — Your complete financial roadmap</div>
         <div class="feat-desc">You tell Vera your dream — a house, car, business, wedding. She runs a complete 4-step financial DNA scan and builds an exact month-by-month plan to get you there. Not a generic calculator — a personalized roadmap based on your real numbers with 3 scenarios and a what-if slider. Vera suggests this at the right moment — when she knows you are ready.</div>
         <span class="feat-tag">Exclusive — nowhere else on the market</span>
       </div>
       <div class="feat">
-        <div class="feat-icon">⏳</div>
+        <div class="feat-icon" style="background:var(--teal-light);color:var(--teal-dark);font-family:var(--font-head);font-style:italic;font-size:20px;font-weight:700">02</div>
         <div class="feat-title">Debt Countdown</div>
         <div class="feat-desc">Every debt listed separately. Vera builds the right strategy — snowball or avalanche — based on your specific situation. The exact date you will be free. She reacts to every payment you make.</div>
       </div>
       <div class="feat">
-        <div class="feat-icon">📅</div>
+        <div class="feat-icon" style="background:var(--teal-light);color:var(--teal-dark);font-family:var(--font-head);font-style:italic;font-size:20px;font-weight:700">03</div>
         <div class="feat-title">Payday Survival Plan</div>
         <div class="feat-desc">When your salary arrives Vera tells you exactly what to do in the next 24 hours — what to pay first, what to transfer, your daily budget. When money is tight she activates survival mode.</div>
       </div>
@@ -721,7 +721,7 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
         <span class="feat-tag">Conversation history saved</span>
       </div>
       <div class="feat">
-        <div class="feat-icon">⬇️</div>
+        <div class="feat-icon" style="background:var(--teal-light);color:var(--teal-dark);font-family:var(--font-head);font-style:italic;font-size:20px;font-weight:700">05</div>
         <div class="feat-title">Downloadable roadmaps</div>
         <div class="feat-desc">Every plan Vera builds can be downloaded as a document. Your personal financial roadmap — yours to keep, print, and share.</div>
         <span class="feat-tag">Pro feature</span>
@@ -845,7 +845,7 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
     <div class="modal-logo">Sum <span>Goals</span></div>
     <div class="modal-sub" id="modalSub">Meet Vera — your financial coach</div>
     <div id="verifyView" class="auth-verify" style="display:none">
-      <div class="auth-verify-icon">📧</div>
+      <div class="auth-verify-icon" style="font-size:48px;color:var(--teal);font-family:var(--font-head);font-style:italic;font-weight:700">✉</div>
       <div class="auth-verify-title">Check your email</div>
       <div class="auth-verify-sub">We sent a verification link to <strong id="verifyEmail"></strong>. Click the link to confirm your account and Vera will be ready for you.</div>
     </div>
@@ -873,7 +873,7 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
         Continue with Google
       </button>
       <button class="btn-apple" onclick="doApple()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        
         Continue with Apple
       </button>
     </div>
