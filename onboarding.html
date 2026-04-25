@@ -1207,6 +1207,65 @@ async function enterApp() {
   if (user) {
     window.location.href = '/dashboard.html';
   } else {
+    document.querySelector('.app').style.display = 'none';
+    document.getElementById('resultScreen').classList.remove('show');
+    showSignupModal();
+  }
+}
+
+function showSignupModal() {
+  document.body.innerHTML += `
+  <div id="signupOverlay" style="position:fixed;inset:0;background:rgba(10,22,40,0.7);backdrop-filter:blur(12px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.3s ease">
+    <div style="background:#fff;border-radius:24px;padding:36px;width:100%;max-width:420px;box-shadow:0 20px 48px rgba(0,0,0,0.15)">
+      <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:6px">Save your plan <span style="color:var(--teal);font-style:italic">with Vera</span></div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px">Create your free account to save everything Vera just built for you. Takes 30 seconds.</div>
+      <div id="signupError" style="display:none;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:14px;background:#FEF2F2;color:#EF4444;border:1px solid #FECACA"></div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.08em">Full name</label>
+        <input id="su-name" type="text" placeholder="Your name" style="width:100%;background:#FAFAF8;border:1.5px solid #E8EDF2;border-radius:8px;padding:11px 14px;color:#0A1628;font-size:14px;font-family:var(--font-body);outline:none">
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.08em">Email</label>
+        <input id="su-email" type="email" placeholder="you@email.com" style="width:100%;background:#FAFAF8;border:1.5px solid #E8EDF2;border-radius:8px;padding:11px 14px;color:#0A1628;font-size:14px;font-family:var(--font-body);outline:none">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.08em">Password</label>
+        <input id="su-pass" type="password" placeholder="Min 8 characters" style="width:100%;background:#FAFAF8;border:1.5px solid #E8EDF2;border-radius:8px;padding:11px 14px;color:#0A1628;font-size:14px;font-family:var(--font-body);outline:none">
+      </div>
+      <button onclick="doSignupFromOnboarding()" style="width:100%;padding:13px;background:#00C9A7;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-body);margin-bottom:12px" id="su-btn">Create free account and save my plan</button>
+      <button onclick="doGoogleFromOnboarding()" style="width:100%;padding:11px;background:#fff;color:#0A1628;border:1.5px solid #E8EDF2;border-radius:8px;font-weight:500;font-size:14px;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div style="font-size:11px;color:var(--dim);text-align:center">Already have an account? <a href="/dashboard.html" style="color:var(--teal-dark)">Sign in</a></div>
+    </div>
+  </div>`;
+}
+
+async function doSignupFromOnboarding() {
+  var name = document.getElementById('su-name').value.trim();
+  var email = document.getElementById('su-email').value.trim();
+  var pass = document.getElementById('su-pass').value;
+  var err = document.getElementById('signupError');
+  if (!name) { err.textContent='Please enter your name'; err.style.display='block'; return; }
+  if (!email) { err.textContent='Please enter your email'; err.style.display='block'; return; }
+  if (pass.length < 8) { err.textContent='Password must be at least 8 characters'; err.style.display='block'; return; }
+  var btn = document.getElementById('su-btn');
+  btn.textContent = 'Creating account...';
+  btn.disabled = true;
+  var res = await sb.auth.signUp({ email:email, password:pass, options:{ data:{ full_name:name }, emailRedirectTo: window.location.origin + '/dashboard.html' } });
+  if (res.error) { err.textContent=res.error.message; err.style.display='block'; btn.textContent='Create free account and save my plan'; btn.disabled=false; return; }
+  user = res.data.user;
+  await saveToSupabase(JSON.parse(localStorage.getItem('vera_fin')||'{}').health_score||0, JSON.parse(localStorage.getItem('vera_fin')||'{}'), JSON.parse(localStorage.getItem('vera_profile')||'{}').monthly_income||0);
+  document.getElementById('signupOverlay').innerHTML = '<div style="background:#fff;border-radius:24px;padding:48px 36px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 48px rgba(0,0,0,0.15)"><div style="font-size:48px;margin-bottom:16px">✉</div><div style="font-family:var(--font-head);font-size:24px;font-style:italic;color:#0A1628;margin-bottom:8px">Check your email</div><div style="font-size:13px;color:#64748B;line-height:1.6">We sent a verification link to <strong>' + email + '</strong>. Click it to confirm your account and your plan will be waiting for you.</div></div>';
+}
+
+async function doGoogleFromOnboarding() {
+  await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: window.location.origin + '/dashboard.html' } });
+}{
+  if (user) {
+    window.location.href = '/dashboard.html';
+  } else {
     window.location.href = '/index.html#signup';
   }
 }
