@@ -498,13 +498,18 @@ body { font-family: var(--font-body); color: var(--navy); }
 <!-- RESULT -->
 <div class="result-screen" id="resultScreen">
   <div class="result-inner">
-    <div class="result-vera-label">
-      <div class="result-vera-av">V</div>
+
+    <!-- VERA HEADER -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--gold-light);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:18px;font-style:italic;color:var(--gold);flex-shrink:0">V</div>
       <div>
-        <div class="result-vera-name">Vera</div>
-        <div class="result-vera-title">Your financial coach — Session 1 complete</div>
+        <div style="font-size:13px;font-weight:600;color:var(--gold)">Vera</div>
+        <div style="font-size:11px;color:var(--dim)">Your financial coach — First session complete</div>
       </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)"><div class="secure-dot"></div>Private</div>
     </div>
+
+    <!-- SCORE CARD -->
     <div class="result-score-card">
       <div class="result-score-label">Your Financial Health Score</div>
       <div class="result-ring">
@@ -520,13 +525,45 @@ body { font-family: var(--font-body); color: var(--navy); }
       <div class="result-grade" id="resultGrade">Analyzing...</div>
       <div class="result-desc" id="resultDesc">Vera is reviewing your complete profile</div>
     </div>
+
+    <!-- KEY NUMBERS -->
     <div class="result-stats" id="resultStats"></div>
-    <div class="result-vera-analysis">
-      <div class="result-analysis-title">Vera's immediate recommendations</div>
+
+    <!-- VERA HONEST ASSESSMENT -->
+    <div id="veraAssessment" style="background:var(--navy);border-radius:16px;padding:22px;margin-bottom:16px;color:#fff">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:13px;font-style:italic;color:#C9A84C;flex-shrink:0">V</div>
+        <div style="font-size:13px;font-weight:600;color:#fff">Vera's honest assessment</div>
+      </div>
+      <div id="veraHonestText" style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.8)">Analyzing your situation...</div>
+    </div>
+
+    <!-- IMMEDIATE ACTIONS -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <div style="width:20px;height:20px;background:var(--teal-light);border-radius:5px;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;background:var(--teal);border-radius:50%"></div></div>
+        What Vera will do for you
+      </div>
       <div id="resultActions"></div>
     </div>
-    <button class="btn-enter" onclick="enterApp()">Save my plan and continue →</button>
-    <div class="result-privacy"><div class="secure-dot"></div>Your information is private and encrypted</div>
+
+    <!-- WHAT VERA KNOWS -->
+    <div id="veraKnowsSection" style="background:var(--teal-light);border:1px solid var(--teal-border);border-radius:16px;padding:20px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:600;color:var(--teal-dark);margin-bottom:12px">Vera now knows your complete picture</div>
+      <div id="veraKnowsItems"></div>
+    </div>
+
+    <!-- SIGNUP PUSH -->
+    <div style="background:var(--navy);border-radius:20px;padding:28px;text-align:center;margin-bottom:16px">
+      <div style="font-family:var(--font-head);font-size:26px;font-style:italic;color:#fff;margin-bottom:8px;letter-spacing:-0.5px">Your plan is ready.<br><span style="color:#00C9A7">Don't lose it.</span></div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:20px;line-height:1.6">Create your free account in 30 seconds and Vera will save everything — your score, your plan, your roadmap. Every time you come back she remembers exactly where you left off.</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn-enter" onclick="enterApp()" style="margin-bottom:0">Save my plan — create free account →</button>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4)">No credit card · Takes 30 seconds · Cancel anytime</div>
+      </div>
+    </div>
+
+    <div class="result-privacy"><div class="secure-dot"></div>Your information is private, encrypted, and never shared</div>
   </div>
 </div>
 
@@ -873,11 +910,12 @@ function buildChoice(value, group, label, selected) {
 
 function buildMultiChoice(value, selectedArr, label) {
   var sel = selectedArr.indexOf(value) > -1;
-  return '<div class="choice' + (sel?' selected':'') + '" onclick="toggleMultiChoice(this,\'' + value + '\')" data-val="' + value + '">' +
+  return '<div class="choice' + (sel?' selected':'') + '" data-val="' + value + '" data-multi="true">' +
     '<div class="choice-radio" style="border-radius:4px"></div>' + label + '</div>';
 }
 
-function toggleMultiChoice(el, value) {
+function toggleMultiChoice(el) {
+  var value = el.getAttribute('data-val');
   el.classList.toggle('selected');
   var isSelected = el.classList.contains('selected');
   var container = el.closest('.choices');
@@ -944,7 +982,11 @@ function buildDebtSlide(cur) {
 }
 
 function initSlideLogic(id) {
-  // selectChoice handles everything - no extra listeners needed
+  if (id === 'fear' || id === 'goal') {
+    document.querySelectorAll('[data-multi="true"]').forEach(function(el) {
+      el.addEventListener('click', function() { toggleMultiChoice(el); });
+    });
+  }
 }
 
 function selectChoice(el, group, value) {
@@ -1133,7 +1175,7 @@ function calculateAndShow() {
   localStorage.setItem('vera_onboarding_done', 'true');
 
   saveToSupabase(score, fin, totalIncome);
-  showResult(score, grade, desc, cur, available, totalDebt, a.savings, actions);
+  showResult(score, grade, desc, cur, available, totalDebt, a.savings, actions, a);
 }
 
 async function saveToSupabase(score, fin, totalIncome) {
@@ -1174,7 +1216,7 @@ async function saveToSupabase(score, fin, totalIncome) {
   }
 }
 
-function showResult(score, grade, desc, cur, available, totalDebt, savings, actions) {
+function showResult(score, grade, desc, cur, available, totalDebt, savings, actions, a) {
   document.getElementById('analysisScreen').classList.remove('show');
   document.getElementById('resultScreen').classList.add('show');
 
@@ -1192,7 +1234,60 @@ function showResult(score, grade, desc, cur, available, totalDebt, savings, acti
     '<div class="result-stat"><div class="result-stat-label">Current savings</div><div class="result-stat-val teal">' + cur + ' ' + savings.toLocaleString() + '</div></div>' +
     '<div class="result-stat"><div class="result-stat-label">Health score</div><div class="result-stat-val gold">' + score + '/100</div></div>';
 
-  document.getElementById('resultActions').innerHTML = actions.join('');
+  // Vera honest assessment
+  var honest = '';
+  if (score >= 70) {
+    honest = 'You are in better financial shape than most people I work with. Your income covers your expenses and you have room to build. What is missing is not money — it is a system. I am going to give you one that works.';
+  } else if (score >= 50) {
+    honest = 'You are managing — but only just. Your money is leaving faster than it should and the gap between where you are and where you want to be is real. The good news: I can see exactly where the leaks are. And they are fixable.';
+  } else if (score >= 35) {
+    honest = 'I am going to be direct with you because that is what you need right now. Your financial situation is under pressure. But pressure is not permanent — it is a starting point. I have helped people in harder situations than yours find a real way out. And I will help you.';
+  } else {
+    honest = 'Right now your finances are in crisis mode. I know that is hard to read. But you did something most people never do — you faced it honestly. That takes courage. And it is exactly the first step. We start from where you are — not where you wish you were. And we build from here.';
+  }
+  if (available < 0) {
+    honest += ' Your expenses currently exceed your income by ' + cur + ' ' + Math.abs(Math.round(available)).toLocaleString() + ' every month. This is the first thing we fix — and it is fixable.';
+  }
+  if (totalDebt > 0 && available > 0) {
+    var debtMonths = Math.ceil(totalDebt / (available * 0.6));
+    honest += ' Following my plan, you could be completely debt free in approximately ' + debtMonths + ' months. That date is not a dream — it is math.';
+  }
+  document.getElementById('veraHonestText').textContent = honest;
+
+  // What Vera will do
+  var veraActions = [
+    { title: 'Build your complete budget', desc: 'Based on your real income and expenses — not a generic template. A budget that actually fits your life.' },
+    { title: 'Create your debt elimination plan', desc: totalDebt > 0 ? 'You have ' + cur + ' ' + totalDebt.toLocaleString() + ' in debt. Vera will choose the right strategy — snowball or avalanche — and give you the exact monthly actions.' : 'You have no debt — excellent. Vera will help you keep it that way and build wealth instead.' },
+    { title: 'Set up your Payday Survival Plan', desc: 'Every payday Vera tells you exactly what to do in the next 24 hours — what to transfer, what to pay first, your daily budget.' },
+    { title: 'Track your progress every week', desc: 'Vera checks in regularly. She celebrates wins and asks hard questions when you slip. That accountability is what makes the difference.' },
+  ];
+  if (Array.isArray(a.topGoal) && a.topGoal.length > 0) {
+    veraActions.push({ title: 'Build your goal roadmap', desc: 'You selected ' + a.topGoal.length + ' goal' + (a.topGoal.length>1?'s':'') + '. Vera will build a complete roadmap for each one — with exact timelines, monthly savings amounts, and milestone celebrations.' });
+  }
+  document.getElementById('resultActions').innerHTML = veraActions.map(function(v) {
+    return '<div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">' +
+      '<div style="width:20px;height:20px;background:var(--teal-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><div style="width:8px;height:8px;background:var(--teal);border-radius:50%"></div></div>' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px">' + v.title + '</div><div style="font-size:12px;color:var(--muted);line-height:1.55">' + v.desc + '</div></div>' +
+      '</div>';
+  }).join('');
+
+  // What Vera knows
+  var totalIncome = a.salary + (a.hasSideIncome ? a.sideIncome : 0) + (a.hasInvestmentIncome ? a.investmentIncome : 0);
+  var knows = [
+    cur + ' ' + totalIncome.toLocaleString() + '/month total income',
+    cur + ' ' + Math.round(a.rent + a.utilities + a.transport + a.subscriptions + a.groceries + a.dining).toLocaleString() + '/month in expenses',
+  ];
+  if (totalDebt > 0) knows.push(debts.length + ' debt' + (debts.length>1?'s':'') + ' totaling ' + cur + ' ' + totalDebt.toLocaleString());
+  if (savings > 0) knows.push(cur + ' ' + savings.toLocaleString() + ' in current savings');
+  if (a.paydayDate) knows.push('Payday on ' + new Date(a.paydayDate).toLocaleDateString('en-US', {month:'long', day:'numeric'}));
+  if (a.sendsRemittances && a.remittances > 0) knows.push(cur + ' ' + a.remittances.toLocaleString() + '/month sent to family');
+  if (Array.isArray(a.biggestFear) && a.biggestFear.length > 0) knows.push(a.biggestFear.length + ' financial fear' + (a.biggestFear.length>1?'s':' ') + ' to address');
+  if (Array.isArray(a.topGoal) && a.topGoal.length > 0) knows.push(a.topGoal.length + ' financial goal' + (a.topGoal.length>1?'s':'') + ' to achieve');
+
+  document.getElementById('veraKnowsItems').innerHTML = knows.map(function(k) {
+    return '<div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--teal-dark);margin-bottom:6px">' +
+      '<div style="width:5px;height:5px;background:var(--teal);border-radius:50%;flex-shrink:0"></div>' + k + '</div>';
+  }).join('');
 }
 
 async function enterApp() {
