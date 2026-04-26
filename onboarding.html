@@ -585,24 +585,20 @@ function renderStep(n, back) {
   document.getElementById('backBtn').disabled = n === 0;
 
   var area = document.getElementById('slideArea');
-  var existing = area.querySelector('.slide');
+
+  // Remove ALL existing slides immediately
+  var existing = area.querySelectorAll('.slide');
+  existing.forEach(function(el) { el.parentNode.removeChild(el); });
 
   var div = document.createElement('div');
   div.className = 'slide';
   div.innerHTML = buildSlide(steps[n]);
+  div.classList.add(back ? 'enter-left' : 'enter-right');
+  area.appendChild(div);
 
-  if (existing) {
-    existing.classList.add(back ? 'exit-right' : 'exit-left');
-    setTimeout(function() { if (existing.parentNode) existing.parentNode.removeChild(existing); }, 350);
-  }
-
-  setTimeout(function() {
-    div.classList.add(back ? 'enter-left' : 'enter-right');
-    area.appendChild(div);
-    var firstInput = div.querySelector('input, select');
-    if (firstInput && firstInput.type !== 'checkbox') setTimeout(function() { firstInput.focus(); }, 400);
-    initSlideLogic(steps[n]);
-  }, existing ? 300 : 0);
+  var firstInput = div.querySelector('input, select');
+  if (firstInput && firstInput.type !== 'checkbox') setTimeout(function() { firstInput.focus(); }, 300);
+  initSlideLogic(steps[n]);
 }
 
 function buildSlide(id) {
