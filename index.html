@@ -881,6 +881,14 @@ footer { background: var(--navy); padding: 28px 48px; display: flex; align-items
 </div>
 
 <script>
+  async function checkAndStart() {
+  var r = await sb.auth.getSession();
+  if (r.data.session) {
+    window.location.href = '/dashboard.html';
+  } else {
+    window.location.href = '/onboarding.html';
+  }
+}
 const SURL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
 const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 const { createClient } = supabase;
