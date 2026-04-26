@@ -817,31 +817,42 @@ function buildSlide(id) {
   }
 
   if (id === 'fear') {
-    return buildVeraLabel('Your biggest concern') +
-      '<h2 class="slide-q">What is your biggest<br><em>financial fear right now?</em></h2>' +
-      '<p class="slide-hint">Be honest. Vera has heard everything. Naming the fear is the first step to eliminating it.</p>' +
-      '<div class="choices">' +
-      buildChoice('debt', 'fear', 'Never getting out of debt', answers.biggestFear==='debt') +
-      buildChoice('paycheck', 'fear', 'Living paycheck to paycheck forever', answers.biggestFear==='paycheck') +
-      buildChoice('emergency', 'fear', 'One emergency destroying everything', answers.biggestFear==='emergency') +
-      buildChoice('family', 'fear', 'Not being able to provide for my family', answers.biggestFear==='family') +
-      buildChoice('future', 'fear', 'Not having enough for the future', answers.biggestFear==='future') +
-      buildChoice('shame', 'fear', 'The shame of my financial situation', answers.biggestFear==='shame') +
-      '</div>';
+    var fears = Array.isArray(answers.biggestFear) ? answers.biggestFear : (answers.biggestFear ? [answers.biggestFear] : []);
+    return buildVeraLabel('Your biggest concerns') +
+      '<h2 class="slide-q">What are your biggest<br><em>financial fears?</em></h2>' +
+      '<p class="slide-hint">Select all that apply. Be honest — Vera has heard everything. Naming your fears is the first step to eliminating them.</p>' +
+      '<div class="choices" id="fearChoices">' +
+      buildMultiChoice('debt', fears, 'Never getting out of debt') +
+      buildMultiChoice('paycheck', fears, 'Living paycheck to paycheck forever') +
+      buildMultiChoice('emergency', fears, 'One emergency destroying everything') +
+      buildMultiChoice('family', fears, 'Not being able to provide for my family') +
+      buildMultiChoice('future', fears, 'Not having enough for the future') +
+      buildMultiChoice('shame', fears, 'The shame of my financial situation') +
+      buildMultiChoice('lonely', fears, 'Facing this alone with no guidance') +
+      buildMultiChoice('job', fears, 'Losing my job with no financial cushion') +
+      buildMultiChoice('retirement', fears, 'Not having enough to retire comfortably') +
+      '</div>' +
+      '<p class="slide-hint" style="margin-top:10px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
   }
 
   if (id === 'goal') {
-    return buildVeraLabel('Your dream') +
-      '<h2 class="slide-q">What is the one financial goal<br><em>that would change your life?</em></h2>' +
-      '<p class="slide-hint">This becomes the north star of your plan with Vera. Choose the one that matters most right now.</p>' +
-      '<div class="choices">' +
-      buildChoice('debt', 'goal', 'Eliminate my debt completely', answers.topGoal==='debt') +
-      buildChoice('save', 'goal', 'Build real savings for the first time', answers.topGoal==='save') +
-      buildChoice('house', 'goal', 'Save for a home down payment', answers.topGoal==='house') +
-      buildChoice('emergency', 'goal', 'Build a solid emergency fund', answers.topGoal==='emergency') +
-      buildChoice('business', 'goal', 'Start my own business', answers.topGoal==='business') +
-      buildChoice('freedom', 'goal', 'Stop the anxiety around money', answers.topGoal==='freedom') +
-      '</div>';
+    var goals = Array.isArray(answers.topGoal) ? answers.topGoal : (answers.topGoal ? [answers.topGoal] : []);
+    return buildVeraLabel('Your dreams') +
+      '<h2 class="slide-q">What financial goals<br><em>matter most to you?</em></h2>' +
+      '<p class="slide-hint">Select all that speak to you. Vera will prioritize them based on your financial situation.</p>' +
+      '<div class="choices" id="goalChoices">' +
+      buildMultiChoice('debt', goals, 'Eliminate my debt completely') +
+      buildMultiChoice('save', goals, 'Build real savings for the first time') +
+      buildMultiChoice('house', goals, 'Buy my own home') +
+      buildMultiChoice('emergency', goals, 'Build a solid emergency fund') +
+      buildMultiChoice('business', goals, 'Start my own business') +
+      buildMultiChoice('freedom', goals, 'Stop the anxiety around money forever') +
+      buildMultiChoice('family', goals, 'Provide a better life for my family') +
+      buildMultiChoice('travel', goals, 'Travel and experience the world') +
+      buildMultiChoice('retire', goals, 'Retire comfortably one day') +
+      buildMultiChoice('education', goals, 'Pay for my or my children's education') +
+      '</div>' +
+      '<p class="slide-hint" style="margin-top:10px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
   }
 
   return '<p>Loading...</p>';
@@ -858,6 +869,29 @@ function buildNumberInput(id, val, cur, placeholder) {
 function buildChoice(value, group, label, selected) {
   return '<div class="choice' + (selected?' selected':'') + '" onclick="selectChoice(this,\'' + group + '\',\'' + value + '\')">' +
     '<div class="choice-radio"></div>' + label + '</div>';
+}
+
+function buildMultiChoice(value, selectedArr, label) {
+  var sel = selectedArr.indexOf(value) > -1;
+  return '<div class="choice' + (sel?' selected':'') + '" onclick="toggleMultiChoice(this,\'' + value + '\')" data-val="' + value + '">' +
+    '<div class="choice-radio" style="border-radius:4px"></div>' + label + '</div>';
+}
+
+function toggleMultiChoice(el, value) {
+  el.classList.toggle('selected');
+  var isSelected = el.classList.contains('selected');
+  var container = el.closest('.choices');
+  var groupId = container ? container.id : '';
+  if (groupId === 'fearChoices') {
+    if (!Array.isArray(answers.biggestFear)) answers.biggestFear = [];
+    if (isSelected) { if (answers.biggestFear.indexOf(value) === -1) answers.biggestFear.push(value); }
+    else { answers.biggestFear = answers.biggestFear.filter(function(v){ return v !== value; }); }
+  }
+  if (groupId === 'goalChoices') {
+    if (!Array.isArray(answers.topGoal)) answers.topGoal = [];
+    if (isSelected) { if (answers.topGoal.indexOf(value) === -1) answers.topGoal.push(value); }
+    else { answers.topGoal = answers.topGoal.filter(function(v){ return v !== value; }); }
+  }
 }
 
 function privacyItem(text) {
@@ -1090,7 +1124,7 @@ function calculateAndShow() {
 
   localStorage.setItem('vera_profile', JSON.stringify({
     monthly_income: totalIncome, currency: cur, language: a.language,
-    financial_challenge: a.biggestFear, payday_date: a.paydayDate,
+    financial_challenge: Array.isArray(a.biggestFear) ? a.biggestFear.join(', ') : (a.biggestFear || ''), payday_date: a.paydayDate,
     payday_frequency: a.paydayFrequency, dependents: a.dependents,
     onboarding_completed: true, rent: a.rent
   }));
@@ -1107,7 +1141,7 @@ async function saveToSupabase(score, fin, totalIncome) {
   var a = answers;
   try {
     await sb.from('profiles').update({
-      financial_challenge: a.biggestFear,
+      financial_challenge: Array.isArray(a.biggestFear) ? a.biggestFear.join(', ') : (a.biggestFear || ''),
       monthly_income: totalIncome,
       currency: a.currency,
       language: a.language,
