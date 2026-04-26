@@ -904,7 +904,7 @@ function buildNumberInput(id, val, cur, placeholder) {
 }
 
 function buildChoice(value, group, label, selected) {
-  return '<div class="choice' + (selected?' selected':'') + '" onclick="selectChoice(this,\'' + group + '\',\'' + value + '\')">' +
+  return '<div class="choice' + (selected?' selected':'') + '" data-group="' + group + '" data-val="' + value + '" data-single="true">' +
     '<div class="choice-radio"></div>' + label + '</div>';
 }
 
@@ -982,22 +982,26 @@ function buildDebtSlide(cur) {
 }
 
 function initSlideLogic(id) {
-  if (id === 'fear' || id === 'goal') {
-    document.querySelectorAll('[data-multi="true"]').forEach(function(el) {
-      el.addEventListener('click', function() { toggleMultiChoice(el); });
+  document.querySelectorAll('[data-single="true"]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var group = el.getAttribute('data-group');
+      var value = el.getAttribute('data-val');
+      selectChoice(el, group, value);
     });
-  }
+  });
+  document.querySelectorAll('[data-multi="true"]').forEach(function(el) {
+    el.addEventListener('click', function() { toggleMultiChoice(el); });
+  });
 }
 
 function selectChoice(el, group, value) {
-  document.querySelectorAll('.choice').forEach(function(c) { c.classList.remove('selected'); });
+  document.querySelectorAll('[data-single="true"]').forEach(function(c) { c.classList.remove('selected'); });
   el.classList.add('selected');
-  el.setAttribute('data-val', value);
   if (group === 'fear') answers.biggestFear = value;
   if (group === 'goal') answers.topGoal = value;
   if (group === 'stable') answers.incomeStable = value === 'stable';
   if (group === 'dependents') answers.dependents = parseInt(value) || 0;
-  if (['fear','goal','stable','dependents'].includes(group)) setTimeout(function() { goNext(); }, 350);
+  if (['fear','goal','stable','dependents'].indexOf(group) > -1) setTimeout(function() { goNext(); }, 350);
 }
 
 function toggleIncome(el, type) {
