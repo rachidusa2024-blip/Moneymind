@@ -910,39 +910,7 @@ function buildDebtSlide(cur) {
 }
 
 function initSlideLogic(id) {
-  if (id === 'incomeStable') {
-    document.querySelectorAll('.choice').forEach(function(c) {
-      c.addEventListener('click', function() {
-        var val = c.getAttribute('data-val');
-        answers.incomeStable = val === 'stable';
-        setTimeout(function() { goNext(); }, 350);
-      });
-    });
-  }
-  if (id === 'dependents') {
-    document.querySelectorAll('.choice').forEach(function(c) {
-      c.addEventListener('click', function() {
-        answers.dependents = parseInt(c.getAttribute('data-val')) || 0;
-        setTimeout(function() { goNext(); }, 350);
-      });
-    });
-  }
-  if (id === 'fear') {
-    document.querySelectorAll('.choice').forEach(function(c) {
-      c.addEventListener('click', function() {
-        answers.biggestFear = c.getAttribute('data-val');
-        setTimeout(function() { goNext(); }, 350);
-      });
-    });
-  }
-  if (id === 'goal') {
-    document.querySelectorAll('.choice').forEach(function(c) {
-      c.addEventListener('click', function() {
-        answers.topGoal = c.getAttribute('data-val');
-        setTimeout(function() { goNext(); }, 350);
-      });
-    });
-  }
+  // selectChoice handles everything - no extra listeners needed
 }
 
 function selectChoice(el, group, value) {
