@@ -7,207 +7,396 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#FAFAF8; --white:#FFFFFF; --navy:#0A1628;
-  --teal:#00C9A7; --teal-d:#00A888; --teal-l:#E8FBF7; --teal-b:rgba(0,201,167,0.2);
-  --gold:#C9A84C; --gold-l:#FBF5E8; --gold-b:rgba(201,168,76,0.25);
-  --muted:#64748B; --dim:#94A3B8; --border:#E8EDF2;
-  --red:#EF4444; --green:#10B981;
-  --font-h:'Cormorant Garamond',serif; --font-b:'DM Sans',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--font-b);color:var(--white)}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideR{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
-@keyframes slideL{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
 
-.app{height:100vh;display:flex;flex-direction:column}
+body {
+  background: #0C0F1A;
+  color: #F0F4FF;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
+
+@keyframes slideR { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideL { from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* LAYOUT */
+.app { height:100vh; display:flex; flex-direction:column; }
 
 /* TOP */
-.top{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#141827;border-bottom:1px solid var(--border);flex-shrink:0}
-.top-logo{font-family:var(--font-h);font-size:18px;font-weight:700;color:var(--white)}
-.top-logo span{color:var(--teal);font-style:italic}
-.top-right{display:flex;align-items:center;gap:12px}
-.top-step{font-size:12px;color:var(--dim)}
-.top-secure{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)}
-.sdot{width:6px;height:6px;background:var(--green);border-radius:50%}
+.top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:#141827;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  flex-shrink:0;
+}
+.top-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px; font-weight:700; color:#F0F4FF;
+  cursor:pointer;
+}
+.top-logo span { color:#00C9A7; font-style:italic; }
+.top-right { display:flex; align-items:center; gap:12px; }
+.top-step { font-size:12px; color:#8B9CB6; }
+.top-secure { display:flex; align-items:center; gap:5px; font-size:11px; color:#4A5568; }
+.sdot { width:6px; height:6px; background:#10B981; border-radius:50%; }
 
 /* PROGRESS */
-.prog{height:3px;background:rgba(255,255,255,0.07);flex-shrink:0}
-.prog-fill{height:3px;background:var(--teal);width:0%;transition:width 0.5s ease}
+.prog { height:3px; background:rgba(255,255,255,0.07); flex-shrink:0; }
+.prog-fill { height:3px; background:#00C9A7; width:0%; transition:width 0.5s ease; }
 
 /* SLIDE AREA */
-.area{flex:1;display:flex;align-items:center;justify-content:center;padding:20px 28px;overflow:hidden;position:relative;background:var(--bg)}
-.slide{width:100%;max-width:560px;position:absolute}
-.slide.r{animation:slideR 0.35s ease forwards}
-.slide.l{animation:slideL 0.35s ease forwards}
+.area {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:20px 28px; overflow:hidden; position:relative;
+  background:#0C0F1A;
+}
+.slide { width:100%; max-width:560px; position:absolute; }
+.slide.r { animation:slideR 0.35s ease forwards; }
+.slide.l { animation:slideL 0.35s ease forwards; }
 
-/* MINA LABEL */
-.vlabel{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.vav{width:32px;height:32px;border-radius:50%;background:var(--gold-l);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:13px;font-style:italic;color:var(--gold);flex-shrink:0}
-.vtag{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:0.06em}
-.vsub{font-size:11px;color:var(--dim);margin-left:3px}
+/* VERA LABEL */
+.vlabel { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+.vav {
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(201,168,76,0.1); border:1.5px solid rgba(201,168,76,0.25);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic;
+  color:#C9A84C; flex-shrink:0;
+}
+.vtag { font-size:11px; font-weight:600; color:#C9A84C; letter-spacing:0.06em; }
+.vsub { font-size:11px; color:#4A5568; margin-left:3px; }
 
 /* QUESTION */
-.q{font-family:var(--font-h);font-size:clamp(22px,4vw,34px);font-weight:700;line-height:1.15;letter-spacing:-0.5px;color:var(--white);margin-bottom:8px}
-.q em{color:var(--teal);font-style:italic}
-.hint{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.55}
+.q {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(22px,4vw,34px);
+  font-weight:700; line-height:1.15;
+  letter-spacing:-0.5px; color:#F0F4FF;
+  margin-bottom:8px;
+}
+.q em { color:#00C9A7; font-style:italic; }
+.hint { font-size:13px; color:#8B9CB6; margin-bottom:22px; line-height:1.55; }
 
 /* MINA NOTE */
-.vnote{background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.18);border-radius:4px 14px 14px 14px;padding:12px 15px;font-size:13px;color:var(--white);line-height:1.6;margin-bottom:20px}
-.vnote strong{color:var(--teal-d)}
+.mnote {
+  background:rgba(0,201,167,0.07);
+  border:1px solid rgba(0,201,167,0.15);
+  border-radius:4px 14px 14px 14px;
+  padding:12px 15px;
+  font-size:13px; color:#C8D0E0;
+  line-height:1.6; margin-bottom:20px;
+}
+.mnote strong { color:#00C9A7; }
 
 /* NUMBER INPUT */
-.num-wrap{display:flex;border:2px solid var(--border);border-radius:12px;overflow:hidden;background:#141827;margin-bottom:8px;transition:border-color 0.2s}
-.num-wrap:focus-within{border-color:var(--teal)}
-.num-cur{background:var(--teal-l);padding:13px 15px;font-size:14px;font-weight:600;color:var(--teal-d);border-right:1px solid var(--teal-b);min-width:65px;text-align:center;flex-shrink:0}
-.num-inp{flex:1;border:none;outline:none;padding:13px 15px;font-size:clamp(20px,4vw,30px);font-family:var(--font-h);font-style:italic;color:var(--white);background:transparent;text-align:right;width:100%}
-.num-inp::placeholder{color:var(--dim)}
+.num-wrap {
+  display:flex; border:2px solid rgba(255,255,255,0.07);
+  border-radius:12px; overflow:hidden;
+  background:#141827; margin-bottom:8px;
+  transition:border-color 0.2s;
+}
+.num-wrap:focus-within { border-color:rgba(0,201,167,0.4); }
+.num-cur {
+  background:rgba(0,201,167,0.08);
+  padding:13px 15px; font-size:14px; font-weight:600;
+  color:#00C9A7; border-right:1px solid rgba(0,201,167,0.15);
+  min-width:65px; text-align:center; flex-shrink:0;
+}
+.num-inp {
+  flex:1; border:none; outline:none;
+  padding:13px 15px;
+  font-size:clamp(20px,4vw,30px);
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  color:#F0F4FF; background:transparent;
+  text-align:right; width:100%;
+}
+.num-inp::placeholder { color:#4A5568; }
 
 /* SELECT */
-.sel{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;font-family:var(--font-b);color:var(--white);background:#141827;outline:none;cursor:pointer;margin-bottom:8px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%234A5568' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;transition:border-color 0.2s}
-.sel:focus{border-color:var(--teal)}
-.sel option{background:#141827;color:var(--white)}
+.sel {
+  width:100%; border:2px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:13px 15px;
+  font-size:15px; font-family:'DM Sans',sans-serif;
+  color:#F0F4FF; background:#141827;
+  outline:none; cursor:pointer; margin-bottom:8px;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%234A5568' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center;
+  transition:border-color 0.2s;
+}
+.sel:focus { border-color:rgba(0,201,167,0.4); }
+.sel option { background:#141827; color:#F0F4FF; }
 
 /* DATE */
-.dateinp{width:100%;border:2px solid var(--border);border-radius:12px;padding:13px 15px;font-size:15px;font-family:var(--font-b);color:var(--white);background:#141827;outline:none;margin-bottom:8px;transition:border-color 0.2s}
-.dateinp:focus{border-color:var(--teal)}
+.dateinp {
+  width:100%; border:2px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:13px 15px;
+  font-size:15px; font-family:'DM Sans',sans-serif;
+  color:#F0F4FF; background:#141827;
+  outline:none; margin-bottom:8px;
+  transition:border-color 0.2s;
+}
+.dateinp:focus { border-color:rgba(0,201,167,0.4); }
+.dateinp::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.3); }
 
 /* NOTE */
-.note{font-size:12px;color:var(--dim);margin-top:4px;display:flex;align-items:center;gap:5px}
-.ndot{width:4px;height:4px;background:var(--teal);border-radius:50%;flex-shrink:0}
+.note { font-size:12px; color:#4A5568; margin-top:4px; display:flex; align-items:center; gap:5px; }
+.ndot { width:4px; height:4px; background:#00C9A7; border-radius:50%; flex-shrink:0; }
 
 /* TOGGLE */
-.tog{display:flex;align-items:center;justify-content:space-between;background:#141827;border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;user-select:none}
-.tog:hover,.tog.on{border-color:var(--teal);background:rgba(0,201,167,0.08)}
-.tog-lbl{font-size:14px;font-weight:500;color:var(--white)}
-.tog-sw{width:38px;height:21px;border-radius:11px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0}
-.tog-sw.on{background:var(--teal)}
-.tog-sw::after{content:'';position:absolute;width:15px;height:15px;background:var(--white);border-radius:50%;top:3px;left:3px;transition:left 0.2s}
-.tog-sw.on::after{left:20px}
-.tog-wrap{display:none;margin-bottom:8px}
-.tog-wrap.show{display:block}
+.tog {
+  display:flex; align-items:center; justify-content:space-between;
+  background:#141827; border:1.5px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:13px 15px; margin-bottom:8px;
+  cursor:pointer; transition:all 0.2s; user-select:none;
+}
+.tog:hover { border-color:rgba(0,201,167,0.25); }
+.tog.on { border-color:rgba(0,201,167,0.35); background:rgba(0,201,167,0.06); }
+.tog-lbl { font-size:14px; font-weight:500; color:#F0F4FF; }
+.tog-sw {
+  width:38px; height:21px; border-radius:11px;
+  background:rgba(255,255,255,0.1); position:relative;
+  transition:background 0.2s; flex-shrink:0;
+}
+.tog-sw.on { background:#00C9A7; }
+.tog-sw::after {
+  content:''; position:absolute; width:15px; height:15px;
+  background:#fff; border-radius:50%; top:3px; left:3px;
+  transition:left 0.2s;
+}
+.tog-sw.on::after { left:20px; }
+.tog-wrap { display:none; margin-bottom:8px; }
+.tog-wrap.show { display:block; }
 
-/* CHOICES - single select */
-.choices{display:flex;flex-direction:column;gap:8px}
-.choices.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ch{background:#141827;border:2px solid var(--border);border-radius:12px;padding:12px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:var(--white);font-weight:500}
-.ch:hover{border-color:var(--teal);background:rgba(0,201,167,0.08)}
-.ch.sel{border-color:var(--teal);background:rgba(0,201,167,0.08);color:var(--teal)}
-.ch-r{width:18px;height:18px;border-radius:50%;border:2px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.ch.sel .ch-r{border-color:var(--teal);background:var(--teal)}
-.ch.sel .ch-r::after{content:'';width:6px;height:6px;background:var(--white);border-radius:50%;display:block}
+/* CHOICES - single */
+.choices { display:flex; flex-direction:column; gap:8px; }
+.choices.g2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ch {
+  background:#141827; border:2px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:12px 15px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:all 0.2s;
+  font-size:14px; color:#F0F4FF; font-weight:500;
+}
+.ch:hover { border-color:rgba(0,201,167,0.3); background:rgba(0,201,167,0.06); }
+.ch.sel { border-color:#00C9A7; background:rgba(0,201,167,0.08); color:#00C9A7; }
+.ch-r {
+  width:18px; height:18px; border-radius:50%;
+  border:2px solid #4A5568; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s;
+}
+.ch.sel .ch-r { border-color:#00C9A7; background:#00C9A7; }
+.ch.sel .ch-r::after { content:''; width:6px; height:6px; background:#0C0F1A; border-radius:50%; display:block; }
 
-/* CHOICES - multi select */
-.mch{background:#141827;border:2px solid var(--border);border-radius:12px;padding:12px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px}
-.mch:hover{border-color:var(--teal);background:rgba(0,201,167,0.08)}
-.mch.sel{border-color:var(--teal);background:rgba(0,201,167,0.08);color:var(--teal)}
-.mch-r{width:18px;height:18px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.mch.sel .mch-r{border-color:var(--teal);background:var(--teal)}
-.mch.sel .mch-r::after{content:'✓';color:var(--white);font-size:10px;font-weight:700;line-height:1}
+/* CHOICES - multi */
+.mch {
+  background:#141827; border:2px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:12px 15px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer; transition:all 0.2s;
+  font-size:13px; color:#F0F4FF; font-weight:500; margin-bottom:6px;
+}
+.mch:hover { border-color:rgba(0,201,167,0.3); background:rgba(0,201,167,0.06); }
+.mch.sel { border-color:#00C9A7; background:rgba(0,201,167,0.08); color:#00C9A7; }
+.mch-r {
+  width:18px; height:18px; border-radius:4px;
+  border:2px solid #4A5568; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s;
+}
+.mch.sel .mch-r { border-color:#00C9A7; background:#00C9A7; }
+.mch.sel .mch-r::after { content:'✓'; color:#0C0F1A; font-size:10px; font-weight:700; line-height:1; }
 
 /* DEBT */
-.debt-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.debt-item{background:#141827;border:1px solid var(--border);border-radius:12px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.debt-badge{width:30px;height:30px;border-radius:8px;background:var(--teal-l);color:var(--teal-d);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
-.debt-name{font-size:13px;font-weight:600;color:var(--white)}
-.debt-meta{font-size:11px;color:var(--dim)}
-.debt-amt{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--teal-d)}
-.btn-rm{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:2px;line-height:1;transition:color 0.2s}
-.btn-rm:hover{color:var(--red)}
-.btn-add{background:rgba(0,201,167,0.06);color:var(--teal);border:1.5px dashed rgba(0,201,167,0.18);border-radius:12px;padding:11px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);width:100%;text-align:center;transition:all 0.2s;margin-bottom:8px}
-.btn-add:hover{background:var(--teal);color:var(--white);border-style:solid}
+.debt-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+.debt-item {
+  background:#141827; border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px; padding:12px 15px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.debt-badge {
+  width:30px; height:30px; border-radius:8px;
+  background:rgba(0,201,167,0.1); color:#00C9A7;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+.debt-name { font-size:13px; font-weight:600; color:#F0F4FF; }
+.debt-meta { font-size:11px; color:#4A5568; }
+.debt-amt { font-family:'Cormorant Garamond',serif; font-size:18px; font-style:italic; color:#00C9A7; }
+.btn-rm { background:none; border:none; color:#4A5568; cursor:pointer; font-size:18px; padding:2px; line-height:1; transition:color 0.2s; }
+.btn-rm:hover { color:#EF4444; }
+.btn-add {
+  background:rgba(0,201,167,0.06); color:#00C9A7;
+  border:1.5px dashed rgba(0,201,167,0.2);
+  border-radius:12px; padding:11px 15px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  font-family:'DM Sans',sans-serif; width:100%; text-align:center;
+  transition:all 0.2s; margin-bottom:8px;
+}
+.btn-add:hover { background:rgba(0,201,167,0.12); border-style:solid; }
 
 /* DEBT FORM */
-.dform{background:#141827;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;display:none}
-.dform.show{display:block;animation:fadeIn 0.2s ease}
-.dform-title{font-size:13px;font-weight:600;color:var(--white);margin-bottom:12px}
-.dform-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.dform-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;display:block}
-.dform-inp{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:var(--font-b);color:var(--white);background:#0C0F1A;outline:none;transition:border-color 0.2s}
-.dform-inp:focus{border-color:var(--teal)}
-.dform-sel{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:var(--font-b);color:var(--white);background:#0C0F1A;outline:none;cursor:pointer}
-.btn-dsave{background:var(--teal);color:var(--white);border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);margin-right:8px;transition:all 0.2s}
-.btn-dsave:hover{background:var(--teal-d)}
-.btn-dcancel{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:var(--font-b)}
-
-/* BOTTOM */
-.bot{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#141827;border-top:1px solid var(--border);flex-shrink:0}
-.btn-bk{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
-.btn-bk:hover{color:var(--white);border-color:rgba(255,255,255,0.2)}
-.btn-bk:disabled{opacity:0.3;cursor:not-allowed}
-.btn-sk{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font-b);transition:color 0.2s}
-.btn-sk:hover{color:var(--muted)}
-.btn-nx{background:var(--navy);color:var(--white);border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
-.btn-nx:hover{background:#162035;transform:translateY(-1px)}
-
-/* ANALYSIS */
-.anal{position:fixed;inset:0;background:#0C0F1A;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;text-align:center;padding:32px}
-.anal.show{display:flex;animation:fadeIn 0.3s ease}
-.anal-spin{width:52px;height:52px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
-.anal-title{font-family:var(--font-h);font-size:26px;font-style:italic;color:var(--white);margin-bottom:8px}
-.anal-steps{display:flex;flex-direction:column;gap:8px;margin-top:14px}
-.astep{font-size:13px;color:var(--dim);transition:color 0.4s;display:flex;align-items:center;gap:8px;justify-content:center}
-.astep.on{color:var(--teal-d);font-weight:500}
-.astep-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-
-/* RESULT */
-.result{position:fixed;inset:0;background:#0C0F1A;display:none;overflow-y:auto;z-index:200}
-.result.show{display:block;animation:fadeIn 0.4s ease}
-.result-in{max-width:580px;margin:0 auto;padding:32px 20px}
-
-/* RING */
-.ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 14px}
-.ring-wrap svg{width:110px;height:110px;transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:rgba(255,255,255,0.12);stroke-width:8}
-.ring-arc{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transition:stroke-dashoffset 1.5s ease}
-.ring-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.ring-num{font-family:var(--font-h);font-size:28px;font-style:italic;color:var(--white);line-height:1}
-.ring-sub{font-size:10px;color:rgba(255,255,255,0.5)}
-
-/* SIGNUP MODAL */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(16px);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
-.mo.show{display:flex;animation:fadeIn 0.2s ease}
-.mo-box{background:#141827;border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 48px rgba(0,0,0,0.5)}
-.mo-title{font-family:var(--font-h);font-size:22px;font-style:italic;font-weight:700;color:var(--white);text-align:center;margin-bottom:4px}
-.mo-title span{color:var(--teal)}
-.mo-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5}
-.mo-err{display:none;padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;background:#FEF2F2;color:var(--red);border:1px solid #FECACA}
-.mo-lbl{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em}
-.mo-inp{width:100%;background:#0C0F1A;border:1.5px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 13px;color:var(--white);font-size:14px;font-family:var(--font-b);outline:none;transition:border-color 0.2s;margin-bottom:12px}
-.mo-inp:focus{border-color:var(--teal)}
-.mo-inp::placeholder{color:#4A5568}
-.btn-mo{width:100%;padding:12px;background:var(--teal);color:var(--white);border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-b);transition:all 0.2s;margin-bottom:10px}
-.btn-mo:hover{background:var(--teal-d)}
-.btn-mo:disabled{background:var(--dim);cursor:not-allowed}
-.btn-goog{width:100%;padding:10px;background:#0C0F1A;color:var(--white);border:1.5px solid rgba(255,255,255,0.07);border-radius:8px;font-weight:500;font-size:13px;cursor:pointer;font-family:var(--font-b);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;margin-bottom:10px}
-.btn-goog:hover{border-color:var(--navy)}
-.mo-note{font-size:11px;color:var(--dim);text-align:center}
-
-/* VERIFY */
-.verify-box{background:#141827;border:1px solid rgba(0,201,167,0.2);border-radius:20px;padding:40px 32px;width:100%;max-width:400px;box-shadow:0 20px 48px rgba(0,0,0,0.5);text-align:center}
-.verify-icon{font-family:var(--font-h);font-size:48px;font-style:italic;color:var(--teal);margin-bottom:16px}
-.verify-title{font-family:var(--font-h);font-size:24px;font-style:italic;font-weight:700;color:var(--white);margin-bottom:8px}
-.verify-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.dform {
+  background:#141827; border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px; padding:16px; margin-bottom:10px; display:none;
+}
+.dform.show { display:block; animation:fadeIn 0.2s ease; }
+.dform-title { font-size:13px; font-weight:600; color:#F0F4FF; margin-bottom:12px; }
+.dform-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.dform-lbl { font-size:11px; font-weight:600; color:#8B9CB6; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; display:block; }
+.dform-inp {
+  width:100%; border:1.5px solid rgba(255,255,255,0.07);
+  border-radius:8px; padding:9px 12px;
+  font-size:14px; font-family:'DM Sans',sans-serif;
+  color:#F0F4FF; background:#0C0F1A;
+  outline:none; transition:border-color 0.2s;
+}
+.dform-inp:focus { border-color:rgba(0,201,167,0.4); }
+.dform-inp::placeholder { color:#4A5568; }
+.dform-sel {
+  width:100%; border:1.5px solid rgba(255,255,255,0.07);
+  border-radius:8px; padding:9px 12px;
+  font-size:14px; font-family:'DM Sans',sans-serif;
+  color:#F0F4FF; background:#0C0F1A; outline:none; cursor:pointer;
+}
+.dform-sel option { background:#0C0F1A; }
+.btn-dsave {
+  background:#00C9A7; color:#0C0F1A; border:none;
+  border-radius:8px; padding:9px 18px;
+  font-size:13px; font-weight:600; cursor:pointer;
+  font-family:'DM Sans',sans-serif; margin-right:8px; transition:all 0.2s;
+}
+.btn-dsave:hover { background:#00A888; }
+.btn-dcancel {
+  background:transparent; color:#8B9CB6;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px; padding:9px 14px;
+  font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;
+}
 
 /* PRIVACY ITEM */
-.pitem{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#141827;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--white);margin-bottom:7px}
-.pitem-dot{width:18px;height:18px;background:rgba(0,201,167,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pitem-inner{width:7px;height:7px;background:var(--teal);border-radius:50%}
+.pitem {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 13px; background:#141827;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px; font-size:13px; color:#C8D0E0; margin-bottom:7px;
+}
+.pitem-dot { width:18px; height:18px; background:rgba(0,201,167,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pitem-inner { width:7px; height:7px; background:#00C9A7; border-radius:50%; }
 
-@media(max-width:600px){
-  .top,.bot,.area{padding-left:16px;padding-right:16px}
-  .q{font-size:22px}
-  .choices.g2{grid-template-columns:1fr}
-  .dform-row{grid-template-columns:1fr}
+/* BOTTOM */
+.bot {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px; background:#141827;
+  border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0;
+}
+.btn-bk {
+  background:transparent; color:#8B9CB6;
+  border:1px solid rgba(255,255,255,0.07); border-radius:8px;
+  padding:9px 18px; font-size:13px; font-weight:500;
+  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+}
+.btn-bk:hover { color:#F0F4FF; border-color:rgba(255,255,255,0.2); }
+.btn-sk { font-size:12px; color:#4A5568; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:color 0.2s; }
+.btn-sk:hover { color:#8B9CB6; }
+.btn-nx {
+  background:#0C0F1A; color:#F0F4FF;
+  border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+  padding:10px 24px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+}
+.btn-nx:hover { background:#00C9A7; color:#0C0F1A; border-color:#00C9A7; transform:translateY(-1px); }
+
+/* ANALYSIS */
+.anal {
+  position:fixed; inset:0; background:#0C0F1A;
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:200; text-align:center; padding:32px;
+}
+.anal.show { display:flex; animation:fadeIn 0.3s ease; }
+.anal-spin {
+  width:52px; height:52px; border:3px solid rgba(255,255,255,0.07);
+  border-top-color:#00C9A7; border-radius:50%;
+  animation:spin 0.8s linear infinite; margin:0 auto 20px;
+}
+.anal-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-style:italic; color:#F0F4FF; margin-bottom:8px; }
+.anal-steps { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+.astep { font-size:13px; color:#4A5568; transition:color 0.4s; display:flex; align-items:center; gap:8px; justify-content:center; }
+.astep.on { color:#00C9A7; font-weight:500; }
+.astep-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+/* RESULT */
+.result { position:fixed; inset:0; background:#0C0F1A; display:none; overflow-y:auto; z-index:200; }
+.result.show { display:block; animation:fadeIn 0.4s ease; }
+.result-in { max-width:580px; margin:0 auto; padding:32px 20px; }
+
+/* RING */
+.ring-wrap { position:relative; width:110px; height:110px; margin:0 auto 14px; }
+.ring-wrap svg { width:110px; height:110px; transform:rotate(-90deg); }
+.ring-bg { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:8; }
+.ring-arc { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:283; stroke-dashoffset:283; transition:stroke-dashoffset 1.5s ease; }
+.ring-ctr { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+.ring-num { font-family:'Cormorant Garamond',serif; font-size:28px; font-style:italic; color:#F0F4FF; line-height:1; }
+.ring-sub { font-size:10px; color:rgba(255,255,255,0.4); }
+
+/* SIGNUP MODAL */
+.mo { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(16px); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
+.mo.show { display:flex; animation:fadeIn 0.2s ease; }
+.mo-box {
+  background:#141827; border:1px solid rgba(201,168,76,0.2);
+  border-radius:20px; padding:32px; width:100%; max-width:400px;
+  box-shadow:0 40px 80px rgba(0,0,0,0.7);
+}
+.mo-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-style:italic; font-weight:700; color:#F0F4FF; text-align:center; margin-bottom:4px; }
+.mo-title span { color:#00C9A7; }
+.mo-sub { font-size:13px; color:#8B9CB6; text-align:center; margin-bottom:22px; line-height:1.5; }
+.mo-err { display:none; padding:9px 12px; border-radius:8px; font-size:13px; margin-bottom:12px; background:rgba(239,68,68,0.1); color:#EF4444; border:1px solid rgba(239,68,68,0.2); }
+.mo-lbl { display:block; font-size:11px; font-weight:600; color:#8B9CB6; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.08em; }
+.mo-inp {
+  width:100%; background:#0C0F1A; border:1.5px solid rgba(255,255,255,0.07);
+  border-radius:8px; padding:10px 13px; color:#F0F4FF;
+  font-size:14px; font-family:'DM Sans',sans-serif;
+  outline:none; transition:border-color 0.2s; margin-bottom:12px;
+}
+.mo-inp:focus { border-color:rgba(0,201,167,0.4); }
+.mo-inp::placeholder { color:#4A5568; }
+.btn-mo {
+  width:100%; padding:12px; background:#00C9A7; color:#0C0F1A;
+  border:none; border-radius:8px; font-weight:700; font-size:15px;
+  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; margin-bottom:10px;
+}
+.btn-mo:hover { background:#00A888; }
+.btn-mo:disabled { background:#4A5568; cursor:not-allowed; }
+.btn-goog {
+  width:100%; padding:10px; background:#0C0F1A; color:#F0F4FF;
+  border:1.5px solid rgba(255,255,255,0.07); border-radius:8px;
+  font-weight:500; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all 0.2s; margin-bottom:10px;
+}
+.btn-goog:hover { border-color:rgba(255,255,255,0.2); }
+.mo-note { font-size:11px; color:#4A5568; text-align:center; }
+.spinner { width:14px; height:14px; border:2px solid rgba(12,15,26,0.3); border-top-color:#0C0F1A; border-radius:50%; animation:spin 0.6s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px; }
+
+@media(max-width:600px) {
+  .top, .bot, .area { padding-left:16px; padding-right:16px; }
+  .q { font-size:22px; }
+  .choices.g2 { grid-template-columns:1fr; }
+  .dform-row { grid-template-columns:1fr; }
 }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
-    <div class="top-logo" onclick="window.location.href='/index.html'" style="cursor:pointer">Sum <span>Goals</span></div>
+    <div class="top-logo" onclick="window.location.href='/index.html'">Sum <span>Goals</span></div>
     <div class="top-right">
       <div class="top-step" id="stepLbl">1 of 22</div>
       <div class="top-secure"><div class="sdot"></div>Private</div>
@@ -218,7 +407,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   <div class="bot">
     <button class="btn-bk" id="backBtn" onclick="goBack()">← Back</button>
     <button class="btn-sk" onclick="goSkip()">Skip for now</button>
-    <button class="btn-nx" id="nextBtn" onclick="goNext()">Continue →</button>
+    <button class="btn-nx" onclick="goNext()">Continue →</button>
   </div>
 </div>
 
@@ -226,7 +415,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <div class="anal" id="anal">
   <div class="anal-spin"></div>
   <div class="anal-title">Mina is analyzing your situation</div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Building your complete financial profile...</div>
+  <div style="font-size:13px;color:#8B9CB6;margin-bottom:16px">Building your complete financial profile...</div>
   <div class="anal-steps">
     <div class="astep on" id="as1"><div class="astep-dot"></div>Reviewing income and expenses</div>
     <div class="astep" id="as2"><div class="astep-dot"></div>Calculating your health score</div>
@@ -257,7 +446,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
       <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Continue with Google
     </button>
-    <div class="mo-note">Already have an account? <a href="/dashboard.html" style="color:var(--teal-d)">Sign in</a></div>
+    <div class="mo-note">Already have an account? <a href="/dashboard.html" style="color:#00C9A7">Sign in</a></div>
   </div>
 </div>
 
@@ -285,10 +474,8 @@ var STEPS = [
   'privacy','lang','cur',
   'salary','side','inv','rem','stable',
   'rent','util','transport','grocery','dining','subs',
-  'debts',
-  'savings','emergency',
-  'payday','balance',
-  'dependents',
+  'debts','savings','emergency',
+  'payday','balance','dependents',
   'fear','goal'
 ];
 
@@ -303,33 +490,31 @@ function show(n) {
   var pct = Math.round((n / STEPS.length) * 100);
   document.getElementById('progFill').style.width = pct + '%';
   document.getElementById('stepLbl').textContent = (n+1) + ' of ' + STEPS.length;
-  // Back button always enabled - goes to landing page on step 0
 
   var area = document.getElementById('area');
   area.innerHTML = '';
-
   var div = document.createElement('div');
   div.className = 'slide r';
   div.innerHTML = buildSlide(STEPS[n]);
   area.appendChild(div);
 
-  // Attach click listeners
-  div.querySelectorAll('[data-action="single"]').forEach(function(el) {
+  // Attach listeners
+  div.querySelectorAll('[data-single]').forEach(function(el) {
     el.addEventListener('click', function() {
-      div.querySelectorAll('[data-action="single"]').forEach(function(c) { c.classList.remove('sel'); });
+      div.querySelectorAll('[data-single]').forEach(function(c) { c.classList.remove('sel'); });
       el.classList.add('sel');
-      var key = el.getAttribute('data-key');
+      var key = el.getAttribute('data-single');
       var val = el.getAttribute('data-val');
       if (key === 'stable') A.stable = val === 'true';
       else if (key === 'dependents') A.dependents = parseInt(val) || 0;
-      setTimeout(function() { goNext(); }, 320);
+      setTimeout(goNext, 320);
     });
   });
 
-  div.querySelectorAll('[data-action="multi"]').forEach(function(el) {
+  div.querySelectorAll('[data-multi]').forEach(function(el) {
     el.addEventListener('click', function() {
       el.classList.toggle('sel');
-      var arr = el.getAttribute('data-arr') === 'fear' ? fears : goals;
+      var arr = el.getAttribute('data-multi') === 'fear' ? fears : goals;
       var val = el.getAttribute('data-val');
       var idx = arr.indexOf(val);
       if (el.classList.contains('sel')) { if (idx === -1) arr.push(val); }
@@ -337,20 +522,31 @@ function show(n) {
     });
   });
 
-  div.querySelectorAll('[data-action="tog"]').forEach(function(el) {
+  div.querySelectorAll('[data-tog]').forEach(function(el) {
     el.addEventListener('click', function() {
-      var key = el.getAttribute('data-key');
-      var swEl = el.querySelector('.tog-sw');
+      var key = el.getAttribute('data-tog');
+      var sw = el.querySelector('.tog-sw');
       var wrapId = el.getAttribute('data-wrap');
-      if (key === 'side') { A.hasSide = !A.hasSide; swEl.classList.toggle('on', A.hasSide); el.classList.toggle('on', A.hasSide); document.getElementById(wrapId).classList.toggle('show', A.hasSide); }
-      if (key === 'inv') { A.hasInv = !A.hasInv; swEl.classList.toggle('on', A.hasInv); el.classList.toggle('on', A.hasInv); document.getElementById(wrapId).classList.toggle('show', A.hasInv); }
-      if (key === 'rem') { A.hasRem = !A.hasRem; swEl.classList.toggle('on', A.hasRem); el.classList.toggle('on', A.hasRem); document.getElementById(wrapId).classList.toggle('show', A.hasRem); }
+      var wrap = document.getElementById(wrapId);
+      if (key === 'side') { A.hasSide = !A.hasSide; sw.classList.toggle('on', A.hasSide); el.classList.toggle('on', A.hasSide); wrap.classList.toggle('show', A.hasSide); }
+      if (key === 'inv') { A.hasInv = !A.hasInv; sw.classList.toggle('on', A.hasInv); el.classList.toggle('on', A.hasInv); wrap.classList.toggle('show', A.hasInv); }
+      if (key === 'rem') { A.hasRem = !A.hasRem; sw.classList.toggle('on', A.hasRem); el.classList.toggle('on', A.hasRem); wrap.classList.toggle('show', A.hasRem); }
     });
   });
 
-  // Focus first input
-  var inp = div.querySelector('input[type="number"], input[type="text"], select, input[type="date"]');
+  var inp = div.querySelector('input[type="number"],select,input[type="date"]');
   if (inp) setTimeout(function() { inp.focus(); }, 350);
+}
+
+function vl(sub) {
+  return '<div class="vlabel"><div class="vav">M</div><div><div class="vtag">MINA</div>' + (sub ? '<span class="vsub">— ' + sub + '</span>' : '') + '</div></div>';
+}
+function ni(id, val, cur, ph) {
+  return '<div class="num-wrap"><div class="num-cur">' + cur + '</div><input class="num-inp" id="' + id + '" type="number" min="0" placeholder="' + ph + '" value="' + (val||'') + '"></div>';
+}
+function sv(cur, val) { return cur === val ? ' selected' : ''; }
+function pi(text) {
+  return '<div class="pitem"><div class="pitem-dot"><div class="pitem-inner"></div></div>' + text + '</div>';
 }
 
 function buildSlide(id) {
@@ -358,8 +554,8 @@ function buildSlide(id) {
 
   if (id === 'privacy') {
     return vl('First — your privacy') +
-      '<h2 class="q">Everything you share<br><em>stays completely private.</em></h2>' +
-      '<div class="vnote">I am Mina — your personal financial coach. Before we begin I want to be completely clear: I only know what you tell me. I cannot access your bank account or any financial system. Everything you share is encrypted and never sold to anyone. My only purpose is to help you.<br><br><strong>You can be completely honest with me.</strong> I have heard every financial situation. Nothing surprises me.</div>' +
+      '<h2 class="q">Everything you share with me<br><em>stays completely private.</em></h2>' +
+      '<div class="mnote">I am Mina — your personal financial coach. I only know what you tell me. I cannot access your bank account or any financial system. Everything you share is encrypted and never sold.<br><br><strong>You can be completely honest with me.</strong> I have heard every financial situation. Nothing surprises me.</div>' +
       pi('I never connect to your bank or any account') +
       pi('Your data is encrypted and never shared with anyone') +
       pi('No ads, no selling your information — ever') +
@@ -370,14 +566,14 @@ function buildSlide(id) {
     return vl('Getting to know you') +
       '<h2 class="q">What language do you<br><em>feel most comfortable in?</em></h2>' +
       '<p class="hint">Mina speaks your language. Choose the one that feels most natural.</p>' +
-      '<select class="sel" id="inp-lang"><option value="en"' + s(A.lang,'en') + '>English</option><option value="es"' + s(A.lang,'es') + '>Español (Spanish)</option><option value="fr"' + s(A.lang,'fr') + '>Français (French)</option><option value="ar"' + s(A.lang,'ar') + '>العربية (Arabic)</option><option value="pt"' + s(A.lang,'pt') + '>Português (Portuguese)</option><option value="zh"' + s(A.lang,'zh') + '>中文 (Chinese)</option><option value="hi"' + s(A.lang,'hi') + '>हिन्दी (Hindi)</option><option value="tr"' + s(A.lang,'tr') + '>Türkçe (Turkish)</option><option value="other"' + s(A.lang,'other') + '>Other language</option></select>';
+      '<select class="sel" id="inp-lang"><option value="en"' + sv(A.lang,'en') + '>English</option><option value="es"' + sv(A.lang,'es') + '>Español (Spanish)</option><option value="fr"' + sv(A.lang,'fr') + '>Français (French)</option><option value="ar"' + sv(A.lang,'ar') + '>العربية (Arabic)</option><option value="pt"' + sv(A.lang,'pt') + '>Português (Portuguese)</option><option value="zh"' + sv(A.lang,'zh') + '>中文 (Chinese)</option><option value="hi"' + sv(A.lang,'hi') + '>हिन्दी (Hindi)</option><option value="tr"' + sv(A.lang,'tr') + '>Türkçe (Turkish)</option><option value="other"' + sv(A.lang,'other') + '>Other language</option></select>';
   }
 
   if (id === 'cur') {
     return vl('Your currency') +
       '<h2 class="q">What currency<br><em>do you use?</em></h2>' +
       '<p class="hint">Every number Mina gives you will be in your currency — your real life, not a generic example.</p>' +
-      '<select class="sel" id="inp-cur"><option value="USD"' + s(c,'USD') + '>USD — US Dollar</option><option value="CAD"' + s(c,'CAD') + '>CAD — Canadian Dollar</option><option value="EUR"' + s(c,'EUR') + '>EUR — Euro</option><option value="GBP"' + s(c,'GBP') + '>GBP — British Pound</option><option value="MXN"' + s(c,'MXN') + '>MXN — Mexican Peso</option><option value="BRL"' + s(c,'BRL') + '>BRL — Brazilian Real</option><option value="ARS"' + s(c,'ARS') + '>ARS — Argentine Peso</option><option value="MAD"' + s(c,'MAD') + '>MAD — Moroccan Dirham</option><option value="DZD"' + s(c,'DZD') + '>DZD — Algerian Dinar</option><option value="TND"' + s(c,'TND') + '>TND — Tunisian Dinar</option><option value="INR"' + s(c,'INR') + '>INR — Indian Rupee</option><option value="PKR"' + s(c,'PKR') + '>PKR — Pakistani Rupee</option><option value="AED"' + s(c,'AED') + '>AED — UAE Dirham</option><option value="TRY"' + s(c,'TRY') + '>TRY — Turkish Lira</option><option value="Other"' + s(c,'Other') + '>Other currency</option></select>';
+      '<select class="sel" id="inp-cur"><option value="USD"' + sv(c,'USD') + '>USD — US Dollar</option><option value="CAD"' + sv(c,'CAD') + '>CAD — Canadian Dollar</option><option value="EUR"' + sv(c,'EUR') + '>EUR — Euro</option><option value="GBP"' + sv(c,'GBP') + '>GBP — British Pound</option><option value="MXN"' + sv(c,'MXN') + '>MXN — Mexican Peso</option><option value="BRL"' + sv(c,'BRL') + '>BRL — Brazilian Real</option><option value="MAD"' + sv(c,'MAD') + '>MAD — Moroccan Dirham</option><option value="DZD"' + sv(c,'DZD') + '>DZD — Algerian Dinar</option><option value="TND"' + sv(c,'TND') + '>TND — Tunisian Dinar</option><option value="INR"' + sv(c,'INR') + '>INR — Indian Rupee</option><option value="AED"' + sv(c,'AED') + '>AED — UAE Dirham</option><option value="TRY"' + sv(c,'TRY') + '>TRY — Turkish Lira</option><option value="Other"' + sv(c,'Other') + '>Other currency</option></select>';
   }
 
   if (id === 'salary') {
@@ -392,7 +588,7 @@ function buildSlide(id) {
     return vl('Side income') +
       '<h2 class="q">Do you have any<br><em>side income?</em></h2>' +
       '<p class="hint">Freelance, Uber, delivery, online sales — any income outside your main salary.</p>' +
-      '<div class="tog' + (A.hasSide?' on':'') + '" data-action="tog" data-key="side" data-wrap="wrap-side"><span class="tog-lbl">Yes, I have side income</span><div class="tog-sw' + (A.hasSide?' on':'') + '"></div></div>' +
+      '<div class="tog' + (A.hasSide?' on':'') + '" data-tog="side" data-wrap="wrap-side"><span class="tog-lbl">Yes, I have side income</span><div class="tog-sw' + (A.hasSide?' on':'') + '"></div></div>' +
       '<div class="tog-wrap' + (A.hasSide?' show':'') + '" id="wrap-side">' + ni('inp-side', A.side, c, 'Monthly amount') + '</div>' +
       '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
   }
@@ -401,7 +597,7 @@ function buildSlide(id) {
     return vl('Investment income') +
       '<h2 class="q">Do you receive income from<br><em>investments or rental?</em></h2>' +
       '<p class="hint">Dividends, rental income, business profits — any regular income from assets.</p>' +
-      '<div class="tog' + (A.hasInv?' on':'') + '" data-action="tog" data-key="inv" data-wrap="wrap-inv"><span class="tog-lbl">Yes, I have investment income</span><div class="tog-sw' + (A.hasInv?' on':'') + '"></div></div>' +
+      '<div class="tog' + (A.hasInv?' on':'') + '" data-tog="inv" data-wrap="wrap-inv"><span class="tog-lbl">Yes, I have investment income</span><div class="tog-sw' + (A.hasInv?' on':'') + '"></div></div>' +
       '<div class="tog-wrap' + (A.hasInv?' show':'') + '" id="wrap-inv">' + ni('inp-inv', A.inv, c, 'Monthly amount') + '</div>' +
       '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
   }
@@ -409,8 +605,8 @@ function buildSlide(id) {
   if (id === 'rem') {
     return vl('Supporting family') +
       '<h2 class="q">Do you send money to<br><em>family or loved ones?</em></h2>' +
-      '<p class="hint">Many people support family abroad or locally. This is a real expense that affects your plan — Mina needs to know.</p>' +
-      '<div class="tog' + (A.hasRem?' on':'') + '" data-action="tog" data-key="rem" data-wrap="wrap-rem"><span class="tog-lbl">Yes, I send money to family</span><div class="tog-sw' + (A.hasRem?' on':'') + '"></div></div>' +
+      '<p class="hint">Many people support family abroad or locally. This affects your financial plan — Mina needs to know.</p>' +
+      '<div class="tog' + (A.hasRem?' on':'') + '" data-tog="rem" data-wrap="wrap-rem"><span class="tog-lbl">Yes, I send money to family</span><div class="tog-sw' + (A.hasRem?' on':'') + '"></div></div>' +
       '<div class="tog-wrap' + (A.hasRem?' show':'') + '" id="wrap-rem">' + ni('inp-rem', A.rem, c, 'Amount sent per month') + '</div>' +
       '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
   }
@@ -420,8 +616,8 @@ function buildSlide(id) {
       '<h2 class="q">Is your income<br><em>stable every month?</em></h2>' +
       '<p class="hint">This helps Mina build a plan that works for your reality — not just a perfect scenario.</p>' +
       '<div class="choices">' +
-      mc('stable', 'true', 'Yes — roughly the same every month', A.stable === true) +
-      mc('stable', 'false', 'No — it changes month to month', A.stable === false) +
+      '<div class="ch' + (A.stable?' sel':'') + '" data-single="stable" data-val="true"><div class="ch-r"></div>Yes — roughly the same every month</div>' +
+      '<div class="ch' + (!A.stable?' sel':'') + '" data-single="stable" data-val="false"><div class="ch-r"></div>No — it changes month to month</div>' +
       '</div>';
   }
 
@@ -457,52 +653,50 @@ function buildSlide(id) {
   if (id === 'dining') {
     return vl('Dining out') +
       '<h2 class="q">How much do you spend<br><em>eating out or ordering in?</em></h2>' +
-      '<p class="hint">Restaurants, cafes, takeaway, coffee shops. Be honest — this is often where money quietly disappears.</p>' +
+      '<p class="hint">Restaurants, cafes, takeaway, coffee. Be honest — this is often where money quietly disappears.</p>' +
       ni('inp-dining', A.dining, c, 'e.g. 300') +
-      '<div class="vnote" style="margin-top:10px"><strong>Mina\'s note:</strong> Most people underestimate this by 40%. Think about every coffee, every lunch, every order this month.</div>';
+      '<div class="mnote" style="margin-top:10px"><strong>Mina\'s note:</strong> Most people underestimate this by 40%. Think about every coffee, every lunch, every takeaway this month.</div>';
   }
 
   if (id === 'subs') {
-    return vl('Subscriptions and other') +
+    return vl('Subscriptions') +
       '<h2 class="q">Monthly subscriptions<br><em>and other expenses?</em></h2>' +
       '<p class="hint">Netflix, Spotify, gym, insurance, apps — and any other regular expenses not covered yet.</p>' +
       ni('inp-subs', A.subs, c, 'e.g. 150');
   }
 
-  if (id === 'debts') {
-    return buildDebtSlide(c);
-  }
+  if (id === 'debts') { return buildDebtSlide(c); }
 
   if (id === 'savings') {
     return vl('Your savings') +
       '<h2 class="q">How much do you have<br><em>in savings right now?</em></h2>' +
-      '<p class="hint">Total across all accounts. Enter 0 if none. There is no judgment — this is your starting point.</p>' +
+      '<p class="hint">Total across all accounts. Enter 0 if none. No judgment — this is your starting point.</p>' +
       ni('inp-savings', A.savings, c, '0');
   }
 
   if (id === 'emergency') {
     return vl('Emergency fund') +
       '<h2 class="q">Do you have a dedicated<br><em>emergency fund?</em></h2>' +
-      '<p class="hint">Money set aside for unexpected expenses — car repair, medical, job loss. Enter 0 if none.</p>' +
+      '<p class="hint">Money set aside for unexpected expenses. Enter 0 if none.</p>' +
       ni('inp-emergency', A.emergency, c, '0') +
-      '<div class="vnote" style="margin-top:10px"><strong>Why this matters:</strong> Without an emergency fund, one unexpected expense forces you into debt. Even ' + c + ' 50/month builds real protection.</div>';
+      '<div class="mnote" style="margin-top:10px"><strong>Why this matters:</strong> Without an emergency fund, one unexpected expense forces you into debt. Even ' + c + ' 50/month starts the protection.</div>';
   }
 
   if (id === 'payday') {
     return vl('Your payday') +
       '<h2 class="q">When do you get<br><em>paid each month?</em></h2>' +
-      '<p class="hint">Mina uses this to run your Payday Survival Plan — guiding you exactly when your salary arrives.</p>' +
+      '<p class="hint">Mina uses this to run your Payday Survival Plan automatically.</p>' +
       '<label class="dform-lbl" style="margin-bottom:5px">How often do you get paid?</label>' +
-      '<select class="sel" id="inp-freq"><option value="monthly"' + s(A.paydayFreq,'monthly') + '>Monthly — once a month</option><option value="biweekly"' + s(A.paydayFreq,'biweekly') + '>Biweekly — every two weeks</option><option value="weekly"' + s(A.paydayFreq,'weekly') + '>Weekly</option></select>' +
+      '<select class="sel" id="inp-freq"><option value="monthly"' + sv(A.paydayFreq,'monthly') + '>Monthly — once a month</option><option value="biweekly"' + sv(A.paydayFreq,'biweekly') + '>Biweekly — every two weeks</option><option value="weekly"' + sv(A.paydayFreq,'weekly') + '>Weekly</option></select>' +
       '<label class="dform-lbl" style="margin-bottom:5px;margin-top:8px">Next payday date</label>' +
       '<input type="date" class="dateinp" id="inp-payday" value="' + A.paydayDate + '">' +
-      '<div class="note"><div class="ndot"></div>Mina will use this to start your countdown immediately.</div>';
+      '<div class="note"><div class="ndot"></div>Mina starts your countdown immediately.</div>';
   }
 
   if (id === 'balance') {
     return vl('Right now') +
       '<h2 class="q">Approximately how much<br><em>is in your account today?</em></h2>' +
-      '<p class="hint">Your current balance right now — not savings, just what is in your main account today. An estimate is fine.</p>' +
+      '<p class="hint">Your current balance right now — not savings, just your main account. An estimate is fine.</p>' +
       ni('inp-balance', A.balance, c, '0');
   }
 
@@ -511,95 +705,81 @@ function buildSlide(id) {
       '<h2 class="q">How many people depend<br><em>on you financially?</em></h2>' +
       '<p class="hint">Children, a partner who does not work, family members you support.</p>' +
       '<div class="choices g2">' +
-      mc('dependents', '0', 'Only myself', A.dependents === 0) +
-      mc('dependents', '1', '1 person', A.dependents === 1) +
-      mc('dependents', '2', '2 people', A.dependents === 2) +
-      mc('dependents', '3', '3 or more', A.dependents >= 3) +
+      '<div class="ch' + (A.dependents===0?' sel':'') + '" data-single="dependents" data-val="0"><div class="ch-r"></div>Only myself</div>' +
+      '<div class="ch' + (A.dependents===1?' sel':'') + '" data-single="dependents" data-val="1"><div class="ch-r"></div>1 person</div>' +
+      '<div class="ch' + (A.dependents===2?' sel':'') + '" data-single="dependents" data-val="2"><div class="ch-r"></div>2 people</div>' +
+      '<div class="ch' + (A.dependents>=3?' sel':'') + '" data-single="dependents" data-val="3"><div class="ch-r"></div>3 or more</div>' +
       '</div>';
   }
 
   if (id === 'fear') {
     return vl('Your fears') +
       '<h2 class="q">What are your biggest<br><em>financial fears?</em></h2>' +
-      '<p class="hint">Select all that apply. Mina has heard everything. Naming your fears is the first step to eliminating them.</p>' +
-      mch('fear', 'debt', 'Never getting out of debt', fears) +
-      mch('fear', 'paycheck', 'Living paycheck to paycheck forever', fears) +
-      mch('fear', 'emergency', 'One emergency destroying everything', fears) +
-      mch('fear', 'family', 'Not being able to provide for my family', fears) +
-      mch('fear', 'future', 'Not having enough for the future', fears) +
-      mch('fear', 'shame', 'The shame of my financial situation', fears) +
-      mch('fear', 'alone', 'Facing this alone with no guidance', fears) +
-      mch('fear', 'job', 'Losing my job with no financial cushion', fears) +
+      '<p class="hint">Select all that apply. Naming your fears is the first step to eliminating them.</p>' +
+      mch('fear','debt','Never getting out of debt') +
+      mch('fear','paycheck','Living paycheck to paycheck forever') +
+      mch('fear','emergency','One emergency destroying everything') +
+      mch('fear','family','Not being able to provide for my family') +
+      mch('fear','future','Not having enough for the future') +
+      mch('fear','shame','The shame of my financial situation') +
+      mch('fear','alone','Facing this alone with no guidance') +
+      mch('fear','job','Losing my job with no financial cushion') +
       '<p class="hint" style="margin-top:8px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
   }
 
   if (id === 'goal') {
     return vl('Your dreams') +
       '<h2 class="q">What financial goals<br><em>matter most to you?</em></h2>' +
-      '<p class="hint">Select all that speak to you. Mina will prioritize them based on your situation.</p>' +
-      mch('goal', 'debt', 'Eliminate my debt completely', goals) +
-      mch('goal', 'save', 'Build real savings for the first time', goals) +
-      mch('goal', 'house', 'Buy my own home', goals) +
-      mch('goal', 'emergency', 'Build a solid emergency fund', goals) +
-      mch('goal', 'business', 'Start my own business', goals) +
-      mch('goal', 'freedom', 'Stop the anxiety around money forever', goals) +
-      mch('goal', 'family', 'Provide a better life for my family', goals) +
-      mch('goal', 'travel', 'Travel and experience the world', goals) +
-      mch('goal', 'retire', 'Retire comfortably one day', goals) +
-      mch('goal', 'education', 'Pay for education', goals) +
+      '<p class="hint">Select all that speak to you. Mina will prioritize based on your situation.</p>' +
+      mch('goal','debt','Eliminate my debt completely') +
+      mch('goal','save','Build real savings for the first time') +
+      mch('goal','house','Buy my own home') +
+      mch('goal','emergency','Build a solid emergency fund') +
+      mch('goal','business','Start my own business') +
+      mch('goal','freedom','Stop the anxiety around money forever') +
+      mch('goal','family','Provide a better life for my family') +
+      mch('goal','travel','Travel and experience the world') +
+      mch('goal','retire','Retire comfortably one day') +
+      mch('goal','education','Pay for education') +
       '<p class="hint" style="margin-top:8px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
   }
 
-  return '<p>Loading...</p>';
+  return '<p style="color:#8B9CB6">Loading...</p>';
 }
 
-// HELPERS
-function vl(sub) {
-  return '<div class="vlabel"><div class="vav">V</div><div><div class="vtag">Mina</div>' + (sub ? '<span class="vsub">— ' + sub + '</span>' : '') + '</div></div>';
-}
-function ni(id, val, cur, ph) {
-  return '<div class="num-wrap"><div class="num-cur">' + cur + '</div><input class="num-inp" id="' + id + '" type="number" min="0" placeholder="' + ph + '" value="' + (val || '') + '"></div>';
-}
-function s(cur, val) { return cur === val ? ' selected' : ''; }
-function mc(key, val, label, sel) {
-  return '<div class="ch' + (sel ? ' sel' : '') + '" data-action="single" data-key="' + key + '" data-val="' + val + '"><div class="ch-r"></div>' + label + '</div>';
-}
-function mch(arr, val, label, selArr) {
-  var sel = selArr.indexOf(val) > -1;
-  return '<div class="mch' + (sel ? ' sel' : '') + '" data-action="multi" data-arr="' + arr + '" data-val="' + val + '"><div class="mch-r"></div>' + label + '</div>';
-}
-function pi(text) {
-  return '<div class="pitem"><div class="pitem-dot"><div class="pitem-inner"></div></div>' + text + '</div>';
+function mch(arr, val, label) {
+  var sel = (arr === 'fear' ? fears : goals).indexOf(val) > -1;
+  return '<div class="mch' + (sel?' sel':'') + '" data-multi="' + arr + '" data-val="' + val + '"><div class="mch-r"></div>' + label + '</div>';
 }
 
 function buildDebtSlide(c) {
-  var list = debts.map(function(d, i) {
-    return '<div class="debt-item"><div style="display:flex;align-items:center;gap:10px"><div class="debt-badge">' + d.type.slice(0,2).toUpperCase() + '</div><div><div class="debt-name">' + d.typeName + '</div><div class="debt-meta">' + (d.rate ? d.rate + '% APR · ' : '') + c + ' ' + (d.payment||0).toLocaleString() + '/mo</div></div></div><div style="display:flex;align-items:center;gap:8px"><div class="debt-amt">' + c + ' ' + d.amount.toLocaleString() + '</div><button class="btn-rm" onclick="rmDebt(' + i + ')">×</button></div></div>';
+  var list = debts.map(function(d,i) {
+    return '<div class="debt-item"><div style="display:flex;align-items:center;gap:10px"><div class="debt-badge">' + d.type.slice(0,2).toUpperCase() + '</div><div><div class="debt-name">' + d.typeName + '</div><div class="debt-meta">' + (d.rate?d.rate+'% · ':'') + c+' '+(d.payment||0).toLocaleString()+'/mo</div></div></div><div style="display:flex;align-items:center;gap:8px"><div class="debt-amt">'+c+' '+d.amount.toLocaleString()+'</div><button class="btn-rm" onclick="rmDebt('+i+')">×</button></div></div>';
   }).join('');
 
   return vl('Your debts') +
     '<h2 class="q">Do you have any<br><em>debts right now?</em></h2>' +
-    '<p class="hint">Add each debt separately — the order and interest rates matter for your elimination strategy.</p>' +
+    '<p class="hint">Add each debt separately — the order and interest rates matter for your strategy.</p>' +
     '<div id="dlist">' + list + '</div>' +
     '<div class="dform" id="dform">' +
       '<div class="dform-title">Add a debt</div>' +
       '<div style="margin-bottom:10px"><label class="dform-lbl">Type of debt</label><select class="dform-sel" id="df-type"><option value="credit_card">Credit card</option><option value="car">Car loan</option><option value="student">Student loan</option><option value="personal">Personal loan</option><option value="medical">Medical bills</option><option value="family">Family or friends</option><option value="other">Other</option></select></div>' +
-      '<div class="dform-row"><div><label class="dform-lbl">Remaining balance (' + c + ')</label><input class="dform-inp" id="df-amt" type="number" min="0" placeholder="e.g. 5000"></div><div><label class="dform-lbl">Monthly payment (' + c + ')</label><input class="dform-inp" id="df-pay" type="number" min="0" placeholder="e.g. 200"></div></div>' +
-      '<div style="margin-bottom:12px"><label class="dform-lbl">Interest rate % (enter 0 if unknown)</label><input class="dform-inp" id="df-rate" type="number" min="0" max="100" step="0.1" placeholder="e.g. 19"></div>' +
+      '<div class="dform-row"><div><label class="dform-lbl">Remaining balance ('+c+')</label><input class="dform-inp" id="df-amt" type="number" min="0" placeholder="e.g. 5000"></div><div><label class="dform-lbl">Monthly payment ('+c+')</label><input class="dform-inp" id="df-pay" type="number" min="0" placeholder="e.g. 200"></div></div>' +
+      '<div style="margin-bottom:12px"><label class="dform-lbl">Interest rate % (0 if unknown)</label><input class="dform-inp" id="df-rate" type="number" min="0" max="100" step="0.1" placeholder="e.g. 19"></div>' +
       '<div><button class="btn-dsave" onclick="saveDebt()">Add debt</button><button class="btn-dcancel" onclick="cancelDebt()">Cancel</button></div>' +
     '</div>' +
     '<button class="btn-add" id="addBtn" onclick="showDebt()">+ Add a debt</button>' +
-    '<p class="hint" style="margin-top:8px;margin-bottom:0">If no debts — just tap Continue. That is great news.</p>';
+    '<p class="hint" style="margin-top:8px;margin-bottom:0">If no debts — just tap Continue. Great news.</p>';
 }
 
 function showDebt() { document.getElementById('dform').classList.add('show'); document.getElementById('addBtn').style.display='none'; }
 function cancelDebt() { document.getElementById('dform').classList.remove('show'); document.getElementById('addBtn').style.display='block'; }
 function saveDebt() {
-  var amt = parseFloat(document.getElementById('df-amt').value) || 0;
+  var amt = parseFloat(document.getElementById('df-amt').value)||0;
   if (!amt) return;
   var type = document.getElementById('df-type').value;
   var names = {credit_card:'Credit card',car:'Car loan',student:'Student loan',personal:'Personal loan',medical:'Medical bills',family:'Family/friends',other:'Other debt'};
-  debts.push({type:type, typeName:names[type]||type, amount:amt, payment:parseFloat(document.getElementById('df-pay').value)||0, rate:parseFloat(document.getElementById('df-rate').value)||0});
+  debts.push({type:type,typeName:names[type]||type,amount:amt,payment:parseFloat(document.getElementById('df-pay').value)||0,rate:parseFloat(document.getElementById('df-rate').value)||0});
   show(step);
 }
 function rmDebt(i) { debts.splice(i,1); show(step); }
@@ -607,32 +787,32 @@ function rmDebt(i) { debts.splice(i,1); show(step); }
 function gv(id) {
   var el = document.getElementById(id);
   if (!el) return null;
-  if (el.type === 'number') return parseFloat(el.value) || 0;
+  if (el.type === 'number') return parseFloat(el.value)||0;
   return el.value;
 }
 
 function save() {
   var id = STEPS[step];
-  if (id === 'lang') A.lang = gv('inp-lang') || 'en';
-  if (id === 'cur') A.cur = gv('inp-cur') || 'USD';
-  if (id === 'salary') A.salary = gv('inp-salary');
-  if (id === 'side' && A.hasSide) A.side = gv('inp-side');
-  if (id === 'inv' && A.hasInv) A.inv = gv('inp-inv');
-  if (id === 'rem' && A.hasRem) A.rem = gv('inp-rem');
-  if (id === 'rent') A.rent = gv('inp-rent');
-  if (id === 'util') A.util = gv('inp-util');
-  if (id === 'transport') A.transport = gv('inp-transport');
-  if (id === 'grocery') A.grocery = gv('inp-grocery');
-  if (id === 'dining') A.dining = gv('inp-dining');
-  if (id === 'subs') A.subs = gv('inp-subs');
-  if (id === 'savings') A.savings = gv('inp-savings');
-  if (id === 'emergency') A.emergency = gv('inp-emergency');
-  if (id === 'payday') { A.paydayDate = gv('inp-payday'); A.paydayFreq = gv('inp-freq') || 'monthly'; }
-  if (id === 'balance') A.balance = gv('inp-balance');
+  if (id==='lang') A.lang = gv('inp-lang')||'en';
+  if (id==='cur') A.cur = gv('inp-cur')||'USD';
+  if (id==='salary') A.salary = gv('inp-salary');
+  if (id==='side'&&A.hasSide) A.side = gv('inp-side');
+  if (id==='inv'&&A.hasInv) A.inv = gv('inp-inv');
+  if (id==='rem'&&A.hasRem) A.rem = gv('inp-rem');
+  if (id==='rent') A.rent = gv('inp-rent');
+  if (id==='util') A.util = gv('inp-util');
+  if (id==='transport') A.transport = gv('inp-transport');
+  if (id==='grocery') A.grocery = gv('inp-grocery');
+  if (id==='dining') A.dining = gv('inp-dining');
+  if (id==='subs') A.subs = gv('inp-subs');
+  if (id==='savings') A.savings = gv('inp-savings');
+  if (id==='emergency') A.emergency = gv('inp-emergency');
+  if (id==='payday') { A.paydayDate = gv('inp-payday'); A.paydayFreq = gv('inp-freq')||'monthly'; }
+  if (id==='balance') A.balance = gv('inp-balance');
 }
 
-function goNext() { save(); if (step < STEPS.length - 1) show(step+1); else runAnalysis(); }
-function goBack() { save(); if (step > 0) show(step-1); else window.location.href = '/index.html'; }
+function goNext() { save(); if (step < STEPS.length-1) show(step+1); else runAnalysis(); }
+function goBack() { save(); if (step > 0) show(step-1); else window.location.href='/index.html'; }
 function goSkip() { window.location.href = user ? '/dashboard.html' : '/index.html'; }
 
 async function runAnalysis() {
@@ -641,9 +821,9 @@ async function runAnalysis() {
   var ids = ['as1','as2','as3','as4'];
   ids.forEach(function(id,i) {
     setTimeout(function() {
-      document.querySelectorAll('.astep').forEach(function(s) { s.classList.remove('on'); });
+      document.querySelectorAll('.astep').forEach(function(s){s.classList.remove('on');});
       document.getElementById(id).classList.add('on');
-    }, i * 800);
+    }, i*800);
   });
   setTimeout(calculate, 3600);
 }
@@ -653,30 +833,30 @@ function calculate() {
   var income = A.salary + (A.hasSide?A.side:0) + (A.hasInv?A.inv:0);
   var fixed = A.rent + A.util + A.transport + A.subs;
   var variable = A.grocery + A.dining;
-  var rem = A.hasRem ? A.rem : 0;
+  var rem = A.hasRem?A.rem:0;
   var debtPay = debts.reduce(function(s,d){return s+(d.payment||0);},0);
   var totalDebt = debts.reduce(function(s,d){return s+d.amount;},0);
   var totalExp = fixed + variable + rem + debtPay;
   var avail = income - totalExp;
-  var expR = income > 0 ? totalExp/income : 1;
-  var debtR = income > 0 ? totalDebt/(income*12) : 0;
-  var emM = totalExp > 0 ? A.emergency/totalExp : 0;
+  var expR = income>0?totalExp/income:1;
+  var debtR = income>0?totalDebt/(income*12):0;
+  var emM = totalExp>0?A.emergency/totalExp:0;
 
   var score = 0;
   if (expR<=0.5) score+=30; else if(expR<=0.65) score+=22; else if(expR<=0.75) score+=15; else if(expR<=0.88) score+=8;
   if (totalDebt===0) score+=30; else if(debtR<=0.5) score+=22; else if(debtR<=1) score+=15; else if(debtR<=2) score+=8; else score+=2;
   if (emM>=6) score+=25; else if(emM>=3) score+=18; else if(emM>=1) score+=10; else if(A.savings>0) score+=4;
-  if (avail>0 && avail/Math.max(1,income)>=0.2) score+=15; else if(avail>0) score+=8;
+  if (avail>0&&avail/Math.max(1,income)>=0.2) score+=15; else if(avail>0) score+=8;
 
   var fin = {health_score:score, total_debt:totalDebt, total_savings:A.savings, monthly_budget:Math.round(avail), emergency_fund:A.emergency};
   var prof = {monthly_income:income, currency:c, language:A.lang, financial_challenge:fears.join(', '), payday_date:A.paydayDate, payday_frequency:A.paydayFreq, dependents:A.dependents, onboarding_completed:true, rent:A.rent};
 
-  localStorage.setItem('mina_profile', JSON.stringify(prof));
-  localStorage.setItem('mina_fin', JSON.stringify(fin));
-  localStorage.setItem('mina_debts', JSON.stringify(debts));
-  localStorage.setItem('mina_fears', JSON.stringify(fears));
-  localStorage.setItem('mina_goals', JSON.stringify(goals));
-  localStorage.setItem('mina_onboarding_done', 'true');
+  localStorage.setItem('vera_profile', JSON.stringify(prof));
+  localStorage.setItem('vera_fin', JSON.stringify(fin));
+  localStorage.setItem('vera_debts', JSON.stringify(debts));
+  localStorage.setItem('vera_fears', JSON.stringify(fears));
+  localStorage.setItem('vera_goals', JSON.stringify(goals));
+  localStorage.setItem('vera_onboarding_done', 'true');
 
   if (user) saveDB(score, fin, prof);
   showResult(score, c, avail, totalDebt, A.savings, income, totalExp);
@@ -698,120 +878,98 @@ function showResult(score, c, avail, totalDebt, savings, income, totalExp) {
 
   var grade = score>=80?'Strong financial position':score>=65?'Good — clear path forward':score>=50?'Needs focused attention':score>=35?'Challenging but fixable':'Immediate action required';
   var arcColor = score>=70?'#00C9A7':score>=50?'#C9A84C':'#EF4444';
-  var avColor = avail>=0?'#00A888':'#EF4444';
-  var debtMonths = avail>0&&totalDebt>0 ? Math.ceil(totalDebt/(avail*0.6)) : 0;
+  var debtMonths = avail>0&&totalDebt>0?Math.ceil(totalDebt/(avail*0.6)):0;
 
-  // Honest assessment
   var honest = '';
-  if (score>=70) honest = 'You are in better financial shape than most people I work with. Your income covers your expenses and you have room to build. What is missing is not money — it is a system. I am going to give you one that works for your real life.';
-  else if (score>=50) honest = 'You are managing — but only just. Your money is leaving faster than it should and the gap between where you are and where you want to be is real. I can see exactly where the leaks are. And they are fixable faster than you think.';
-  else if (score>=35) honest = 'I am going to be direct with you because that is what you need. Your financial situation is under pressure. But pressure is not permanent. I have helped people in harder situations than yours find a real way out. We start from where you are — not where you wish you were.';
-  else honest = 'Right now your finances need immediate attention. I know that is hard to read. But you did something most people never do — you faced it honestly. That takes courage. And it is exactly the first step. Let me show you the path out.';
+  if (score>=70) honest = 'You are in better financial shape than most people I work with. What is missing is not money — it is a system. I am going to give you one that works.';
+  else if (score>=50) honest = 'You are managing — but only just. I can see exactly where the leaks are. And they are fixable faster than you think.';
+  else if (score>=35) honest = 'Your financial situation is under pressure. But I have helped people in harder situations find a real way out. We start from where you are — not where you wish you were.';
+  else honest = 'Right now your finances need immediate attention. But you did something most people never do — you faced it honestly. That takes courage. And it is exactly the first step.';
 
-  if (avail < 0) honest += ' Your expenses currently exceed your income by ' + c + ' ' + Math.abs(Math.round(avail)).toLocaleString() + '/month. This is the first thing we fix together.';
-  if (debtMonths > 0) honest += ' Following my plan, you could be completely debt free in approximately ' + debtMonths + ' months. That is not a dream — it is math based on your real numbers.';
+  if (avail<0) honest += ' Your expenses exceed your income by '+c+' '+Math.abs(Math.round(avail)).toLocaleString()+'/month. This is the first thing we fix together.';
+  if (debtMonths>0) honest += ' Following my plan, you could be debt free in approximately '+debtMonths+' months. That is math — not a dream.';
 
-  // What Mina will do
   var actions = [
-    {t:'Build your complete personalized budget', d:'Based on your real ' + c + ' ' + income.toLocaleString() + '/month income and ' + c + ' ' + Math.round(totalExp).toLocaleString() + '/month in expenses — not a generic template.'},
-    {t: totalDebt>0 ? 'Create your debt elimination plan' : 'Build your wealth foundation', d: totalDebt>0 ? 'You have ' + c + ' ' + totalDebt.toLocaleString() + ' in debt across ' + debts.length + ' account' + (debts.length>1?'s':'') + '. Mina will choose the right strategy and give you exact monthly actions.' : 'You have no debt — an excellent starting point. Mina will help you build wealth from here.'},
-    {t:'Set up your Payday Survival Plan', d:'Every payday Mina tells you exactly what to do in the next 24 hours — what to transfer, what to pay first, your daily budget for the month.'},
-    {t:'Weekly accountability check-ins', d:'Mina checks in regularly. She celebrates every win and asks hard questions when you slip. That accountability is what separates people who transform from people who just plan.'}
+    {t:'Build your complete personalized budget', d:'Based on your real '+c+' '+income.toLocaleString()+'/month income — not a generic template.'},
+    {t:totalDebt>0?'Create your debt elimination plan':'Build your wealth foundation', d:totalDebt>0?'You have '+c+' '+totalDebt.toLocaleString()+' in debt across '+debts.length+' account'+(debts.length>1?'s':'')+'. Mina will choose the right strategy and give you exact monthly actions.':'You have no debt — an excellent starting point. Mina will help you build wealth from here.'},
+    {t:'Set up your Payday Survival Plan', d:'Every payday Mina tells you exactly what to do in the next 24 hours — what to transfer, what to pay first, your daily budget.'},
+    {t:'Weekly accountability', d:'Mina checks in regularly. She celebrates wins and asks hard questions when you slip. That accountability is what makes the difference.'}
   ];
-  if (goals.length > 0) actions.push({t:'Build your ' + goals.length + ' goal roadmap' + (goals.length>1?'s':''), d:'Mina will create a complete financial roadmap for each goal — with exact timelines, monthly savings amounts, and milestone celebrations.'});
+  if (goals.length>0) actions.push({t:'Build your '+goals.length+' goal roadmap'+(goals.length>1?'s':''), d:'A complete financial roadmap for each goal — with exact timelines, monthly savings, and milestone celebrations.'});
 
-  // What Mina knows
-  var knows = [
-    c + ' ' + income.toLocaleString() + '/month total income',
-    c + ' ' + Math.round(totalExp).toLocaleString() + '/month in total expenses',
-  ];
-  if (totalDebt>0) knows.push(debts.length + ' debt' + (debts.length>1?'s':'') + ' totaling ' + c + ' ' + totalDebt.toLocaleString());
-  if (savings>0) knows.push(c + ' ' + savings.toLocaleString() + ' in current savings');
-  if (A.paydayDate) knows.push('Payday on ' + new Date(A.paydayDate + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'}));
-  if (A.hasRem && A.rem>0) knows.push(c + ' ' + A.rem.toLocaleString() + '/month sent to family');
-  if (fears.length>0) knows.push(fears.length + ' financial fear' + (fears.length>1?'s':'') + ' to address');
-  if (goals.length>0) knows.push(goals.length + ' financial goal' + (goals.length>1?'s':'') + ' to achieve');
+  var knows = [c+' '+income.toLocaleString()+'/month total income', c+' '+Math.round(totalExp).toLocaleString()+'/month in expenses'];
+  if (totalDebt>0) knows.push(debts.length+' debt'+(debts.length>1?'s':'')+' totaling '+c+' '+totalDebt.toLocaleString());
+  if (savings>0) knows.push(c+' '+savings.toLocaleString()+' in current savings');
+  if (A.paydayDate) knows.push('Payday on '+new Date(A.paydayDate+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'}));
+  if (A.hasRem&&A.rem>0) knows.push(c+' '+A.rem.toLocaleString()+'/month sent to family');
+  if (fears.length>0) knows.push(fears.length+' financial fear'+(fears.length>1?'s':'')+' to address');
+  if (goals.length>0) knows.push(goals.length+' financial goal'+(goals.length>1?'s':'')+' to achieve');
 
   document.getElementById('resultIn').innerHTML =
-    // Mina header
+    // Header
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">' +
-      '<div style="width:42px;height:42px;border-radius:50%;background:var(--gold-l);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:16px;font-style:italic;color:var(--gold);flex-shrink:0">V</div>' +
-      '<div><div style="font-size:13px;font-weight:600;color:var(--gold)">Mina</div><div style="font-size:11px;color:var(--dim)">Your financial coach — Session 1 complete</div></div>' +
-      '<div style="margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)"><div class="sdot"></div>Private</div>' +
+      '<div style="width:42px;height:42px;border-radius:50%;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-size:16px;font-style:italic;color:#C9A84C;flex-shrink:0">M</div>' +
+      '<div><div style="font-size:13px;font-weight:600;color:#C9A84C">MINA</div><div style="font-size:11px;color:#4A5568">Your financial coach — Session 1 complete</div></div>' +
+      '<div style="margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#4A5568"><div style="width:5px;height:5px;background:#10B981;border-radius:50%"></div>Private</div>' +
     '</div>' +
 
     // Score card
-    '<div style="background:var(--navy);border-radius:20px;padding:28px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden">' +
-      '<div style="position:absolute;top:0;right:0;width:180px;height:180px;background:radial-gradient(circle,rgba(0,201,167,0.12),transparent 70%);pointer-events:none"></div>' +
-      '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:14px">Your Financial Health Score</div>' +
-      '<div class="ring-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="45"/><circle class="ring-arc" id="rArc" cx="50" cy="50" r="45"/></svg><div class="ring-ctr"><div class="ring-num" id="rNum">' + score + '</div><div class="ring-sub">/100</div></div></div>' +
-      '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:#fff;margin-bottom:6px">' + grade + '</div>' +
+    '<div style="background:#141827;border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:28px;text-align:center;margin-bottom:16px">' +
+      '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px">Your Financial Health Score</div>' +
+      '<div class="ring-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="45"/><circle class="ring-arc" id="rArc" cx="50" cy="50" r="45"/></svg><div class="ring-ctr"><div class="ring-num">'+score+'</div><div class="ring-sub">/100</div></div></div>' +
+      '<div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:#F0F4FF;margin-bottom:4px">'+grade+'</div>' +
     '</div>' +
 
-    // Key numbers
+    // Stats
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
-      kn('Monthly available', c + ' ' + Math.abs(Math.round(avail)).toLocaleString() + (avail<0?' deficit':''), avColor) +
-      kn('Total debt', c + ' ' + totalDebt.toLocaleString(), totalDebt>0?'#EF4444':'#00A888') +
-      kn('Current savings', c + ' ' + savings.toLocaleString(), '#00A888') +
-      kn('Health score', score + '/100', arcColor) +
+      kn('Monthly available', c+' '+Math.abs(Math.round(avail)).toLocaleString()+(avail<0?' deficit':''), avail>=0?'#00C9A7':'#EF4444') +
+      kn('Total debt', c+' '+totalDebt.toLocaleString(), totalDebt>0?'#EF4444':'#00C9A7') +
+      kn('Current savings', c+' '+savings.toLocaleString(), '#00C9A7') +
+      kn('Health score', score+'/100', arcColor) +
     '</div>' +
 
     // Honest assessment
-    '<div style="background:var(--navy);border-radius:16px;padding:20px;margin-bottom:14px">' +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
-        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:12px;font-style:italic;color:#C9A84C;flex-shrink:0">V</div>' +
-        '<div style="font-size:13px;font-weight:600;color:#fff">Mina\'s honest assessment</div>' +
-      '</div>' +
-      '<div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.85)">' + honest + '</div>' +
+    '<div style="background:#141827;border:1px solid rgba(201,168,76,0.15);border-radius:16px;padding:20px;margin-bottom:14px">' +
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-size:12px;font-style:italic;color:#C9A84C;flex-shrink:0">M</div><div style="font-size:13px;font-weight:600;color:#F0F4FF">Mina\'s honest assessment</div></div>' +
+      '<div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.8)">'+honest+'</div>' +
     '</div>' +
 
     // What Mina will do
-    '<div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:14px">What Mina will do for you</div>' +
+    '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:18px;margin-bottom:14px">' +
+      '<div style="font-size:13px;font-weight:600;color:#F0F4FF;margin-bottom:14px">What Mina will do for you</div>' +
       actions.map(function(a) {
-        return '<div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">' +
-          '<div style="width:18px;height:18px;background:var(--teal-l);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><div style="width:7px;height:7px;background:var(--teal);border-radius:50%"></div></div>' +
-          '<div><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px">' + a.t + '</div><div style="font-size:12px;color:#8B9CB6;line-height:1.55">' + a.d + '</div></div>' +
-          '</div>';
+        return '<div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start"><div style="width:18px;height:18px;background:rgba(0,201,167,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><div style="width:7px;height:7px;background:#00C9A7;border-radius:50%"></div></div><div><div style="font-size:13px;font-weight:600;color:#F0F4FF;margin-bottom:2px">'+a.t+'</div><div style="font-size:12px;color:#8B9CB6;line-height:1.55">'+a.d+'</div></div></div>';
       }).join('') +
     '</div>' +
 
-    // What Mina knows
+    // Mina knows
     '<div style="background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:14px;padding:16px;margin-bottom:20px">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px">Mina now knows your complete picture</div>' +
-      knows.map(function(k) {
-        return '<div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--teal-d);margin-bottom:5px"><div style="width:5px;height:5px;background:var(--teal);border-radius:50%;flex-shrink:0"></div>' + k + '</div>';
-      }).join('') +
+      '<div style="font-size:13px;font-weight:600;color:#00C9A7;margin-bottom:10px">Mina now knows your complete picture</div>' +
+      knows.map(function(k){return '<div style="display:flex;gap:8px;align-items:center;font-size:12px;color:#8B9CB6;margin-bottom:5px"><div style="width:5px;height:5px;background:#00C9A7;border-radius:50%;flex-shrink:0"></div>'+k+'</div>';}).join('') +
     '</div>' +
 
     // Signup push
-    '<div style="background:var(--navy);border-radius:20px;padding:28px;text-align:center;margin-bottom:14px">' +
-      '<div style="font-family:var(--font-h);font-size:28px;font-style:italic;color:#fff;margin-bottom:8px;letter-spacing:-0.5px">Your plan is ready.<br><span style="color:#00C9A7">Do not lose it.</span></div>' +
-      '<div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:22px;line-height:1.65">Create your free account in 30 seconds. Mina saves everything — your score, your plan, your complete profile. Every time you return she remembers exactly where you left off and what you are working toward.</div>' +
-      '<button onclick="openSignup()" style="width:100%;padding:14px;background:#00C9A7;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--font-b);margin-bottom:8px">Save my plan — create free account →</button>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,0.4)">No credit card required · Takes 30 seconds · Cancel anytime</div>' +
+    '<div style="background:#141827;border:1px solid rgba(0,201,167,0.2);border-radius:20px;padding:28px;text-align:center;margin-bottom:14px">' +
+      '<div style="font-family:Cormorant Garamond,serif;font-size:28px;font-style:italic;color:#F0F4FF;margin-bottom:8px;letter-spacing:-0.5px">Your plan is ready.<br><span style="color:#00C9A7">Do not lose it.</span></div>' +
+      '<div style="font-size:13px;color:#8B9CB6;margin-bottom:22px;line-height:1.65">Create your free account in 30 seconds. Mina saves everything — your score, your plan, your complete profile. Every time you return she picks up exactly where you left off.</div>' +
+      '<button onclick="openSignup()" style="width:100%;padding:14px;background:#00C9A7;color:#0C0F1A;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px">Save my plan — create free account →</button>' +
+      (user ? '' : '<div style="font-size:11px;color:#4A5568">No credit card required · Takes 30 seconds · Cancel anytime</div>') +
     '</div>' +
 
-    '<div style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;color:var(--dim)"><div class="sdot"></div>Your information is private, encrypted, and never shared</div>';
+    '<div style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;color:#4A5568"><div style="width:5px;height:5px;background:#10B981;border-radius:50%"></div>Private, encrypted, never shared</div>';
 
-  // Animate ring
   setTimeout(function() {
     var arc = document.getElementById('rArc');
-    if (arc) { arc.style.stroke = arcColor; arc.style.strokeDashoffset = 283 - (283 * score / 100); }
+    if (arc) { arc.style.stroke = arcColor; arc.style.strokeDashoffset = 283-(283*score/100); }
+    if (user) {
+      var btn = document.querySelector('[onclick="openSignup()"]');
+      if (btn) { btn.textContent='Go to my dashboard →'; btn.setAttribute('onclick','window.location.href="/dashboard.html"'); }
+    }
   }, 400);
-
-  // If user already logged in show go to dashboard instead
-  if (user) {
-    var btn = document.querySelector('[onclick="openSignup()"]');
-    if (btn) { btn.textContent = 'Go to my dashboard →'; btn.setAttribute('onclick', 'window.location.href="/dashboard.html"'); }
-  }
 }
 
 function kn(label, val, color) {
-  return '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px">' +
-    '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">' + label + '</div>' +
-    '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:' + color + '">' + val + '</div>' +
-    '</div>';
+  return '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px"><div style="font-size:10px;color:#8B9CB6;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">'+label+'</div><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:'+color+'">'+val+'</div></div>';
 }
 
 function openSignup() { document.getElementById('mo').classList.add('show'); }
@@ -830,13 +988,15 @@ async function doSignup() {
   btn.textContent='Create free account and save my plan'; btn.disabled=false;
   if (r.error) { err.textContent=r.error.message; err.style.display='block'; return; }
   user = r.data.user;
-  var fin = JSON.parse(localStorage.getItem('mina_fin')||'{}');
-  var prof = JSON.parse(localStorage.getItem('mina_profile')||'{}');
+  var fin = JSON.parse(localStorage.getItem('vera_fin')||'{}');
+  var prof = JSON.parse(localStorage.getItem('vera_profile')||'{}');
   if (fin.health_score) saveDB(fin.health_score, fin, prof);
   document.getElementById('moBox').innerHTML =
-    '<div class="verify-icon">V</div>' +
-    '<div class="verify-title">Check your email</div>' +
-    '<div class="verify-sub">We sent a verification link to <strong>' + email + '</strong>. Click it to confirm your account — your plan will be waiting for you.</div>';
+    '<div style="text-align:center;padding:20px 0">' +
+    '<div style="font-family:Cormorant Garamond,serif;font-size:48px;font-style:italic;color:#00C9A7;margin-bottom:16px">M</div>' +
+    '<div style="font-family:Cormorant Garamond,serif;font-size:24px;font-style:italic;color:#F0F4FF;margin-bottom:8px">Check your email</div>' +
+    '<div style="font-size:13px;color:#8B9CB6;line-height:1.6">We sent a verification link to <strong style="color:#F0F4FF">'+email+'</strong>. Click it to confirm your account — your plan will be waiting for you.</div>' +
+    '</div>';
 }
 
 async function doGoogle() {
