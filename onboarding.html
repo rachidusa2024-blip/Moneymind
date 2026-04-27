@@ -55,7 +55,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .hint{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.55}
 
 /* MINA NOTE */
-.vnote{background:var(--teal-l);border:1px solid var(--teal-b);border-radius:4px 14px 14px 14px;padding:12px 15px;font-size:13px;color:var(--navy);line-height:1.6;margin-bottom:20px}
+.vnote{background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.18);border-radius:4px 14px 14px 14px;padding:12px 15px;font-size:13px;color:var(--white);line-height:1.6;margin-bottom:20px}
 .vnote strong{color:var(--teal-d)}
 
 /* NUMBER INPUT */
@@ -80,7 +80,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 /* TOGGLE */
 .tog{display:flex;align-items:center;justify-content:space-between;background:#141827;border:1.5px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;user-select:none}
-.tog:hover,.tog.on{border-color:var(--teal);background:var(--teal-l)}
+.tog:hover,.tog.on{border-color:var(--teal);background:rgba(0,201,167,0.08)}
 .tog-lbl{font-size:14px;font-weight:500;color:var(--white)}
 .tog-sw{width:38px;height:21px;border-radius:11px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0}
 .tog-sw.on{background:var(--teal)}
@@ -93,16 +93,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .choices{display:flex;flex-direction:column;gap:8px}
 .choices.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ch{background:#141827;border:2px solid var(--border);border-radius:12px;padding:12px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;font-size:14px;color:var(--white);font-weight:500}
-.ch:hover{border-color:var(--teal);background:var(--teal-l)}
-.ch.sel{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
+.ch:hover{border-color:var(--teal);background:rgba(0,201,167,0.08)}
+.ch.sel{border-color:var(--teal);background:rgba(0,201,167,0.08);color:var(--teal)}
 .ch-r{width:18px;height:18px;border-radius:50%;border:2px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .ch.sel .ch-r{border-color:var(--teal);background:var(--teal)}
 .ch.sel .ch-r::after{content:'';width:6px;height:6px;background:var(--white);border-radius:50%;display:block}
 
 /* CHOICES - multi select */
 .mch{background:#141827;border:2px solid var(--border);border-radius:12px;padding:12px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;font-size:13px;color:var(--white);font-weight:500;margin-bottom:6px}
-.mch:hover{border-color:var(--teal);background:var(--teal-l)}
-.mch.sel{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
+.mch:hover{border-color:var(--teal);background:rgba(0,201,167,0.08)}
+.mch.sel{border-color:var(--teal);background:rgba(0,201,167,0.08);color:var(--teal)}
 .mch-r{width:18px;height:18px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .mch.sel .mch-r{border-color:var(--teal);background:var(--teal)}
 .mch.sel .mch-r::after{content:'✓';color:var(--white);font-size:10px;font-weight:700;line-height:1}
@@ -116,7 +116,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .debt-amt{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--teal-d)}
 .btn-rm{background:none;border:none;color:var(--dim);cursor:pointer;font-size:18px;padding:2px;line-height:1;transition:color 0.2s}
 .btn-rm:hover{color:var(--red)}
-.btn-add{background:var(--teal-l);color:var(--teal-d);border:1.5px dashed var(--teal-b);border-radius:12px;padding:11px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);width:100%;text-align:center;transition:all 0.2s;margin-bottom:8px}
+.btn-add{background:rgba(0,201,167,0.06);color:var(--teal);border:1.5px dashed rgba(0,201,167,0.18);border-radius:12px;padding:11px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);width:100%;text-align:center;transition:all 0.2s;margin-bottom:8px}
 .btn-add:hover{background:var(--teal);color:var(--white);border-style:solid}
 
 /* DEBT FORM */
@@ -130,14 +130,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 .dform-sel{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:var(--font-b);color:var(--white);background:#0C0F1A;outline:none;cursor:pointer}
 .btn-dsave{background:var(--teal);color:var(--white);border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);margin-right:8px;transition:all 0.2s}
 .btn-dsave:hover{background:var(--teal-d)}
-.btn-dcancel{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:var(--font-b)}
+.btn-dcancel{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:var(--font-b)}
 
 /* BOTTOM */
 .bot{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#141827;border-top:1px solid var(--border);flex-shrink:0}
-.btn-bk{background:transparent;color:var(--dim);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
-.btn-bk:hover{color:var(--navy);border-color:var(--navy)}
+.btn-bk{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
+.btn-bk:hover{color:var(--white);border-color:rgba(255,255,255,0.2)}
 .btn-bk:disabled{opacity:0.3;cursor:not-allowed}
-.btn-sk{font-size:12px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:var(--font-b);transition:color 0.2s}
+.btn-sk{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font-b);transition:color 0.2s}
 .btn-sk:hover{color:var(--muted)}
 .btn-nx{background:var(--navy);color:var(--white);border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
 .btn-nx:hover{background:#162035;transform:translateY(-1px)}
@@ -193,7 +193,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 
 /* PRIVACY ITEM */
 .pitem{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#141827;border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--white);margin-bottom:7px}
-.pitem-dot{width:18px;height:18px;background:var(--teal-l);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pitem-dot{width:18px;height:18px;background:rgba(0,201,167,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pitem-inner{width:7px;height:7px;background:var(--teal);border-radius:50%}
 
 @media(max-width:600px){
@@ -207,7 +207,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
 <body>
 <div class="app">
   <div class="top">
-    <div class="top-logo">Sum <span>Goals</span></div>
+    <div class="top-logo" onclick="window.location.href='/index.html'" style="cursor:pointer">Sum <span>Goals</span></div>
     <div class="top-right">
       <div class="top-step" id="stepLbl">1 of 22</div>
       <div class="top-secure"><div class="sdot"></div>Private</div>
@@ -216,7 +216,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fon
   <div class="prog"><div class="prog-fill" id="progFill"></div></div>
   <div class="area" id="area"></div>
   <div class="bot">
-    <button class="btn-bk" id="backBtn" onclick="goBack()" disabled>← Back</button>
+    <button class="btn-bk" id="backBtn" onclick="goBack()">← Back</button>
     <button class="btn-sk" onclick="goSkip()">Skip for now</button>
     <button class="btn-nx" id="nextBtn" onclick="goNext()">Continue →</button>
   </div>
@@ -303,7 +303,7 @@ function show(n) {
   var pct = Math.round((n / STEPS.length) * 100);
   document.getElementById('progFill').style.width = pct + '%';
   document.getElementById('stepLbl').textContent = (n+1) + ' of ' + STEPS.length;
-  document.getElementById('backBtn').disabled = n === 0;
+  // Back button always enabled - goes to landing page on step 0
 
   var area = document.getElementById('area');
   area.innerHTML = '';
@@ -632,7 +632,7 @@ function save() {
 }
 
 function goNext() { save(); if (step < STEPS.length - 1) show(step+1); else runAnalysis(); }
-function goBack() { save(); if (step > 0) show(step-1); }
+function goBack() { save(); if (step > 0) show(step-1); else window.location.href = '/index.html'; }
 function goSkip() { window.location.href = user ? '/dashboard.html' : '/index.html'; }
 
 async function runAnalysis() {
@@ -762,23 +762,23 @@ function showResult(score, c, avail, totalDebt, savings, income, totalExp) {
         '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:12px;font-style:italic;color:#C9A84C;flex-shrink:0">V</div>' +
         '<div style="font-size:13px;font-weight:600;color:#fff">Mina\'s honest assessment</div>' +
       '</div>' +
-      '<div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.8)">' + honest + '</div>' +
+      '<div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.85)">' + honest + '</div>' +
     '</div>' +
 
     // What Mina will do
     '<div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px">What Mina will do for you</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:14px">What Mina will do for you</div>' +
       actions.map(function(a) {
         return '<div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start">' +
           '<div style="width:18px;height:18px;background:var(--teal-l);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><div style="width:7px;height:7px;background:var(--teal);border-radius:50%"></div></div>' +
-          '<div><div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px">' + a.t + '</div><div style="font-size:12px;color:var(--muted);line-height:1.55">' + a.d + '</div></div>' +
+          '<div><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px">' + a.t + '</div><div style="font-size:12px;color:#8B9CB6;line-height:1.55">' + a.d + '</div></div>' +
           '</div>';
       }).join('') +
     '</div>' +
 
     // What Mina knows
     '<div style="background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:14px;padding:16px;margin-bottom:20px">' +
-      '<div style="font-size:13px;font-weight:600;color:var(--teal-d);margin-bottom:10px">Mina now knows your complete picture</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px">Mina now knows your complete picture</div>' +
       knows.map(function(k) {
         return '<div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--teal-d);margin-bottom:5px"><div style="width:5px;height:5px;background:var(--teal);border-radius:50%;flex-shrink:0"></div>' + k + '</div>';
       }).join('') +
@@ -809,7 +809,7 @@ function showResult(score, c, avail, totalDebt, savings, income, totalExp) {
 
 function kn(label, val, color) {
   return '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px">' +
-    '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">' + label + '</div>' +
+    '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">' + label + '</div>' +
     '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:' + color + '">' + val + '</div>' +
     '</div>';
 }
