@@ -8,26 +8,26 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg:#FAFAF8; --white:#FFFFFF; --navy:#0A1628; --navy2:#162035;
-  --teal:#00C9A7; --teal-d:#00A888; --teal-l:#E8FBF7; --teal-b:rgba(0,201,167,0.2);
-  --gold:#C9A84C; --gold-l:#FBF5E8; --gold-b:rgba(201,168,76,0.25);
-  --muted:#64748B; --dim:#94A3B8; --border:#E8EDF2; --border2:#F1F5F9;
+  --bg:#0C0F1A; --white:#F0F4FF; --navy:#0C0F1A; --navy2:#141827;
+  --teal:#00C9A7; --teal-d:#00A888; --teal-l:rgba(0,201,167,0.08); --teal-b:rgba(0,201,167,0.18);
+  --gold:#C9A84C; --gold-l:rgba(201,168,76,0.08); --gold-b:rgba(201,168,76,0.2);
+  --muted:#8B9CB6; --dim:#4A5568; --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.04);
   --red:#EF4444; --green:#10B981;
-  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg:0 20px 48px rgba(0,0,0,0.12);
+  --shadow:0 4px 16px rgba(0,0,0,0.3);
+  --shadow-md:0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg:0 20px 48px rgba(0,0,0,0.5);
   --font-h:'Cormorant Garamond',serif; --font-b:'DM Sans',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:14px;min-height:100vh}
+body{background:var(--bg);color:var(--white);font-family:var(--font-b);font-size:14px;min-height:100vh}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 /* LOADING */
-.loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
-.loading-logo{font-family:var(--font-h);font-size:24px;font-style:italic;color:var(--navy)}
+.loading{position:fixed;inset:0;background:#0C0F1A;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
+.loading-logo{font-family:var(--font-h);font-size:24px;font-style:italic;color:var(--white)}
 .loading-logo span{color:var(--teal)}
 .loader{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite}
 
@@ -51,25 +51,25 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 .btn-signout:hover{background:rgba(255,255,255,0.1);color:#fff}
 
 /* MAIN */
-.main{margin-left:240px;min-height:100vh;padding:28px;background:var(--bg)}
+.main{margin-left:240px;min-height:100vh;padding:28px;background:#0C0F1A}
 .page-header{margin-bottom:24px;animation:fadeUp 0.5s ease forwards}
 .page-greeting{font-size:12px;color:var(--dim);margin-bottom:4px;font-weight:500}
-.page-title{font-family:var(--font-h);font-size:clamp(24px,3vw,34px);font-weight:700;font-style:italic;color:var(--navy);letter-spacing:-0.5px}
+.page-title{font-family:var(--font-h);font-size:clamp(24px,3vw,34px);font-weight:700;font-style:italic;color:var(--white);letter-spacing:-0.5px}
 .page-title span{color:var(--teal)}
 .page-date{font-size:12px;color:var(--dim);margin-top:4px}
 
-/* VERA BRIEFING */
-.vera-brief{background:var(--navy);border-radius:16px;padding:20px 22px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;animation:fadeUp 0.5s ease 0.05s both}
-.vera-av{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,0.15);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:15px;font-style:italic;color:var(--gold);flex-shrink:0}
-.vera-brief-name{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:0.06em;margin-bottom:4px}
-.vera-brief-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.65}
-.vera-brief-text strong{color:#fff}
-.vera-talk-btn{margin-left:auto;flex-shrink:0;background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--teal);cursor:pointer;font-family:var(--font-b);transition:all 0.2s;white-space:nowrap}
-.vera-talk-btn:hover{background:var(--teal);color:#fff}
+/* MINA BRIEFING */
+.mina-brief{background:var(--navy);border-radius:16px;padding:20px 22px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;animation:fadeUp 0.5s ease 0.05s both}
+.mina-av{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,0.15);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:15px;font-style:italic;color:var(--gold);flex-shrink:0}
+.mina-brief-name{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:0.06em;margin-bottom:4px}
+.mina-brief-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.65}
+.mina-brief-text strong{color:#fff}
+.mina-talk-btn{margin-left:auto;flex-shrink:0;background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--teal);cursor:pointer;font-family:var(--font-b);transition:all 0.2s;white-space:nowrap}
+.mina-talk-btn:hover{background:var(--teal);color:#fff}
 
 /* STATS GRID */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.1s both}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);transition:all 0.2s;cursor:default}
+.stat-card{background:#141827;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);transition:all 0.2s;cursor:default}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .stat-label{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -82,17 +82,17 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 /* SCORE RING */
 .score-ring-wrap{position:relative;width:60px;height:60px;margin-bottom:8px}
 .score-ring-wrap svg{width:60px;height:60px;transform:rotate(-90deg)}
-.score-ring-bg{fill:none;stroke:var(--border);stroke-width:6}
+.score-ring-bg{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:6}
 .score-ring-arc{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.5s ease}
-.score-ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-h);font-size:16px;font-style:italic;color:var(--navy);line-height:1}
+.score-ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-h);font-size:16px;font-style:italic;color:var(--white);line-height:1}
 
 /* MAIN GRID */
 .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.15s both}
 
 /* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.card{background:#141827;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.card-title{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy);font-weight:700}
+.card-title{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--white);font-weight:700}
 .card-action{font-size:11px;font-weight:600;color:var(--teal-d);cursor:pointer;background:none;border:none;font-family:var(--font-b);transition:color 0.2s}
 .card-action:hover{color:var(--teal)}
 
@@ -114,36 +114,36 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 .debt-bars{display:flex;flex-direction:column;gap:10px}
 .debt-bar-item{}
 .debt-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.debt-bar-name{font-size:12px;font-weight:600;color:var(--navy)}
+.debt-bar-name{font-size:12px;font-weight:600;color:var(--white)}
 .debt-bar-amount{font-family:var(--font-h);font-size:14px;font-style:italic;color:var(--red)}
-.debt-bar-track{height:6px;background:var(--border2);border-radius:3px;overflow:hidden}
+.debt-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
 .debt-bar-fill{height:6px;background:linear-gradient(90deg,var(--red),#F87171);border-radius:3px;transition:width 1s ease}
 .debt-bar-meta{font-size:10px;color:var(--dim);margin-top:3px}
-.debt-free-date{background:var(--teal-l);border:1px solid var(--teal-b);border-radius:10px;padding:10px 12px;text-align:center;margin-top:12px}
+.debt-free-date{background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:10px;padding:10px 12px;text-align:center;margin-top:12px}
 .debt-free-label{font-size:10px;color:var(--teal-d);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
-.debt-free-val{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy)}
+.debt-free-val{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--white)}
 .no-debt{text-align:center;padding:24px;color:var(--dim);font-size:13px}
 .no-debt-val{font-family:var(--font-h);font-size:32px;font-style:italic;color:var(--teal-d);margin-bottom:6px}
 
 /* QUICK ACTIONS */
 .actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;animation:fadeUp 0.5s ease 0.2s both;margin-bottom:20px}
-.action-btn{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
+.action-btn{background:#141827;border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
 .action-btn:hover{border-color:var(--teal-b);background:var(--teal-l);transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .action-icon{width:36px;height:36px;border-radius:10px;background:var(--teal-l);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
 .action-icon-inner{width:14px;height:14px;background:var(--teal);border-radius:3px}
-.action-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:3px}
+.action-title{font-size:12px;font-weight:600;color:var(--white);margin-bottom:3px}
 .action-sub{font-size:10px;color:var(--dim)}
 
-/* VERA CHAT (full page) */
+/* MINA CHAT (full page) */
 .chat-page{display:none;flex-direction:column;height:calc(100vh - 56px)}
 .chat-page.active{display:flex}
 .chat-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
 .chat-msg{max-width:78%;font-size:13px;line-height:1.65;padding:12px 15px;border-radius:12px}
-.chat-msg.vera{background:var(--white);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px;align-self:flex-start}
+.chat-msg.mina{background:var(--white);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px;align-self:flex-start}
 .chat-msg.user{background:var(--navy);color:#fff;border-radius:12px 4px 12px 12px;align-self:flex-end}
-.chat-msg.vera strong{color:var(--teal-d)}
-.chat-input-area{padding:16px 20px;background:var(--white);border-top:1px solid var(--border);display:flex;gap:10px}
-.chat-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:var(--font-b);color:var(--navy);background:var(--bg);outline:none;transition:border-color 0.2s;resize:none}
+.chat-msg.mina strong{color:var(--teal-d)}
+.chat-input-area{padding:16px 20px;background:#141827;border-top:1px solid var(--border);display:flex;gap:10px}
+.chat-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:var(--font-b);color:var(--white);background:#0C0F1A;outline:none;transition:border-color 0.2s;resize:none}
 .chat-input:focus{border-color:var(--teal)}
 .chat-input::placeholder{color:var(--dim)}
 .chat-send{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.2s;white-space:nowrap}
@@ -155,7 +155,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 .tdot:nth-child(3){animation-delay:0.4s}
 
 /* MOBILE */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:8px 16px;z-index:100;justify-content:space-around}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#141827;border-top:1px solid var(--border);padding:8px 16px;z-index:100;justify-content:space-around}
 .mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:all 0.2s;font-size:10px;font-weight:500;color:var(--dim)}
 .mob-item.active{color:var(--teal-d)}
 .mob-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
@@ -187,8 +187,8 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
     <div class="sb-item active" onclick="showPage('dashboard')">
       <div class="sb-item-dot"></div>Dashboard
     </div>
-    <div class="sb-item" onclick="showPage('vera')">
-      <div class="sb-item-dot"></div>Talk to Vera
+    <div class="sb-item" onclick="showPage('mina')">
+      <div class="sb-item-dot"></div>Talk to Mina
     </div>
     <div class="sb-item" onclick="showPage('debt')">
       <div class="sb-item-dot"></div>Debt Countdown
@@ -223,14 +223,14 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
       <div class="page-date" id="dateStr"></div>
     </div>
 
-    <!-- VERA BRIEFING -->
-    <div class="vera-brief" id="veraBriefing">
-      <div class="vera-av">V</div>
+    <!-- MINA BRIEFING -->
+    <div class="mina-brief" id="minaBriefing">
+      <div class="mina-av">V</div>
       <div style="flex:1">
-        <div class="vera-brief-name">VERA</div>
-        <div class="vera-brief-text" id="veraText">Loading your daily briefing...</div>
+        <div class="mina-brief-name">MINA</div>
+        <div class="mina-brief-text" id="minaText">Loading your daily briefing...</div>
       </div>
-      <button class="vera-talk-btn" onclick="showPage('vera')">Talk to Vera →</button>
+      <button class="mina-talk-btn" onclick="showPage('mina')">Talk to Mina →</button>
     </div>
 
     <!-- STATS -->
@@ -281,7 +281,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
           <div class="payday-budget-val" id="dailyBudget">—</div>
           <div class="payday-budget-sub" id="dailyBudgetSub">Set your payday date to activate</div>
         </div>
-        <button class="btn-payday-update" onclick="showPage('vera')">Ask Vera for payday plan</button>
+        <button class="btn-payday-update" onclick="showPage('mina')">Ask Mina for payday plan</button>
       </div>
 
       <!-- DEBT -->
@@ -298,9 +298,9 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 
     <!-- QUICK ACTIONS -->
     <div class="actions-grid">
-      <div class="action-btn" onclick="showPage('vera')">
+      <div class="action-btn" onclick="showPage('mina')">
         <div class="action-icon"><div class="action-icon-inner"></div></div>
-        <div class="action-title">Talk to Vera</div>
+        <div class="action-title">Talk to Mina</div>
         <div class="action-sub">Your coach is ready</div>
       </div>
       <div class="action-btn" onclick="showPage('debt')">
@@ -316,24 +316,24 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
     </div>
   </div>
 
-  <!-- VERA CHAT PAGE -->
-  <div id="page-vera" style="display:none">
+  <!-- MINA CHAT PAGE -->
+  <div id="page-mina" style="display:none">
     <div class="page-header">
       <div class="page-greeting">Your personal financial coach</div>
-      <div class="page-title">Talk to <span>Vera</span></div>
+      <div class="page-title">Talk to <span>Mina</span></div>
     </div>
     <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;height:calc(100vh - 200px);display:flex;flex-direction:column;box-shadow:var(--shadow)">
       <div style="padding:14px 18px;background:var(--navy);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)">
         <div style="width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,0.15);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:14px;font-style:italic;color:var(--gold)">V</div>
         <div>
-          <div style="font-size:13px;font-weight:600;color:#fff">Vera</div>
+          <div style="font-size:13px;font-weight:600;color:#fff">Mina</div>
           <div style="font-size:10px;color:var(--teal);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;background:var(--teal);border-radius:50%;animation:pulse 2s ease infinite"></div>Active now</div>
         </div>
         <div style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.3);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;background:var(--green);border-radius:50%"></div>Private & encrypted</div>
       </div>
       <div class="chat-msgs" id="chatMsgs"></div>
       <div class="chat-input-area">
-        <textarea class="chat-input" id="chatInput" placeholder="Ask Vera anything about your finances..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <textarea class="chat-input" id="chatInput" placeholder="Ask Mina anything about your finances..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
         <button class="chat-send" id="sendBtn" onclick="sendMsg()">Send</button>
       </div>
     </div>
@@ -351,7 +351,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
   <!-- PAYDAY PAGE -->
   <div id="page-payday" style="display:none">
     <div class="page-header">
-      <div class="page-greeting">Vera's guide for your next payday</div>
+      <div class="page-greeting">Mina's guide for your next payday</div>
       <div class="page-title">Payday <span>Survival Plan</span></div>
     </div>
     <div id="paydayPageContent"></div>
@@ -362,7 +362,7 @@ body{background:var(--bg);color:var(--navy);font-family:var(--font-b);font-size:
 <!-- MOBILE NAV -->
 <div class="mob-nav">
   <div class="mob-item active" id="mob-dashboard" onclick="showPage('dashboard')"><div class="mob-dot"></div>Home</div>
-  <div class="mob-item" id="mob-vera" onclick="showPage('vera')"><div class="mob-dot"></div>Vera</div>
+  <div class="mob-item" id="mob-mina" onclick="showPage('mina')"><div class="mob-dot"></div>Mina</div>
   <div class="mob-item" id="mob-debt" onclick="showPage('debt')"><div class="mob-dot"></div>Debt</div>
   <div class="mob-item" id="mob-payday" onclick="showPage('payday')"><div class="mob-dot"></div>Payday</div>
 </div>
@@ -396,9 +396,9 @@ async function loadData() {
   } catch(e) {}
 
   // Fallback to localStorage
-  var lProf = localStorage.getItem('vera_profile');
-  var lFin = localStorage.getItem('vera_fin');
-  var lDebts = localStorage.getItem('vera_debts');
+  var lProf = localStorage.getItem('mina_profile');
+  var lFin = localStorage.getItem('mina_fin');
+  var lDebts = localStorage.getItem('mina_debts');
 
   if (!profile && lProf) try { profile = JSON.parse(lProf); } catch(e) {}
   if (!finData || (!finData.health_score && !finData.total_debt && !finData.total_savings)) {
@@ -444,13 +444,13 @@ function renderDashboard() {
   document.getElementById('debtSub').textContent = finData.total_debt > 0 ? 'being eliminated' : 'You are debt free!';
   document.getElementById('savingsVal').textContent = cur + ' ' + (finData.total_savings || 0).toLocaleString();
 
-  // Vera briefing
+  // Mina briefing
   var briefText = greet + ', ' + firstName + '. ';
   if (score >= 70) briefText += 'Your financial health score is strong at ' + score + '/100. ';
   else if (score > 0) briefText += 'Your health score is ' + score + '/100. There is real progress to make today. ';
   if (finData.total_debt > 0) briefText += 'Focus on your debt elimination — every payment moves you closer to freedom. ';
   if (!finData.health_score) briefText = 'Welcome! Complete your financial profile so I can give you your personalized plan and daily briefing.';
-  document.getElementById('veraText').textContent = briefText;
+  document.getElementById('minaText').textContent = briefText;
 
   // Payday countdown
   renderPayday(cur, avail);
@@ -494,7 +494,7 @@ function renderPayday(cur, avail) {
 function renderDebtBars(cur) {
   var el = document.getElementById('debtContent');
   if (debts.length === 0 && !finData.total_debt) {
-    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">$0</div>No debts recorded yet.<br>Talk to Vera to set up your debt plan.</div>';
+    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">$0</div>No debts recorded yet.<br>Talk to Mina to set up your debt plan.</div>';
     return;
   }
   var totalDebt = finData.total_debt || debts.reduce(function(s,d){return s+d.amount;},0);
@@ -516,7 +516,7 @@ function renderDebtBars(cur) {
     }
     el.innerHTML = html;
   } else {
-    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">' + cur + ' ' + totalDebt.toLocaleString() + '</div>Total debt to eliminate.<br>Talk to Vera to build your plan.</div>';
+    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">' + cur + ' ' + totalDebt.toLocaleString() + '</div>Total debt to eliminate.<br>Talk to Mina to build your plan.</div>';
   }
 }
 
@@ -524,7 +524,7 @@ function renderDebtPage(cur) {
   var el = document.getElementById('debtPageContent');
   var totalDebt = finData.total_debt || 0;
   if (debts.length === 0 && !totalDebt) {
-    el.innerHTML = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:var(--font-h);font-size:32px;font-style:italic;color:var(--teal-d);margin-bottom:8px">Debt free</div><div style="font-size:13px;color:var(--muted)">You have no debts recorded. Talk to Vera to add your debts and build an elimination plan.</div></div>';
+    el.innerHTML = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:var(--font-h);font-size:32px;font-style:italic;color:var(--teal-d);margin-bottom:8px">Debt free</div><div style="font-size:13px;color:var(--muted)">You have no debts recorded. Talk to Mina to add your debts and build an elimination plan.</div></div>';
     return;
   }
   var html = '';
@@ -542,12 +542,12 @@ function renderDebtPage(cur) {
     '</div>';
   });
   if (!html) {
-    html = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center"><div style="font-family:var(--font-h);font-size:26px;font-style:italic;color:var(--red);margin-bottom:6px">' + cur + ' ' + totalDebt.toLocaleString() + '</div><div style="font-size:13px;color:var(--muted)">Total debt. Talk to Vera to set up your detailed elimination plan.</div></div>';
+    html = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center"><div style="font-family:var(--font-h);font-size:26px;font-style:italic;color:var(--red);margin-bottom:6px">' + cur + ' ' + totalDebt.toLocaleString() + '</div><div style="font-size:13px;color:var(--muted)">Total debt. Talk to Mina to set up your detailed elimination plan.</div></div>';
   }
   html += '<div style="background:var(--navy);border-radius:16px;padding:20px;text-align:center;box-shadow:var(--shadow)">' +
     '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:#fff;margin-bottom:8px">Want a faster payoff date?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px">Ask Vera to build your accelerated debt elimination strategy.</div>' +
-    '<button onclick="showPage(\'vera\')" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Ask Vera for my strategy</button>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px">Ask Mina to build your accelerated debt elimination strategy.</div>' +
+    '<button onclick="showPage(\'mina\')" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Ask Mina for my strategy</button>' +
   '</div>';
   el.innerHTML = html;
 }
@@ -578,9 +578,9 @@ function renderPaydayPage(cur, avail) {
     }
   }
   html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)">' +
-    '<div style="font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy);margin-bottom:8px">Vera\'s payday instructions</div>' +
-    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Ask Vera what to do the moment your salary arrives. She will give you exact instructions based on your bills and goals.</div>' +
-    '<button onclick="askVeraPayday()" style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Get my payday instructions from Vera</button>' +
+    '<div style="font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy);margin-bottom:8px">Mina\'s payday instructions</div>' +
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Ask Mina what to do the moment your salary arrives. She will give you exact instructions based on your bills and goals.</div>' +
+    '<button onclick="askMinaPayday()" style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Get my payday instructions from Mina</button>' +
   '</div>';
   el.innerHTML = html;
 }
@@ -594,15 +594,15 @@ function kn2(label, val, color) {
 
 function showPage(page) {
   currentPage = page;
-  ['dashboard','vera','debt','payday'].forEach(function(p) {
+  ['dashboard','mina','debt','payday'].forEach(function(p) {
     document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
     var mobEl = document.getElementById('mob-' + p);
     if (mobEl) mobEl.classList.toggle('active', p === page);
   });
   document.querySelectorAll('.sb-item').forEach(function(el, i) {
-    el.classList.toggle('active', i === ['dashboard','vera','debt','payday','upgrade'].indexOf(page));
+    el.classList.toggle('active', i === ['dashboard','mina','debt','payday','upgrade'].indexOf(page));
   });
-  if (page === 'vera' && chatHistory.length === 0) initChat();
+  if (page === 'mina' && chatHistory.length === 0) initChat();
 }
 
 function initChat() {
@@ -614,7 +614,7 @@ function initChat() {
   if (finData.total_debt > 0) msg += 'You have ' + cur + ' ' + finData.total_debt.toLocaleString() + ' in total debt. ';
   if (finData.total_savings > 0) msg += 'Your savings stand at ' + cur + ' ' + finData.total_savings.toLocaleString() + '. ';
   msg += 'What would you like to work on today?';
-  addMsg('vera', msg);
+  addMsg('mina', msg);
 }
 
 function addMsg(role, text) {
@@ -624,7 +624,7 @@ function addMsg(role, text) {
   div.textContent = text;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
-  chatHistory.push({role: role === 'vera' ? 'assistant' : 'user', content: text});
+  chatHistory.push({role: role === 'mina' ? 'assistant' : 'user', content: text});
 }
 
 function addTyping() {
@@ -648,7 +648,7 @@ async function sendMsg() {
   addTyping();
 
   var cur = profile.currency || 'USD';
-  var systemPrompt = 'You are Vera, a strict but caring personal financial coach. You know this user completely:\n' +
+  var systemPrompt = 'You are Mina, a strict but caring personal financial coach. You know this user completely:\n' +
     'Name: ' + (profile.full_name || 'Unknown') + '\n' +
     'Currency: ' + cur + '\n' +
     'Monthly income: ' + (profile.monthly_income || 0) + ' ' + cur + '\n' +
@@ -670,16 +670,16 @@ async function sendMsg() {
     });
     var data = await r.json();
     removeTyping();
-    addMsg('vera', data.response || data.message || 'I am having trouble connecting. Please try again.');
+    addMsg('mina', data.response || data.message || 'I am having trouble connecting. Please try again.');
   } catch(e) {
     removeTyping();
-    addMsg('vera', 'I am having trouble connecting right now. Please try again in a moment.');
+    addMsg('mina', 'I am having trouble connecting right now. Please try again in a moment.');
   }
   document.getElementById('sendBtn').disabled = false;
 }
 
-function askVeraPayday() {
-  showPage('vera');
+function askMinaPayday() {
+  showPage('mina');
   setTimeout(function() {
     document.getElementById('chatInput').value = 'My payday is coming up. What should I do with my money the moment it arrives?';
     sendMsg();
