@@ -894,7 +894,7 @@ async function doSignup() {
   var btn = document.getElementById('signupBtn');
   btn.innerHTML = '<span class="spinner"></span>Creating account...';
   btn.disabled = true;
-  var r = await sb.auth.signUp({ email:email, password:pass, options:{ data:{ full_name:name }, emailRedirectTo:window.location.origin+'/dashboard.html' } });
+  var r = await sb.auth.signUp({ email:email, password:pass, options:{ data:{ full_name:name }, emailRedirectTo:'https://sumgoals.com/verify.html' } });
   btn.innerHTML = 'Create my free account'; btn.disabled = false;
   if (r.error) return showError(r.error.message);
   document.getElementById('authContent').style.display = 'none';
