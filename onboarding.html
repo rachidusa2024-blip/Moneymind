@@ -984,7 +984,7 @@ async function doSignup() {
   if (pass.length<8) { err.textContent='Password must be at least 8 characters'; err.style.display='block'; return; }
   var btn = document.getElementById('moBtn');
   btn.textContent='Creating account...'; btn.disabled=true;
-  var r = await sb.auth.signUp({email:email, password:pass, options:{data:{full_name:name}, emailRedirectTo:window.location.origin+'/dashboard.html'}});
+  var r = await sb.auth.signUp({email:email, password:pass, options:{data:{full_name:name}, emailRedirectTo: 'https://sumgoals.com/verify.html'}});
   btn.textContent='Create free account and save my plan'; btn.disabled=false;
   if (r.error) { err.textContent=r.error.message; err.style.display='block'; return; }
   user = r.data.user;
