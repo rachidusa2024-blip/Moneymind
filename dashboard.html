@@ -7,167 +7,165 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#0C0F1A; --white:#F0F4FF; --navy:#0C0F1A; --navy2:#141827;
-  --teal:#00C9A7; --teal-d:#00A888; --teal-l:rgba(0,201,167,0.08); --teal-b:rgba(0,201,167,0.18);
-  --gold:#C9A84C; --gold-l:rgba(201,168,76,0.08); --gold-b:rgba(201,168,76,0.2);
-  --muted:#8B9CB6; --dim:#4A5568; --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.04);
-  --red:#EF4444; --green:#10B981;
-  --shadow:0 4px 16px rgba(0,0,0,0.3);
-  --shadow-md:0 8px 24px rgba(0,0,0,0.4);
-  --shadow-lg:0 20px 48px rgba(0,0,0,0.5);
-  --font-h:'Cormorant Garamond',serif; --font-b:'DM Sans',sans-serif;
-}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--white);font-family:var(--font-b);font-size:14px;min-height:100vh}
+body{background:#0C0F1A;color:#F0F4FF;font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
 /* LOADING */
 .loading{position:fixed;inset:0;background:#0C0F1A;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:16px}
-.loading-logo{font-family:var(--font-h);font-size:24px;font-style:italic;color:var(--white)}
-.loading-logo span{color:var(--teal)}
-.loader{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite}
+.loading-logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:#F0F4FF}
+.loading-logo span{color:#00C9A7}
+.loader{width:32px;height:32px;border:2px solid rgba(255,255,255,0.07);border-top-color:#00C9A7;border-radius:50%;animation:spin 0.8s linear infinite}
 
 /* SIDEBAR */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--navy);display:flex;flex-direction:column;z-index:100;padding:0}
-.sb-logo{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.sb-logo-text{font-family:var(--font-h);font-size:20px;font-weight:700;color:#fff}
-.sb-logo-text span{color:var(--teal);font-style:italic}
-.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px}
-.sb-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);text-decoration:none}
-.sb-item:hover{background:rgba(255,255,255,0.07);color:#fff}
-.sb-item.active{background:rgba(0,201,167,0.12);color:var(--teal);border:1px solid rgba(0,201,167,0.2)}
-.sb-item-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.6}
-.sb-item.active .sb-item-dot{opacity:1;background:var(--teal)}
-.sb-bottom{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.08)}
-.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px}
-.sb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,0.2);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:13px;font-style:italic;color:var(--gold);flex-shrink:0}
-.sb-uname{font-size:12px;font-weight:600;color:#fff}
-.sb-email{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px}
-.btn-signout{width:100%;margin-top:8px;padding:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;font-family:var(--font-b);transition:all 0.2s;text-align:center}
-.btn-signout:hover{background:rgba(255,255,255,0.1);color:#fff}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#141827;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:22px 24px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer}
+.sb-logo-txt{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#F0F4FF}
+.sb-logo-txt span{color:#00C9A7;font-style:italic}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:500;color:rgba(255,255,255,0.45);border:1px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,0.05);color:#F0F4FF}
+.sb-item.active{background:rgba(0,201,167,0.1);color:#00C9A7;border-color:rgba(0,201,167,0.2)}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.7}
+.sb-item.active .sb-dot{opacity:1}
+.sb-bottom{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.07)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px}
+.sb-av{width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,0.12);border:1.5px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#C9A84C;flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:600;color:#F0F4FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-email{font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-out{width:100%;padding:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;color:rgba(255,255,255,0.35);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-out:hover{background:rgba(255,255,255,0.08);color:#F0F4FF}
 
 /* MAIN */
 .main{margin-left:240px;min-height:100vh;padding:28px;background:#0C0F1A}
-.page-header{margin-bottom:24px;animation:fadeUp 0.5s ease forwards}
-.page-greeting{font-size:12px;color:var(--dim);margin-bottom:4px;font-weight:500}
-.page-title{font-family:var(--font-h);font-size:clamp(24px,3vw,34px);font-weight:700;font-style:italic;color:var(--white);letter-spacing:-0.5px}
-.page-title span{color:var(--teal)}
-.page-date{font-size:12px;color:var(--dim);margin-top:4px}
+
+/* PAGE HEADER */
+.ph{margin-bottom:22px;animation:fadeUp 0.5s ease forwards}
+.ph-greet{font-size:12px;color:#4A5568;font-weight:500;margin-bottom:4px}
+.ph-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3vw,36px);font-weight:700;font-style:italic;color:#F0F4FF;letter-spacing:-0.5px}
+.ph-title span{color:#00C9A7}
+.ph-date{font-size:12px;color:#4A5568;margin-top:3px}
 
 /* MINA BRIEFING */
-.mina-brief{background:var(--navy);border-radius:16px;padding:20px 22px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;animation:fadeUp 0.5s ease 0.05s both}
-.mina-av{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,0.15);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:15px;font-style:italic;color:var(--gold);flex-shrink:0}
-.mina-brief-name{font-size:11px;font-weight:600;color:var(--gold);letter-spacing:0.06em;margin-bottom:4px}
-.mina-brief-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.65}
-.mina-brief-text strong{color:#fff}
-.mina-talk-btn{margin-left:auto;flex-shrink:0;background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.25);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--teal);cursor:pointer;font-family:var(--font-b);transition:all 0.2s;white-space:nowrap}
-.mina-talk-btn:hover{background:var(--teal);color:#fff}
+.mina-brief{background:#141827;border:1px solid rgba(201,168,76,0.15);border-radius:16px;padding:18px 20px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;animation:fadeUp 0.5s ease 0.05s both}
+.mav{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:#C9A84C;flex-shrink:0}
+.mina-name{font-size:10px;font-weight:600;color:#C9A84C;letter-spacing:0.1em;margin-bottom:4px}
+.mina-txt{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.65}
+.mina-txt strong{color:#F0F4FF}
+.btn-talk{flex-shrink:0;background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#00C9A7;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;align-self:center}
+.btn-talk:hover{background:#00C9A7;color:#0C0F1A}
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.1s both}
-.stat-card{background:#141827;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);transition:all 0.2s;cursor:default}
-.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.stat-label{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.stat-val{font-family:var(--font-h);font-size:clamp(22px,3vw,30px);font-style:italic;color:var(--navy);line-height:1;margin-bottom:4px}
-.stat-val.teal{color:var(--teal-d)}
-.stat-val.red{color:var(--red)}
-.stat-val.gold{color:var(--gold)}
-.stat-sub{font-size:11px;color:var(--dim)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.1s both}
+.sc{background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:18px;transition:all 0.2s}
+.sc:hover{border-color:rgba(0,201,167,0.2);transform:translateY(-2px)}
+.sc-lbl{font-size:10px;font-weight:600;color:#4A5568;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.sc-val{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,30px);font-style:italic;color:#F0F4FF;line-height:1;margin-bottom:4px}
+.sc-val.teal{color:#00C9A7}
+.sc-val.red{color:#EF4444}
+.sc-val.gold{color:#C9A84C}
+.sc-sub{font-size:11px;color:#4A5568}
 
 /* SCORE RING */
-.score-ring-wrap{position:relative;width:60px;height:60px;margin-bottom:8px}
-.score-ring-wrap svg{width:60px;height:60px;transform:rotate(-90deg)}
-.score-ring-bg{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:6}
-.score-ring-arc{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.5s ease}
-.score-ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-h);font-size:16px;font-style:italic;color:var(--white);line-height:1}
+.ring-wrap{position:relative;width:58px;height:58px;margin-bottom:8px}
+.ring-wrap svg{width:58px;height:58px;transform:rotate(-90deg)}
+.rbg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:6}
+.rarc{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset 1.5s ease}
+.rnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:#F0F4FF;line-height:1}
 
 /* MAIN GRID */
-.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.15s both}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.15s both}
 
-/* CARDS */
-.card{background:#141827;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.card-title{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--white);font-weight:700}
-.card-action{font-size:11px;font-weight:600;color:var(--teal-d);cursor:pointer;background:none;border:none;font-family:var(--font-b);transition:color 0.2s}
-.card-action:hover{color:var(--teal)}
+/* CARD */
+.card{background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:#F0F4FF;font-weight:700}
+.card-act{font-size:11px;font-weight:600;color:#00C9A7;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;transition:color 0.2s}
+.card-act:hover{color:#00A888}
 
-/* PAYDAY */
-.payday-card{background:var(--navy);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
-.payday-card .card-title{color:#fff}
-.payday-countdown{display:flex;gap:12px;margin:16px 0}
-.payday-unit{text-align:center;flex:1;background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 8px}
-.payday-num{font-family:var(--font-h);font-size:28px;font-style:italic;color:#fff;line-height:1}
-.payday-lbl{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
-.payday-budget{background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.2);border-radius:10px;padding:12px;text-align:center}
-.payday-budget-lbl{font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:4px}
-.payday-budget-val{font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--teal);line-height:1}
-.payday-budget-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px}
-.btn-payday-update{width:100%;margin-top:12px;padding:9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.6);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:all 0.2s}
-.btn-payday-update:hover{background:rgba(255,255,255,0.1);color:#fff}
+/* PAYDAY CARD */
+.payday-card{background:#141827;border:1px solid rgba(0,201,167,0.15);border-radius:16px;padding:20px}
+.pd-units{display:flex;gap:10px;margin:14px 0}
+.pd-unit{flex:1;background:#0C0F1A;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 8px;text-align:center}
+.pd-num{font-family:'Cormorant Garamond',serif;font-size:26px;font-style:italic;color:#F0F4FF;line-height:1}
+.pd-lbl{font-size:9px;color:#4A5568;text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
+.pd-budget{background:rgba(0,201,167,0.07);border:1px solid rgba(0,201,167,0.15);border-radius:10px;padding:12px;text-align:center;margin-top:10px}
+.pd-blbl{font-size:10px;color:#4A5568;margin-bottom:4px}
+.pd-bval{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:#00C9A7;line-height:1}
+.pd-bsub{font-size:10px;color:#4A5568;margin-top:3px}
+.btn-pd{width:100%;margin-top:12px;padding:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:rgba(255,255,255,0.45);font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-pd:hover{background:rgba(0,201,167,0.1);color:#00C9A7;border-color:rgba(0,201,167,0.2)}
 
-/* DEBT */
-.debt-bars{display:flex;flex-direction:column;gap:10px}
-.debt-bar-item{}
-.debt-bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.debt-bar-name{font-size:12px;font-weight:600;color:var(--white)}
-.debt-bar-amount{font-family:var(--font-h);font-size:14px;font-style:italic;color:var(--red)}
-.debt-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
-.debt-bar-fill{height:6px;background:linear-gradient(90deg,var(--red),#F87171);border-radius:3px;transition:width 1s ease}
-.debt-bar-meta{font-size:10px;color:var(--dim);margin-top:3px}
-.debt-free-date{background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:10px;padding:10px 12px;text-align:center;margin-top:12px}
-.debt-free-label{font-size:10px;color:var(--teal-d);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
-.debt-free-val{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--white)}
-.no-debt{text-align:center;padding:24px;color:var(--dim);font-size:13px}
-.no-debt-val{font-family:var(--font-h);font-size:32px;font-style:italic;color:var(--teal-d);margin-bottom:6px}
+/* DEBT BARS */
+.debt-bars{display:flex;flex-direction:column;gap:12px}
+.dbar{}
+.dbar-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.dbar-name{font-size:12px;font-weight:600;color:#F0F4FF}
+.dbar-amt{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#EF4444}
+.dbar-track{height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden}
+.dbar-fill{height:5px;background:linear-gradient(90deg,#EF4444,#F87171);border-radius:3px;transition:width 1s ease}
+.dbar-meta{font-size:10px;color:#4A5568;margin-top:3px}
+.debt-free{background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:10px;padding:10px 12px;text-align:center;margin-top:14px}
+.df-lbl{font-size:10px;color:#00C9A7;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.df-val{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:#F0F4FF}
+.no-debt{text-align:center;padding:24px;color:#4A5568;font-size:13px}
+.no-debt-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-style:italic;color:#00C9A7;margin-bottom:6px}
 
 /* QUICK ACTIONS */
-.actions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;animation:fadeUp 0.5s ease 0.2s both;margin-bottom:20px}
-.action-btn{background:#141827;border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
-.action-btn:hover{border-color:var(--teal-b);background:var(--teal-l);transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.action-icon{width:36px;height:36px;border-radius:10px;background:var(--teal-l);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.action-icon-inner{width:14px;height:14px;background:var(--teal);border-radius:3px}
-.action-title{font-size:12px;font-weight:600;color:var(--white);margin-bottom:3px}
-.action-sub{font-size:10px;color:var(--dim)}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;animation:fadeUp 0.5s ease 0.2s both;margin-bottom:20px}
+.act-btn{background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center}
+.act-btn:hover{border-color:rgba(0,201,167,0.25);background:rgba(0,201,167,0.06);transform:translateY(-2px)}
+.act-icon{width:36px;height:36px;border-radius:10px;background:rgba(0,201,167,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.act-inner{width:14px;height:14px;background:#00C9A7;border-radius:3px}
+.act-title{font-size:12px;font-weight:600;color:#F0F4FF;margin-bottom:3px}
+.act-sub{font-size:10px;color:#4A5568}
 
-/* MINA CHAT (full page) */
-.chat-page{display:none;flex-direction:column;height:calc(100vh - 56px)}
-.chat-page.active{display:flex}
-.chat-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
-.chat-msg{max-width:78%;font-size:13px;line-height:1.65;padding:12px 15px;border-radius:12px}
-.chat-msg.mina{background:var(--white);border:1px solid var(--border);color:var(--navy);border-radius:4px 12px 12px 12px;align-self:flex-start}
-.chat-msg.user{background:var(--navy);color:#fff;border-radius:12px 4px 12px 12px;align-self:flex-end}
-.chat-msg.mina strong{color:var(--teal-d)}
-.chat-input-area{padding:16px 20px;background:#141827;border-top:1px solid var(--border);display:flex;gap:10px}
-.chat-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:var(--font-b);color:var(--white);background:#0C0F1A;outline:none;transition:border-color 0.2s;resize:none}
-.chat-input:focus{border-color:var(--teal)}
-.chat-input::placeholder{color:var(--dim)}
-.chat-send{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.2s;white-space:nowrap}
-.chat-send:hover{background:var(--teal-d)}
-.chat-send:disabled{background:var(--dim);cursor:not-allowed}
-.chat-typing{display:flex;gap:4px;padding:12px 15px;background:var(--white);border:1px solid var(--border);border-radius:4px 12px 12px 12px;width:fit-content;align-self:flex-start}
-.tdot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 1.2s ease infinite}
+/* CHAT PAGE */
+.chat-wrap{background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden;height:calc(100vh - 220px);display:flex;flex-direction:column}
+.chat-top{padding:14px 18px;background:#0C0F1A;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0}
+.chat-av{width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#C9A84C}
+.chat-status{font-size:10px;color:#00C9A7;display:flex;align-items:center;gap:4px}
+.chat-sdot{width:5px;height:5px;background:#00C9A7;border-radius:50%;animation:pulse 2s ease infinite}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.cmsg{max-width:80%;font-size:13px;line-height:1.65;padding:11px 14px;border-radius:12px}
+.cmsg.mina{background:#0C0F1A;border:1px solid rgba(255,255,255,0.07);color:#C8D0E0;border-radius:4px 12px 12px 12px;align-self:flex-start}
+.cmsg.mina strong{color:#00C9A7}
+.cmsg.user{background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.2);color:#F0F4FF;border-radius:12px 4px 12px 12px;align-self:flex-end}
+.typing{display:flex;gap:4px;padding:11px 14px;background:#0C0F1A;border:1px solid rgba(255,255,255,0.07);border-radius:4px 12px 12px 12px;width:fit-content;align-self:flex-start}
+.tdot{width:6px;height:6px;background:#00C9A7;border-radius:50%;animation:pulse 1.2s ease infinite}
 .tdot:nth-child(2){animation-delay:0.2s}
 .tdot:nth-child(3){animation-delay:0.4s}
+.chat-inp-area{padding:14px 16px;background:#0C0F1A;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:10px;flex-shrink:0}
+.chat-inp{flex:1;border:1.5px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:#F0F4FF;background:#141827;outline:none;transition:border-color 0.2s;resize:none}
+.chat-inp:focus{border-color:rgba(0,201,167,0.35)}
+.chat-inp::placeholder{color:#4A5568}
+.btn-send{background:#00C9A7;color:#0C0F1A;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
+.btn-send:hover{background:#00A888}
+.btn-send:disabled{background:#4A5568;cursor:not-allowed}
 
-/* MOBILE */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#141827;border-top:1px solid var(--border);padding:8px 16px;z-index:100;justify-content:space-around}
-.mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:8px;transition:all 0.2s;font-size:10px;font-weight:500;color:var(--dim)}
-.mob-item.active{color:var(--teal-d)}
+/* DEBT PAGE */
+.debt-page-card{background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;margin-bottom:14px}
+
+/* PAYDAY PAGE */
+.payday-page{}
+
+/* MOBILE NAV */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#141827;border-top:1px solid rgba(255,255,255,0.07);padding:8px 16px;z-index:100;justify-content:space-around}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:10px;font-weight:500;color:#4A5568;transition:all 0.2s}
+.mob-item.active{color:#00C9A7}
 .mob-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
 @media(max-width:900px){
   .sidebar{display:none}
   .main{margin-left:0;padding:16px 16px 80px}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .main-grid{grid-template-columns:1fr}
-  .actions-grid{grid-template-columns:repeat(3,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .mgrid{grid-template-columns:1fr}
+  .actions{grid-template-columns:repeat(3,1fr)}
   .mob-nav{display:flex}
-  .chat-page{height:calc(100vh - 136px)}
+  .chat-wrap{height:calc(100vh - 200px)}
 }
 </style>
 </head>
@@ -180,181 +178,155 @@ body{background:var(--bg);color:var(--white);font-family:var(--font-b);font-size
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="sb-logo">
-    <div class="sb-logo-text">Sum <span>Goals</span></div>
+  <div class="sb-logo" onclick="window.location.href='/index.html'">
+    <div class="sb-logo-txt">Sum <span>Goals</span></div>
   </div>
   <div class="sb-nav">
-    <div class="sb-item active" onclick="showPage('dashboard')">
-      <div class="sb-item-dot"></div>Dashboard
-    </div>
-    <div class="sb-item" onclick="showPage('mina')">
-      <div class="sb-item-dot"></div>Talk to Mina
-    </div>
-    <div class="sb-item" onclick="showPage('debt')">
-      <div class="sb-item-dot"></div>Debt Countdown
-    </div>
-    <div class="sb-item" onclick="showPage('payday')">
-      <div class="sb-item-dot"></div>Payday Plan
-    </div>
-    <div class="sb-item" onclick="window.location.href='/upgrade.html'">
-      <div class="sb-item-dot"></div>Upgrade to Pro
-    </div>
+    <div class="sb-item active" id="nav-dashboard" onclick="showPage('dashboard')"><div class="sb-dot"></div>Dashboard</div>
+    <div class="sb-item" id="nav-mina" onclick="showPage('mina')"><div class="sb-dot"></div>Talk to Mina</div>
+    <div class="sb-item" id="nav-debt" onclick="showPage('debt')"><div class="sb-dot"></div>Debt Countdown</div>
+    <div class="sb-item" id="nav-payday" onclick="showPage('payday')"><div class="sb-dot"></div>Payday Plan</div>
+    <div class="sb-item" onclick="window.location.href='/upgrade.html'"><div class="sb-dot"></div>Upgrade to Pro</div>
   </div>
   <div class="sb-bottom">
     <div class="sb-user">
-      <div class="sb-avatar" id="sbAvatar">V</div>
-      <div>
+      <div class="sb-av" id="sbAv">M</div>
+      <div style="overflow:hidden">
         <div class="sb-uname" id="sbName">Loading...</div>
         <div class="sb-email" id="sbEmail"></div>
       </div>
     </div>
-    <button class="btn-signout" onclick="signOut()">Sign out</button>
+    <button class="btn-out" onclick="signOut()">Sign out</button>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main" id="mainContent">
+<!-- MAIN CONTENT -->
+<div class="main" id="main">
 
-  <!-- DASHBOARD PAGE -->
+  <!-- DASHBOARD -->
   <div id="page-dashboard">
-    <div class="page-header">
-      <div class="page-greeting" id="greeting">Good morning</div>
-      <div class="page-title">Welcome back, <span id="firstName">—</span></div>
-      <div class="page-date" id="dateStr"></div>
+    <div class="ph">
+      <div class="ph-greet" id="greet">Good morning</div>
+      <div class="ph-title">Welcome back, <span id="firstName">—</span></div>
+      <div class="ph-date" id="dateStr"></div>
     </div>
-
-    <!-- MINA BRIEFING -->
-    <div class="mina-brief" id="minaBriefing">
-      <div class="mina-av">V</div>
+    <div class="mina-brief">
+      <div class="mav">M</div>
       <div style="flex:1">
-        <div class="mina-brief-name">MINA</div>
-        <div class="mina-brief-text" id="minaText">Loading your daily briefing...</div>
+        <div class="mina-name">MINA — YOUR COACH</div>
+        <div class="mina-txt" id="minaBrief">Loading your daily briefing...</div>
       </div>
-      <button class="mina-talk-btn" onclick="showPage('mina')">Talk to Mina →</button>
+      <button class="btn-talk" onclick="showPage('mina')">Talk to Mina →</button>
     </div>
-
-    <!-- STATS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label"><div class="stat-dot" style="background:var(--gold)"></div>Health Score</div>
-        <div class="score-ring-wrap" id="scoreRingWrap">
-          <svg viewBox="0 0 60 60">
-            <circle class="score-ring-bg" cx="30" cy="30" r="25"/>
-            <circle class="score-ring-arc" id="scoreArc" cx="30" cy="30" r="25"/>
-          </svg>
-          <div class="score-ring-num" id="scoreNum">—</div>
+    <div class="stats">
+      <div class="sc">
+        <div class="sc-lbl"><div class="sc-dot" style="background:#C9A84C"></div>Health Score</div>
+        <div class="ring-wrap">
+          <svg viewBox="0 0 58 58"><circle class="rbg" cx="29" cy="29" r="24"/><circle class="rarc" id="scoreArc" cx="29" cy="29" r="24"/></svg>
+          <div class="rnum" id="scoreNum">—</div>
         </div>
-        <div class="stat-sub" id="scoreLabel">Calculating...</div>
+        <div class="sc-sub" id="scoreLabel">—</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label"><div class="stat-dot" style="background:var(--green)"></div>Monthly Available</div>
-        <div class="stat-val teal" id="availVal">—</div>
-        <div class="stat-sub" id="availSub">after all expenses</div>
+      <div class="sc">
+        <div class="sc-lbl"><div class="sc-dot" style="background:#10B981"></div>Monthly Available</div>
+        <div class="sc-val teal" id="availVal">—</div>
+        <div class="sc-sub" id="availSub">after all expenses</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label"><div class="stat-dot" style="background:var(--red)"></div>Total Debt</div>
-        <div class="stat-val red" id="debtVal">—</div>
-        <div class="stat-sub" id="debtSub">being eliminated</div>
+      <div class="sc">
+        <div class="sc-lbl"><div class="sc-dot" style="background:#EF4444"></div>Total Debt</div>
+        <div class="sc-val red" id="debtVal">—</div>
+        <div class="sc-sub" id="debtSub">being eliminated</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label"><div class="stat-dot" style="background:var(--teal)"></div>Savings</div>
-        <div class="stat-val teal" id="savingsVal">—</div>
-        <div class="stat-sub">your safety net</div>
+      <div class="sc">
+        <div class="sc-lbl"><div class="sc-dot" style="background:#00C9A7"></div>Savings</div>
+        <div class="sc-val teal" id="savingsVal">—</div>
+        <div class="sc-sub">your safety net</div>
       </div>
     </div>
-
-    <!-- MAIN GRID -->
-    <div class="main-grid">
-      <!-- PAYDAY -->
+    <div class="mgrid">
       <div class="payday-card">
-        <div class="card-header">
-          <div class="card-title" style="color:#fff">Payday Countdown</div>
-          <button class="card-action" style="color:rgba(255,255,255,0.5)" onclick="showPage('payday')">View plan →</button>
+        <div class="card-hdr">
+          <div class="card-title" style="color:#F0F4FF">Payday Countdown</div>
+          <button class="card-act" onclick="showPage('payday')">View plan →</button>
         </div>
-        <div class="payday-countdown" id="paydayCountdown">
-          <div class="payday-unit"><div class="payday-num" id="pdDays">—</div><div class="payday-lbl">Days</div></div>
-          <div class="payday-unit"><div class="payday-num" id="pdHours">—</div><div class="payday-lbl">Hours</div></div>
-          <div class="payday-unit"><div class="payday-num" id="pdMins">—</div><div class="payday-lbl">Minutes</div></div>
+        <div class="pd-units">
+          <div class="pd-unit"><div class="pd-num" id="pdDays">—</div><div class="pd-lbl">Days</div></div>
+          <div class="pd-unit"><div class="pd-num" id="pdHours">—</div><div class="pd-lbl">Hours</div></div>
+          <div class="pd-unit"><div class="pd-num" id="pdMins">—</div><div class="pd-lbl">Min</div></div>
         </div>
-        <div class="payday-budget">
-          <div class="payday-budget-lbl">Daily budget remaining</div>
-          <div class="payday-budget-val" id="dailyBudget">—</div>
-          <div class="payday-budget-sub" id="dailyBudgetSub">Set your payday date to activate</div>
+        <div class="pd-budget">
+          <div class="pd-blbl">Daily budget</div>
+          <div class="pd-bval" id="dailyBudget">—</div>
+          <div class="pd-bsub" id="dailyBudgetSub">Set payday date to activate</div>
         </div>
-        <button class="btn-payday-update" onclick="showPage('mina')">Ask Mina for payday plan</button>
+        <button class="btn-pd" onclick="askMinaPayday()">Get payday plan from Mina</button>
       </div>
-
-      <!-- DEBT -->
       <div class="card">
-        <div class="card-header">
+        <div class="card-hdr">
           <div class="card-title">Debt Countdown</div>
-          <button class="card-action" onclick="showPage('debt')">View all →</button>
+          <button class="card-act" onclick="showPage('debt')">View all →</button>
         </div>
-        <div id="debtContent">
-          <div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">Loading...</div>
-        </div>
+        <div id="debtContent"><div style="text-align:center;padding:20px;color:#4A5568;font-size:13px">Loading...</div></div>
       </div>
     </div>
-
-    <!-- QUICK ACTIONS -->
-    <div class="actions-grid">
-      <div class="action-btn" onclick="showPage('mina')">
-        <div class="action-icon"><div class="action-icon-inner"></div></div>
-        <div class="action-title">Talk to Mina</div>
-        <div class="action-sub">Your coach is ready</div>
+    <div class="actions">
+      <div class="act-btn" onclick="showPage('mina')">
+        <div class="act-icon"><div class="act-inner"></div></div>
+        <div class="act-title">Talk to Mina</div>
+        <div class="act-sub">Your coach is ready</div>
       </div>
-      <div class="action-btn" onclick="showPage('debt')">
-        <div class="action-icon"><div class="action-icon-inner" style="background:var(--red)"></div></div>
-        <div class="action-title">Debt Plan</div>
-        <div class="action-sub">Track elimination</div>
+      <div class="act-btn" onclick="showPage('debt')">
+        <div class="act-icon"><div class="act-inner" style="background:#EF4444"></div></div>
+        <div class="act-title">Debt Plan</div>
+        <div class="act-sub">Track elimination</div>
       </div>
-      <div class="action-btn" onclick="showPage('payday')">
-        <div class="action-icon"><div class="action-icon-inner" style="background:var(--gold)"></div></div>
-        <div class="action-title">Payday Plan</div>
-        <div class="action-sub">Next steps ready</div>
+      <div class="act-btn" onclick="showPage('payday')">
+        <div class="act-icon"><div class="act-inner" style="background:#C9A84C"></div></div>
+        <div class="act-title">Payday Plan</div>
+        <div class="act-sub">Next steps ready</div>
       </div>
     </div>
   </div>
 
-  <!-- MINA CHAT PAGE -->
+  <!-- MINA CHAT -->
   <div id="page-mina" style="display:none">
-    <div class="page-header">
-      <div class="page-greeting">Your personal financial coach</div>
-      <div class="page-title">Talk to <span>Mina</span></div>
+    <div class="ph">
+      <div class="ph-greet">Your personal financial coach</div>
+      <div class="ph-title">Talk to <span>Mina</span></div>
     </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;height:calc(100vh - 200px);display:flex;flex-direction:column;box-shadow:var(--shadow)">
-      <div style="padding:14px 18px;background:var(--navy);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08)">
-        <div style="width:34px;height:34px;border-radius:50%;background:rgba(201,168,76,0.15);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:14px;font-style:italic;color:var(--gold)">V</div>
+    <div class="chat-wrap">
+      <div class="chat-top">
+        <div class="chat-av">M</div>
         <div>
-          <div style="font-size:13px;font-weight:600;color:#fff">Mina</div>
-          <div style="font-size:10px;color:var(--teal);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;background:var(--teal);border-radius:50%;animation:pulse 2s ease infinite"></div>Active now</div>
+          <div style="font-size:13px;font-weight:600;color:#F0F4FF">Mina</div>
+          <div class="chat-status"><div class="chat-sdot"></div>Active now · Private</div>
         </div>
-        <div style="margin-left:auto;font-size:10px;color:rgba(255,255,255,0.3);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;background:var(--green);border-radius:50%"></div>Private & encrypted</div>
+        <div style="margin-left:auto;font-size:10px;color:#4A5568">🔒 Encrypted</div>
       </div>
       <div class="chat-msgs" id="chatMsgs"></div>
-      <div class="chat-input-area">
-        <textarea class="chat-input" id="chatInput" placeholder="Ask Mina anything about your finances..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
-        <button class="chat-send" id="sendBtn" onclick="sendMsg()">Send</button>
+      <div class="chat-inp-area">
+        <textarea class="chat-inp" id="chatInp" placeholder="Ask Mina anything about your finances..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button class="btn-send" id="sendBtn" onclick="sendMsg()">Send</button>
       </div>
     </div>
   </div>
 
   <!-- DEBT PAGE -->
   <div id="page-debt" style="display:none">
-    <div class="page-header">
-      <div class="page-greeting">Your elimination plan</div>
-      <div class="page-title">Debt <span>Countdown</span></div>
+    <div class="ph">
+      <div class="ph-greet">Your elimination plan</div>
+      <div class="ph-title">Debt <span>Countdown</span></div>
     </div>
-    <div id="debtPageContent" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div id="debtPage"></div>
   </div>
 
   <!-- PAYDAY PAGE -->
   <div id="page-payday" style="display:none">
-    <div class="page-header">
-      <div class="page-greeting">Mina's guide for your next payday</div>
-      <div class="page-title">Payday <span>Survival Plan</span></div>
+    <div class="ph">
+      <div class="ph-greet">Mina's guide for your next payday</div>
+      <div class="ph-title">Payday <span>Survival Plan</span></div>
     </div>
-    <div id="paydayPageContent"></div>
+    <div id="paydayPage"></div>
   </div>
 
 </div>
@@ -371,112 +343,150 @@ body{background:var(--bg);color:var(--white);font-family:var(--font-b);font-size
 var SB_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 var sb = supabase.createClient(SB_URL, SB_KEY);
-var user = null, profile = null, finData = null, debts = [];
-var chatHistory = [];
-var currentPage = 'dashboard';
 
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+var user = null;
+var D = {
+  // Will be populated from Supabase + localStorage
+  name: '', firstName: '', email: '',
+  cur: 'USD', lang: 'en',
+  income: 0, avail: 0, debt: 0, savings: 0, emergency: 0, score: 0,
+  paydayDate: '', paydayFreq: 'monthly',
+  debts: [], fears: [], goals: [], dependents: 0, rent: 0
+};
+var chatHistory = [];
+var chatInited = false;
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
   var r = await sb.auth.getSession();
   if (!r.data.session) { window.location.href = '/index.html'; return; }
   user = r.data.session.user;
-  await loadData();
-  renderDashboard();
+  await loadAllData();
+  renderAll();
   document.getElementById('loading').style.display = 'none';
 }
 
-async function loadData() {
-  // Load from Supabase
+async function loadAllData() {
+  // 1. Load from Supabase
+  var sbProfile = {}, sbFin = {};
   try {
     var p = await sb.from('profiles').select('*').eq('id', user.id).single();
-    if (p.data) profile = p.data;
+    if (p.data) sbProfile = p.data;
   } catch(e) {}
   try {
     var f = await sb.from('financial_data').select('*').eq('user_id', user.id).single();
-    if (f.data) finData = f.data;
+    if (f.data) sbFin = f.data;
   } catch(e) {}
 
-  // Fallback to localStorage
-  var lProf = localStorage.getItem('mina_profile');
-  var lFin = localStorage.getItem('mina_fin');
-  var lDebts = localStorage.getItem('mina_debts');
+  // 2. Load from localStorage
+  var lsProfile = {}, lsFin = {}, lsDebts = [], lsFears = [], lsGoals = [];
+  try { lsProfile = JSON.parse(localStorage.getItem('vera_profile') || '{}'); } catch(e) {}
+  try { lsFin = JSON.parse(localStorage.getItem('vera_fin') || '{}'); } catch(e) {}
+  try { lsDebts = JSON.parse(localStorage.getItem('vera_debts') || '[]'); } catch(e) {}
+  try { lsFears = JSON.parse(localStorage.getItem('vera_fears') || '[]'); } catch(e) {}
+  try { lsGoals = JSON.parse(localStorage.getItem('vera_goals') || '[]'); } catch(e) {}
 
-  if (!profile && lProf) try { profile = JSON.parse(lProf); } catch(e) {}
-  if (!finData || (!finData.health_score && !finData.total_debt && !finData.total_savings)) {
-    if (lFin) try { var lf = JSON.parse(lFin); if (lf.health_score > 0) finData = lf; } catch(e) {}
-  }
-  if (lDebts) try { debts = JSON.parse(lDebts); } catch(e) {}
-  if (!profile) profile = {};
-  if (!finData) finData = {};
+  // 3. Merge — take best non-zero value
+  D.name = sbProfile.full_name || user.user_metadata?.full_name || lsProfile.full_name || user.email.split('@')[0];
+  D.firstName = D.name.split(' ')[0];
+  D.email = user.email;
+  D.cur = sbProfile.currency || lsProfile.currency || 'USD';
+  D.lang = sbProfile.language || lsProfile.language || 'en';
+  D.income = best(sbProfile.monthly_income, lsProfile.monthly_income, lsFin.total_income);
+  D.avail = best(sbFin.monthly_budget, lsFin.monthly_budget);
+  D.debt = best(sbFin.total_debt, lsFin.total_debt);
+  D.savings = best(sbFin.total_savings, lsFin.total_savings);
+  D.emergency = best(sbFin.emergency_fund, lsFin.emergency_fund);
+  D.score = best(sbFin.health_score, lsFin.health_score);
+  D.paydayDate = sbProfile.payday_date || lsProfile.payday_date || lsProfile.paydayDate || '';
+  D.paydayFreq = sbProfile.payday_frequency || lsProfile.payday_frequency || lsProfile.paydayFreq || 'monthly';
+  D.debts = lsDebts.length > 0 ? lsDebts : [];
+  D.fears = lsFears.length > 0 ? lsFears : (sbProfile.financial_challenge || '').split(',').map(function(f){return f.trim();}).filter(Boolean);
+  D.goals = lsGoals;
+  D.dependents = sbProfile.dependents || lsProfile.dependents || 0;
+  D.rent = sbProfile.rent || lsProfile.rent || 0;
 }
 
-function renderDashboard() {
-  var name = profile.full_name || user.email.split('@')[0] || 'there';
-  var firstName = name.split(' ')[0];
-  var cur = profile.currency || finData.currency || 'USD';
+function best() {
+  // Returns first non-zero, non-null value from arguments
+  for (var i = 0; i < arguments.length; i++) {
+    var v = parseFloat(arguments[i]);
+    if (!isNaN(v) && v > 0) return v;
+  }
+  return 0;
+}
 
-  // Greeting
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderHeader();
+  renderBriefing();
+  renderStats();
+  renderPayday();
+  renderDebtBars();
+  renderDebtPage();
+  renderPaydayPage();
+}
+
+function renderHeader() {
   var h = new Date().getHours();
   var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting').textContent = greet;
-  document.getElementById('firstName').textContent = firstName;
-  document.getElementById('dateStr').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-
-  // Sidebar
-  document.getElementById('sbName').textContent = name;
-  document.getElementById('sbEmail').textContent = user.email;
-  document.getElementById('sbAvatar').textContent = firstName.charAt(0).toUpperCase();
-
-  // Score
-  var score = finData.health_score || 0;
-  var scoreArc = document.getElementById('scoreArc');
-  var scoreColor = score >= 70 ? '#00C9A7' : score >= 50 ? '#C9A84C' : '#EF4444';
-  scoreArc.style.stroke = scoreColor;
-  setTimeout(function() { scoreArc.style.strokeDashoffset = 157 - (157 * score / 100); }, 300);
-  document.getElementById('scoreNum').textContent = score || '—';
-  document.getElementById('scoreLabel').textContent = score >= 70 ? 'Strong position' : score >= 50 ? 'Needs attention' : score > 0 ? 'Needs work' : 'Complete onboarding';
-
-  // Stats
-  var avail = finData.monthly_budget || 0;
-  document.getElementById('availVal').textContent = cur + ' ' + Math.abs(avail).toLocaleString() + (avail < 0 ? ' deficit' : '');
-  document.getElementById('availVal').className = 'stat-val ' + (avail >= 0 ? 'teal' : 'red');
-  document.getElementById('debtVal').textContent = finData.total_debt > 0 ? cur + ' ' + (finData.total_debt || 0).toLocaleString() : 'Debt free';
-  document.getElementById('debtVal').className = 'stat-val ' + (finData.total_debt > 0 ? 'red' : 'teal');
-  document.getElementById('debtSub').textContent = finData.total_debt > 0 ? 'being eliminated' : 'You are debt free!';
-  document.getElementById('savingsVal').textContent = cur + ' ' + (finData.total_savings || 0).toLocaleString();
-
-  // Mina briefing
-  var briefText = greet + ', ' + firstName + '. ';
-  if (score >= 70) briefText += 'Your financial health score is strong at ' + score + '/100. ';
-  else if (score > 0) briefText += 'Your health score is ' + score + '/100. There is real progress to make today. ';
-  if (finData.total_debt > 0) briefText += 'Focus on your debt elimination — every payment moves you closer to freedom. ';
-  if (!finData.health_score) briefText = 'Welcome! Complete your financial profile so I can give you your personalized plan and daily briefing.';
-  document.getElementById('minaText').textContent = briefText;
-
-  // Payday countdown
-  renderPayday(cur, avail);
-
-  // Debt bars
-  renderDebtBars(cur);
-
-  // Debt page
-  renderDebtPage(cur);
-
-  // Payday page
-  renderPaydayPage(cur, avail);
+  document.getElementById('greet').textContent = greet;
+  document.getElementById('firstName').textContent = D.firstName;
+  document.getElementById('dateStr').textContent = new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('sbAv').textContent = D.firstName.charAt(0).toUpperCase();
+  document.getElementById('sbName').textContent = D.name;
+  document.getElementById('sbEmail').textContent = D.email;
 }
 
-function renderPayday(cur, avail) {
-  var paydayDate = profile.payday_date || (profile.paydayDate ? profile.paydayDate : null);
-  if (!paydayDate) {
-    document.getElementById('pdDays').textContent = '—';
-    document.getElementById('pdHours').textContent = '—';
-    document.getElementById('pdMins').textContent = '—';
-    document.getElementById('dailyBudget').textContent = cur + ' —';
-    return;
+function renderBriefing() {
+  var h = new Date().getHours();
+  var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  var txt = greet + ', ' + D.firstName + '. ';
+  if (D.score > 0) {
+    txt += 'Your health score is ' + D.score + '/100. ';
+    if (D.score >= 70) txt += 'You are in a strong position. ';
+    else if (D.score >= 50) txt += 'There is clear progress to make. ';
+    else txt += 'We have important work to do together. ';
   }
+  if (D.debt > 0) txt += 'Your debt of ' + D.cur + ' ' + D.debt.toLocaleString() + ' is being tracked. ';
+  if (D.avail > 0) txt += 'You have ' + D.cur + ' ' + Math.round(D.avail).toLocaleString() + ' available this month. ';
+  if (!D.score) txt = 'Welcome ' + D.firstName + '! Complete your financial profile so I can give you your personalized daily briefing and plan.';
+  document.getElementById('minaBrief').textContent = txt;
+}
+
+function renderStats() {
+  // Score ring
+  var arc = document.getElementById('scoreArc');
+  var arcColor = D.score >= 70 ? '#00C9A7' : D.score >= 50 ? '#C9A84C' : '#EF4444';
+  arc.style.stroke = arcColor;
+  setTimeout(function() { arc.style.strokeDashoffset = 157 - (157 * D.score / 100); }, 300);
+  document.getElementById('scoreNum').textContent = D.score || '—';
+  document.getElementById('scoreLabel').textContent = D.score >= 70 ? 'Strong position' : D.score >= 50 ? 'Needs attention' : D.score > 0 ? 'Needs work' : 'Complete setup';
+
+  // Available
+  var avail = Math.round(D.avail);
+  document.getElementById('availVal').textContent = D.cur + ' ' + Math.abs(avail).toLocaleString() + (avail < 0 ? ' deficit' : '');
+  document.getElementById('availVal').className = 'sc-val ' + (avail >= 0 ? 'teal' : 'red');
+
+  // Debt
+  document.getElementById('debtVal').textContent = D.debt > 0 ? D.cur + ' ' + D.debt.toLocaleString() : 'Debt free';
+  document.getElementById('debtVal').className = 'sc-val ' + (D.debt > 0 ? 'red' : 'teal');
+  document.getElementById('debtSub').textContent = D.debt > 0 ? 'being eliminated' : 'Congratulations!';
+
+  // Savings
+  document.getElementById('savingsVal').textContent = D.cur + ' ' + D.savings.toLocaleString();
+}
+
+function renderPayday() {
+  if (!D.paydayDate) return;
   var now = new Date();
-  var next = new Date(paydayDate + 'T00:00:00');
-  if (next < now) { next.setMonth(next.getMonth() + 1); }
+  var next = new Date(D.paydayDate + 'T00:00:00');
+  if (next < now) {
+    if (D.paydayFreq === 'monthly') next.setMonth(next.getMonth() + 1);
+    else if (D.paydayFreq === 'biweekly') next.setDate(next.getDate() + 14);
+    else next.setDate(next.getDate() + 7);
+  }
   var diff = next - now;
   var days = Math.floor(diff / (1000*60*60*24));
   var hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
@@ -484,135 +494,146 @@ function renderPayday(cur, avail) {
   document.getElementById('pdDays').textContent = days;
   document.getElementById('pdHours').textContent = hours;
   document.getElementById('pdMins').textContent = mins;
-  if (days > 0 && avail > 0) {
-    var daily = Math.round(avail / 30);
-    document.getElementById('dailyBudget').textContent = cur + ' ' + daily.toLocaleString() + '/day';
+  if (D.avail > 0) {
+    var daily = Math.round(D.avail / 30);
+    document.getElementById('dailyBudget').textContent = D.cur + ' ' + daily.toLocaleString() + '/day';
     document.getElementById('dailyBudgetSub').textContent = days + ' days remaining this month';
   }
 }
 
-function renderDebtBars(cur) {
+function renderDebtBars() {
   var el = document.getElementById('debtContent');
-  if (debts.length === 0 && !finData.total_debt) {
-    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">$0</div>No debts recorded yet.<br>Talk to Mina to set up your debt plan.</div>';
+  if (D.debts.length === 0 && D.debt === 0) {
+    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">$0</div>No debts. Talk to Mina to set up your wealth plan.</div>';
     return;
   }
-  var totalDebt = finData.total_debt || debts.reduce(function(s,d){return s+d.amount;},0);
-  if (debts.length > 0) {
-    var html = '<div class="debt-bars">';
-    debts.slice(0,3).forEach(function(d) {
-      var pct = totalDebt > 0 ? Math.round((d.amount / totalDebt) * 100) : 0;
-      html += '<div class="debt-bar-item">' +
-        '<div class="debt-bar-header"><div class="debt-bar-name">' + d.typeName + '</div><div class="debt-bar-amount">' + cur + ' ' + d.amount.toLocaleString() + '</div></div>' +
-        '<div class="debt-bar-track"><div class="debt-bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="debt-bar-meta">' + (d.rate ? d.rate + '% APR · ' : '') + cur + ' ' + (d.payment||0).toLocaleString() + '/mo minimum</div>' +
-        '</div>';
+  var totalDebt = D.debts.length > 0 ? D.debts.reduce(function(s,d){return s+d.amount;},0) : D.debt;
+  var html = '<div class="debt-bars">';
+  if (D.debts.length > 0) {
+    D.debts.slice(0,3).forEach(function(d) {
+      var pct = totalDebt > 0 ? Math.round((d.amount/totalDebt)*100) : 100;
+      html += '<div class="dbar"><div class="dbar-hdr"><div class="dbar-name">'+d.typeName+'</div><div class="dbar-amt">'+D.cur+' '+d.amount.toLocaleString()+'</div></div><div class="dbar-track"><div class="dbar-fill" style="width:'+pct+'%"></div></div><div class="dbar-meta">'+(d.rate?d.rate+'% APR · ':'')+D.cur+' '+(d.payment||0).toLocaleString()+'/mo minimum</div></div>';
     });
-    html += '</div>';
-    if (finData.monthly_budget > 0 && totalDebt > 0) {
-      var months = Math.ceil(totalDebt / (finData.monthly_budget * 0.6));
-      var freeDate = new Date(); freeDate.setMonth(freeDate.getMonth() + months);
-      html += '<div class="debt-free-date"><div class="debt-free-label">Projected debt free</div><div class="debt-free-val">' + freeDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + '</div></div>';
-    }
-    el.innerHTML = html;
   } else {
-    el.innerHTML = '<div class="no-debt"><div class="no-debt-val">' + cur + ' ' + totalDebt.toLocaleString() + '</div>Total debt to eliminate.<br>Talk to Mina to build your plan.</div>';
+    html += '<div class="dbar-hdr"><div class="dbar-name">Total Debt</div><div class="dbar-amt">'+D.cur+' '+D.debt.toLocaleString()+'</div></div><div class="dbar-track"><div class="dbar-fill" style="width:100%"></div></div>';
   }
-}
-
-function renderDebtPage(cur) {
-  var el = document.getElementById('debtPageContent');
-  var totalDebt = finData.total_debt || 0;
-  if (debts.length === 0 && !totalDebt) {
-    el.innerHTML = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;box-shadow:var(--shadow)"><div style="font-family:var(--font-h);font-size:32px;font-style:italic;color:var(--teal-d);margin-bottom:8px">Debt free</div><div style="font-size:13px;color:var(--muted)">You have no debts recorded. Talk to Mina to add your debts and build an elimination plan.</div></div>';
-    return;
+  html += '</div>';
+  if (D.avail > 0 && totalDebt > 0) {
+    var months = Math.ceil(totalDebt / (D.avail * 0.6));
+    var freeDate = new Date(); freeDate.setMonth(freeDate.getMonth() + months);
+    html += '<div class="debt-free"><div class="df-lbl">Projected debt free</div><div class="df-val">'+freeDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</div></div>';
   }
-  var html = '';
-  debts.forEach(function(d, i) {
-    var months = d.payment > 0 ? Math.ceil(d.amount / d.payment) : 0;
-    var freeDate = new Date(); if (months > 0) freeDate.setMonth(freeDate.getMonth() + months);
-    html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">' +
-        '<div><div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:var(--navy)">' + d.typeName + '</div>' +
-        (d.rate ? '<div style="font-size:11px;color:var(--dim)">' + d.rate + '% APR</div>' : '') + '</div>' +
-        '<div style="text-align:right"><div style="font-family:var(--font-h);font-size:26px;font-style:italic;color:var(--red)">' + cur + ' ' + d.amount.toLocaleString() + '</div><div style="font-size:11px;color:var(--dim)">' + cur + ' ' + (d.payment||0).toLocaleString() + '/month minimum</div></div>' +
-      '</div>' +
-      '<div style="height:8px;background:var(--border2);border-radius:4px;overflow:hidden;margin-bottom:8px"><div style="height:8px;background:linear-gradient(90deg,var(--red),#F87171);border-radius:4px;width:100%"></div></div>' +
-      (months > 0 ? '<div style="font-size:12px;color:var(--muted)">At current payment rate — free in approximately <strong style="color:var(--navy)">' + months + ' months</strong> (' + freeDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + ')</div>' : '') +
-    '</div>';
-  });
-  if (!html) {
-    html = '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow);text-align:center"><div style="font-family:var(--font-h);font-size:26px;font-style:italic;color:var(--red);margin-bottom:6px">' + cur + ' ' + totalDebt.toLocaleString() + '</div><div style="font-size:13px;color:var(--muted)">Total debt. Talk to Mina to set up your detailed elimination plan.</div></div>';
-  }
-  html += '<div style="background:var(--navy);border-radius:16px;padding:20px;text-align:center;box-shadow:var(--shadow)">' +
-    '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:#fff;margin-bottom:8px">Want a faster payoff date?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:14px">Ask Mina to build your accelerated debt elimination strategy.</div>' +
-    '<button onclick="showPage(\'mina\')" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Ask Mina for my strategy</button>' +
-  '</div>';
   el.innerHTML = html;
 }
 
-function renderPaydayPage(cur, avail) {
-  var el = document.getElementById('paydayPageContent');
-  var paydayDate = profile.payday_date || profile.paydayDate || null;
+function renderDebtPage() {
+  var el = document.getElementById('debtPage');
+  if (D.debts.length === 0 && D.debt === 0) {
+    el.innerHTML = '<div class="debt-page-card" style="text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:32px;font-style:italic;color:#00C9A7;margin-bottom:8px">Debt free</div><div style="font-size:13px;color:#4A5568">You have no debts. Talk to Mina to build your wealth plan.</div></div>';
+    return;
+  }
   var html = '';
-  if (paydayDate) {
+  if (D.debts.length > 0) {
+    D.debts.forEach(function(d) {
+      var months = d.payment > 0 ? Math.ceil(d.amount / d.payment) : 0;
+      var freeDate = new Date(); if(months>0) freeDate.setMonth(freeDate.getMonth()+months);
+      html += '<div class="debt-page-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px"><div><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:#F0F4FF">'+d.typeName+'</div>'+(d.rate?'<div style="font-size:11px;color:#4A5568">'+d.rate+'% APR</div>':'')+'</div><div style="text-align:right"><div style="font-family:Cormorant Garamond,serif;font-size:26px;font-style:italic;color:#EF4444">'+D.cur+' '+d.amount.toLocaleString()+'</div><div style="font-size:11px;color:#4A5568">'+D.cur+' '+(d.payment||0).toLocaleString()+'/month</div></div></div><div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:6px;background:linear-gradient(90deg,#EF4444,#F87171);border-radius:3px;width:100%"></div></div>'+(months>0?'<div style="font-size:12px;color:#4A5568">Free in approximately <strong style="color:#F0F4FF">'+months+' months</strong> ('+freeDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})+')</div>':'')+'</div>';
+    });
+  } else {
+    html += '<div class="debt-page-card" style="text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:26px;font-style:italic;color:#EF4444;margin-bottom:6px">'+D.cur+' '+D.debt.toLocaleString()+'</div><div style="font-size:13px;color:#4A5568">Total debt. Talk to Mina to build your elimination plan.</div></div>';
+  }
+  html += '<div class="debt-page-card" style="text-align:center;border-color:rgba(0,201,167,0.2)"><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:#F0F4FF;margin-bottom:8px">Want a faster payoff date?</div><div style="font-size:13px;color:#8B9CB6;margin-bottom:14px">Ask Mina to build your accelerated debt elimination strategy.</div><button onclick="showPage(\'mina\')" style="background:#00C9A7;color:#0C0F1A;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Ask Mina for my strategy</button></div>';
+  el.innerHTML = html;
+}
+
+function renderPaydayPage() {
+  var el = document.getElementById('paydayPage');
+  var html = '';
+  if (D.paydayDate) {
     var now = new Date();
-    var next = new Date(paydayDate + 'T00:00:00');
+    var next = new Date(D.paydayDate + 'T00:00:00');
     if (next < now) next.setMonth(next.getMonth() + 1);
     var days = Math.floor((next - now) / (1000*60*60*24));
-    var daily = avail > 0 ? Math.round(avail / 30) : 0;
-    html += '<div style="background:var(--navy);border-radius:16px;padding:24px;margin-bottom:14px;text-align:center;box-shadow:var(--shadow)">' +
-      '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px">Next payday in</div>' +
-      '<div style="font-family:var(--font-h);font-size:52px;font-style:italic;color:var(--teal);line-height:1">' + days + '</div>' +
-      '<div style="font-size:14px;color:rgba(255,255,255,0.5);margin-top:4px">days</div>' +
-    '</div>';
+    var daily = D.avail > 0 ? Math.round(D.avail / 30) : 0;
+    html += '<div class="debt-page-card" style="text-align:center;border-color:rgba(0,201,167,0.15)"><div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#4A5568;margin-bottom:10px">Next payday in</div><div style="font-family:Cormorant Garamond,serif;font-size:64px;font-style:italic;color:#00C9A7;line-height:1">'+days+'</div><div style="font-size:14px;color:#4A5568;margin-top:4px">days — '+next.toLocaleDateString('en-US',{month:'long',day:'numeric'})+'</div></div>';
     if (daily > 0) {
-      html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:var(--shadow)">' +
-        '<div style="font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy);margin-bottom:14px">Your daily budget</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-          kn2('Daily budget', cur + ' ' + daily.toLocaleString(), 'var(--teal-d)') +
-          kn2('Monthly available', cur + ' ' + avail.toLocaleString(), avail>=0?'var(--teal-d)':'var(--red)') +
-        '</div>' +
-      '</div>';
+      html += '<div class="debt-page-card"><div style="font-family:Cormorant Garamond,serif;font-size:18px;font-style:italic;color:#F0F4FF;margin-bottom:14px">Your budget breakdown</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+      html += kn2('Daily budget', D.cur+' '+daily.toLocaleString(), '#00C9A7');
+      html += kn2('Monthly available', D.cur+' '+Math.round(D.avail).toLocaleString(), D.avail>=0?'#00C9A7':'#EF4444');
+      html += kn2('Total debt', D.cur+' '+D.debt.toLocaleString(), '#EF4444');
+      html += kn2('Savings', D.cur+' '+D.savings.toLocaleString(), '#C9A84C');
+      html += '</div></div>';
     }
   }
-  html += '<div style="background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)">' +
-    '<div style="font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--navy);margin-bottom:8px">Mina\'s payday instructions</div>' +
-    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">Ask Mina what to do the moment your salary arrives. She will give you exact instructions based on your bills and goals.</div>' +
-    '<button onclick="askMinaPayday()" style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-b)">Get my payday instructions from Mina</button>' +
-  '</div>';
+  html += '<div class="debt-page-card" style="text-align:center;border-color:rgba(0,201,167,0.2)"><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:#F0F4FF;margin-bottom:8px">Mina\'s payday instructions</div><div style="font-size:13px;color:#8B9CB6;margin-bottom:16px">The moment your salary arrives — Mina tells you exactly what to do with every dirham. Transfer this, pay that, save this much. No guessing.</div><button onclick="askMinaPayday()" style="width:100%;background:#00C9A7;color:#0C0F1A;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif">Get my payday instructions from Mina</button></div>';
   el.innerHTML = html;
 }
 
 function kn2(label, val, color) {
-  return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">' +
-    '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">' + label + '</div>' +
-    '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:' + color + '">' + val + '</div>' +
-  '</div>';
+  return '<div style="background:#0C0F1A;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;color:#4A5568;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">'+label+'</div><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:'+color+'">'+val+'</div></div>';
 }
 
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
 function showPage(page) {
-  currentPage = page;
-  ['dashboard','mina','debt','payday'].forEach(function(p) {
-    document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
-    var mobEl = document.getElementById('mob-' + p);
-    if (mobEl) mobEl.classList.toggle('active', p === page);
+  var pages = ['dashboard','mina','debt','payday'];
+  pages.forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.style.display = p === page ? 'block' : 'none';
+    var nav = document.getElementById('nav-' + p);
+    if (nav) nav.classList.toggle('active', p === page);
+    var mob = document.getElementById('mob-' + p);
+    if (mob) mob.classList.toggle('active', p === page);
   });
-  document.querySelectorAll('.sb-item').forEach(function(el, i) {
-    el.classList.toggle('active', i === ['dashboard','mina','debt','payday','upgrade'].indexOf(page));
-  });
-  if (page === 'mina' && chatHistory.length === 0) initChat();
+  if (page === 'mina' && !chatInited) initChat();
+}
+
+// ─── MINA CHAT ────────────────────────────────────────────────────────────────
+function buildSystemPrompt() {
+  var fearMap = {debt:'never getting out of debt',paycheck:'living paycheck to paycheck forever',emergency:'one emergency destroying everything',family:'not being able to provide for family',future:'not having enough for the future',shame:'the shame of their financial situation',alone:'facing this alone with no guidance',job:'losing their job with no financial cushion'};
+  var goalMap = {debt:'eliminate debt completely',save:'build real savings',house:'buy their own home',emergency:'build a solid emergency fund',business:'start their own business',freedom:'stop financial anxiety',family:'provide a better life for their family',travel:'travel and experience the world',retire:'retire comfortably',education:'pay for education'};
+  var fearDesc = D.fears.map(function(f){return fearMap[f]||f;}).filter(Boolean).join(', ');
+  var goalDesc = D.goals.map(function(g){return goalMap[g]||g;}).filter(Boolean).join(', ');
+  var debtDesc = D.debts.length > 0 ? D.debts.map(function(d){return d.typeName+': '+D.cur+' '+d.amount.toLocaleString()+(d.rate?' at '+d.rate+'%':'');}).join(', ') : (D.debt > 0 ? 'Total: '+D.cur+' '+D.debt.toLocaleString() : 'No debts');
+
+  return 'You are Mina — a strict, caring, honest personal financial coach for Sum Goals.\n\n' +
+    'TODAY: ' + new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + '\n' +
+    'CLIENT NAME: ' + D.name + '\n' +
+    'CURRENCY: ' + D.cur + '\n\n' +
+    'COMPLETE FINANCIAL PROFILE (USE THESE EXACT NUMBERS):\n' +
+    '- Monthly income: ' + D.cur + ' ' + D.income.toLocaleString() + '\n' +
+    '- Monthly available after expenses: ' + D.cur + ' ' + Math.round(D.avail).toLocaleString() + '\n' +
+    '- Total debt: ' + D.cur + ' ' + D.debt.toLocaleString() + '\n' +
+    '- Debt details: ' + debtDesc + '\n' +
+    '- Total savings: ' + D.cur + ' ' + D.savings.toLocaleString() + '\n' +
+    '- Emergency fund: ' + D.cur + ' ' + D.emergency.toLocaleString() + '\n' +
+    '- Health score: ' + D.score + '/100\n' +
+    '- Payday date: ' + (D.paydayDate || 'not set') + '\n' +
+    '- Dependents: ' + D.dependents + '\n' +
+    '- Rent/mortgage: ' + D.cur + ' ' + D.rent.toLocaleString() + '/month\n\n' +
+    'BIGGEST FEARS ' + D.firstName + ' told you personally:\n' +
+    (fearDesc || 'Not specified') + '\n\n' +
+    'FINANCIAL GOALS ' + D.firstName + ' wants to achieve:\n' +
+    (goalDesc || 'Not specified') + '\n\n' +
+    'STRICT RULES — NEVER BREAK THESE:\n' +
+    '1. NEVER say you do not have their data — you have everything above.\n' +
+    '2. NEVER ask for their income — you know it is ' + D.cur + ' ' + D.income.toLocaleString() + '/month.\n' +
+    '3. NEVER give generic advice — always reference their specific numbers.\n' +
+    '4. Reference their fears and goals naturally in responses.\n' +
+    '5. Be strict but caring. Tell the truth. Never sell dreams.\n' +
+    '6. Keep responses under 200 words unless they ask for more detail.\n' +
+    '7. Always give 2-3 specific actionable steps with real numbers.';
 }
 
 function initChat() {
-  var name = profile.full_name ? profile.full_name.split(' ')[0] : 'there';
-  var cur = profile.currency || finData.currency || 'USD';
-  var score = finData.health_score || 0;
-  var msg = 'Hello ' + name + '. I have reviewed your complete financial profile. ';
-  if (score > 0) msg += 'Your health score is ' + score + '/100. ';
-  if (finData.total_debt > 0) msg += 'You have ' + cur + ' ' + finData.total_debt.toLocaleString() + ' in total debt. ';
-  if (finData.total_savings > 0) msg += 'Your savings stand at ' + cur + ' ' + finData.total_savings.toLocaleString() + '. ';
+  chatInited = true;
+  chatHistory = [];
+  var h = new Date().getHours();
+  var greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  var msg = greet + ' ' + D.firstName + '. I have reviewed your complete profile. ';
+  if (D.income > 0) msg += 'Your monthly income is ' + D.cur + ' ' + D.income.toLocaleString() + '. ';
+  if (D.debt > 0) msg += 'You have ' + D.cur + ' ' + D.debt.toLocaleString() + ' in debt. ';
+  if (D.savings > 0) msg += 'Your savings stand at ' + D.cur + ' ' + D.savings.toLocaleString() + '. ';
+  if (D.fears.length > 0) msg += 'I know your biggest concern is ' + D.fears[0].replace(/_/g,' ') + ' — that is exactly what we are going to address. ';
   msg += 'What would you like to work on today?';
   addMsg('mina', msg);
 }
@@ -620,7 +641,7 @@ function initChat() {
 function addMsg(role, text) {
   var msgs = document.getElementById('chatMsgs');
   var div = document.createElement('div');
-  div.className = 'chat-msg ' + role;
+  div.className = 'cmsg ' + role;
   div.textContent = text;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
@@ -630,16 +651,16 @@ function addMsg(role, text) {
 function addTyping() {
   var msgs = document.getElementById('chatMsgs');
   var div = document.createElement('div');
-  div.className = 'chat-typing'; div.id = 'typing';
+  div.className = 'typing'; div.id = 'typing';
   div.innerHTML = '<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-function removeTyping() { var t = document.getElementById('typing'); if (t) t.remove(); }
+function removeTyping() { var t = document.getElementById('typing'); if(t) t.remove(); }
 
 async function sendMsg() {
-  var inp = document.getElementById('chatInput');
+  var inp = document.getElementById('chatInp');
   var msg = inp.value.trim();
   if (!msg) return;
   inp.value = '';
@@ -647,26 +668,15 @@ async function sendMsg() {
   document.getElementById('sendBtn').disabled = true;
   addTyping();
 
-  var cur = profile.currency || 'USD';
-  var systemPrompt = 'You are Mina, a strict but caring personal financial coach. You know this user completely:\n' +
-    'Name: ' + (profile.full_name || 'Unknown') + '\n' +
-    'Currency: ' + cur + '\n' +
-    'Monthly income: ' + (profile.monthly_income || 0) + ' ' + cur + '\n' +
-    'Health score: ' + (finData.health_score || 0) + '/100\n' +
-    'Total debt: ' + (finData.total_debt || 0) + ' ' + cur + '\n' +
-    'Savings: ' + (finData.total_savings || 0) + ' ' + cur + '\n' +
-    'Monthly available: ' + (finData.monthly_budget || 0) + ' ' + cur + '\n' +
-    'Biggest fear: ' + (profile.financial_challenge || 'unknown') + '\n' +
-    'Today: ' + new Date().toDateString() + '\n\n' +
-    'Give specific advice using their real numbers. Be honest, not a dream seller. Be caring but strict like a fitness coach. Keep responses concise and actionable.';
-
-  var messages = chatHistory.slice(-10).map(function(m) { return {role:m.role, content:m.content}; });
+  var systemPrompt = buildSystemPrompt();
+  var messages = chatHistory.slice(-14).map(function(m){return {role:m.role,content:m.content};});
 
   try {
+    var session = await sb.auth.getSession();
     var r = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + (await sb.auth.getSession()).data.session.access_token},
-      body: JSON.stringify({message: msg, history: messages, systemPrompt: systemPrompt})
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.data.session.access_token},
+      body:JSON.stringify({message:msg, history:messages, systemPrompt:systemPrompt})
     });
     var data = await r.json();
     removeTyping();
@@ -681,7 +691,7 @@ async function sendMsg() {
 function askMinaPayday() {
   showPage('mina');
   setTimeout(function() {
-    document.getElementById('chatInput').value = 'My payday is coming up. What should I do with my money the moment it arrives?';
+    document.getElementById('chatInp').value = 'My payday is coming up. What should I do with my money the moment my salary arrives? Give me exact instructions for my specific situation.';
     sendMsg();
   }, 500);
 }
