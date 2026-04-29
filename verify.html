@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verifying your account — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#0C0F1A; color:#F0F4FF;
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh; display:flex;
+  align-items:center; justify-content:center;
+  padding:20px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.box {
+  background:#141827; border:1px solid rgba(201,168,76,0.2);
+  border-radius:24px; padding:48px 36px;
+  max-width:420px; width:100%;
+  text-align:center;
+  animation:fadeIn 0.4s ease forwards;
+}
+.logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px; font-weight:700; color:#F0F4FF;
+  margin-bottom:32px;
+}
+.logo span { color:#00C9A7; font-style:italic; }
+.spinner {
+  width:48px; height:48px;
+  border:3px solid rgba(255,255,255,0.07);
+  border-top-color:#00C9A7;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:0 auto 24px;
+}
+.icon {
+  font-family:'Cormorant Garamond',serif;
+  font-size:56px; font-style:italic;
+  margin-bottom:20px; line-height:1;
+}
+.title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px; font-style:italic;
+  color:#F0F4FF; margin-bottom:8px;
+}
+.sub {
+  font-size:13px; color:#8B9CB6;
+  line-height:1.6; margin-bottom:24px;
+}
+.sub strong { color:#F0F4FF; }
+.btn {
+  display:inline-block; width:100%;
+  padding:13px; background:#00C9A7;
+  color:#0C0F1A; border:none; border-radius:10px;
+  font-weight:700; font-size:15px; cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  text-decoration:none; transition:all 0.2s;
+}
+.btn:hover { background:#00A888; }
+.btn-secondary {
+  display:inline-block; margin-top:10px;
+  font-size:12px; color:#4A5568;
+  cursor:pointer; background:none; border:none;
+  font-family:'DM Sans',sans-serif;
+  transition:color 0.2s;
+}
+.btn-secondary:hover { color:#8B9CB6; }
+</style>
+</head>
+<body>
+<div class="box" id="box">
+  <div class="logo">Sum <span>Goals</span></div>
+  <div class="spinner" id="spinner"></div>
+  <div class="title" id="title">Verifying your account...</div>
+  <div class="sub" id="sub">Please wait while we confirm your email and set up your account.</div>
+</div>
+
+<script>
+var SB_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+var sb = supabase.createClient(SB_URL, SB_KEY);
+
+async function verify() {
+  // Get tokens from URL hash
+  var hash = window.location.hash.substring(1);
+  var params = new URLSearchParams(hash);
+
+  var accessToken = params.get('access_token');
+  var refreshToken = params.get('refresh_token');
+  var type = params.get('type');
+  var error = params.get('error');
+  var errorDescription = params.get('error_description');
+
+  // Handle error in URL
+  if (error) {
+    showError(errorDescription || error);
+    return;
+  }
+
+  // Handle successful token
+  if (accessToken && refreshToken) {
+    try {
+      var result = await sb.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (result.error) {
+        showError(result.error.message);
+        return;
+      }
+
+      // Success — show confirmation then redirect
+      showSuccess(result.data.user);
+
+      setTimeout(function() {
+        // Check if onboarding was completed
+        var onboardingDone = localStorage.getItem('vera_onboarding_done');
+        if (onboardingDone) {
+          window.location.href = '/dashboard.html';
+        } else {
+          window.location.href = '/onboarding.html';
+        }
+      }, 2000);
+
+    } catch(e) {
+      showError('Verification failed. Please try signing in directly.');
+    }
+    return;
+  }
+
+  // No token in URL — check if already logged in
+  var session = await sb.auth.getSession();
+  if (session.data.session) {
+    showSuccess(session.data.session.user);
+    setTimeout(function() { window.location.href = '/dashboard.html'; }, 1500);
+    return;
+  }
+
+  // Nothing — redirect to home
+  showError('No verification token found. Please try signing up again.');
+}
+
+function showSuccess(user) {
+  var name = '';
+  if (user && user.user_metadata && user.user_metadata.full_name) {
+    name = user.user_metadata.full_name.split(' ')[0];
+  }
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('title').textContent = 'Account confirmed!';
+  document.getElementById('sub').innerHTML =
+    'Welcome' + (name ? ', <strong>' + name + '</strong>' : '') + '. Your account is ready. ' +
+    'Taking you to Mina now...';
+  document.getElementById('box').innerHTML +=
+    '<div class="icon" style="color:#00C9A7">M</div>';
+}
+
+function showError(msg) {
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('title').textContent = 'Link expired';
+  document.getElementById('sub').innerHTML =
+    'This verification link has expired or is invalid. Please sign up again — it only takes 30 seconds.';
+  document.getElementById('box').innerHTML +=
+    '<a href="/index.html" class="btn">Back to Sum Goals</a>' +
+    '<button class="btn-secondary" onclick="window.location.href=\'/index.html\'">Try again</button>';
+}
+
+verify();
+</script>
+</body>
+</html>
