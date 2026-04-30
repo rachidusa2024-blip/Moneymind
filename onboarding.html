@@ -4,1005 +4,576 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meet Mina — Sum Goals</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { height:100%; overflow:hidden; }
-
-body {
-  background: #0C0F1A;
-  color: #F0F4FF;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-}
-
-@keyframes slideR { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
-@keyframes slideL { from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:translateX(0); } }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes spin { to { transform:rotate(360deg); } }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
-
-/* LAYOUT */
-.app { height:100vh; display:flex; flex-direction:column; }
-
-/* TOP */
-.top {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 28px;
-  background:#141827;
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  flex-shrink:0;
-}
-.top-logo {
-  font-family:'Cormorant Garamond',serif;
-  font-size:18px; font-weight:700; color:#F0F4FF;
-  cursor:pointer;
-}
-.top-logo span { color:#00C9A7; font-style:italic; }
-.top-right { display:flex; align-items:center; gap:12px; }
-.top-step { font-size:12px; color:#8B9CB6; }
-.top-secure { display:flex; align-items:center; gap:5px; font-size:11px; color:#4A5568; }
-.sdot { width:6px; height:6px; background:#10B981; border-radius:50%; }
-
-/* PROGRESS */
-.prog { height:3px; background:rgba(255,255,255,0.07); flex-shrink:0; }
-.prog-fill { height:3px; background:#00C9A7; width:0%; transition:width 0.5s ease; }
-
-/* SLIDE AREA */
-.area {
-  flex:1; display:flex; align-items:center; justify-content:center;
-  padding:20px 28px; overflow:hidden; position:relative;
-  background:#0C0F1A;
-}
-.slide { width:100%; max-width:560px; position:absolute; }
-.slide.r { animation:slideR 0.35s ease forwards; }
-.slide.l { animation:slideL 0.35s ease forwards; }
-
-/* VERA LABEL */
-.vlabel { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
-.vav {
-  width:32px; height:32px; border-radius:50%;
-  background:rgba(201,168,76,0.1); border:1.5px solid rgba(201,168,76,0.25);
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic;
-  color:#C9A84C; flex-shrink:0;
-}
-.vtag { font-size:11px; font-weight:600; color:#C9A84C; letter-spacing:0.06em; }
-.vsub { font-size:11px; color:#4A5568; margin-left:3px; }
-
-/* QUESTION */
-.q {
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(22px,4vw,34px);
-  font-weight:700; line-height:1.15;
-  letter-spacing:-0.5px; color:#F0F4FF;
-  margin-bottom:8px;
-}
-.q em { color:#00C9A7; font-style:italic; }
-.hint { font-size:13px; color:#8B9CB6; margin-bottom:22px; line-height:1.55; }
-
-/* MINA NOTE */
-.mnote {
-  background:rgba(0,201,167,0.07);
-  border:1px solid rgba(0,201,167,0.15);
-  border-radius:4px 14px 14px 14px;
-  padding:12px 15px;
-  font-size:13px; color:#C8D0E0;
-  line-height:1.6; margin-bottom:20px;
-}
-.mnote strong { color:#00C9A7; }
-
-/* NUMBER INPUT */
-.num-wrap {
-  display:flex; border:2px solid rgba(255,255,255,0.07);
-  border-radius:12px; overflow:hidden;
-  background:#141827; margin-bottom:8px;
-  transition:border-color 0.2s;
-}
-.num-wrap:focus-within { border-color:rgba(0,201,167,0.4); }
-.num-cur {
-  background:rgba(0,201,167,0.08);
-  padding:13px 15px; font-size:14px; font-weight:600;
-  color:#00C9A7; border-right:1px solid rgba(0,201,167,0.15);
-  min-width:65px; text-align:center; flex-shrink:0;
-}
-.num-inp {
-  flex:1; border:none; outline:none;
-  padding:13px 15px;
-  font-size:clamp(20px,4vw,30px);
-  font-family:'Cormorant Garamond',serif; font-style:italic;
-  color:#F0F4FF; background:transparent;
-  text-align:right; width:100%;
-}
-.num-inp::placeholder { color:#4A5568; }
-
-/* SELECT */
-.sel {
-  width:100%; border:2px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:13px 15px;
-  font-size:15px; font-family:'DM Sans',sans-serif;
-  color:#F0F4FF; background:#141827;
-  outline:none; cursor:pointer; margin-bottom:8px;
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%234A5568' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 14px center;
-  transition:border-color 0.2s;
-}
-.sel:focus { border-color:rgba(0,201,167,0.4); }
-.sel option { background:#141827; color:#F0F4FF; }
-
-/* DATE */
-.dateinp {
-  width:100%; border:2px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:13px 15px;
-  font-size:15px; font-family:'DM Sans',sans-serif;
-  color:#F0F4FF; background:#141827;
-  outline:none; margin-bottom:8px;
-  transition:border-color 0.2s;
-}
-.dateinp:focus { border-color:rgba(0,201,167,0.4); }
-.dateinp::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.3); }
-
-/* NOTE */
-.note { font-size:12px; color:#4A5568; margin-top:4px; display:flex; align-items:center; gap:5px; }
-.ndot { width:4px; height:4px; background:#00C9A7; border-radius:50%; flex-shrink:0; }
-
-/* TOGGLE */
-.tog {
-  display:flex; align-items:center; justify-content:space-between;
-  background:#141827; border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:13px 15px; margin-bottom:8px;
-  cursor:pointer; transition:all 0.2s; user-select:none;
-}
-.tog:hover { border-color:rgba(0,201,167,0.25); }
-.tog.on { border-color:rgba(0,201,167,0.35); background:rgba(0,201,167,0.06); }
-.tog-lbl { font-size:14px; font-weight:500; color:#F0F4FF; }
-.tog-sw {
-  width:38px; height:21px; border-radius:11px;
-  background:rgba(255,255,255,0.1); position:relative;
-  transition:background 0.2s; flex-shrink:0;
-}
-.tog-sw.on { background:#00C9A7; }
-.tog-sw::after {
-  content:''; position:absolute; width:15px; height:15px;
-  background:#fff; border-radius:50%; top:3px; left:3px;
-  transition:left 0.2s;
-}
-.tog-sw.on::after { left:20px; }
-.tog-wrap { display:none; margin-bottom:8px; }
-.tog-wrap.show { display:block; }
-
-/* CHOICES - single */
-.choices { display:flex; flex-direction:column; gap:8px; }
-.choices.g2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.ch {
-  background:#141827; border:2px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:12px 15px;
-  display:flex; align-items:center; gap:12px;
-  cursor:pointer; transition:all 0.2s;
-  font-size:14px; color:#F0F4FF; font-weight:500;
-}
-.ch:hover { border-color:rgba(0,201,167,0.3); background:rgba(0,201,167,0.06); }
-.ch.sel { border-color:#00C9A7; background:rgba(0,201,167,0.08); color:#00C9A7; }
-.ch-r {
-  width:18px; height:18px; border-radius:50%;
-  border:2px solid #4A5568; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.2s;
-}
-.ch.sel .ch-r { border-color:#00C9A7; background:#00C9A7; }
-.ch.sel .ch-r::after { content:''; width:6px; height:6px; background:#0C0F1A; border-radius:50%; display:block; }
-
-/* CHOICES - multi */
-.mch {
-  background:#141827; border:2px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:12px 15px;
-  display:flex; align-items:center; gap:12px;
-  cursor:pointer; transition:all 0.2s;
-  font-size:13px; color:#F0F4FF; font-weight:500; margin-bottom:6px;
-}
-.mch:hover { border-color:rgba(0,201,167,0.3); background:rgba(0,201,167,0.06); }
-.mch.sel { border-color:#00C9A7; background:rgba(0,201,167,0.08); color:#00C9A7; }
-.mch-r {
-  width:18px; height:18px; border-radius:4px;
-  border:2px solid #4A5568; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  transition:all 0.2s;
-}
-.mch.sel .mch-r { border-color:#00C9A7; background:#00C9A7; }
-.mch.sel .mch-r::after { content:'✓'; color:#0C0F1A; font-size:10px; font-weight:700; line-height:1; }
-
-/* DEBT */
-.debt-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
-.debt-item {
-  background:#141827; border:1px solid rgba(255,255,255,0.07);
-  border-radius:12px; padding:12px 15px;
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-}
-.debt-badge {
-  width:30px; height:30px; border-radius:8px;
-  background:rgba(0,201,167,0.1); color:#00C9A7;
-  display:flex; align-items:center; justify-content:center;
-  font-size:10px; font-weight:700; flex-shrink:0;
-}
-.debt-name { font-size:13px; font-weight:600; color:#F0F4FF; }
-.debt-meta { font-size:11px; color:#4A5568; }
-.debt-amt { font-family:'Cormorant Garamond',serif; font-size:18px; font-style:italic; color:#00C9A7; }
-.btn-rm { background:none; border:none; color:#4A5568; cursor:pointer; font-size:18px; padding:2px; line-height:1; transition:color 0.2s; }
-.btn-rm:hover { color:#EF4444; }
-.btn-add {
-  background:rgba(0,201,167,0.06); color:#00C9A7;
-  border:1.5px dashed rgba(0,201,167,0.2);
-  border-radius:12px; padding:11px 15px;
-  font-size:13px; font-weight:600; cursor:pointer;
-  font-family:'DM Sans',sans-serif; width:100%; text-align:center;
-  transition:all 0.2s; margin-bottom:8px;
-}
-.btn-add:hover { background:rgba(0,201,167,0.12); border-style:solid; }
-
-/* DEBT FORM */
-.dform {
-  background:#141827; border:1px solid rgba(255,255,255,0.07);
-  border-radius:14px; padding:16px; margin-bottom:10px; display:none;
-}
-.dform.show { display:block; animation:fadeIn 0.2s ease; }
-.dform-title { font-size:13px; font-weight:600; color:#F0F4FF; margin-bottom:12px; }
-.dform-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-.dform-lbl { font-size:11px; font-weight:600; color:#8B9CB6; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; display:block; }
-.dform-inp {
-  width:100%; border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:8px; padding:9px 12px;
-  font-size:14px; font-family:'DM Sans',sans-serif;
-  color:#F0F4FF; background:#0C0F1A;
-  outline:none; transition:border-color 0.2s;
-}
-.dform-inp:focus { border-color:rgba(0,201,167,0.4); }
-.dform-inp::placeholder { color:#4A5568; }
-.dform-sel {
-  width:100%; border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:8px; padding:9px 12px;
-  font-size:14px; font-family:'DM Sans',sans-serif;
-  color:#F0F4FF; background:#0C0F1A; outline:none; cursor:pointer;
-}
-.dform-sel option { background:#0C0F1A; }
-.btn-dsave {
-  background:#00C9A7; color:#0C0F1A; border:none;
-  border-radius:8px; padding:9px 18px;
-  font-size:13px; font-weight:600; cursor:pointer;
-  font-family:'DM Sans',sans-serif; margin-right:8px; transition:all 0.2s;
-}
-.btn-dsave:hover { background:#00A888; }
-.btn-dcancel {
-  background:transparent; color:#8B9CB6;
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:8px; padding:9px 14px;
-  font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;
-}
-
-/* PRIVACY ITEM */
-.pitem {
-  display:flex; align-items:center; gap:10px;
-  padding:10px 13px; background:#141827;
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:10px; font-size:13px; color:#C8D0E0; margin-bottom:7px;
-}
-.pitem-dot { width:18px; height:18px; background:rgba(0,201,167,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.pitem-inner { width:7px; height:7px; background:#00C9A7; border-radius:50%; }
-
-/* BOTTOM */
-.bot {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 28px; background:#141827;
-  border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0;
-}
-.btn-bk {
-  background:transparent; color:#8B9CB6;
-  border:1px solid rgba(255,255,255,0.07); border-radius:8px;
-  padding:9px 18px; font-size:13px; font-weight:500;
-  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
-}
-.btn-bk:hover { color:#F0F4FF; border-color:rgba(255,255,255,0.2); }
-.btn-sk { font-size:12px; color:#4A5568; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; transition:color 0.2s; }
-.btn-sk:hover { color:#8B9CB6; }
-.btn-nx {
-  background:#0C0F1A; color:#F0F4FF;
-  border:1px solid rgba(255,255,255,0.15); border-radius:8px;
-  padding:10px 24px; font-size:14px; font-weight:600;
-  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
-}
-.btn-nx:hover { background:#00C9A7; color:#0C0F1A; border-color:#00C9A7; transform:translateY(-1px); }
-
-/* ANALYSIS */
-.anal {
-  position:fixed; inset:0; background:#0C0F1A;
-  display:none; flex-direction:column;
-  align-items:center; justify-content:center;
-  z-index:200; text-align:center; padding:32px;
-}
-.anal.show { display:flex; animation:fadeIn 0.3s ease; }
-.anal-spin {
-  width:52px; height:52px; border:3px solid rgba(255,255,255,0.07);
-  border-top-color:#00C9A7; border-radius:50%;
-  animation:spin 0.8s linear infinite; margin:0 auto 20px;
-}
-.anal-title { font-family:'Cormorant Garamond',serif; font-size:26px; font-style:italic; color:#F0F4FF; margin-bottom:8px; }
-.anal-steps { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
-.astep { font-size:13px; color:#4A5568; transition:color 0.4s; display:flex; align-items:center; gap:8px; justify-content:center; }
-.astep.on { color:#00C9A7; font-weight:500; }
-.astep-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
-
-/* RESULT */
-.result { position:fixed; inset:0; background:#0C0F1A; display:none; overflow-y:auto; z-index:200; }
-.result.show { display:block; animation:fadeIn 0.4s ease; }
-.result-in { max-width:580px; margin:0 auto; padding:32px 20px; }
-
-/* RING */
-.ring-wrap { position:relative; width:110px; height:110px; margin:0 auto 14px; }
-.ring-wrap svg { width:110px; height:110px; transform:rotate(-90deg); }
-.ring-bg { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:8; }
-.ring-arc { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:283; stroke-dashoffset:283; transition:stroke-dashoffset 1.5s ease; }
-.ring-ctr { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
-.ring-num { font-family:'Cormorant Garamond',serif; font-size:28px; font-style:italic; color:#F0F4FF; line-height:1; }
-.ring-sub { font-size:10px; color:rgba(255,255,255,0.4); }
-
-/* SIGNUP MODAL */
-.mo { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(16px); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
-.mo.show { display:flex; animation:fadeIn 0.2s ease; }
-.mo-box {
-  background:#141827; border:1px solid rgba(201,168,76,0.2);
-  border-radius:20px; padding:32px; width:100%; max-width:400px;
-  box-shadow:0 40px 80px rgba(0,0,0,0.7);
-}
-.mo-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-style:italic; font-weight:700; color:#F0F4FF; text-align:center; margin-bottom:4px; }
-.mo-title span { color:#00C9A7; }
-.mo-sub { font-size:13px; color:#8B9CB6; text-align:center; margin-bottom:22px; line-height:1.5; }
-.mo-err { display:none; padding:9px 12px; border-radius:8px; font-size:13px; margin-bottom:12px; background:rgba(239,68,68,0.1); color:#EF4444; border:1px solid rgba(239,68,68,0.2); }
-.mo-lbl { display:block; font-size:11px; font-weight:600; color:#8B9CB6; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.08em; }
-.mo-inp {
-  width:100%; background:#0C0F1A; border:1.5px solid rgba(255,255,255,0.07);
-  border-radius:8px; padding:10px 13px; color:#F0F4FF;
-  font-size:14px; font-family:'DM Sans',sans-serif;
-  outline:none; transition:border-color 0.2s; margin-bottom:12px;
-}
-.mo-inp:focus { border-color:rgba(0,201,167,0.4); }
-.mo-inp::placeholder { color:#4A5568; }
-.btn-mo {
-  width:100%; padding:12px; background:#00C9A7; color:#0C0F1A;
-  border:none; border-radius:8px; font-weight:700; font-size:15px;
-  cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; margin-bottom:10px;
-}
-.btn-mo:hover { background:#00A888; }
-.btn-mo:disabled { background:#4A5568; cursor:not-allowed; }
-.btn-goog {
-  width:100%; padding:10px; background:#0C0F1A; color:#F0F4FF;
-  border:1.5px solid rgba(255,255,255,0.07); border-radius:8px;
-  font-weight:500; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif;
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  transition:all 0.2s; margin-bottom:10px;
-}
-.btn-goog:hover { border-color:rgba(255,255,255,0.2); }
-.mo-note { font-size:11px; color:#4A5568; text-align:center; }
-.spinner { width:14px; height:14px; border:2px solid rgba(12,15,26,0.3); border-top-color:#0C0F1A; border-radius:50%; animation:spin 0.6s linear infinite; display:inline-block; vertical-align:middle; margin-right:6px; }
-
-@media(max-width:600px) {
-  .top, .bot, .area { padding-left:16px; padding-right:16px; }
-  .q { font-size:22px; }
-  .choices.g2 { grid-template-columns:1fr; }
-  .dform-row { grid-template-columns:1fr; }
-}
+:root{--bg:#0C0F1A;--surface:#141827;--surface2:#1A2035;--teal:#00C9A7;--teal-d:#00A888;--teal-dim:rgba(0,201,167,0.07);--teal-border:rgba(0,201,167,0.2);--gold:#C9A84C;--gold-dim:rgba(201,168,76,0.07);--gold-border:rgba(201,168,76,0.2);--white:#F0F4FF;--soft:#C8D0E0;--muted:#8B9CB6;--dim:#4A5568;--border:rgba(255,255,255,0.07);--border-lit:rgba(255,255,255,0.12);--red:#EF4444;--red-dim:rgba(239,68,68,0.07);--red-border:rgba(239,68,68,0.18);--fh:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--fb);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(12,15,26,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--fh);font-size:20px;font-weight:700;color:var(--white)}
+.logo span{color:var(--teal);font-style:italic}
+.prog-area{flex:1;max-width:280px;margin:0 28px}
+.prog-track{height:2px;background:rgba(255,255,255,0.06);border-radius:1px}
+.prog-fill{height:2px;background:var(--teal);border-radius:1px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+.prog-text{font-size:10px;color:var(--dim);margin-top:5px;text-align:right;letter-spacing:0.05em}
+.step-count{font-size:11px;color:var(--dim);font-weight:500}
+.content{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 100px}
+.slide{width:100%;max-width:580px;display:none}
+.slide.active{display:block;animation:fadeUp 0.38s ease both}
+.mina-block{display:flex;gap:14px;margin-bottom:28px;align-items:flex-start}
+.mina-mark{flex-shrink:0;margin-top:3px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mina-init{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:15px;font-style:italic;color:var(--gold);font-weight:700}
+.mina-live{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2s ease infinite;margin-top:2px}
+.mina-speech{flex:1}
+.mina-who{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.mina-text{font-size:14px;color:var(--soft);line-height:1.78;font-style:italic}
+.mina-text strong{color:var(--white);font-style:normal;font-weight:600}
+.mina-text .teal{color:var(--teal);font-style:normal}
+.q-title{font-family:var(--fh);font-size:clamp(28px,4.5vw,42px);font-weight:700;font-style:italic;color:var(--white);line-height:1.05;letter-spacing:-0.5px;margin-bottom:6px}
+.q-title span{color:var(--teal)}
+.q-hint{font-size:13px;color:var(--dim);margin-bottom:22px;line-height:1.6}
+.q-hint strong{color:var(--muted)}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choices.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choices.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.choice{background:var(--surface);border:1.5px solid var(--border);border-left:3px solid transparent;border-radius:11px;padding:14px 18px;cursor:pointer;transition:all 0.18s ease;display:flex;flex-direction:column;gap:2px}
+.choice:hover{border-color:var(--border-lit);border-left-color:rgba(0,201,167,0.35);transform:translateX(2px)}
+.choice.sel{border-color:var(--teal-border);border-left-color:var(--teal);background:var(--teal-dim);transform:translateX(3px)}
+.c-label{font-size:14px;font-weight:500;color:var(--muted);transition:color 0.15s;line-height:1.3}
+.choice.sel .c-label{color:var(--white)}
+.choice:hover .c-label{color:var(--soft)}
+.c-sub{font-size:11px;color:var(--dim);transition:color 0.15s}
+.choice.sel .c-sub{color:rgba(0,201,167,0.6)}
+.tpair-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tpair{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:16px 18px;cursor:pointer;transition:all 0.18s;text-align:center}
+.tpair:hover{border-color:var(--border-lit)}
+.tpair.sel{border-color:var(--teal-border);background:var(--teal-dim)}
+.tp-label{font-size:14px;font-weight:500;color:var(--muted)}
+.tpair.sel .tp-label{color:var(--white)}
+.tp-sub{font-size:11px;color:var(--dim);margin-top:2px}
+.tpair.sel .tp-sub{color:rgba(0,201,167,0.55)}
+.multi-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.multi{background:var(--surface);border:1.5px solid var(--border);border-left:3px solid transparent;border-radius:11px;padding:13px 16px;cursor:pointer;transition:all 0.15s}
+.multi:hover{border-color:var(--border-lit);border-left-color:rgba(0,201,167,0.3)}
+.multi.sel{border-color:var(--teal-border);border-left-color:var(--teal);background:var(--teal-dim)}
+.m-label{font-size:13px;font-weight:500;color:var(--muted);line-height:1.4}
+.multi.sel .m-label{color:var(--white)}
+.fg{margin-bottom:14px}
+.f-label{display:block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.fw{position:relative}
+.fpre{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--dim);pointer-events:none;z-index:1}
+.field{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:13px 16px;font-size:16px;font-family:var(--fb);color:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;-webkit-appearance:none}
+.field.pre{padding-left:42px}
+.field:focus{border-color:var(--teal-border);box-shadow:0 0 0 3px rgba(0,201,167,0.06)}
+.field::placeholder{color:var(--dim);font-size:14px}
+.f-note{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.55}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.reveal{overflow:hidden;max-height:0;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0}
+.reveal.open{max-height:500px;opacity:1}
+.rev-inner{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:16px;margin-top:10px}
+.debt-entries{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.debt-card{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:18px;position:relative}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.dc-name{font-size:13px;font-weight:600;color:var(--white)}
+.dc-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:8px;display:none}
+.dc-badge.high{color:var(--red);background:var(--red-dim);border:1px solid var(--red-border)}
+.dc-badge.low{color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border)}
+.dc-rm{background:none;border:none;cursor:pointer;color:var(--dim);font-size:17px;line-height:1;transition:color 0.15s;padding:2px 6px;margin-left:8px}
+.dc-rm:hover{color:var(--red)}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dg .field{font-size:14px;padding:10px 14px;border-radius:9px}
+.dg .field.pre{padding-left:38px}
+.dg .fpre{font-size:12px;left:12px}
+.missed-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;background:var(--red-dim);border:1px solid var(--red-border);border-radius:8px;cursor:pointer}
+.missed-row input{accent-color:var(--red);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.missed-row label{font-size:12px;color:var(--muted);cursor:pointer;line-height:1.4}
+.btn-add{width:100%;padding:13px;background:transparent;border:1.5px dashed rgba(255,255,255,0.1);border-radius:11px;color:var(--dim);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.2s}
+.btn-add:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
+.no-debt-row{display:flex;align-items:center;gap:12px;padding:14px 18px;margin-top:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;cursor:pointer;transition:all 0.2s}
+.no-debt-row:hover{border-color:var(--border-lit)}
+.no-debt-row.sel{border-color:var(--teal-border);background:var(--teal-dim)}
+.ndb{width:18px;height:18px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.no-debt-row.sel .ndb{background:var(--teal);border-color:var(--teal)}
+.ndc{display:none;width:9px;height:7px}
+.no-debt-row.sel .ndc{display:block}
+.ndt{font-size:13px;font-weight:500;color:var(--muted)}
+.no-debt-row.sel .ndt{color:var(--white)}
+.botnav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:14px 32px;display:flex;align-items:center;gap:12px;background:rgba(12,15,26,0.96);backdrop-filter:blur(24px);border-top:1px solid var(--border)}
+.btn-back{padding:12px 22px;background:transparent;border:1.5px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.2s;white-space:nowrap}
+.btn-back:hover{border-color:var(--border-lit);color:var(--white)}
+.btn-back:disabled{opacity:0.28;cursor:not-allowed}
+.btn-next{flex:1;max-width:340px;padding:13px 24px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.2s;letter-spacing:0.02em}
+.btn-next:hover{background:var(--teal-d);transform:translateY(-1px)}
+.btn-next:disabled{background:var(--surface2);color:var(--dim);cursor:not-allowed;transform:none}
+.btn-skip{font-size:12px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:var(--fb);padding:4px;transition:color 0.2s;white-space:nowrap}
+.btn-skip:hover{color:var(--muted)}
+.analysis{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:40px}
+.analysis.on{display:flex;animation:fadeIn 0.3s ease}
+.a-logo{font-family:var(--fh);font-size:26px;font-weight:700;color:var(--white)}
+.a-logo span{color:var(--teal);font-style:italic}
+.a-sub{font-size:13px;color:var(--dim);margin-top:-28px}
+.a-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
+.a-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:11px;transition:all 0.35s}
+.a-row.live{border-color:var(--teal-border)}
+.a-row.done{border-color:rgba(0,201,167,0.12);background:var(--teal-dim)}
+.a-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:all 0.3s}
+.a-row.live .a-dot{background:var(--teal);animation:pulse 1s ease infinite}
+.a-row.done .a-dot{background:var(--teal);animation:none}
+.a-txt{font-size:13px;font-weight:500;color:var(--dim);transition:color 0.3s;flex:1}
+.a-row.live .a-txt{color:var(--white)}
+.a-row.done .a-txt{color:var(--teal)}
+.a-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--teal);border-radius:50%;animation:spin 0.65s linear infinite;flex-shrink:0}
+.a-row.done .a-spin{display:none}
+.result{display:none;min-height:100vh;padding:74px 24px 120px}
+.result.on{display:block;animation:fadeIn 0.5s ease}
+.r-inner{max-width:600px;margin:0 auto}
+.r-mina{display:flex;gap:14px;margin-bottom:26px}
+.r-bubble{flex:1;background:var(--surface);border:1px solid var(--gold-border);border-radius:4px 16px 16px 16px;padding:22px 24px;font-size:14px;color:var(--soft);line-height:1.8;font-style:italic;position:relative}
+.r-bubble::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),rgba(0,201,167,0.6),transparent);border-radius:2px}
+.r-bubble strong{color:var(--white);font-style:normal}
+.r-bubble .hi{color:var(--teal);font-style:normal;font-weight:600}
+.r-bubble .lo{color:var(--red);font-style:normal;font-weight:600}
+.r-bubble .go{color:var(--gold);font-style:normal;font-weight:600}
+.score-band{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;display:grid;grid-template-columns:80px 1fr;gap:20px;align-items:center;margin-bottom:14px}
+.s-ring{position:relative;width:80px;height:80px}
+.s-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
+.rbg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:7}
+.rarc{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 1.8s cubic-bezier(0.4,0,0.2,1)}
+.rlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.rlabel span{font-family:var(--fh);font-size:24px;font-style:italic;color:var(--white)}
+.s-verdict{font-family:var(--fh);font-size:21px;font-style:italic;color:var(--white);margin-bottom:5px}
+.s-detail{font-size:13px;color:var(--muted);line-height:1.6}
+.snapshot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.snap{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
+.snap-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:7px}
+.snap-val{font-family:var(--fh);font-size:21px;font-style:italic;color:var(--white)}
+.snap-val.teal{color:var(--teal)}
+.snap-val.red{color:var(--red)}
+.snap-val.gold{color:var(--gold)}
+.plan-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:14px}
+.plan-title{font-family:var(--fh);font-size:20px;font-style:italic;color:var(--white);margin-bottom:16px}
+.plan-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.plan-row:last-child{border-bottom:none}
+.plan-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--teal);margin-top:1px}
+.plan-text{font-size:13px;color:var(--muted);line-height:1.65}
+.plan-text strong{color:var(--white)}
+.save-card{background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(201,168,76,0.04));border:1px solid var(--teal-border);border-radius:18px;padding:28px;text-align:center}
+.save-title{font-family:var(--fh);font-size:26px;font-style:italic;color:var(--white);margin-bottom:7px}
+.save-sub{font-size:14px;color:var(--muted);margin-bottom:22px;line-height:1.65}
+.btn-save{width:100%;padding:15px;background:var(--teal);color:#0C0F1A;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.2s;letter-spacing:0.02em}
+.btn-save:hover{background:var(--teal-d);transform:translateY(-2px)}
+.save-note{font-size:11px;color:var(--dim);margin-top:11px}
+.overlay{position:fixed;inset:0;background:rgba(12,15,26,0.94);backdrop-filter:blur(18px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex;animation:fadeIn 0.2s ease}
+.modal{background:var(--surface);border:1px solid var(--gold-border);border-radius:20px;padding:34px;width:100%;max-width:400px;position:relative}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s}
+.modal-close:hover{color:var(--white)}
+.ml{font-family:var(--fh);font-size:21px;font-weight:700;color:var(--white);text-align:center;margin-bottom:3px}
+.ml span{color:var(--teal);font-style:italic}
+.ms{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fi{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--white);font-size:14px;font-family:var(--fb);outline:none;transition:border-color 0.2s;margin-bottom:12px}
+.fi:focus{border-color:var(--teal-border)}
+.fi::placeholder{color:var(--dim)}
+.pw{position:relative;margin-bottom:12px}
+.pw .fi{margin-bottom:0;padding-right:44px}
+.peye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dim);padding:4px;transition:color 0.2s}
+.peye:hover{color:var(--teal)}
+.btn-auth{width:100%;padding:13px;background:var(--teal);color:#0C0F1A;border:none;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;margin-top:4px}
+.btn-auth:hover{background:var(--teal-d)}
+.btn-auth:disabled{background:var(--dim);cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:12px;margin:14px 0;font-size:12px;color:var(--dim)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{width:100%;padding:11px;background:var(--surface2);color:var(--white);border:1.5px solid var(--border);border-radius:9px;font-weight:500;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-google:hover{border-color:var(--border-lit)}
+.aerr{padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+.spinner{width:13px;height:13px;border:2px solid rgba(12,15,26,0.25);border-top-color:#0C0F1A;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+.verify-state{text-align:center;padding:8px 0}
+.verify-title{font-family:var(--fh);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px}
+.verify-sub{font-size:13px;color:var(--muted);line-height:1.7}
+.verify-tip{margin-top:16px;padding:12px 14px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:9px;font-size:12px;color:var(--muted)}
+@media(max-width:600px){.topbar{padding:0 18px}.botnav{padding:12px 18px}.content{padding:72px 16px 90px}.choices.g2,.choices.g3{grid-template-columns:1fr 1fr}.f-row,.dg{grid-template-columns:1fr}.multi-list{grid-template-columns:1fr}.snapshot{grid-template-columns:1fr 1fr}.score-band{grid-template-columns:1fr;text-align:center}.f-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div class="top-logo" onclick="window.location.href='/index.html'">Sum <span>Goals</span></div>
-    <div class="top-right">
-      <div class="top-step" id="stepLbl">1 of 22</div>
-      <div class="top-secure"><div class="sdot"></div>Private</div>
+<div class="topbar">
+  <div class="logo">Sum <span>Goals</span></div>
+  <div class="prog-area"><div class="prog-track"><div class="prog-fill" id="pf" style="width:0%"></div></div><div class="prog-text" id="pt">Getting started</div></div>
+  <div class="step-count" id="sc"></div>
+</div>
+<div class="content">
+
+<div class="slide active" id="s1">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina — Your financial coach</div><div class="mina-text">Before you share a single number with me, I want to be completely honest with you. I cannot see your bank account, your credit file, or any external data. <strong>I only know what you tell me.</strong> Everything you share is encrypted and never sold to anyone. You can be completely honest with me. I have heard every financial situation. <span class="teal">Nothing surprises me. Nothing judges you.</span></div></div></div>
+  <div class="q-title">Your privacy is<br><span>sacred.</span></div>
+  <div class="q-hint">Four things I promise before we begin.</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">No bank access</div><div style="font-size:12px;color:var(--muted)">I cannot see your accounts or transactions. Only what you choose to tell me.</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Never sold</div><div style="font-size:12px;color:var(--muted)">Your financial information is never shared with advertisers or any third party. Ever.</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Fully encrypted</div><div style="font-size:12px;color:var(--muted)">Your data is encrypted in transit and at rest. Only you can see it.</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Delete anytime</div><div style="font-size:12px;color:var(--muted)">Remove your account and every piece of data at any moment. No questions asked.</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s2">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What language do you feel most comfortable in? I will coach you in your language — not just translate words, but think in your context.</div></div></div>
+  <div class="q-title">Your language,<br><span>your comfort.</span></div>
+  <div class="choices g2">
+    <div class="choice" onclick="pick('lang','en',this)"><div class="c-label">English</div></div>
+    <div class="choice" onclick="pick('lang','es',this)"><div class="c-label">Español</div></div>
+    <div class="choice" onclick="pick('lang','fr',this)"><div class="c-label">Français</div></div>
+    <div class="choice" onclick="pick('lang','ar',this)"><div class="c-label">العربية</div></div>
+    <div class="choice" onclick="pick('lang','pt',this)"><div class="c-label">Português</div></div>
+    <div class="choice" onclick="pick('lang','other',this)"><div class="c-label">Other language</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s3">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Where do you currently live? Tax rules, available financial products, and cost of living benchmarks all depend on your country. I need this to give you advice that is actually relevant to your reality — not a generic American plan.</div></div></div>
+  <div class="q-title">Where do you<br><span>live today?</span></div>
+  <div class="choices g3" style="margin-bottom:10px">
+    <div class="choice" onclick="pick('country','us',this);closeR('cOR')"><div class="c-label">United States</div></div>
+    <div class="choice" onclick="pick('country','ca',this);closeR('cOR')"><div class="c-label">Canada</div></div>
+    <div class="choice" onclick="pick('country','uk',this);closeR('cOR')"><div class="c-label">United Kingdom</div></div>
+    <div class="choice" onclick="pick('country','fr',this);closeR('cOR')"><div class="c-label">France</div></div>
+    <div class="choice" onclick="pick('country','ma',this);closeR('cOR')"><div class="c-label">Morocco</div></div>
+    <div class="choice" onclick="pick('country','ae',this);closeR('cOR')"><div class="c-label">UAE</div></div>
+    <div class="choice" onclick="pick('country','mx',this);closeR('cOR')"><div class="c-label">Mexico</div></div>
+    <div class="choice" onclick="pick('country','br',this);closeR('cOR')"><div class="c-label">Brazil</div></div>
+    <div class="choice" onclick="pick('country','other',this);openR('cOR')"><div class="c-label">Other country</div></div>
+  </div>
+  <div class="reveal" id="cOR"><div class="rev-inner"><div class="f-label">Type your country</div><input class="field" type="text" placeholder="e.g. Algeria, Germany, India..." oninput="D.country_name=this.value"></div></div>
+</div>
+
+<div class="slide" id="s4">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What currency do you earn and spend in? Every number in your plan stays in your currency. I do not convert or confuse.</div></div></div>
+  <div class="q-title">Your<br><span>currency.</span></div>
+  <div class="choices g3" style="margin-bottom:10px">
+    <div class="choice" onclick="setCur('USD',this)"><div class="c-label">USD</div><div class="c-sub">US Dollar</div></div>
+    <div class="choice" onclick="setCur('CAD',this)"><div class="c-label">CAD</div><div class="c-sub">Canadian Dollar</div></div>
+    <div class="choice" onclick="setCur('EUR',this)"><div class="c-label">EUR</div><div class="c-sub">Euro</div></div>
+    <div class="choice" onclick="setCur('GBP',this)"><div class="c-label">GBP</div><div class="c-sub">British Pound</div></div>
+    <div class="choice" onclick="setCur('MAD',this)"><div class="c-label">MAD</div><div class="c-sub">Moroccan Dirham</div></div>
+    <div class="choice" onclick="setCur('AED',this)"><div class="c-label">AED</div><div class="c-sub">UAE Dirham</div></div>
+    <div class="choice" onclick="setCur('MXN',this)"><div class="c-label">MXN</div><div class="c-sub">Mexican Peso</div></div>
+    <div class="choice" onclick="setCur('BRL',this)"><div class="c-label">BRL</div><div class="c-sub">Brazilian Real</div></div>
+    <div class="choice" onclick="setCur('OTHER',this);openR('curR')"><div class="c-label">Other</div><div class="c-sub">150+ supported</div></div>
+  </div>
+  <div class="reveal" id="curR"><div class="rev-inner"><div class="f-label">Currency code</div><input class="field" type="text" placeholder="e.g. INR, TRY, DZD, SGD..." oninput="D.currency=this.value.toUpperCase().trim();updatePre()"></div></div>
+</div>
+
+<div class="slide" id="s5">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">A 28-year-old with the same debt as a 52-year-old has a completely different urgency and timeline. My advice adapts to where you actually are in life.</div></div></div>
+  <div class="q-title">Your<br><span>age range.</span></div>
+  <div class="choices">
+    <div class="choice" onclick="pick('age_range','18-24',this);next()"><div class="c-label">18 to 24</div><div class="c-sub">Starting out</div></div>
+    <div class="choice" onclick="pick('age_range','25-34',this);next()"><div class="c-label">25 to 34</div><div class="c-sub">Building years</div></div>
+    <div class="choice" onclick="pick('age_range','35-44',this);next()"><div class="c-label">35 to 44</div><div class="c-sub">Peak earning years</div></div>
+    <div class="choice" onclick="pick('age_range','45-54',this);next()"><div class="c-label">45 to 54</div><div class="c-sub">Pre-retirement preparation</div></div>
+    <div class="choice" onclick="pick('age_range','55+',this);next()"><div class="c-label">55 and above</div><div class="c-sub">Late career or retired</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s6">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What is your monthly salary <strong>after taxes</strong>? The exact amount that arrives in your account — not the gross figure on your contract. If your income varies, give me a typical month.</div></div></div>
+  <div class="q-title">Your monthly<br><span>take-home.</span></div>
+  <div class="fg"><div class="f-label">Monthly salary after tax</div><div class="fw"><span class="fpre" id="preSal">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.monthly_income=n(this.value)"></div></div>
+  <div class="q-hint" style="margin-bottom:14px">Is your income stable every month?</div>
+  <div class="tpair-row">
+    <div class="tpair" id="tSY" onclick="D.income_stable=true;tp('S','Y')"><div class="tp-label">Stable</div><div class="tp-sub">Same amount every month</div></div>
+    <div class="tpair" id="tSN" onclick="D.income_stable=false;tp('S','N')"><div class="tp-label">Variable</div><div class="tp-sub">Changes month to month</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s7">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Do you have any income besides your main salary? Freelance work, a side business, rental income, dividends — anything extra that comes in regularly.</div></div></div>
+  <div class="q-title">Any other<br><span>income?</span></div>
+  <div class="tpair-row" style="margin-bottom:10px">
+    <div class="tpair" id="tSiY" onclick="D.has_side=true;tp('Si','Y');openR('siR')"><div class="tp-label">Yes, I have side income</div><div class="tp-sub">Freelance, gigs, business</div></div>
+    <div class="tpair" id="tSiN" onclick="D.has_side=false;D.side_income=0;tp('Si','N');closeR('siR')"><div class="tp-label">Salary only</div><div class="tp-sub">No additional income</div></div>
+  </div>
+  <div class="reveal" id="siR"><div class="rev-inner"><div class="f-label">Side income — monthly average</div><div class="fw"><span class="fpre" id="preSi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.side_income=n(this.value)"></div></div></div>
+  <div class="tpair-row" style="margin-top:10px">
+    <div class="tpair" id="tIvY" onclick="D.has_invest=true;tp('Iv','Y');openR('ivR')"><div class="tp-label">Rental or investment income</div><div class="tp-sub">Passive income each month</div></div>
+    <div class="tpair" id="tIvN" onclick="D.has_invest=false;D.invest_income=0;tp('Iv','N');closeR('ivR')"><div class="tp-label">No passive income</div></div>
+  </div>
+  <div class="reveal" id="ivR"><div class="rev-inner"><div class="f-label">Rental or investment income — monthly</div><div class="fw"><span class="fpre" id="preIv">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.invest_income=n(this.value)"></div></div></div>
+</div>
+
+<div class="slide" id="s8">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Do you send money to family or loved ones in another country? This is one of the most important — and most invisible — financial commitments many people carry. I need to see it to plan around it honestly.</div></div></div>
+  <div class="q-title">Sending money<br><span>home?</span></div>
+  <div class="tpair-row" style="margin-bottom:10px">
+    <div class="tpair" id="tRmY" onclick="D.sends_remittances=true;tp('Rm','Y');openR('rmR')"><div class="tp-label">Yes, I send money regularly</div></div>
+    <div class="tpair" id="tRmN" onclick="D.sends_remittances=false;D.remittances=0;tp('Rm','N');closeR('rmR')"><div class="tp-label">No, I do not send money abroad</div></div>
+  </div>
+  <div class="reveal" id="rmR"><div class="rev-inner"><div class="f-label">How much do you send per month on average?</div><div class="fw"><span class="fpre" id="preRm">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.remittances=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include everything — parents, siblings, spouse, children abroad. All of it.</div></div></div>
+</div>
+
+<div class="slide" id="s9">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Housing is almost always the largest expense. Whether you rent, own, or live with family changes the advice I give you — particularly around wealth building and long-term planning.</div></div></div>
+  <div class="q-title">Your<br><span>housing situation.</span></div>
+  <div class="choices" style="margin-bottom:10px">
+    <div class="choice" onclick="pick('housing_type','rent',this);openR('hcR');closeR('mgR')"><div class="c-label">I rent</div><div class="c-sub">Monthly rent payment</div></div>
+    <div class="choice" onclick="pick('housing_type','own_mortgage',this);openR('hcR');openR('mgR')"><div class="c-label">I own my home — still paying mortgage</div><div class="c-sub">Monthly mortgage payment</div></div>
+    <div class="choice" onclick="pick('housing_type','own_free',this);closeR('hcR');closeR('mgR');D.rent=0"><div class="c-label">I own my home — no mortgage</div><div class="c-sub">Fully paid off</div></div>
+    <div class="choice" onclick="pick('housing_type','family',this);closeR('hcR');closeR('mgR');D.rent=0"><div class="c-label">Living with family</div><div class="c-sub">No housing cost</div></div>
+  </div>
+  <div class="reveal" id="hcR"><div class="rev-inner"><div class="f-label">Monthly rent or mortgage payment</div><div class="fw"><span class="fpre" id="preRe">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.rent=n(this.value)"></div></div></div>
+  <div class="reveal" id="mgR"><div class="rev-inner" style="margin-top:8px"><div class="f-label">Remaining mortgage balance (optional)</div><div class="fw"><span class="fpre" id="preMg">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.mortgage_balance=n(this.value)"></div></div></div>
+</div>
+
+<div class="slide" id="s10">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Your fixed monthly bills — the ones that leave your account whether you want them to or not. Enter what you actually pay. Skip anything that does not apply.</div></div></div>
+  <div class="q-title">Your fixed<br><span>monthly bills.</span></div>
+  <div class="f-row">
+    <div class="fg"><div class="f-label">Electricity and utilities</div><div class="fw"><span class="fpre" id="preUt">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.utilities=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Phone and internet</div><div class="fw"><span class="fpre" id="prePh">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.phone_internet=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Car payment (if any)</div><div class="fw"><span class="fpre" id="preCp">$</span><input class="field pre" type="number" min="0" placeholder="0 if none" oninput="D.car_payment=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Car insurance</div><div class="fw"><span class="fpre" id="preCi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.car_insurance=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Health insurance premium</div><div class="fw"><span class="fpre" id="preHi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.health_insurance=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Life or other insurance</div><div class="fw"><span class="fpre" id="preLi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.life_insurance=n(this.value)"></div></div>
+  </div>
+</div>
+
+<div class="slide" id="s11">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Now the spending that changes month to month. <strong>Be honest here.</strong> Most people underestimate groceries by 20% and dining by 40%. Think about every coffee, every lunch, every food delivery this month — not the ideal version. The real one.</div></div></div>
+  <div class="q-title">Your variable<br><span>spending.</span></div>
+  <div class="f-row">
+    <div class="fg"><div class="f-label">Groceries and household supplies</div><div class="fw"><span class="fpre" id="preGr">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.groceries=n(this.value)"></div></div>
+    <div class="fg"><div class="f-label">Dining out and food delivery</div><div class="fw"><span class="fpre" id="preDi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.dining=n(this.value)"></div><div class="f-note">Every coffee, restaurant, takeaway, delivery app</div></div>
+    <div class="fg"><div class="f-label">Transport and fuel</div><div class="fw"><span class="fpre" id="preTr">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.transport=n(this.value)"></div><div class="f-note">Gas, public transport, Uber — not car payment</div></div>
+    <div class="fg"><div class="f-label">Subscriptions</div><div class="fw"><span class="fpre" id="preSb">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.subscriptions=n(this.value)"></div><div class="f-note">Streaming, gym, apps, memberships — all of them</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s12">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How many people depend on you financially? And do you pay for childcare or daycare? These are often the largest invisible expenses in a family budget — and the ones that make people feel most trapped. I need to see them clearly.</div></div></div>
+  <div class="q-title">Your family<br><span>expenses.</span></div>
+  <div class="q-hint">Who depends on you financially?</div>
+  <div class="choices g3" style="margin-bottom:16px">
+    <div class="choice" onclick="pick('dependents','0',this)"><div class="c-label">Only myself</div></div>
+    <div class="choice" onclick="pick('dependents','1',this)"><div class="c-label">1 person</div></div>
+    <div class="choice" onclick="pick('dependents','2',this)"><div class="c-label">2 people</div></div>
+    <div class="choice" onclick="pick('dependents','3',this)"><div class="c-label">3 people</div></div>
+    <div class="choice" onclick="pick('dependents','4+',this)"><div class="c-label">4 or more</div></div>
+  </div>
+  <div class="tpair-row" style="margin-bottom:10px">
+    <div class="tpair" id="tDcY" onclick="D.pays_daycare=true;tp('Dc','Y');openR('dcR')"><div class="tp-label">I pay for childcare or daycare</div></div>
+    <div class="tpair" id="tDcN" onclick="D.pays_daycare=false;D.daycare=0;tp('Dc','N');closeR('dcR')"><div class="tp-label">No childcare costs</div></div>
+  </div>
+  <div class="reveal" id="dcR"><div class="rev-inner"><div class="f-label">Monthly daycare or childcare cost</div><div class="fw"><span class="fpre" id="preDc">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.daycare=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include daycare, after-school care, nanny, babysitter — everything you pay for child care each month.</div></div></div>
+</div>
+
+<div class="slide" id="s13">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Are you contributing to a retirement or pension plan? Many immigrants have no pension plan at all — that is not a failure, it is simply something we need to plan around. I need to know either way.</div></div></div>
+  <div class="q-title">Retirement<br><span>contributions.</span></div>
+  <div class="tpair-row" style="margin-bottom:10px">
+    <div class="tpair" id="tRtY" onclick="D.has_retirement=true;tp('Rt','Y');openR('rtR')"><div class="tp-label">Yes, I contribute monthly</div></div>
+    <div class="tpair" id="tRtN" onclick="D.has_retirement=false;D.retirement_contribution=0;tp('Rt','N');closeR('rtR')"><div class="tp-label">No retirement plan</div></div>
+  </div>
+  <div class="reveal" id="rtR"><div class="rev-inner"><div class="f-label">Monthly contribution amount</div><div class="fw"><span class="fpre" id="preRt">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.retirement_contribution=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include 401k, IRA, pension, employer match — everything going toward your retirement each month.</div></div></div>
+</div>
+
+<div class="slide" id="s14">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Tell me every debt you carry. Add each one separately — I need the individual details to build the right strategy. The order we attack debts matters enormously. <strong>Every debt you hide from me is a debt I cannot help you eliminate.</strong></div></div></div>
+  <div class="q-title">Your<br><span>debts.</span></div>
+  <div class="debt-entries" id="debtEntries"></div>
+  <button class="btn-add" onclick="addDebt()">Add a debt</button>
+  <div class="no-debt-row" id="ndr" onclick="toggleND()">
+    <div class="ndb" id="ndb"><svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="ndt">I have no debts — I am completely debt free</div>
+  </div>
+</div>
+
+<div class="slide" id="s15">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How much do you have in savings right now? Total across all accounts. Enter 0 if there is nothing. <span class="teal">There is no judgment. I need the real number, not the comfortable one.</span></div></div></div>
+  <div class="q-title">Your<br><span>savings.</span></div>
+  <div class="fg"><div class="f-label">Total savings right now</div><div class="fw"><span class="fpre" id="preSv">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.total_savings=n(this.value)"></div></div>
+  <div class="fg"><div class="f-label">Emergency fund — of that total</div><div class="fw"><span class="fpre" id="preEm">$</span><input class="field pre" type="number" min="0" placeholder="0 if none" oninput="D.emergency_fund=n(this.value)"></div><div class="f-note">Money set aside specifically for emergencies. Enter 0 if you have not separated it yet.</div></div>
+</div>
+
+<div class="slide" id="s16">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How would you describe your credit health? I do not need your exact score — just an honest range. This determines which debt strategies are available to you and what financial products you can realistically access.</div></div></div>
+  <div class="q-title">Your credit<br><span>health.</span></div>
+  <div class="choices">
+    <div class="choice" onclick="pick('credit_health','excellent',this);next()"><div class="c-label">Excellent</div><div class="c-sub">740 or above — no missed payments, long history</div></div>
+    <div class="choice" onclick="pick('credit_health','good',this);next()"><div class="c-label">Good</div><div class="c-sub">670 to 739 — mostly on time, a few minor issues</div></div>
+    <div class="choice" onclick="pick('credit_health','fair',this);next()"><div class="c-label">Fair</div><div class="c-sub">580 to 669 — some late payments or high utilization</div></div>
+    <div class="choice" onclick="pick('credit_health','poor',this);next()"><div class="c-label">Poor</div><div class="c-sub">Below 580 — missed payments, collections, or defaults</div></div>
+    <div class="choice" onclick="pick('credit_health','none',this);next()"><div class="c-label">No credit history</div><div class="c-sub">New to the country or never built credit</div></div>
+    <div class="choice" onclick="pick('credit_health','unknown',this);next()"><div class="c-label">I have never checked</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s17">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">When do you get paid? I will build your payday survival plan around this date — telling you exactly what to do with your money within 24 hours of it arriving.</div></div></div>
+  <div class="q-title">Your payday<br><span>date.</span></div>
+  <div class="choices g3" style="margin-bottom:16px">
+    <div class="choice" onclick="pick('payday_frequency','monthly',this)"><div class="c-label">Monthly</div></div>
+    <div class="choice" onclick="pick('payday_frequency','biweekly',this)"><div class="c-label">Every two weeks</div></div>
+    <div class="choice" onclick="pick('payday_frequency','weekly',this)"><div class="c-label">Weekly</div></div>
+  </div>
+  <div class="fg"><div class="f-label">Next payday date</div><input class="field" type="date" id="pdInp" oninput="D.payday_date=this.value" style="color-scheme:dark"></div>
+</div>
+
+<div class="slide" id="s18">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Have you tried to fix your finances before? What happened? This is not a judgment question. Your answer tells me what approach will actually work for you — not the generic one that may have already failed you.</div></div></div>
+  <div class="q-title">What stopped<br><span>you before?</span></div>
+  <div class="choices">
+    <div class="choice" onclick="pick('previous_attempt','no_plan',this);next()"><div class="c-label">I never had a real plan</div><div class="c-sub">Did not know where to start</div></div>
+    <div class="choice" onclick="pick('previous_attempt','no_stick',this);next()"><div class="c-label">I started but could not stick to it</div><div class="c-sub">Life got in the way</div></div>
+    <div class="choice" onclick="pick('previous_attempt','emergency',this);next()"><div class="c-label">An emergency derailed everything</div><div class="c-sub">Medical bill, job loss, crisis</div></div>
+    <div class="choice" onclick="pick('previous_attempt','income_low',this);next()"><div class="c-label">My income was too low to save anything</div><div class="c-sub">Nothing left after expenses</div></div>
+    <div class="choice" onclick="pick('previous_attempt','tried_all',this);next()"><div class="c-label">I have tried everything and nothing worked</div><div class="c-sub">Feeling stuck and defeated</div></div>
+    <div class="choice" onclick="pick('previous_attempt','first_time',this);next()"><div class="c-label">This is my first time facing this</div><div class="c-sub">Never tackled it before</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s19">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What are your biggest financial fears? Select as many as feel true. These are not weaknesses — they are exactly what I am going to help you eliminate, one by one.</div></div></div>
+  <div class="q-title">Your deepest<br><span>fears.</span></div>
+  <div class="multi-list">
+    <div class="multi" onclick="tm('fears','debt',this)"><div class="m-label">Never getting out of debt</div></div>
+    <div class="multi" onclick="tm('fears','paycheck',this)"><div class="m-label">Living paycheck to paycheck forever</div></div>
+    <div class="multi" onclick="tm('fears','emergency',this)"><div class="m-label">One emergency destroying everything</div></div>
+    <div class="multi" onclick="tm('fears','family',this)"><div class="m-label">Not providing enough for my family</div></div>
+    <div class="multi" onclick="tm('fears','retirement',this)"><div class="m-label">Not having enough to retire</div></div>
+    <div class="multi" onclick="tm('fears','shame',this)"><div class="m-label">The shame of my financial situation</div></div>
+    <div class="multi" onclick="tm('fears','job',this)"><div class="m-label">Losing my job with no financial cushion</div></div>
+    <div class="multi" onclick="tm('fears','home',this)"><div class="m-label">Never being able to buy a home</div></div>
+  </div>
+</div>
+
+<div class="slide" id="s20">
+  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What do you actually want your financial life to look like? Not what you think you should want — what you <strong>genuinely</strong> want. Pick as many as are true.</div></div></div>
+  <div class="q-title">Your real<br><span>goals.</span></div>
+  <div class="multi-list">
+    <div class="multi" onclick="tm('goals','debt',this)"><div class="m-label">Eliminate every debt completely</div></div>
+    <div class="multi" onclick="tm('goals','save',this)"><div class="m-label">Build real savings for the first time</div></div>
+    <div class="multi" onclick="tm('goals','house',this)"><div class="m-label">Buy my own home</div></div>
+    <div class="multi" onclick="tm('goals','emergency',this)"><div class="m-label">Build a solid emergency fund</div></div>
+    <div class="multi" onclick="tm('goals','family',this)"><div class="m-label">Provide a better life for my family</div></div>
+    <div class="multi" onclick="tm('goals','retire',this)"><div class="m-label">Retire comfortably one day</div></div>
+    <div class="multi" onclick="tm('goals','business',this)"><div class="m-label">Start my own business</div></div>
+    <div class="multi" onclick="tm('goals','freedom',this)"><div class="m-label">Stop the anxiety around money forever</div></div>
+  </div>
+</div>
+
+</div>
+
+<div class="botnav" id="bn">
+  <button class="btn-back" id="bb" onclick="prev()" disabled>Back</button>
+  <button class="btn-next" id="bnt" onclick="next()">Continue</button>
+  <button class="btn-skip" id="bsk" onclick="next()" style="display:none">Skip this</button>
+</div>
+
+<div class="analysis" id="ana">
+  <div class="a-logo">Sum <span>Goals</span></div>
+  <div class="a-sub">Mina is reviewing your complete situation</div>
+  <div class="a-list">
+    <div class="a-row" id="ar1"><div class="a-dot"></div><div class="a-txt">Reviewing your income and expenses</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar2"><div class="a-dot"></div><div class="a-txt">Calculating your financial health score</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar3"><div class="a-dot"></div><div class="a-txt">Building your debt elimination strategy</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar4"><div class="a-dot"></div><div class="a-txt">Preparing your personalized plan</div><div class="a-spin"></div></div>
+  </div>
+</div>
+
+<div class="result" id="res">
+  <div class="r-inner">
+    <div class="r-mina"><div class="mina-mark"><div class="mina-init">M</div></div><div class="r-bubble" id="rMsg"></div></div>
+    <div class="score-band">
+      <div class="s-ring"><svg viewBox="0 0 80 80"><circle class="rbg" cx="40" cy="40" r="35"/><circle class="rarc" id="rArc" cx="40" cy="40" r="35"/></svg><div class="rlabel"><span id="rSc">—</span></div></div>
+      <div><div class="s-verdict" id="rVerd">—</div><div class="s-detail" id="rDet">—</div></div>
+    </div>
+    <div class="snapshot">
+      <div class="snap"><div class="snap-lbl">Monthly available</div><div class="snap-val" id="rAv">—</div></div>
+      <div class="snap"><div class="snap-lbl">Total debt</div><div class="snap-val" id="rDb">—</div></div>
+      <div class="snap"><div class="snap-lbl">Savings</div><div class="snap-val gold" id="rSav">—</div></div>
+    </div>
+    <div class="plan-card" id="rPlan"></div>
+    <div class="save-card">
+      <div class="save-title">Your plan is ready. Do not lose it.</div>
+      <div class="save-sub">Create your free account in 30 seconds. Mina saves your complete profile — every number, every goal, every detail. Every time you return she picks up exactly where you left off.</div>
+      <button class="btn-save" onclick="openAuth()">Save my plan and create my account</button>
+      <div class="save-note">No credit card required. Takes 30 seconds. Cancel anytime.</div>
     </div>
   </div>
-  <div class="prog"><div class="prog-fill" id="progFill"></div></div>
-  <div class="area" id="area"></div>
-  <div class="bot">
-    <button class="btn-bk" id="backBtn" onclick="goBack()">← Back</button>
-    <button class="btn-sk" onclick="goSkip()">Skip for now</button>
-    <button class="btn-nx" onclick="goNext()">Continue →</button>
-  </div>
 </div>
 
-<!-- ANALYSIS -->
-<div class="anal" id="anal">
-  <div class="anal-spin"></div>
-  <div class="anal-title">Mina is analyzing your situation</div>
-  <div style="font-size:13px;color:#8B9CB6;margin-bottom:16px">Building your complete financial profile...</div>
-  <div class="anal-steps">
-    <div class="astep on" id="as1"><div class="astep-dot"></div>Reviewing income and expenses</div>
-    <div class="astep" id="as2"><div class="astep-dot"></div>Calculating your health score</div>
-    <div class="astep" id="as3"><div class="astep-dot"></div>Identifying key opportunities</div>
-    <div class="astep" id="as4"><div class="astep-dot"></div>Preparing your personalized plan</div>
-  </div>
-</div>
-
-<!-- RESULT -->
-<div class="result" id="result">
-  <div class="result-in" id="resultIn"></div>
-</div>
-
-<!-- SIGNUP MODAL -->
-<div class="mo" id="mo">
-  <div id="moBox" class="mo-box">
-    <div class="mo-title">Save your plan <span>with Mina</span></div>
-    <div class="mo-sub">Create your free account to save everything. Takes 30 seconds.</div>
-    <div class="mo-err" id="moErr"></div>
-    <label class="mo-lbl">Full name</label>
-    <input class="mo-inp" id="moName" type="text" placeholder="Your name">
-    <label class="mo-lbl">Email</label>
-    <input class="mo-inp" id="moEmail" type="email" placeholder="you@email.com">
-    <label class="mo-lbl">Password</label>
-    <input class="mo-inp" id="moPass" type="password" placeholder="Min 8 characters">
-    <button class="btn-mo" id="moBtn" onclick="doSignup()">Create free account and save my plan</button>
-    <button class="btn-goog" onclick="doGoogle()">
-      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continue with Google
-    </button>
-    <div class="mo-note">Already have an account? <a href="/dashboard.html" style="color:#00C9A7">Sign in</a></div>
+<div class="overlay" id="ov">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <div id="authC">
+      <div class="ml">Sum <span>Goals</span></div>
+      <div class="ms">Your plan is ready. Save it now.</div>
+      <div class="aerr" id="aerr"></div>
+      <div class="f-row" style="margin-bottom:0">
+        <div><label class="fl">First name</label><input class="fi" id="fFi" type="text" placeholder="First name"></div>
+        <div><label class="fl">Last name</label><input class="fi" id="fLa" type="text" placeholder="Last name"></div>
+      </div>
+      <label class="fl">Email address</label><input class="fi" id="fEm" type="email" placeholder="you@email.com">
+      <label class="fl">Phone <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input class="fi" id="fPh" type="tel" placeholder="+1 555 000 0000">
+      <label class="fl">Password</label>
+      <div class="pw"><input class="fi" id="fPw" type="password" placeholder="At least 8 characters"><button class="peye" onclick="togglePw()" type="button" id="pEye"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.55">By creating an account you agree to our <a href="#" style="color:var(--teal)">Terms</a> and <a href="#" style="color:var(--teal)">Privacy Policy</a>. No ads. Your data is never sold.</div>
+      <button class="btn-auth" id="sBtn" onclick="doSignup()">Create my free account</button>
+      <div class="divider">or</div>
+      <button class="btn-google" onclick="doGoogle()"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button>
+    </div>
+    <div id="verC" style="display:none">
+      <div class="verify-state">
+        <div class="verify-title">Check your inbox</div>
+        <div class="verify-sub" id="verSub">We sent a verification link. Click it and Mina will be waiting for you with your complete plan.</div>
+        <div class="verify-tip">Did not receive it? Check your spam folder. Add <strong style="color:var(--white)">vera@sumgoals.com</strong> to your contacts.</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-var SB_URL = 'https://dmdvoygnzbosjbwsriea.supabase.co';
-var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
-var sb = supabase.createClient(SB_URL, SB_KEY);
-
-var user = null;
-var step = 0;
-var debts = [];
-var fears = [];
-var goals = [];
-var A = {
-  lang:'en', cur:'USD',
-  salary:0, hasSide:false, side:0, hasInv:false, inv:0,
-  hasRem:false, rem:0, stable:true,
-  rent:0, util:0, transport:0, grocery:0, dining:0, subs:0,
-  savings:0, emergency:0,
-  paydayDate:'', paydayFreq:'monthly', balance:0,
-  dependents:0
-};
-
-var STEPS = [
-  'privacy','lang','cur',
-  'salary','side','inv','rem','stable',
-  'rent','util','transport','grocery','dining','subs',
-  'debts','savings','emergency',
-  'payday','balance','dependents',
-  'fear','goal'
-];
-
-async function init() {
-  var r = await sb.auth.getSession();
-  if (r.data.session) user = r.data.session.user;
-  show(0);
-}
-
-function show(n) {
-  step = n;
-  var pct = Math.round((n / STEPS.length) * 100);
-  document.getElementById('progFill').style.width = pct + '%';
-  document.getElementById('stepLbl').textContent = (n+1) + ' of ' + STEPS.length;
-
-  var area = document.getElementById('area');
-  area.innerHTML = '';
-  var div = document.createElement('div');
-  div.className = 'slide r';
-  div.innerHTML = buildSlide(STEPS[n]);
-  area.appendChild(div);
-
-  // Attach listeners
-  div.querySelectorAll('[data-single]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      div.querySelectorAll('[data-single]').forEach(function(c) { c.classList.remove('sel'); });
-      el.classList.add('sel');
-      var key = el.getAttribute('data-single');
-      var val = el.getAttribute('data-val');
-      if (key === 'stable') A.stable = val === 'true';
-      else if (key === 'dependents') A.dependents = parseInt(val) || 0;
-      setTimeout(goNext, 320);
-    });
-  });
-
-  div.querySelectorAll('[data-multi]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      el.classList.toggle('sel');
-      var arr = el.getAttribute('data-multi') === 'fear' ? fears : goals;
-      var val = el.getAttribute('data-val');
-      var idx = arr.indexOf(val);
-      if (el.classList.contains('sel')) { if (idx === -1) arr.push(val); }
-      else { if (idx > -1) arr.splice(idx, 1); }
-    });
-  });
-
-  div.querySelectorAll('[data-tog]').forEach(function(el) {
-    el.addEventListener('click', function() {
-      var key = el.getAttribute('data-tog');
-      var sw = el.querySelector('.tog-sw');
-      var wrapId = el.getAttribute('data-wrap');
-      var wrap = document.getElementById(wrapId);
-      if (key === 'side') { A.hasSide = !A.hasSide; sw.classList.toggle('on', A.hasSide); el.classList.toggle('on', A.hasSide); wrap.classList.toggle('show', A.hasSide); }
-      if (key === 'inv') { A.hasInv = !A.hasInv; sw.classList.toggle('on', A.hasInv); el.classList.toggle('on', A.hasInv); wrap.classList.toggle('show', A.hasInv); }
-      if (key === 'rem') { A.hasRem = !A.hasRem; sw.classList.toggle('on', A.hasRem); el.classList.toggle('on', A.hasRem); wrap.classList.toggle('show', A.hasRem); }
-    });
-  });
-
-  var inp = div.querySelector('input[type="number"],select,input[type="date"]');
-  if (inp) setTimeout(function() { inp.focus(); }, 350);
-}
-
-function vl(sub) {
-  return '<div class="vlabel"><div class="vav">M</div><div><div class="vtag">MINA</div>' + (sub ? '<span class="vsub">— ' + sub + '</span>' : '') + '</div></div>';
-}
-function ni(id, val, cur, ph) {
-  return '<div class="num-wrap"><div class="num-cur">' + cur + '</div><input class="num-inp" id="' + id + '" type="number" min="0" placeholder="' + ph + '" value="' + (val||'') + '"></div>';
-}
-function sv(cur, val) { return cur === val ? ' selected' : ''; }
-function pi(text) {
-  return '<div class="pitem"><div class="pitem-dot"><div class="pitem-inner"></div></div>' + text + '</div>';
-}
-
-function buildSlide(id) {
-  var c = A.cur;
-
-  if (id === 'privacy') {
-    return vl('First — your privacy') +
-      '<h2 class="q">Everything you share with me<br><em>stays completely private.</em></h2>' +
-      '<div class="mnote">I am Mina — your personal financial coach. I only know what you tell me. I cannot access your bank account or any financial system. Everything you share is encrypted and never sold.<br><br><strong>You can be completely honest with me.</strong> I have heard every financial situation. Nothing surprises me.</div>' +
-      pi('I never connect to your bank or any account') +
-      pi('Your data is encrypted and never shared with anyone') +
-      pi('No ads, no selling your information — ever') +
-      pi('You can delete your account and all data at any time');
-  }
-
-  if (id === 'lang') {
-    return vl('Getting to know you') +
-      '<h2 class="q">What language do you<br><em>feel most comfortable in?</em></h2>' +
-      '<p class="hint">Mina speaks your language. Choose the one that feels most natural.</p>' +
-      '<select class="sel" id="inp-lang"><option value="en"' + sv(A.lang,'en') + '>English</option><option value="es"' + sv(A.lang,'es') + '>Español (Spanish)</option><option value="fr"' + sv(A.lang,'fr') + '>Français (French)</option><option value="ar"' + sv(A.lang,'ar') + '>العربية (Arabic)</option><option value="pt"' + sv(A.lang,'pt') + '>Português (Portuguese)</option><option value="zh"' + sv(A.lang,'zh') + '>中文 (Chinese)</option><option value="hi"' + sv(A.lang,'hi') + '>हिन्दी (Hindi)</option><option value="tr"' + sv(A.lang,'tr') + '>Türkçe (Turkish)</option><option value="other"' + sv(A.lang,'other') + '>Other language</option></select>';
-  }
-
-  if (id === 'cur') {
-    return vl('Your currency') +
-      '<h2 class="q">What currency<br><em>do you use?</em></h2>' +
-      '<p class="hint">Every number Mina gives you will be in your currency — your real life, not a generic example.</p>' +
-      '<select class="sel" id="inp-cur"><option value="USD"' + sv(c,'USD') + '>USD — US Dollar</option><option value="CAD"' + sv(c,'CAD') + '>CAD — Canadian Dollar</option><option value="EUR"' + sv(c,'EUR') + '>EUR — Euro</option><option value="GBP"' + sv(c,'GBP') + '>GBP — British Pound</option><option value="MXN"' + sv(c,'MXN') + '>MXN — Mexican Peso</option><option value="BRL"' + sv(c,'BRL') + '>BRL — Brazilian Real</option><option value="MAD"' + sv(c,'MAD') + '>MAD — Moroccan Dirham</option><option value="DZD"' + sv(c,'DZD') + '>DZD — Algerian Dinar</option><option value="TND"' + sv(c,'TND') + '>TND — Tunisian Dinar</option><option value="INR"' + sv(c,'INR') + '>INR — Indian Rupee</option><option value="AED"' + sv(c,'AED') + '>AED — UAE Dirham</option><option value="TRY"' + sv(c,'TRY') + '>TRY — Turkish Lira</option><option value="Other"' + sv(c,'Other') + '>Other currency</option></select>';
-  }
-
-  if (id === 'salary') {
-    return vl('Your income') +
-      '<h2 class="q">What is your monthly salary<br><em>after taxes?</em></h2>' +
-      '<p class="hint">The actual amount that arrives in your account — not gross salary. If paid weekly or biweekly give me the monthly total.</p>' +
-      ni('inp-salary', A.salary, c, 'e.g. 3400') +
-      '<div class="note"><div class="ndot"></div>Primary income only — we add other sources next.</div>';
-  }
-
-  if (id === 'side') {
-    return vl('Side income') +
-      '<h2 class="q">Do you have any<br><em>side income?</em></h2>' +
-      '<p class="hint">Freelance, Uber, delivery, online sales — any income outside your main salary.</p>' +
-      '<div class="tog' + (A.hasSide?' on':'') + '" data-tog="side" data-wrap="wrap-side"><span class="tog-lbl">Yes, I have side income</span><div class="tog-sw' + (A.hasSide?' on':'') + '"></div></div>' +
-      '<div class="tog-wrap' + (A.hasSide?' show':'') + '" id="wrap-side">' + ni('inp-side', A.side, c, 'Monthly amount') + '</div>' +
-      '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
-  }
-
-  if (id === 'inv') {
-    return vl('Investment income') +
-      '<h2 class="q">Do you receive income from<br><em>investments or rental?</em></h2>' +
-      '<p class="hint">Dividends, rental income, business profits — any regular income from assets.</p>' +
-      '<div class="tog' + (A.hasInv?' on':'') + '" data-tog="inv" data-wrap="wrap-inv"><span class="tog-lbl">Yes, I have investment income</span><div class="tog-sw' + (A.hasInv?' on':'') + '"></div></div>' +
-      '<div class="tog-wrap' + (A.hasInv?' show':'') + '" id="wrap-inv">' + ni('inp-inv', A.inv, c, 'Monthly amount') + '</div>' +
-      '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
-  }
-
-  if (id === 'rem') {
-    return vl('Supporting family') +
-      '<h2 class="q">Do you send money to<br><em>family or loved ones?</em></h2>' +
-      '<p class="hint">Many people support family abroad or locally. This affects your financial plan — Mina needs to know.</p>' +
-      '<div class="tog' + (A.hasRem?' on':'') + '" data-tog="rem" data-wrap="wrap-rem"><span class="tog-lbl">Yes, I send money to family</span><div class="tog-sw' + (A.hasRem?' on':'') + '"></div></div>' +
-      '<div class="tog-wrap' + (A.hasRem?' show':'') + '" id="wrap-rem">' + ni('inp-rem', A.rem, c, 'Amount sent per month') + '</div>' +
-      '<p class="hint" style="margin-top:6px;margin-bottom:0">If none — tap Continue.</p>';
-  }
-
-  if (id === 'stable') {
-    return vl('Income stability') +
-      '<h2 class="q">Is your income<br><em>stable every month?</em></h2>' +
-      '<p class="hint">This helps Mina build a plan that works for your reality — not just a perfect scenario.</p>' +
-      '<div class="choices">' +
-      '<div class="ch' + (A.stable?' sel':'') + '" data-single="stable" data-val="true"><div class="ch-r"></div>Yes — roughly the same every month</div>' +
-      '<div class="ch' + (!A.stable?' sel':'') + '" data-single="stable" data-val="false"><div class="ch-r"></div>No — it changes month to month</div>' +
-      '</div>';
-  }
-
-  if (id === 'rent') {
-    return vl('Housing') +
-      '<h2 class="q">How much do you pay for<br><em>rent or mortgage?</em></h2>' +
-      '<p class="hint">Your monthly housing payment. Enter 0 if you live rent-free.</p>' +
-      ni('inp-rent', A.rent, c, 'e.g. 1200') +
-      '<div class="note"><div class="ndot"></div>Include only your share if you split costs.</div>';
-  }
-
-  if (id === 'util') {
-    return vl('Utilities and phone') +
-      '<h2 class="q">Utilities, phone and internet<br><em>monthly total?</em></h2>' +
-      '<p class="hint">Electricity, gas, water, internet, mobile phone — add them all together.</p>' +
-      ni('inp-util', A.util, c, 'e.g. 250');
-  }
-
-  if (id === 'transport') {
-    return vl('Transport') +
-      '<h2 class="q">Monthly transport<br><em>spending?</em></h2>' +
-      '<p class="hint">Car payment, gas, insurance, public transport, Uber — everything that gets you around.</p>' +
-      ni('inp-transport', A.transport, c, 'e.g. 400');
-  }
-
-  if (id === 'grocery') {
-    return vl('Food') +
-      '<h2 class="q">Monthly grocery and<br><em>food spending?</em></h2>' +
-      '<p class="hint">Supermarket, market, food delivery — everything you buy to eat and cook at home.</p>' +
-      ni('inp-grocery', A.grocery, c, 'e.g. 600');
-  }
-
-  if (id === 'dining') {
-    return vl('Dining out') +
-      '<h2 class="q">How much do you spend<br><em>eating out or ordering in?</em></h2>' +
-      '<p class="hint">Restaurants, cafes, takeaway, coffee. Be honest — this is often where money quietly disappears.</p>' +
-      ni('inp-dining', A.dining, c, 'e.g. 300') +
-      '<div class="mnote" style="margin-top:10px"><strong>Mina\'s note:</strong> Most people underestimate this by 40%. Think about every coffee, every lunch, every takeaway this month.</div>';
-  }
-
-  if (id === 'subs') {
-    return vl('Subscriptions') +
-      '<h2 class="q">Monthly subscriptions<br><em>and other expenses?</em></h2>' +
-      '<p class="hint">Netflix, Spotify, gym, insurance, apps — and any other regular expenses not covered yet.</p>' +
-      ni('inp-subs', A.subs, c, 'e.g. 150');
-  }
-
-  if (id === 'debts') { return buildDebtSlide(c); }
-
-  if (id === 'savings') {
-    return vl('Your savings') +
-      '<h2 class="q">How much do you have<br><em>in savings right now?</em></h2>' +
-      '<p class="hint">Total across all accounts. Enter 0 if none. No judgment — this is your starting point.</p>' +
-      ni('inp-savings', A.savings, c, '0');
-  }
-
-  if (id === 'emergency') {
-    return vl('Emergency fund') +
-      '<h2 class="q">Do you have a dedicated<br><em>emergency fund?</em></h2>' +
-      '<p class="hint">Money set aside for unexpected expenses. Enter 0 if none.</p>' +
-      ni('inp-emergency', A.emergency, c, '0') +
-      '<div class="mnote" style="margin-top:10px"><strong>Why this matters:</strong> Without an emergency fund, one unexpected expense forces you into debt. Even ' + c + ' 50/month starts the protection.</div>';
-  }
-
-  if (id === 'payday') {
-    return vl('Your payday') +
-      '<h2 class="q">When do you get<br><em>paid each month?</em></h2>' +
-      '<p class="hint">Mina uses this to run your Payday Survival Plan automatically.</p>' +
-      '<label class="dform-lbl" style="margin-bottom:5px">How often do you get paid?</label>' +
-      '<select class="sel" id="inp-freq"><option value="monthly"' + sv(A.paydayFreq,'monthly') + '>Monthly — once a month</option><option value="biweekly"' + sv(A.paydayFreq,'biweekly') + '>Biweekly — every two weeks</option><option value="weekly"' + sv(A.paydayFreq,'weekly') + '>Weekly</option></select>' +
-      '<label class="dform-lbl" style="margin-bottom:5px;margin-top:8px">Next payday date</label>' +
-      '<input type="date" class="dateinp" id="inp-payday" value="' + A.paydayDate + '">' +
-      '<div class="note"><div class="ndot"></div>Mina starts your countdown immediately.</div>';
-  }
-
-  if (id === 'balance') {
-    return vl('Right now') +
-      '<h2 class="q">Approximately how much<br><em>is in your account today?</em></h2>' +
-      '<p class="hint">Your current balance right now — not savings, just your main account. An estimate is fine.</p>' +
-      ni('inp-balance', A.balance, c, '0');
-  }
-
-  if (id === 'dependents') {
-    return vl('Your responsibilities') +
-      '<h2 class="q">How many people depend<br><em>on you financially?</em></h2>' +
-      '<p class="hint">Children, a partner who does not work, family members you support.</p>' +
-      '<div class="choices g2">' +
-      '<div class="ch' + (A.dependents===0?' sel':'') + '" data-single="dependents" data-val="0"><div class="ch-r"></div>Only myself</div>' +
-      '<div class="ch' + (A.dependents===1?' sel':'') + '" data-single="dependents" data-val="1"><div class="ch-r"></div>1 person</div>' +
-      '<div class="ch' + (A.dependents===2?' sel':'') + '" data-single="dependents" data-val="2"><div class="ch-r"></div>2 people</div>' +
-      '<div class="ch' + (A.dependents>=3?' sel':'') + '" data-single="dependents" data-val="3"><div class="ch-r"></div>3 or more</div>' +
-      '</div>';
-  }
-
-  if (id === 'fear') {
-    return vl('Your fears') +
-      '<h2 class="q">What are your biggest<br><em>financial fears?</em></h2>' +
-      '<p class="hint">Select all that apply. Naming your fears is the first step to eliminating them.</p>' +
-      mch('fear','debt','Never getting out of debt') +
-      mch('fear','paycheck','Living paycheck to paycheck forever') +
-      mch('fear','emergency','One emergency destroying everything') +
-      mch('fear','family','Not being able to provide for my family') +
-      mch('fear','future','Not having enough for the future') +
-      mch('fear','shame','The shame of my financial situation') +
-      mch('fear','alone','Facing this alone with no guidance') +
-      mch('fear','job','Losing my job with no financial cushion') +
-      '<p class="hint" style="margin-top:8px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
-  }
-
-  if (id === 'goal') {
-    return vl('Your dreams') +
-      '<h2 class="q">What financial goals<br><em>matter most to you?</em></h2>' +
-      '<p class="hint">Select all that speak to you. Mina will prioritize based on your situation.</p>' +
-      mch('goal','debt','Eliminate my debt completely') +
-      mch('goal','save','Build real savings for the first time') +
-      mch('goal','house','Buy my own home') +
-      mch('goal','emergency','Build a solid emergency fund') +
-      mch('goal','business','Start my own business') +
-      mch('goal','freedom','Stop the anxiety around money forever') +
-      mch('goal','family','Provide a better life for my family') +
-      mch('goal','travel','Travel and experience the world') +
-      mch('goal','retire','Retire comfortably one day') +
-      mch('goal','education','Pay for education') +
-      '<p class="hint" style="margin-top:8px;margin-bottom:0">Select as many as you want — then tap Continue.</p>';
-  }
-
-  return '<p style="color:#8B9CB6">Loading...</p>';
-}
-
-function mch(arr, val, label) {
-  var sel = (arr === 'fear' ? fears : goals).indexOf(val) > -1;
-  return '<div class="mch' + (sel?' sel':'') + '" data-multi="' + arr + '" data-val="' + val + '"><div class="mch-r"></div>' + label + '</div>';
-}
-
-function buildDebtSlide(c) {
-  var list = debts.map(function(d,i) {
-    return '<div class="debt-item"><div style="display:flex;align-items:center;gap:10px"><div class="debt-badge">' + d.type.slice(0,2).toUpperCase() + '</div><div><div class="debt-name">' + d.typeName + '</div><div class="debt-meta">' + (d.rate?d.rate+'% · ':'') + c+' '+(d.payment||0).toLocaleString()+'/mo</div></div></div><div style="display:flex;align-items:center;gap:8px"><div class="debt-amt">'+c+' '+d.amount.toLocaleString()+'</div><button class="btn-rm" onclick="rmDebt('+i+')">×</button></div></div>';
-  }).join('');
-
-  return vl('Your debts') +
-    '<h2 class="q">Do you have any<br><em>debts right now?</em></h2>' +
-    '<p class="hint">Add each debt separately — the order and interest rates matter for your strategy.</p>' +
-    '<div id="dlist">' + list + '</div>' +
-    '<div class="dform" id="dform">' +
-      '<div class="dform-title">Add a debt</div>' +
-      '<div style="margin-bottom:10px"><label class="dform-lbl">Type of debt</label><select class="dform-sel" id="df-type"><option value="credit_card">Credit card</option><option value="car">Car loan</option><option value="student">Student loan</option><option value="personal">Personal loan</option><option value="medical">Medical bills</option><option value="family">Family or friends</option><option value="other">Other</option></select></div>' +
-      '<div class="dform-row"><div><label class="dform-lbl">Remaining balance ('+c+')</label><input class="dform-inp" id="df-amt" type="number" min="0" placeholder="e.g. 5000"></div><div><label class="dform-lbl">Monthly payment ('+c+')</label><input class="dform-inp" id="df-pay" type="number" min="0" placeholder="e.g. 200"></div></div>' +
-      '<div style="margin-bottom:12px"><label class="dform-lbl">Interest rate % (0 if unknown)</label><input class="dform-inp" id="df-rate" type="number" min="0" max="100" step="0.1" placeholder="e.g. 19"></div>' +
-      '<div><button class="btn-dsave" onclick="saveDebt()">Add debt</button><button class="btn-dcancel" onclick="cancelDebt()">Cancel</button></div>' +
-    '</div>' +
-    '<button class="btn-add" id="addBtn" onclick="showDebt()">+ Add a debt</button>' +
-    '<p class="hint" style="margin-top:8px;margin-bottom:0">If no debts — just tap Continue. Great news.</p>';
-}
-
-function showDebt() { document.getElementById('dform').classList.add('show'); document.getElementById('addBtn').style.display='none'; }
-function cancelDebt() { document.getElementById('dform').classList.remove('show'); document.getElementById('addBtn').style.display='block'; }
-function saveDebt() {
-  var amt = parseFloat(document.getElementById('df-amt').value)||0;
-  if (!amt) return;
-  var type = document.getElementById('df-type').value;
-  var names = {credit_card:'Credit card',car:'Car loan',student:'Student loan',personal:'Personal loan',medical:'Medical bills',family:'Family/friends',other:'Other debt'};
-  debts.push({type:type,typeName:names[type]||type,amount:amt,payment:parseFloat(document.getElementById('df-pay').value)||0,rate:parseFloat(document.getElementById('df-rate').value)||0});
-  show(step);
-}
-function rmDebt(i) { debts.splice(i,1); show(step); }
-
-function gv(id) {
-  var el = document.getElementById(id);
-  if (!el) return null;
-  if (el.type === 'number') return parseFloat(el.value)||0;
-  return el.value;
-}
-
-function save() {
-  var id = STEPS[step];
-  if (id==='lang') A.lang = gv('inp-lang')||'en';
-  if (id==='cur') A.cur = gv('inp-cur')||'USD';
-  if (id==='salary') A.salary = gv('inp-salary');
-  if (id==='side'&&A.hasSide) A.side = gv('inp-side');
-  if (id==='inv'&&A.hasInv) A.inv = gv('inp-inv');
-  if (id==='rem'&&A.hasRem) A.rem = gv('inp-rem');
-  if (id==='rent') A.rent = gv('inp-rent');
-  if (id==='util') A.util = gv('inp-util');
-  if (id==='transport') A.transport = gv('inp-transport');
-  if (id==='grocery') A.grocery = gv('inp-grocery');
-  if (id==='dining') A.dining = gv('inp-dining');
-  if (id==='subs') A.subs = gv('inp-subs');
-  if (id==='savings') A.savings = gv('inp-savings');
-  if (id==='emergency') A.emergency = gv('inp-emergency');
-  if (id==='payday') { A.paydayDate = gv('inp-payday'); A.paydayFreq = gv('inp-freq')||'monthly'; }
-  if (id==='balance') A.balance = gv('inp-balance');
-}
-
-function goNext() { save(); if (step < STEPS.length-1) show(step+1); else runAnalysis(); }
-function goBack() { save(); if (step > 0) show(step-1); else window.location.href='/index.html'; }
-function goSkip() { window.location.href = user ? '/dashboard.html' : '/index.html'; }
-
-async function runAnalysis() {
-  document.querySelector('.app').style.display = 'none';
-  document.getElementById('anal').classList.add('show');
-  var ids = ['as1','as2','as3','as4'];
-  ids.forEach(function(id,i) {
-    setTimeout(function() {
-      document.querySelectorAll('.astep').forEach(function(s){s.classList.remove('on');});
-      document.getElementById(id).classList.add('on');
-    }, i*800);
-  });
-  setTimeout(calculate, 3600);
-}
-
-function calculate() {
-  var c = A.cur;
-  var income = A.salary + (A.hasSide?A.side:0) + (A.hasInv?A.inv:0);
-  var fixed = A.rent + A.util + A.transport + A.subs;
-  var variable = A.grocery + A.dining;
-  var rem = A.hasRem?A.rem:0;
-  var debtPay = debts.reduce(function(s,d){return s+(d.payment||0);},0);
-  var totalDebt = debts.reduce(function(s,d){return s+d.amount;},0);
-  var totalExp = fixed + variable + rem + debtPay;
-  var avail = income - totalExp;
-  var expR = income>0?totalExp/income:1;
-  var debtR = income>0?totalDebt/(income*12):0;
-  var emM = totalExp>0?A.emergency/totalExp:0;
-
-  var score = 0;
-  if (expR<=0.5) score+=30; else if(expR<=0.65) score+=22; else if(expR<=0.75) score+=15; else if(expR<=0.88) score+=8;
-  if (totalDebt===0) score+=30; else if(debtR<=0.5) score+=22; else if(debtR<=1) score+=15; else if(debtR<=2) score+=8; else score+=2;
-  if (emM>=6) score+=25; else if(emM>=3) score+=18; else if(emM>=1) score+=10; else if(A.savings>0) score+=4;
-  if (avail>0&&avail/Math.max(1,income)>=0.2) score+=15; else if(avail>0) score+=8;
-
-  var fin = {health_score:score, total_debt:totalDebt, total_savings:A.savings, monthly_budget:Math.round(avail), emergency_fund:A.emergency};
-  var prof = {monthly_income:income, currency:c, language:A.lang, financial_challenge:fears.join(', '), payday_date:A.paydayDate, payday_frequency:A.paydayFreq, dependents:A.dependents, onboarding_completed:true, rent:A.rent};
-
-  localStorage.setItem('vera_profile', JSON.stringify(prof));
-  localStorage.setItem('vera_fin', JSON.stringify(fin));
-  localStorage.setItem('vera_debts', JSON.stringify(debts));
-  localStorage.setItem('vera_fears', JSON.stringify(fears));
-  localStorage.setItem('vera_goals', JSON.stringify(goals));
-  localStorage.setItem('vera_onboarding_done', 'true');
-
-  if (user) saveDB(score, fin, prof);
-  showResult(score, c, avail, totalDebt, A.savings, income, totalExp);
-}
-
-async function saveDB(score, fin, prof) {
-  try { await sb.from('profiles').update({financial_challenge:prof.financial_challenge, monthly_income:prof.monthly_income, currency:prof.currency, language:prof.language, onboarding_completed:true, updated_at:new Date().toISOString()}).eq('id',user.id); } catch(e){}
-  try {
-    var r = await sb.from('financial_data').upsert({user_id:user.id, health_score:fin.health_score, total_debt:fin.total_debt, total_savings:fin.total_savings, monthly_budget:fin.monthly_budget, emergency_fund:fin.emergency_fund, updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    if (r.error) throw r.error;
-  } catch(e) {
-    try { await sb.from('financial_data').update({health_score:fin.health_score, total_debt:fin.total_debt, total_savings:fin.total_savings, monthly_budget:fin.monthly_budget, emergency_fund:fin.emergency_fund, updated_at:new Date().toISOString()}).eq('user_id',user.id); } catch(e2){}
-  }
-}
-
-function showResult(score, c, avail, totalDebt, savings, income, totalExp) {
-  document.getElementById('anal').classList.remove('show');
-  document.getElementById('result').classList.add('show');
-
-  var grade = score>=80?'Strong financial position':score>=65?'Good — clear path forward':score>=50?'Needs focused attention':score>=35?'Challenging but fixable':'Immediate action required';
-  var arcColor = score>=70?'#00C9A7':score>=50?'#C9A84C':'#EF4444';
-  var debtMonths = avail>0&&totalDebt>0?Math.ceil(totalDebt/(avail*0.6)):0;
-
-  var honest = '';
-  if (score>=70) honest = 'You are in better financial shape than most people I work with. What is missing is not money — it is a system. I am going to give you one that works.';
-  else if (score>=50) honest = 'You are managing — but only just. I can see exactly where the leaks are. And they are fixable faster than you think.';
-  else if (score>=35) honest = 'Your financial situation is under pressure. But I have helped people in harder situations find a real way out. We start from where you are — not where you wish you were.';
-  else honest = 'Right now your finances need immediate attention. But you did something most people never do — you faced it honestly. That takes courage. And it is exactly the first step.';
-
-  if (avail<0) honest += ' Your expenses exceed your income by '+c+' '+Math.abs(Math.round(avail)).toLocaleString()+'/month. This is the first thing we fix together.';
-  if (debtMonths>0) honest += ' Following my plan, you could be debt free in approximately '+debtMonths+' months. That is math — not a dream.';
-
-  var actions = [
-    {t:'Build your complete personalized budget', d:'Based on your real '+c+' '+income.toLocaleString()+'/month income — not a generic template.'},
-    {t:totalDebt>0?'Create your debt elimination plan':'Build your wealth foundation', d:totalDebt>0?'You have '+c+' '+totalDebt.toLocaleString()+' in debt across '+debts.length+' account'+(debts.length>1?'s':'')+'. Mina will choose the right strategy and give you exact monthly actions.':'You have no debt — an excellent starting point. Mina will help you build wealth from here.'},
-    {t:'Set up your Payday Survival Plan', d:'Every payday Mina tells you exactly what to do in the next 24 hours — what to transfer, what to pay first, your daily budget.'},
-    {t:'Weekly accountability', d:'Mina checks in regularly. She celebrates wins and asks hard questions when you slip. That accountability is what makes the difference.'}
-  ];
-  if (goals.length>0) actions.push({t:'Build your '+goals.length+' goal roadmap'+(goals.length>1?'s':''), d:'A complete financial roadmap for each goal — with exact timelines, monthly savings, and milestone celebrations.'});
-
-  var knows = [c+' '+income.toLocaleString()+'/month total income', c+' '+Math.round(totalExp).toLocaleString()+'/month in expenses'];
-  if (totalDebt>0) knows.push(debts.length+' debt'+(debts.length>1?'s':'')+' totaling '+c+' '+totalDebt.toLocaleString());
-  if (savings>0) knows.push(c+' '+savings.toLocaleString()+' in current savings');
-  if (A.paydayDate) knows.push('Payday on '+new Date(A.paydayDate+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'}));
-  if (A.hasRem&&A.rem>0) knows.push(c+' '+A.rem.toLocaleString()+'/month sent to family');
-  if (fears.length>0) knows.push(fears.length+' financial fear'+(fears.length>1?'s':'')+' to address');
-  if (goals.length>0) knows.push(goals.length+' financial goal'+(goals.length>1?'s':'')+' to achieve');
-
-  document.getElementById('resultIn').innerHTML =
-    // Header
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">' +
-      '<div style="width:42px;height:42px;border-radius:50%;background:rgba(201,168,76,0.1);border:1.5px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-size:16px;font-style:italic;color:#C9A84C;flex-shrink:0">M</div>' +
-      '<div><div style="font-size:13px;font-weight:600;color:#C9A84C">MINA</div><div style="font-size:11px;color:#4A5568">Your financial coach — Session 1 complete</div></div>' +
-      '<div style="margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#4A5568"><div style="width:5px;height:5px;background:#10B981;border-radius:50%"></div>Private</div>' +
-    '</div>' +
-
-    // Score card
-    '<div style="background:#141827;border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:28px;text-align:center;margin-bottom:16px">' +
-      '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px">Your Financial Health Score</div>' +
-      '<div class="ring-wrap"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="45"/><circle class="ring-arc" id="rArc" cx="50" cy="50" r="45"/></svg><div class="ring-ctr"><div class="ring-num">'+score+'</div><div class="ring-sub">/100</div></div></div>' +
-      '<div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:#F0F4FF;margin-bottom:4px">'+grade+'</div>' +
-    '</div>' +
-
-    // Stats
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
-      kn('Monthly available', c+' '+Math.abs(Math.round(avail)).toLocaleString()+(avail<0?' deficit':''), avail>=0?'#00C9A7':'#EF4444') +
-      kn('Total debt', c+' '+totalDebt.toLocaleString(), totalDebt>0?'#EF4444':'#00C9A7') +
-      kn('Current savings', c+' '+savings.toLocaleString(), '#00C9A7') +
-      kn('Health score', score+'/100', arcColor) +
-    '</div>' +
-
-    // Honest assessment
-    '<div style="background:#141827;border:1px solid rgba(201,168,76,0.15);border-radius:16px;padding:20px;margin-bottom:14px">' +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:28px;height:28px;border-radius:50%;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-size:12px;font-style:italic;color:#C9A84C;flex-shrink:0">M</div><div style="font-size:13px;font-weight:600;color:#F0F4FF">Mina\'s honest assessment</div></div>' +
-      '<div style="font-size:13px;line-height:1.75;color:rgba(255,255,255,0.8)">'+honest+'</div>' +
-    '</div>' +
-
-    // What Mina will do
-    '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:18px;margin-bottom:14px">' +
-      '<div style="font-size:13px;font-weight:600;color:#F0F4FF;margin-bottom:14px">What Mina will do for you</div>' +
-      actions.map(function(a) {
-        return '<div style="display:flex;gap:12px;margin-bottom:12px;align-items:flex-start"><div style="width:18px;height:18px;background:rgba(0,201,167,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><div style="width:7px;height:7px;background:#00C9A7;border-radius:50%"></div></div><div><div style="font-size:13px;font-weight:600;color:#F0F4FF;margin-bottom:2px">'+a.t+'</div><div style="font-size:12px;color:#8B9CB6;line-height:1.55">'+a.d+'</div></div></div>';
-      }).join('') +
-    '</div>' +
-
-    // Mina knows
-    '<div style="background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.15);border-radius:14px;padding:16px;margin-bottom:20px">' +
-      '<div style="font-size:13px;font-weight:600;color:#00C9A7;margin-bottom:10px">Mina now knows your complete picture</div>' +
-      knows.map(function(k){return '<div style="display:flex;gap:8px;align-items:center;font-size:12px;color:#8B9CB6;margin-bottom:5px"><div style="width:5px;height:5px;background:#00C9A7;border-radius:50%;flex-shrink:0"></div>'+k+'</div>';}).join('') +
-    '</div>' +
-
-    // Signup push
-    '<div style="background:#141827;border:1px solid rgba(0,201,167,0.2);border-radius:20px;padding:28px;text-align:center;margin-bottom:14px">' +
-      '<div style="font-family:Cormorant Garamond,serif;font-size:28px;font-style:italic;color:#F0F4FF;margin-bottom:8px;letter-spacing:-0.5px">Your plan is ready.<br><span style="color:#00C9A7">Do not lose it.</span></div>' +
-      '<div style="font-size:13px;color:#8B9CB6;margin-bottom:22px;line-height:1.65">Create your free account in 30 seconds. Mina saves everything — your score, your plan, your complete profile. Every time you return she picks up exactly where you left off.</div>' +
-      '<button onclick="openSignup()" style="width:100%;padding:14px;background:#00C9A7;color:#0C0F1A;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px">Save my plan — create free account →</button>' +
-      (user ? '' : '<div style="font-size:11px;color:#4A5568">No credit card required · Takes 30 seconds · Cancel anytime</div>') +
-    '</div>' +
-
-    '<div style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;color:#4A5568"><div style="width:5px;height:5px;background:#10B981;border-radius:50%"></div>Private, encrypted, never shared</div>';
-
-  setTimeout(function() {
-    var arc = document.getElementById('rArc');
-    if (arc) { arc.style.stroke = arcColor; arc.style.strokeDashoffset = 283-(283*score/100); }
-    if (user) {
-      var btn = document.querySelector('[onclick="openSignup()"]');
-      if (btn) { btn.textContent='Go to my dashboard →'; btn.setAttribute('onclick','window.location.href="/dashboard.html"'); }
-    }
-  }, 400);
-}
-
-function kn(label, val, color) {
-  return '<div style="background:#141827;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:13px"><div style="font-size:10px;color:#8B9CB6;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">'+label+'</div><div style="font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic;color:'+color+'">'+val+'</div></div>';
-}
-
-function openSignup() { document.getElementById('mo').classList.add('show'); }
-
-async function doSignup() {
-  var name = document.getElementById('moName').value.trim();
-  var email = document.getElementById('moEmail').value.trim();
-  var pass = document.getElementById('moPass').value;
-  var err = document.getElementById('moErr');
-  if (!name) { err.textContent='Please enter your name'; err.style.display='block'; return; }
-  if (!email) { err.textContent='Please enter your email'; err.style.display='block'; return; }
-  if (pass.length<8) { err.textContent='Password must be at least 8 characters'; err.style.display='block'; return; }
-  var btn = document.getElementById('moBtn');
-  btn.textContent='Creating account...'; btn.disabled=true;
-  var r = await sb.auth.signUp({email:email, password:pass, options:{data:{full_name:name}, emailRedirectTo: 'https://sumgoals.com/verify.html'}});
-  btn.textContent='Create free account and save my plan'; btn.disabled=false;
-  if (r.error) { err.textContent=r.error.message; err.style.display='block'; return; }
-  user = r.data.user;
-  var fin = JSON.parse(localStorage.getItem('vera_fin')||'{}');
-  var prof = JSON.parse(localStorage.getItem('vera_profile')||'{}');
-  if (fin.health_score) saveDB(fin.health_score, fin, prof);
-  document.getElementById('moBox').innerHTML =
-    '<div style="text-align:center;padding:20px 0">' +
-    '<div style="font-family:Cormorant Garamond,serif;font-size:48px;font-style:italic;color:#00C9A7;margin-bottom:16px">M</div>' +
-    '<div style="font-family:Cormorant Garamond,serif;font-size:24px;font-style:italic;color:#F0F4FF;margin-bottom:8px">Check your email</div>' +
-    '<div style="font-size:13px;color:#8B9CB6;line-height:1.6">We sent a verification link to <strong style="color:#F0F4FF">'+email+'</strong>. Click it to confirm your account — your plan will be waiting for you.</div>' +
-    '</div>';
-}
-
-async function doGoogle() {
-  await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.origin+'/dashboard.html'}});
-}
-
+var SB_URL='https://dmdvoygnzbosjbwsriea.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var T=20,cur=1,OPT=[7,8,13,17];
+var D={lang:'en',country:'',country_name:'',currency:'USD',age_range:'',monthly_income:0,income_stable:null,has_side:false,side_income:0,has_invest:false,invest_income:0,sends_remittances:false,remittances:0,housing_type:'',rent:0,mortgage_balance:0,utilities:0,phone_internet:0,car_payment:0,car_insurance:0,health_insurance:0,life_insurance:0,groceries:0,dining:0,transport:0,subscriptions:0,dependents:0,pays_daycare:false,daycare:0,has_retirement:false,retirement_contribution:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
+function n(v){return parseFloat(v)||0;}
+function showSlide(i){document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('active');});var el=document.getElementById('s'+i);if(el)el.classList.add('active');cur=i;document.getElementById('bb').disabled=i<=1;document.getElementById('pf').style.width=(((i-1)/T)*100)+'%';document.getElementById('pt').textContent='Step '+i+' of '+T;document.getElementById('sc').textContent=Math.round(((i-1)/T)*100)+'% complete';document.getElementById('bsk').style.display=OPT.includes(i)?'block':'none';updatePre();window.scrollTo(0,0);}
+function next(){if(cur<T)showSlide(cur+1);else runAna();}
+function prev(){if(cur>1)showSlide(cur-1);}
+function pick(f,v,el){D[f]=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');}
+function setCur(v,el){D.currency=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');if(v==='OTHER')openR('curR');else closeR('curR');updatePre();}
+function tp(g,v){var y=document.getElementById('t'+g+'Y');var nn=document.getElementById('t'+g+'N');if(y)y.classList.toggle('sel',v==='Y');if(nn)nn.classList.toggle('sel',v==='N');}
+function tm(f,v,el){el.classList.toggle('sel');var a=D[f]||[];var i=a.indexOf(v);if(i>-1)a.splice(i,1);else a.push(v);D[f]=a;}
+function openR(id){var e=document.getElementById(id);if(e)e.classList.add('open');}
+function closeR(id){var e=document.getElementById(id);if(e)e.classList.remove('open');}
+function sym(){var m={USD:'$',CAD:'$',EUR:'€',GBP:'£',MAD:'MAD ',AED:'AED ',MXN:'$',BRL:'R$'};return m[D.currency]||(D.currency?' '+D.currency+' ':'$');}
+function updatePre(){var s=sym();document.querySelectorAll('.fpre').forEach(function(el){if(!el.textContent.includes('APR'))el.textContent=s;});}
+var DT=[{v:'credit_card',l:'Credit card',u:'high',ul:'High interest — attack first'},{v:'payday_loan',l:'Payday or cash loan',u:'high',ul:'Very high interest — most urgent'},{v:'personal_loan',l:'Personal loan',u:'high',ul:'High interest'},{v:'buy_now_pay_later',l:'Buy now pay later',u:'high',ul:'High interest'},{v:'car_loan',l:'Car loan',u:'low',ul:'Structured debt'},{v:'student_loan',l:'Student loan',u:'low',ul:'Structured debt'},{v:'medical',l:'Medical bills',u:'low',ul:'Often negotiable'},{v:'family_friends',l:'Family or friends',u:'low',ul:'Personal debt'},{v:'other',l:'Other debt',u:'low',ul:'Other'}];
+function addDebt(){document.getElementById('ndr').classList.remove('sel');document.getElementById('ndb').innerHTML='';D.no_debt=false;var idx=D.debts.length;D.debts.push({type:'',typeName:'',urgency:'',amount:0,payment:0,rate:0,missed:false});var opts=DT.map(function(t){return'<option value="'+t.v+'">'+t.l+'</option>';}).join('');var s=sym();var h='<div class="debt-card" id="dc'+idx+'"><div class="dc-top"><div class="dc-name" id="dcN'+idx+'">New debt</div><div style="display:flex;align-items:center;gap:6px"><span class="dc-badge" id="dcB'+idx+'"></span><button class="dc-rm" onclick="rmDebt('+idx+')">×</button></div></div><div class="dg"><div style="grid-column:1/-1"><select class="field" onchange="setDT('+idx+',this)"><option value="">Select the type of debt...</option>'+opts+'</select></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Remaining balance" oninput="D.debts['+idx+'].amount=n(this.value)"></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Monthly minimum payment" oninput="D.debts['+idx+'].payment=n(this.value)"></div><div class="fw"><span class="fpre" style="font-size:11px;letter-spacing:0.04em">APR</span><input class="field pre" type="number" min="0" max="200" step="0.1" placeholder="Interest rate %" oninput="D.debts['+idx+'].rate=n(this.value)"></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Original amount (optional)" oninput="D.debts['+idx+'].original=n(this.value)"></div></div><div class="missed-row"><input type="checkbox" id="ms'+idx+'" onchange="D.debts['+idx+'].missed=this.checked"><label for="ms'+idx+'">I have missed payments on this debt</label></div></div>';var w=document.createElement('div');w.innerHTML=h;document.getElementById('debtEntries').appendChild(w.firstChild);}
+function setDT(idx,sel){var t=DT.find(function(t){return t.v===sel.value;});if(!t)return;D.debts[idx].type=t.v;D.debts[idx].typeName=t.l;D.debts[idx].urgency=t.u;var nm=document.getElementById('dcN'+idx);var b=document.getElementById('dcB'+idx);if(nm)nm.textContent=t.l;if(b){b.textContent=t.ul;b.className='dc-badge '+t.u;b.style.display='inline-block';}}
+function rmDebt(idx){var el=document.getElementById('dc'+idx);if(el)el.remove();D.debts[idx]=null;D.debts=D.debts.filter(Boolean);}
+function toggleND(){D.no_debt=!D.no_debt;document.getElementById('ndr').classList.toggle('sel',D.no_debt);document.getElementById('ndb').innerHTML=D.no_debt?'<svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg>':'';if(D.no_debt){D.debts=[];document.getElementById('debtEntries').innerHTML='';}}
+function togglePw(){var i=document.getElementById('fPw');i.type=i.type==='password'?'text':'password';document.getElementById('pEye').style.color=i.type==='text'?'var(--teal)':'var(--dim)';}
+function calc(){D.total_income=D.monthly_income+D.side_income+D.invest_income;D.total_expenses=D.rent+D.utilities+D.phone_internet+D.car_payment+D.car_insurance+D.health_insurance+D.life_insurance+D.groceries+D.dining+D.transport+D.subscriptions+D.remittances+D.daycare+D.retirement_contribution;D.monthly_available=D.total_income-D.total_expenses;D.total_debt=D.debts.filter(Boolean).reduce(function(s,d){return s+(d.amount||0);},0);D.health_score=scoreCalc();saveLS();}
+function scoreCalc(){if(D.total_income===0)return 0;var s=50,r=D.monthly_available/D.total_income;if(r>=0.25)s+=22;else if(r>=0.15)s+=13;else if(r>=0.05)s+=5;else if(r<0)s-=25;else s-=5;if(D.total_debt===0){s+=18;}else{var dti=D.total_debt/(D.total_income*12);if(dti<0.3)s+=8;else if(dti<0.7)s+=0;else if(dti<1.5)s-=12;else s-=22;var ms=D.debts.filter(Boolean).filter(function(d){return d.missed;}).length;s-=ms*7;}var me=D.total_expenses||D.total_income*0.7;if(D.emergency_fund>=me*6)s+=14;else if(D.emergency_fund>=me*3)s+=8;else if(D.emergency_fund>0)s+=2;else s-=4;if(D.has_retirement)s+=5;if(D.credit_health==='poor')s-=6;if(D.credit_health==='none')s-=3;return Math.min(100,Math.max(5,Math.round(s)));}
+function saveLS(){localStorage.setItem('vera_profile',JSON.stringify({language:D.lang,currency:D.currency,country:D.country,country_name:D.country_name,age_range:D.age_range,housing_type:D.housing_type,monthly_income:D.monthly_income,income_stable:D.income_stable,side_income:D.side_income,invest_income:D.invest_income,sends_remittances:D.sends_remittances,remittances:D.remittances,rent:D.rent,mortgage_balance:D.mortgage_balance,dependents:D.dependents,pays_daycare:D.pays_daycare,daycare:D.daycare,has_retirement:D.has_retirement,retirement_contribution:D.retirement_contribution,credit_health:D.credit_health,payday_date:D.payday_date,payday_frequency:D.payday_frequency,previous_attempt:D.previous_attempt,total_savings:D.total_savings,emergency_fund:D.emergency_fund}));localStorage.setItem('vera_fin',JSON.stringify({monthly_income:D.monthly_income,total_income:D.total_income,utilities:D.utilities,phone_internet:D.phone_internet,car_payment:D.car_payment,car_insurance:D.car_insurance,health_insurance:D.health_insurance,life_insurance:D.life_insurance,groceries:D.groceries,dining:D.dining,transport:D.transport,subscriptions:D.subscriptions,remittances:D.remittances,daycare:D.daycare,retirement_contribution:D.retirement_contribution,total_expenses:D.total_expenses,monthly_budget:D.monthly_available,total_debt:D.total_debt,total_savings:D.total_savings,emergency_fund:D.emergency_fund,health_score:D.health_score}));localStorage.setItem('vera_debts',JSON.stringify(D.debts.filter(Boolean)));localStorage.setItem('vera_fears',JSON.stringify(D.fears));localStorage.setItem('vera_goals',JSON.stringify(D.goals));}
+function runAna(){calc();document.getElementById('bn').style.display='none';document.getElementById('ana').classList.add('on');var rows=['ar1','ar2','ar3','ar4'],i=0;function step(){if(i>0){var p=document.getElementById(rows[i-1]);p.classList.remove('live');p.classList.add('done');p.querySelector('.a-spin').style.display='none';}if(i<rows.length){document.getElementById(rows[i]).classList.add('live');i++;setTimeout(step,950);}else{setTimeout(showRes,500);}}setTimeout(step,300);}
+function showRes(){document.getElementById('ana').classList.remove('on');document.getElementById('res').classList.add('on');var s=sym(),sc=D.health_score,av=D.monthly_available,ti=D.total_income;var col=sc>=70?'#00C9A7':sc>=50?'#C9A84C':'#EF4444';var arc=document.getElementById('rArc');arc.style.stroke=col;setTimeout(function(){arc.style.strokeDashoffset=220-(220*sc/100);},300);document.getElementById('rSc').textContent=sc;var verd=sc>=70?'Strong financial position':sc>=50?'Needs real attention':sc>=35?'Under serious pressure':'Immediate action needed';var det=sc>=70?'You are in better shape than most people I work with. What you are missing is a system, not more money.':sc>=50?'You are managing — but only just. The leaks are fixable faster than you think.':sc>=35?'Your finances are under real pressure. I have helped people in harder situations find a real way out.':'Your finances need immediate attention. You faced this honestly today. That is the first step and it matters.';document.getElementById('rVerd').textContent=verd;document.getElementById('rDet').textContent=det;var aEl=document.getElementById('rAv');aEl.textContent=av>=0?s+Math.round(av).toLocaleString():'−'+s+Math.abs(Math.round(av)).toLocaleString();aEl.className='snap-val '+(av>=0?'teal':'red');document.getElementById('rDb').textContent=D.total_debt>0?s+D.total_debt.toLocaleString():'Debt free';document.getElementById('rDb').className='snap-val '+(D.total_debt>0?'red':'teal');document.getElementById('rSav').textContent=s+D.total_savings.toLocaleString();var pm={no_plan:'You told me you never had a real plan. That ends today.',no_stick:'You told me life got in the way before. I am going to make sure that does not happen again.',emergency:'You told me an emergency derailed you. That is exactly why building your emergency fund is the first wall we put up.',income_low:'You told me your income felt too low to save. Let me show you otherwise.',tried_all:'You told me you have tried everything. What you have not tried is a plan built entirely around your own numbers. This is different.',first_time:'It takes real courage to face this for the first time. I will make sure it is worth it.'};var msg='';if(D.previous_attempt&&pm[D.previous_attempt])msg+='<strong>'+pm[D.previous_attempt]+'</strong> ';if(av<0){msg+='Your expenses exceed your income by <span class="lo">'+s+Math.abs(Math.round(av)).toLocaleString()+' every month.</span> This is the first thing we fix — before anything else. ';}else if(av>0&&ti>0){var pct=Math.round((av/ti)*100);msg+='You have <span class="hi">'+s+Math.round(av).toLocaleString()+' available each month</span> — '+pct+'% of your income. ';if(pct<10)msg+='That margin is thin. We need to widen it. ';}if(D.total_debt>0&&av>0){var mo=Math.ceil(D.total_debt/(av*0.6));msg+='Following my strategy, your <span class="lo">'+s+D.total_debt.toLocaleString()+' in debt</span> could be eliminated in approximately <span class="hi">'+mo+' months.</span> That is math — not a promise. ';}else if(D.total_debt>0){msg+='Your <span class="lo">'+s+D.total_debt.toLocaleString()+' in debt</span> is the most urgent item on your list. ';}if(D.daycare>0)msg+='I see you carry <span class="go">'+s+D.daycare.toLocaleString()+' per month in childcare</span> — that is a real commitment I have factored into every calculation. ';if(D.remittances>0)msg+='Your family support of <span class="go">'+s+D.remittances.toLocaleString()+' per month</span> is accounted for. I will never ask you to cut that. ';if(D.emergency_fund===0)msg+='You have no emergency fund — that is the first wall of protection we build together. ';document.getElementById('rMsg').innerHTML=msg;var plans=[];if(av<0)plans.push({t:'Emergency budget surgery',b:'We identify and cut expenses until income exceeds expenses. Everything else depends on this.'});if(D.emergency_fund<(D.total_expenses||ti*0.7)*3)plans.push({t:'Emergency fund of '+s+Math.round((D.total_expenses||ti*0.7)*3).toLocaleString(),b:'Three months of expenses as a buffer. Your first financial wall. Nothing replaces this.'});if(D.total_debt>0){var hh=D.debts.filter(Boolean).some(function(d){return['credit_card','payday_loan','personal_loan','buy_now_pay_later'].includes(d.type);});plans.push({t:'Debt elimination — '+(hh?'Avalanche method':'Snowball method'),b:hh?'Your high-interest debt is costing you the most. We attack it first and roll every freed payment into the next one.':'Smallest balance first to build momentum. Then we roll those payments into the next debt.'});}if(D.total_savings<ti*3)plans.push({t:'Automated savings of '+s+Math.round(Math.max(av>0?av*0.1:0,50)).toLocaleString()+' per month',b:'Transferred the moment your salary arrives — not what is left over. This single habit separates people who save from people who do not.'});if(D.payday_date)plans.push({t:'Payday survival plan',b:'Exact instructions for what to do within 24 hours of your salary arriving — what to transfer first, what to pay, your daily limit.'});if(!D.has_retirement&&(D.age_range==='35-44'||D.age_range==='45-54'||D.age_range==='55+'))plans.push({t:'Retirement contribution plan',b:'You are in the years when this becomes urgent. Even a small monthly amount now makes an enormous difference over time.'});var ph='<div class="plan-title">What Mina will do for you</div>';plans.slice(0,5).forEach(function(p,i){ph+='<div class="plan-row"><div class="plan-num">'+(i+1)+'</div><div class="plan-text"><strong>'+p.t+'.</strong> '+p.b+'</div></div>';});document.getElementById('rPlan').innerHTML=ph;}
+function openAuth(){document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';}
+function closeAuth(){document.getElementById('ov').classList.remove('open');document.body.style.overflow='';}
+function showErr(m){var e=document.getElementById('aerr');e.textContent=m;e.style.display='block';}
+function clearErr(){document.getElementById('aerr').style.display='none';}
+async function doSignup(){clearErr();var fi=document.getElementById('fFi').value.trim(),la=document.getElementById('fLa').value.trim(),em=document.getElementById('fEm').value.trim(),ph=document.getElementById('fPh').value.trim(),pw=document.getElementById('fPw').value;if(!fi)return showErr('Please enter your first name.');if(!la)return showErr('Please enter your last name.');if(!em||!/^[^@]+@[^@]+\.[^@]+$/.test(em))return showErr('Please enter a valid email address.');if(pw.length<8)return showErr('Your password must be at least 8 characters.');var btn=document.getElementById('sBtn');btn.innerHTML='<span class="spinner"></span>Creating your account...';btn.disabled=true;var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la,phone:ph},emailRedirectTo:window.location.origin+'/verify.html'}});btn.innerHTML='Create my free account';btn.disabled=false;if(r.error){if(r.error.message.toLowerCase().includes('already'))return showErr('This email is already registered. Please sign in from the main page.');return showErr(r.error.message);}if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return showErr('This email is already registered. Please sign in from the main page.');document.getElementById('authC').style.display='none';document.getElementById('verC').style.display='block';document.getElementById('verSub').innerHTML='We sent a verification link to <strong style="color:var(--white)">'+em+'</strong>. Click it and Mina will be waiting for you.';}
+async function doGoogle(){var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/dashboard.html'}});if(r.error)showErr(r.error.message);}
+document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)closeAuth();});
+async function init(){var r=await sb.auth.getSession();if(r.data.session){window.location.href='/dashboard.html';return;}showSlide(1);}
 init();
 </script>
 </body>
