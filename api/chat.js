@@ -20,6 +20,7 @@ export default async function handler(req, res) {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser(token);
+
   if (authError || !user)
     return res.status(401).json({ error: "Unauthorized" });
 
@@ -31,27 +32,39 @@ export default async function handler(req, res) {
   let finalSystemPrompt = systemPrompt;
 
   if (!finalSystemPrompt) {
-    // Fallback - build from Supabase
     let profile = {}, finData = {};
     try {
-      const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
       if (p) profile = p;
     } catch (e) {}
     try {
-      const { data: f } = await supabase.from("financial_data").select("*").eq("user_id", user.id).single();
+      const { data: f } = await supabase
+        .from("financial_data")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
       if (f) finData = f;
     } catch (e) {}
 
     const cur = profile.currency || "USD";
-    const name = profile.full_name ? profile.full_name.split(" ")[0] : "there";
-    const today = new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    const name = profile.full_name
+      ? profile.full_name.split(" ")[0]
+      : "there";
+    const today = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
     finalSystemPrompt = `You are Mina — a strict, caring, honest personal financial coach for Sum Goals.
-
 TODAY: ${today}
 CLIENT: ${name}
 CURRENCY: ${cur}
-
 FINANCIAL PROFILE:
 - Monthly income: ${cur} ${(profile.monthly_income || 0).toLocaleString()}
 - Monthly available: ${cur} ${(finData.monthly_budget || 0).toLocaleString()}
@@ -59,19 +72,29 @@ FINANCIAL PROFILE:
 - Savings: ${cur} ${(finData.total_savings || 0).toLocaleString()}
 - Emergency fund: ${cur} ${(finData.emergency_fund || 0).toLocaleString()}
 - Health score: ${finData.health_score || 0}/100
-- Biggest concerns: ${profile.financial_challenge || "not specified"}
-
 RULES:
 1. NEVER say you do not have their data.
 2. NEVER ask for income — you already know it.
 3. Always use their real numbers. Never generic advice.
 4. Be strict but caring. Tell the truth. Never sell dreams.
 5. Keep responses under 200 words unless asked for more.
-6. Always give 2-3 specific actionable steps with real numbers in ${cur}.`;
+6. Always give 2-3 specific actionable steps with real numbers in ${cur}.
+7. CRITICAL FORMATTING RULE: Write in natural flowing sentences. NEVER use bullet points, asterisks (**), numbered lists, markdown formatting, or emojis. Clean prose only.`;
   }
 
+  // Detect if this is an export request — needs more tokens
+  const isExportRequest =
+    message.toLowerCase().includes("pdf") ||
+    message.toLowerCase().includes("excel") ||
+    message.toLowerCase().includes("download") ||
+    message.toLowerCase().includes("spreadsheet") ||
+    message.toLowerCase().includes("report") ||
+    message.toLowerCase().includes("plan") ||
+    (systemPrompt && systemPrompt.includes("[PDF]"));
+
+  const maxTokens = isExportRequest ? 2500 : 700;
+
   try {
-    // Build messages array
     const messages = [];
     if (history && history.length > 0) {
       history.slice(-14).forEach((m) => {
@@ -84,18 +107,29 @@ RULES:
 
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 600,
+      max_tokens: maxTokens,
       system: finalSystemPrompt,
       messages: messages,
     });
 
-    const reply = response.content[0]?.text || "I am having trouble connecting. Try again.";
+    const reply =
+      response.content[0]?.text || "I am having trouble connecting. Try again.";
 
     // Save to chat history
     try {
       await supabase.from("chat_history").insert([
-        { user_id: user.id, role: "user", content: message, created_at: new Date().toISOString() },
-        { user_id: user.id, role: "assistant", content: reply, created_at: new Date().toISOString() }
+        {
+          user_id: user.id,
+          role: "user",
+          content: message,
+          created_at: new Date().toISOString(),
+        },
+        {
+          user_id: user.id,
+          role: "assistant",
+          content: reply,
+          created_at: new Date().toISOString(),
+        },
       ]);
     } catch (e) {}
 
