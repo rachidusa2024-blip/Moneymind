@@ -6,6 +6,8 @@
 <title>Dashboard — Sum Goals</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg: #0C0F1A;
@@ -562,6 +564,36 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   .mina-card { grid-template-columns:auto 1fr; }
   .btn-talk-mina { grid-column:1/-1; width:100%; }
   .mobile-nav { display:flex; }
+}
+
+/* EXPORT BUTTONS */
+.export-row {
+  display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;
+}
+.btn-export {
+  display:flex; align-items:center; gap:7px;
+  padding:8px 14px; border-radius:8px; border:none;
+  font-size:12px; font-weight:600; cursor:pointer;
+  font-family:var(--font-b); transition:all 0.2s;
+  letter-spacing:0.02em;
+}
+.btn-export.pdf {
+  background:rgba(239,68,68,0.1); color:#FC8181;
+  border:1px solid rgba(239,68,68,0.2);
+}
+.btn-export.pdf:hover { background:rgba(239,68,68,0.18); }
+.btn-export.excel {
+  background:rgba(16,185,129,0.1); color:#6EE7B7;
+  border:1px solid rgba(16,185,129,0.2);
+}
+.btn-export.excel:hover { background:rgba(16,185,129,0.18); }
+.btn-export-icon {
+  font-family:var(--font-h); font-style:italic;
+  font-size:13px; font-weight:700;
+}
+.export-hint {
+  font-size:11px; color:var(--dim); margin-top:6px;
+  font-style:italic;
 }
 </style>
 </head>
@@ -1417,7 +1449,18 @@ function buildSystemPrompt() {
     '7. Always end with 2-3 specific action steps with exact amounts in ' + D.cur + '.\n' +
     '8. CRITICAL FORMATTING RULE: Write in natural flowing sentences like a human coach. NEVER use bullet points, asterisks (**), numbered lists, markdown formatting, or emojis. No structured lists. No bold markers. Just clean prose followed by your action steps as plain sentences.\n' +
     '9. Do not start responses with "Great question" or "I understand" or any filler phrase. Get straight to the point.\n' +
-    '10. You are speaking to a real person who is trusting you with something they may be ashamed of. Every word must honor that.';
+    '10. You are speaking to a real person who is trusting you with something they may be ashamed of. Every word must honor that.\n' +
+    '11. EXPORT FEATURE — when the user asks for a downloadable plan, budget, report, tracker, or schedule in PDF or Excel format, include a structured data block at the END of your response (after your normal message) using these exact tags:\n\n' +
+    'For PDF: wrap structured content in [PDF]...[/PDF]\n' +
+    'For Excel: wrap structured content in [EXCEL]...[/EXCEL]\n' +
+    'For both formats at once: include both blocks.\n\n' +
+    'The content inside the tags must be formatted as clean labeled sections like this:\n' +
+    'SECTION NAME:\n' +
+    'Label: Value\n' +
+    'Label: Value\n\n' +
+    'NEXT SECTION:\n' +
+    'Label: Value\n\n' +
+    'Use the client\'s real numbers from their profile. Currency is ' + D.cur + '. Never put placeholder text inside the tags — only real data. The tags and their content are stripped from the chat display and only used to generate the file. Do not mention the tags in your spoken response — just say something like "I have prepared your plan — you can download it as PDF or Excel below."';
 }
 
 function initChat() {
@@ -1452,15 +1495,279 @@ function initChat() {
 function addMsg(role, text) {
   var msgs = document.getElementById('chatMessages');
   var div = document.createElement('div');
-  div.className = 'msg '+role;
-  div.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  div.className = 'msg ' + role;
+
+  // Detect export blocks
+  var pdfMatch   = text.match(/\[PDF\]([\s\S]*?)\[\/PDF\]/);
+  var excelMatch = text.match(/\[EXCEL\]([\s\S]*?)\[\/EXCEL\]/);
+
+  // Strip export tags from displayed text
+  var displayText = text
+    .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g, '')
+    .replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g, '')
+    .trim();
+
+  div.innerHTML = displayText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Build export buttons if tags found
+  if ((pdfMatch || excelMatch) && role === 'mina') {
+    var exportRow = document.createElement('div');
+    exportRow.className = 'export-row';
+
+    if (pdfMatch) {
+      var pdfData = pdfMatch[1].trim();
+      var btnPdf = document.createElement('button');
+      btnPdf.className = 'btn-export pdf';
+      btnPdf.innerHTML = '<span class="btn-export-icon">PDF</span> Download as PDF';
+      btnPdf.onclick = function() { generatePDF(pdfData, displayText); };
+      exportRow.appendChild(btnPdf);
+    }
+
+    if (excelMatch) {
+      var xlData = excelMatch[1].trim();
+      var btnXl = document.createElement('button');
+      btnXl.className = 'btn-export excel';
+      btnXl.innerHTML = '<span class="btn-export-icon">XLS</span> Download as Excel';
+      btnXl.onclick = function() { generateExcel(xlData); };
+      exportRow.appendChild(btnXl);
+    }
+
+    var hint = document.createElement('div');
+    hint.className = 'export-hint';
+    hint.textContent = 'Your file is ready to download.';
+    exportRow.appendChild(hint);
+    div.appendChild(exportRow);
+  }
+
   var time = document.createElement('span');
   time.className = 'msg-time';
-  time.textContent = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  time.textContent = new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   div.appendChild(time);
+
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
-  chatHistory.push({role:role==='mina'?'assistant':'user', content:text});
+  chatHistory.push({role: role === 'mina' ? 'assistant' : 'user', content: text});
+}
+
+// ── PDF GENERATOR ─────────────────────────────────────────────────────────────
+function generatePDF(structuredData, fullText) {
+  var doc = new window.jspdf.jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+  var pageW = doc.internal.pageSize.getWidth();
+  var margin = 18;
+  var contentW = pageW - margin * 2;
+  var y = 20;
+
+  // Header bar
+  doc.setFillColor(12, 15, 26);
+  doc.rect(0, 0, pageW, 28, 'F');
+
+  // Logo text
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(240, 244, 255);
+  doc.text('Sum Goals', margin, 17);
+
+  // Teal accent line
+  doc.setDrawColor(0, 201, 167);
+  doc.setLineWidth(0.8);
+  doc.line(margin, 22, margin + 38, 22);
+
+  // Subtitle
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(139, 156, 182);
+  doc.text('Prepared by Mina — your financial coach', margin, 27);
+
+  // Date
+  var dateStr = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  doc.text(dateStr, pageW - margin, 27, {align:'right'});
+
+  y = 38;
+
+  // Client name if available
+  if (D.name) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(240, 244, 255);
+    doc.text('Financial Report — ' + D.name, margin, y);
+    y += 8;
+    doc.setDrawColor(201, 168, 76);
+    doc.setLineWidth(0.4);
+    doc.line(margin, y, pageW - margin, y);
+    y += 8;
+  }
+
+  // Parse and render structured data
+  var lines = structuredData.split('\n');
+  lines.forEach(function(line) {
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
+    line = line.trim();
+    if (!line) { y += 4; return; }
+
+    // Section header — lines ending with :
+    if (line.endsWith(':') && line.length < 60) {
+      y += 3;
+      doc.setFillColor(20, 24, 39);
+      doc.rect(margin - 2, y - 5, contentW + 4, 8, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(0, 201, 167);
+      doc.text(line.toUpperCase(), margin, y);
+      y += 7;
+      return;
+    }
+
+    // Key: value lines
+    if (line.includes(':')) {
+      var parts = line.split(':');
+      var key = parts[0].trim();
+      var val = parts.slice(1).join(':').trim();
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(139, 156, 182);
+      doc.text(key, margin, y);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(240, 244, 255);
+      var valLines = doc.splitTextToSize(val, contentW - 55);
+      doc.text(valLines, margin + 55, y);
+      y += Math.max(6, valLines.length * 5);
+      return;
+    }
+
+    // Regular text
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(200, 208, 224);
+    var wrapped = doc.splitTextToSize(line, contentW);
+    doc.text(wrapped, margin, y);
+    y += wrapped.length * 5.5;
+  });
+
+  // Footer
+  doc.setFillColor(12, 15, 26);
+  doc.rect(0, 285, pageW, 15, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(74, 85, 104);
+  doc.text('Generated by Mina — Sum Goals financial coaching. This is a personal financial plan, not professional financial advice.', margin, 293);
+
+  // Teal footer accent
+  doc.setDrawColor(0, 201, 167);
+  doc.setLineWidth(0.5);
+  doc.line(margin, 285.5, pageW - margin, 285.5);
+
+  var fileName = 'SumGoals_' + (D.name ? D.name.replace(/\s+/g,'_')+'_' : '') + new Date().toISOString().slice(0,10) + '.pdf';
+  doc.save(fileName);
+}
+
+// ── EXCEL GENERATOR ───────────────────────────────────────────────────────────
+function generateExcel(structuredData) {
+  var wb = XLSX.utils.book_new();
+  var lines = structuredData.split('\n').filter(function(l) { return l.trim(); });
+
+  // Parse into sheets — sections separated by blank lines or headers
+  var currentSheetName = 'Financial Plan';
+  var currentRows = [];
+  var sheets = [];
+
+  // Add metadata rows at top
+  currentRows.push(['Sum Goals — Financial Report']);
+  currentRows.push(['Prepared by Mina, your financial coach']);
+  currentRows.push(['Client:', D.name || '']);
+  currentRows.push(['Date:', new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})]);
+  currentRows.push(['Currency:', D.cur || 'USD']);
+  currentRows.push([]);
+
+  lines.forEach(function(line) {
+    line = line.trim();
+    if (!line) { currentRows.push([]); return; }
+
+    // Section header
+    if (line.endsWith(':') && line.length < 60) {
+      if (currentRows.length > 8) {
+        sheets.push({name: currentSheetName, rows: currentRows.slice()});
+        currentSheetName = line.replace(':','').trim().slice(0,31);
+        currentRows = [
+          ['Sum Goals — ' + line.replace(':','').trim()],
+          ['Client: ' + (D.name || '')],
+          []
+        ];
+      } else {
+        currentRows.push([line.toUpperCase()]);
+      }
+      return;
+    }
+
+    // Key: value
+    if (line.includes(':')) {
+      var parts = line.split(':');
+      currentRows.push([parts[0].trim(), parts.slice(1).join(':').trim()]);
+      return;
+    }
+
+    // Plain line — split into single cell
+    currentRows.push([line]);
+  });
+
+  sheets.push({name: currentSheetName, rows: currentRows });
+
+  // Always add a Summary sheet with key numbers
+  var summaryRows = [
+    ['Sum Goals — Financial Summary'],
+    ['Client', D.name || ''],
+    ['Date', new Date().toLocaleDateString()],
+    [],
+    ['INCOME', ''],
+    ['Monthly salary', D.income || 0],
+    ['Side income', D.sideIncome || 0],
+    ['Investment income', D.investIncome || 0],
+    ['Total monthly income', (D.income||0) + (D.sideIncome||0) + (D.investIncome||0)],
+    [],
+    ['EXPENSES', ''],
+    ['Housing', D.rent || 0],
+    ['Utilities and phone', D.utilities || 0],
+    ['Car payment', D.carPayment || 0],
+    ['Car insurance', D.carInsurance || 0],
+    ['Health insurance', D.healthInsurance || 0],
+    ['Groceries', D.groceries || 0],
+    ['Dining out', D.dining || 0],
+    ['Transport', D.transport || 0],
+    ['Subscriptions', D.subscriptions || 0],
+    ['Remittances', D.remittances || 0],
+    ['Childcare', D.daycare || 0],
+    ['Retirement contribution', D.retirementContrib || 0],
+    ['Total expenses', Math.round(D.totalExpenses || 0)],
+    [],
+    ['BALANCE', ''],
+    ['Monthly available', Math.round(D.avail || 0)],
+    [],
+    ['DEBT AND SAVINGS', ''],
+    ['Total debt', D.debt || 0],
+    ['Total savings', D.savings || 0],
+    ['Emergency fund', D.emergency || 0],
+    [],
+    ['Health score', (D.score || 0) + '/100']
+  ];
+
+  sheets.unshift({name: 'Summary', rows: summaryRows});
+
+  sheets.forEach(function(s) {
+    var ws = XLSX.utils.aoa_to_sheet(s.rows);
+
+    // Column widths
+    ws['!cols'] = [{wch:32}, {wch:28}];
+
+    XLSX.utils.book_append_sheet(wb, ws, s.name.slice(0,31) || 'Sheet');
+  });
+
+  var fileName = 'SumGoals_' + (D.name ? D.name.replace(/\s+/g,'_')+'_' : '') + new Date().toISOString().slice(0,10) + '.xlsx';
+  XLSX.writeFile(wb, fileName);
 }
 
 function addTyping() {
