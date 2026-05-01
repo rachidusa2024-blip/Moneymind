@@ -1717,14 +1717,7 @@ function generatePDF(structuredData, fullText) {
   doc.save(fileName);
 }
 
-  // Teal footer accent
-  doc.setDrawColor(0, 201, 167);
-  doc.setLineWidth(0.5);
-  doc.line(margin, 285.5, pageW - margin, 285.5);
 
-  var fileName = 'SumGoals_' + (D.name ? D.name.replace(/\s+/g,'_')+'_' : '') + new Date().toISOString().slice(0,10) + '.pdf';
-  doc.save(fileName);
-}
 
 // ── EXCEL GENERATOR ───────────────────────────────────────────────────────────
 function generateExcel(structuredData) {
