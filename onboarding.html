@@ -251,46 +251,37 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);font-size:15p
 <div class="content">
 
 
-    <!-- SLIDE 1 · What brought you here -->
+    <!-- SLIDE 1 · Single or family — Mina personalizes everything from this -->
     <div class="slide active" id="s1">
-      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s1who">MINA — YOUR COACH</div><div class="mina-text" id="s1says">Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong></div></div></div>
+      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s1who">MINA — YOUR COACH</div><div class="mina-text" id="s1says">Before anything else — one question that changes how I speak to you and what I focus on. There is no right answer. Just the honest one.</div></div></div>
+      <div class="q-title" id="s1title">What is your <span>situation?</span></div>
       <div class="choices">
-        <div class="choice" onclick="pickMoment('scared',this)"><div class="c-label" id="s1c1">My expenses have been higher than my income and I am scared of where this leads</div></div>
-        <div class="choice" onclick="pickMoment('debt',this)"><div class="c-label" id="s1c2">I have debt I have been avoiding looking at directly</div></div>
-        <div class="choice" onclick="pickMoment('family',this)"><div class="c-label" id="s1c3">I want to build something for my family and I do not know if it is possible</div></div>
-        <div class="choice" onclick="pickMoment('responsible',this)"><div class="c-label" id="s1c4">I am the one everyone depends on and I am not sure I am doing enough</div></div>
-        <div class="choice" onclick="pickMoment('emergency',this)"><div class="c-label" id="s1c5">An emergency destroyed what I had built and I am starting over</div></div>
-        <div class="choice" onclick="pickMoment('first',this)"><div class="c-label" id="s1c6">I have never had a real financial plan and I want one for the first time</div></div>
+        <div class="choice" onclick="pickSituation('single',this)"><div class="c-label" id="s1c1">I am single — providing for myself</div><div class="c-sub" id="s1s1">My financial decisions affect me directly</div></div>
+        <div class="choice" onclick="pickSituation('partner',this)"><div class="c-label" id="s1c2">I have a partner — we manage finances together or separately</div><div class="c-sub" id="s1s2">Two incomes, shared responsibilities</div></div>
+        <div class="choice" onclick="pickSituation('family',this)"><div class="c-label" id="s1c3">I have a family — children depend on me</div><div class="c-sub" id="s1s3">My decisions protect people I love</div></div>
+        <div class="choice" onclick="pickSituation('caregiver',this)"><div class="c-label" id="s1c4">I support family abroad or aging parents</div><div class="c-sub" id="s1s4">I carry responsibilities beyond my household</div></div>
+        <div class="choice" onclick="pickSituation('all',this)"><div class="c-label" id="s1c5">All of the above — I am the one everyone depends on</div><div class="c-sub" id="s1s5">Partner, children, family abroad — all of it</div></div>
       </div>
     </div>
 
-    <!-- SLIDE 2 · Who depends on you -->
+    <!-- SLIDE 2 · What brought you here -->
     <div class="slide" id="s2">
-      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">MINA</div><div class="mina-text" id="s2resp">I hear you.</div></div></div>
-      <div class="q-title" id="s2title">Who <span>depends on you?</span></div>
-      <div class="q-hint" id="s2hint">Select everything that is true. Do not minimize what you carry.</div>
+      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s2who">MINA</div><div class="mina-text" id="s2says">Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong></div></div></div>
       <div class="choices">
-        <div class="choice" onclick="toggleW('self',this)"><div class="c-label" id="s2c1">I provide for myself</div></div>
-        <div class="choice" onclick="toggleW('partner',this)"><div class="c-label" id="s2c2">I support a partner or spouse</div></div>
-        <div class="choice" onclick="toggleW('children',this)"><div class="c-label" id="s2c3">I have children who depend on me</div></div>
-        <div class="choice" onclick="toggleW('remittances',this)"><div class="c-label" id="s2c4">I send money to family in another country</div></div>
-        <div class="choice" onclick="toggleW('parents',this)"><div class="c-label" id="s2c5">I support my parents or siblings</div></div>
-        <div class="choice" onclick="toggleW('all',this)"><div class="c-label" id="s2c6">All of the above — I am the one everyone calls</div></div>
+        <div class="choice" onclick="pickMoment('scared',this)"><div class="c-label" id="s2c1">My expenses have been higher than my income and I am scared of where this leads</div></div>
+        <div class="choice" onclick="pickMoment('debt',this)"><div class="c-label" id="s2c2">I have debt I have been avoiding looking at directly</div></div>
+        <div class="choice" onclick="pickMoment('family',this)"><div class="c-label" id="s2c3">I want to build something for my family and I do not know if it is possible</div></div>
+        <div class="choice" onclick="pickMoment('responsible',this)"><div class="c-label" id="s2c4">I am the one everyone depends on and I am not sure I am doing enough</div></div>
+        <div class="choice" onclick="pickMoment('emergency',this)"><div class="c-label" id="s2c5">An emergency destroyed what I had built and I am starting over</div></div>
+        <div class="choice" onclick="pickMoment('first',this)"><div class="c-label" id="s2c6">I have never had a real financial plan and I want one for the first time</div></div>
       </div>
     </div>
 
-    <!-- SLIDE 3 · THE SENTENCE -->
+    <!-- SLIDE 3 · Mina responds + THE SENTENCE -->
     <div class="slide" id="s3">
       <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">MINA</div><div class="mina-text" id="s3intro">I see what you are carrying.</div></div></div>
+      <div class="mina-block" style="margin-top:-10px"><div class="mina-mark"><div style="width:38px"></div></div><div class="mina-speech"><div class="mina-text" id="s3resp" style="color:var(--muted);font-style:normal;font-size:13px"></div></div></div>
       <div class="sentence-box" id="theSentence">You have been taking care of everyone around you for so long that you forgot someone was supposed to take care of you too. I am here for that.</div>
-      <div style="margin-top:20px">
-        <div class="q-title" id="s3q">Your language <span>feels right?</span></div>
-        <div class="q-hint" id="s3hint">Everything from this point forward stays in the language you chose.</div>
-        <div class="choices g2">
-          <div class="choice sel" id="s3lc"><div class="c-label" id="s3ll">English</div><div class="c-sub" id="s3ls">Continue in English</div></div>
-          <div class="choice" onclick="goBackToLang()"><div class="c-label" id="s3ch">Change language</div></div>
-        </div>
-      </div>
     </div>
 
 
@@ -626,8 +617,8 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);font-size:15p
 var SB_URL='https://dmdvoygnzbosjbwsriea.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 var sb=supabase.createClient(SB_URL,SB_KEY);
-var T=23,cur=1,OPT=[7,8,13,17];
-var D={lang:'en',country:'',country_name:'',currency:'USD',age_range:'',monthly_income:0,income_stable:null,has_side:false,side_income:0,has_invest:false,invest_income:0,sends_remittances:false,remittances:0,housing_type:'',rent:0,mortgage_balance:0,utilities:0,phone_internet:0,car_payment:0,car_insurance:0,health_insurance:0,life_insurance:0,groceries:0,dining:0,transport:0,subscriptions:0,dependents:0,pays_daycare:false,daycare:0,has_retirement:false,retirement_contribution:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
+var T=24,cur=1,OPT=[8,9,14,18];
+var D={lang:'en',country:'',country_name:'',currency:'USD',age_range:'',situation:'',weight:[],moment:'',monthly_income:0,income_stable:null,has_side:false,side_income:0,has_invest:false,invest_income:0,sends_remittances:false,remittances:0,housing_type:'',rent:0,mortgage_balance:0,utilities:0,phone_internet:0,car_payment:0,car_insurance:0,health_insurance:0,life_insurance:0,groceries:0,dining:0,transport:0,subscriptions:0,dependents:0,pays_daycare:false,daycare:0,has_retirement:false,retirement_contribution:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
 function n(v){return parseFloat(v)||0;}
 function showSlide(i){document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('active');});var el=document.getElementById('s'+i);if(el)el.classList.add('active');cur=i;document.getElementById('bb').disabled=i<=1;document.getElementById('pf').style.width=(((i-1)/T)*100)+'%';document.getElementById('pt').textContent='Step '+i+' of '+T;document.getElementById('sc').textContent=Math.round(((i-1)/T)*100)+'% complete';document.getElementById('bsk').style.display=OPT.includes(i)?'block':'none';updatePre();window.scrollTo(0,0);}
 function next(){if(cur<T)showSlide(cur+1);else runAna();}
@@ -658,7 +649,7 @@ function clearErr(){document.getElementById('aerr').style.display='none';}
 async function doSignup(){clearErr();var fi=document.getElementById('fFi').value.trim(),la=document.getElementById('fLa').value.trim(),em=document.getElementById('fEm').value.trim(),ph=document.getElementById('fPh').value.trim(),pw=document.getElementById('fPw').value;if(!fi)return showErr('Please enter your first name.');if(!la)return showErr('Please enter your last name.');if(!em||!/^[^@]+@[^@]+\.[^@]+$/.test(em))return showErr('Please enter a valid email address.');if(pw.length<8)return showErr('Your password must be at least 8 characters.');var btn=document.getElementById('sBtn');btn.innerHTML='<span class="spinner"></span>Creating your account...';btn.disabled=true;var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la,phone:ph},emailRedirectTo:'https://sumgoals.com/verify.html'}});btn.innerHTML='Create my free account';btn.disabled=false;if(r.error){if(r.error.message.toLowerCase().includes('already'))return showErr('This email is already registered. Please sign in from the main page.');return showErr(r.error.message);}if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return showErr('This email is already registered. Please sign in from the main page.');document.getElementById('authC').style.display='none';document.getElementById('verC').style.display='block';document.getElementById('verSub').innerHTML='We sent a verification link to <strong style="color:var(--white)">'+em+'</strong>. Click it and Mina will be waiting for you.';}
 async function doGoogle(){var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/dashboard.html'}});if(r.error)showErr(r.error.message);}
 document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)closeAuth();});
-async function init(){var r=await sb.auth.getSession();if(r.data.session){window.location.href='/dashboard.html';return;}showSlide(1);}
+async function init(){var r=await sb.auth.getSession();if(r.data.session){window.location.href='/dashboard.html';return;}/* Welcome screen shows by default */}
 init();
 
 
@@ -667,7 +658,60 @@ var lang = 'en';
 var D_weight = [];
 var D_moment = '';
 
-var MOMENT_RESP = {
+// ── SITUATION & MOMENT ────────────────────────────────────────────────────────
+function pickSituation(situation, el) {
+  D.situation = situation;
+  D.weight = situation === 'all' ? ['partner','children','remittances','parents'] :
+             situation === 'caregiver' ? ['remittances','parents'] :
+             situation === 'family' ? ['children'] :
+             situation === 'partner' ? ['partner'] : ['self'];
+  D_weight = D.weight;
+  var g = el.closest('.choices');
+  if(g) g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  setTimeout(function(){showSlide(2);}, 280);
+}
+
+function pickMoment(moment, el) {
+  D_moment = moment;
+  D.moment = moment;
+  var g = el.closest('.choices');
+  if(g) g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  var resp = (MOMENT_RESP[lang] || MOMENT_RESP.en)[moment] || 'I hear you.';
+  var el2 = document.getElementById('s3resp');
+  if(el2) el2.textContent = resp;
+  // Check if heavy weight — show sentence or skip straight to slide 4
+  var heavy = ['children','remittances','parents','all','caregiver','family'];
+  var isHeavy = D.situation && heavy.includes(D.situation);
+  if(isHeavy) {
+    var s3i = document.getElementById('s3intro');
+    var hv = {en:'I see what you are carrying. Before we talk about a single number, I want you to read this.',fr:'Je vois ce que vous portez. Avant de parler d\'un seul chiffre, je veux que vous lisiez ceci.',es:'Veo lo que cargas. Antes de hablar de un solo número, quiero que leas esto.'};
+    if(s3i) s3i.textContent = hv[lang] || hv.en;
+    setTimeout(function(){showSlide(3);}, 280);
+  } else {
+    setTimeout(function(){showSlide(4);}, 280);
+  }
+}
+
+function toggleW(val, el) {
+  el.classList.toggle('sel');
+  var idx = D_weight.indexOf(val);
+  if(idx > -1) D_weight.splice(idx, 1); else D_weight.push(val);
+  if(val === 'all') {
+    D_weight = ['self','partner','children','remittances','parents','all'];
+    document.querySelectorAll('#s3 .choice').forEach(function(c){c.classList.add('sel');});
+  }
+  D.weight = D_weight;
+}
+
+// Override next for slide 2 to route through moment->sentence logic
+var _origNext2 = next;
+function next() {
+  // Slide 3 (sentence) goes to slide 4
+  if(cur === 3) { showSlide(4); return; }
+  _origNext2();
+}
   en: {
     scared: 'That fear is telling you something true. The gap between income and expenses is the most urgent thing I fix. But before we look at numbers I need to understand the full weight of what you are carrying.',
     debt: 'Avoiding it does not make it smaller \u2014 it makes it more expensive. I am glad you are here. Let me understand your full situation before we talk numbers.',
@@ -710,22 +754,12 @@ function chooseLang(l) {
   lang = l;
   D.lang = l;
   document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.remove('sel');});
-  var btn = document.querySelector('.lang-btn[onclick="chooseLang(\''+l+"\')"+'"'+']');
-  if(btn) btn.classList.add('sel');
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    if(b.onclick && b.onclick.toString().includes("'"+l+"'")) b.classList.add('sel');
+  });
 
-  // Update sentence
-  var sent = document.getElementById('theSentence');
-  if(sent) sent.textContent = SENTENCES[l] || SENTENCES.en;
-
-  // Update privacy
-  var priv = document.getElementById('wPriv');
-  if(priv) priv.textContent = PRIVACY[l] || PRIVACY.en;
-
-  // Update lang confirm card
-  var ll = l==='fr'?'Fran\u00e7ais':l==='es'?'Espa\u00f1ol':'English';
-  var cont = l==='fr'?'Continuer en fran\u00e7ais':l==='es'?'Continuar en espa\u00f1ol':'Continue in English';
-  var s3ll = document.getElementById('s3ll'); if(s3ll) s3ll.textContent = ll;
-  var s3ls = document.getElementById('s3ls'); if(s3ls) s3ls.textContent = cont;
+  // Apply all translations
+  applyAllTranslations(l);
 
   // Transition to onboarding
   setTimeout(function(){
@@ -738,6 +772,101 @@ function chooseLang(l) {
     }, 500);
   }, 350);
 }
+
+function applyAllTranslations(l) {
+  var tr = TRANSLATIONS[l] || TRANSLATIONS.en;
+
+  // Update all translatable elements
+  Object.keys(tr).forEach(function(id) {
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = tr[id];
+  });
+
+  // Update THE SENTENCE
+  var sent = document.getElementById('theSentence');
+  if(sent) sent.textContent = SENTENCES[l] || SENTENCES.en;
+
+  // Update privacy
+  var priv = document.getElementById('wPriv');
+  if(priv) priv.textContent = PRIVACY[l] || PRIVACY.en;
+
+  // Update nav buttons
+  var bb = document.getElementById('bb'); if(bb) bb.textContent = tr.back || 'Back';
+  var bnt = document.getElementById('bnt'); if(bnt) bnt.textContent = tr.next || 'Continue';
+  var bsk = document.getElementById('bsk'); if(bsk) bsk.textContent = tr.skip || 'Skip this';
+
+  // Update lang confirm card
+  var langNames = {en:'English',fr:'Français',es:'Español'};
+  var langCont = {en:'Continue in English',fr:'Continuer en français',es:'Continuar en español'};
+  var s3ll = document.getElementById('s3ll'); if(s3ll) s3ll.textContent = langNames[l]||langNames.en;
+  var s3ls = document.getElementById('s3ls'); if(s3ls) s3ls.textContent = langCont[l]||langCont.en;
+
+  updatePre();
+}
+
+// Full translation tables for all slide text
+var TRANSLATIONS = {
+  en: {
+    back:'Back', next:'Continue', skip:'Skip this',
+    s1who:'MINA — YOUR COACH',
+    s1says:'Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong>',
+    s1c1:'My expenses have been higher than my income and I am scared of where this leads',
+    s1c2:'I have debt I have been avoiding looking at directly',
+    s1c3:'I want to build something for my family and I do not know if it is possible',
+    s1c4:'I am the one everyone depends on and I am not sure I am doing enough',
+    s1c5:'An emergency destroyed what I had built and I am starting over',
+    s1c6:'I have never had a real financial plan and I want one for the first time',
+    s2title:'Who <span>depends on you?</span>',
+    s2hint:'Select everything that is true. Do not minimize what you carry.',
+    s2c1:'I provide for myself',s2c2:'I support a partner or spouse',
+    s2c3:'I have children who depend on me',s2c4:'I send money to family in another country',
+    s2c5:'I support my parents or siblings',s2c6:'All of the above — I am the one everyone calls',
+    s3q:'Your language <span>feels right?</span>',
+    s3hint:'Everything from this point forward stays in the language you chose.',
+    s3ch:'Change language',
+    wPrompt:'Which language feels like home to you?'
+  },
+  fr: {
+    back:'Retour', next:'Continuer', skip:'Passer',
+    s1who:'MINA — VOTRE COACH',
+    s1says:'Avant de regarder les chiffres, je veux comprendre ce qui vous a amené ici. La plupart des gens viennent me voir à un moment précis — quelque chose s'est passé, ou quelque chose qu'ils ignoraient est devenu impossible à ignorer. <strong>Quel était ce moment pour vous ?</strong>',
+    s1c1:'Mes dépenses sont supérieures à mes revenus et j'ai peur de là où cela mène',
+    s1c2:'J'ai des dettes que j'évite de regarder en face',
+    s1c3:'Je veux construire quelque chose pour ma famille et je ne sais pas si c'est possible',
+    s1c4:'Je suis celui dont tout le monde dépend et je ne suis pas sûr de faire assez',
+    s1c5:'Une urgence a détruit ce que j'avais construit et je recommence à zéro',
+    s1c6:'Je n'ai jamais eu de vrai plan financier et je veux en avoir un pour la première fois',
+    s2title:'Qui <span>dépend de vous ?</span>',
+    s2hint:'Sélectionnez tout ce qui est vrai. Ne minimisez pas ce que vous portez.',
+    s2c1:'Je subviens à mes propres besoins',s2c2:'Je soutiens un partenaire ou un époux',
+    s2c3:'J'ai des enfants qui dépendent de moi',s2c4:'J'envoie de l'argent à ma famille à l'étranger',
+    s2c5:'Je soutiens mes parents ou mes frères et sœurs',s2c6:'Tout cela — je suis celui que tout le monde appelle',
+    s3q:'Votre langue <span>vous convient ?</span>',
+    s3hint:'Tout ce qui suit sera dans la langue que vous avez choisie.',
+    s3ch:'Changer de langue',
+    wPrompt:'Quelle langue vous semble la plus naturelle ?'
+  },
+  es: {
+    back:'Atrás', next:'Continuar', skip:'Saltar',
+    s1who:'MINA — TU COACH',
+    s1says:'Antes de ver ningún número, quiero entender qué te trajo aquí. La mayoría de las personas vienen a mí en un momento específico — algo ocurrió, o algo que estaban ignorando se volvió imposible de seguir ignorando. <strong>¿Cuál fue ese momento para ti?</strong>',
+    s1c1:'Mis gastos han sido más altos que mis ingresos y tengo miedo de a dónde lleva esto',
+    s1c2:'Tengo deudas que he estado evitando mirar directamente',
+    s1c3:'Quiero construir algo para mi familia y no sé si es posible',
+    s1c4:'Soy de quien todos dependen y no estoy seguro de estar haciendo lo suficiente',
+    s1c5:'Una emergencia destruyó lo que había construido y estoy empezando de nuevo',
+    s1c6:'Nunca he tenido un plan financiero real y quiero uno por primera vez',
+    s2title:'¿Quién <span>depende de ti?</span>',
+    s2hint:'Selecciona todo lo que sea verdad. No minimices lo que cargas.',
+    s2c1:'Me mantengo a mí mismo',s2c2:'Mantengo a una pareja o cónyuge',
+    s2c3:'Tengo hijos que dependen de mí',s2c4:'Envío dinero a familia en otro país',
+    s2c5:'Mantengo a mis padres o hermanos',s2c6:'Todo lo anterior — soy a quien todos llaman',
+    s3q:'Tu idioma <span>¿se siente bien?</span>',
+    s3hint:'Todo a partir de aquí será en el idioma que elegiste.',
+    s3ch:'Cambiar idioma',
+    wPrompt:'¿Qué idioma te resulta más natural?'
+  }
+};
 
 function goBackToLang() {
   var ws = document.getElementById('welcomeScreen');
