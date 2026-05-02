@@ -256,11 +256,11 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);font-size:15p
       <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s1who">MINA — YOUR COACH</div><div class="mina-text" id="s1says">Before anything else — one question that changes how I speak to you and what I focus on. There is no right answer. Just the honest one.</div></div></div>
       <div class="q-title" id="s1title">What is your <span>situation?</span></div>
       <div class="choices">
-        <div class="choice" onclick="pickSituation('single',this)"><div class="c-label" id="s1c1">I am single — providing for myself</div><div class="c-sub" id="s1s1">My financial decisions affect me directly</div></div>
-        <div class="choice" onclick="pickSituation('partner',this)"><div class="c-label" id="s1c2">I have a partner — we manage finances together or separately</div><div class="c-sub" id="s1s2">Two incomes, shared responsibilities</div></div>
-        <div class="choice" onclick="pickSituation('family',this)"><div class="c-label" id="s1c3">I have a family — children depend on me</div><div class="c-sub" id="s1s3">My decisions protect people I love</div></div>
-        <div class="choice" onclick="pickSituation('caregiver',this)"><div class="c-label" id="s1c4">I support family abroad or aging parents</div><div class="c-sub" id="s1s4">I carry responsibilities beyond my household</div></div>
-        <div class="choice" onclick="pickSituation('all',this)"><div class="c-label" id="s1c5">All of the above — I am the one everyone depends on</div><div class="c-sub" id="s1s5">Partner, children, family abroad — all of it</div></div>
+        <div class="choice" onclick="pickSituation('single',this)"><div class="c-label" id="sit1">I am single — providing for myself</div><div class="c-sub" id="sits1">My financial decisions affect me directly</div></div>
+        <div class="choice" onclick="pickSituation('partner',this)"><div class="c-label" id="sit2">I have a partner — we manage finances together or separately</div><div class="c-sub" id="sits2">Two incomes, shared responsibilities</div></div>
+        <div class="choice" onclick="pickSituation('family',this)"><div class="c-label" id="sit3">I have a family — children depend on me</div><div class="c-sub" id="sits3">My decisions protect people I love</div></div>
+        <div class="choice" onclick="pickSituation('caregiver',this)"><div class="c-label" id="sit4">I support family abroad or aging parents</div><div class="c-sub" id="sits4">I carry responsibilities beyond my household</div></div>
+        <div class="choice" onclick="pickSituation('all',this)"><div class="c-label" id="sit5">All of the above — I am the one everyone depends on</div><div class="c-sub" id="sits5">Partner, children, family abroad — all of it</div></div>
       </div>
     </div>
 
@@ -705,13 +705,6 @@ function toggleW(val, el) {
   D.weight = D_weight;
 }
 
-// Override next for slide 2 to route through moment->sentence logic
-var _origNext2 = next;
-function next() {
-  if(cur === 3) { showSlide(4); return; }
-  _origNext2();
-}
-
 var MOMENT_RESP = {
   en: {
     scared: 'That fear is telling you something true. The gap between income and expenses is the most urgent thing I fix. But before we look at numbers I need to understand the full weight of what you are carrying.',
@@ -809,6 +802,17 @@ function applyAllTranslations(l) {
 var TRANSLATIONS = {
   en: {
     back:'Back', next:'Continue', skip:'Skip this',
+    s1title:'What is your <span>situation?</span>',
+    sit1:'I am single — providing for myself',
+    sits1:'My financial decisions affect me directly',
+    sit2:'I have a partner — we manage finances together or separately',
+    sits2:'Two incomes, shared responsibilities',
+    sit3:'I have a family — children depend on me',
+    sits3:'My decisions protect people I love',
+    sit4:'I support family abroad or aging parents',
+    sits4:'I carry responsibilities beyond my household',
+    sit5:'All of the above — I am the one everyone depends on',
+    sits5:'Partner, children, family abroad — all of it',
     s1who:'MINA — YOUR COACH',
     s1says:'Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong>',
     s1c1:'My expenses have been higher than my income and I am scared of where this leads',
@@ -829,6 +833,17 @@ var TRANSLATIONS = {
   },
   fr: {
     back:'Retour', next:'Continuer', skip:'Passer',
+    s1title:"Quelle est votre <span>situation ?</span>",
+    sit1:"Je suis seul(e) — je subviens à mes propres besoins",
+    sits1:"Mes décisions financières me concernent directement",
+    sit2:"J'ai un partenaire — nous gérons les finances ensemble ou séparément",
+    sits2:"Deux revenus, responsabilités partagées",
+    sit3:"J'ai une famille — des enfants dépendent de moi",
+    sits3:"Mes décisions protègent les gens que j'aime",
+    sit4:"Je soutiens ma famille à l'étranger ou mes parents vieillissants",
+    sits4:"Je porte des responsabilités au-delà de mon foyer",
+    sit5:"Tout cela — je suis celui que tout le monde appelle",
+    sits5:"Partenaire, enfants, famille à l'étranger — tout cela",
     s1who:'MINA — VOTRE COACH',
     s1says:"Avant de regarder les chiffres, je veux comprendre ce qui vous a amené ici. La plupart des gens viennent me voir à un moment précis — quelque chose s'est passé, ou quelque chose qu'ils ignoraient est devenu impossible à ignorer. <strong>Quel était ce moment pour vous ?</strong>",
     s1c1:"Mes dépenses sont supérieures à mes revenus et j'ai peur de là où cela mène",
@@ -849,6 +864,17 @@ var TRANSLATIONS = {
   },
   es: {
     back:'Atrás', next:'Continuar', skip:'Saltar',
+    s1title:'¿Cuál es tu <span>situación?</span>',
+    sit1:'Soy soltero(a) — me mantengo a mí mismo',
+    sits1:'Mis decisiones financieras me afectan directamente',
+    sit2:'Tengo pareja — gestionamos las finanzas juntos o por separado',
+    sits2:'Dos ingresos, responsabilidades compartidas',
+    sit3:'Tengo familia — los niños dependen de mí',
+    sits3:'Mis decisiones protegen a las personas que amo',
+    sit4:'Apoyo a familia en el extranjero o a padres mayores',
+    sits4:'Llevo responsabilidades más allá de mi hogar',
+    sit5:'Todo lo anterior — soy a quien todos llaman',
+    sits5:'Pareja, hijos, familia en el extranjero — todo',
     s1who:'MINA — TU COACH',
     s1says:'Antes de ver ningún número, quiero entender qué te trajo aquí. La mayoría de las personas vienen a mí en un momento específico — algo ocurrió, o algo que estaban ignorando se volvió imposible de seguir ignorando. <strong>¿Cuál fue ese momento para ti?</strong>',
     s1c1:'Mis gastos han sido más altos que mis ingresos y tengo miedo de a dónde lleva esto',
@@ -898,22 +924,12 @@ function toggleW(val, el) {
   D.weight = D_weight;
 }
 
-// Override next for slide 2 to check weight and route to sentence
-var _origNext2 = next;
+// Single clean next() override handling all routing
+var _baseNext = next;
 function next() {
-  if(cur === 2) {
-    var heavy = ['children','remittances','parents','all'];
-    var isHeavy = D_weight.some(function(w){return heavy.includes(w);});
-    var s3i = document.getElementById('s3intro');
-    if(s3i) {
-      var hv = {en:'I see what you are carrying. Before we talk about a single number, I want you to read this.',fr:'Je vois ce que vous portez. Avant de parler d\u2019un seul chiffre, je veux que vous lisiez ceci.',es:'Veo lo que cargas. Antes de hablar de un solo n\u00famero, quiero que leas esto.'};
-      var lt = {en:'I understand. Let me get a bit more context before we look at numbers.',fr:'Je comprends. Laissez-moi en savoir un peu plus avant de regarder les chiffres.',es:'Entiendo. D\u00e9jame saber un poco m\u00e1s antes de ver los n\u00fameros.'};
-      s3i.textContent = isHeavy ? (hv[lang]||hv.en) : (lt[lang]||lt.en);
-    }
-    showSlide(3);
-    return;
-  }
-  _origNext2();
+  // Slide 3 (sentence) always goes to slide 4
+  if(cur === 3) { showSlide(4); return; }
+  _baseNext();
 }
 
 </script>
