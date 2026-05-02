@@ -1454,13 +1454,17 @@ function buildSystemPrompt() {
     'For PDF: wrap structured content in [PDF]...[/PDF]\n' +
     'For Excel: wrap structured content in [EXCEL]...[/EXCEL]\n' +
     'For both formats at once: include both blocks.\n\n' +
-    'The content inside the tags must be formatted as clean labeled sections like this:\n' +
-    'SECTION NAME:\n' +
-    'Label: Value\n' +
-    'Label: Value\n\n' +
-    'NEXT SECTION:\n' +
-    'Label: Value\n\n' +
-    'Use the client\'s real numbers from their profile. Currency is ' + D.cur + '. Never put placeholder text inside the tags — only real data. The tags and their content are stripped from the chat display and only used to generate the file. Do not mention the tags in your spoken response — just say something like "I have prepared your plan — you can download it as PDF or Excel below."';
+    'CRITICAL EXCEL FORMATTING RULES — the Excel generator reads your output directly:\n' +
+    '- Section headers: write them in ALL CAPS followed by a colon, on their own line. Example: DEBT PAYOFF SCHEDULE:\n' +
+    '- Key-value pairs: write as "Label: Value" on each line. Example: Monthly Payment: USD 640\n' +
+    '- Tables with multiple columns: use pipe separators between columns, one row per line. Example:\n' +
+    '  Month | Date | Payment | Balance\n' +
+    '  1 | May 5 2026 | 640 | 8260\n' +
+    '  2 | June 5 2026 | 640 | 7620\n' +
+    '- NEVER use pipe separators and key-value on the same line\n' +
+    '- NEVER put multiple data points in one cell\n' +
+    '- Always include a table header row before data rows\n' +
+    'Use the client\'s real numbers from their profile. Currency is ' + D.cur + '. The tags and their content are stripped from the chat display. Do not mention the tags in your spoken response — just say "I have prepared your plan — you can download it as PDF or Excel below."';
 }
 
 function initChat() {
@@ -1722,104 +1726,213 @@ function generatePDF(structuredData, fullText) {
 // ── EXCEL GENERATOR ───────────────────────────────────────────────────────────
 function generateExcel(structuredData) {
   var wb = XLSX.utils.book_new();
-  var lines = structuredData.split('\n').filter(function(l) { return l.trim(); });
 
-  // Parse into sheets — sections separated by blank lines or headers
-  var currentSheetName = 'Financial Plan';
-  var currentRows = [];
-  var sheets = [];
+  // ── SUMMARY SHEET ──────────────────────────────────────────────────────────
+  var summaryData = [
+    ['SUM GOALS — FINANCIAL REPORT', '', '', ''],
+    ['Prepared by Mina, your personal financial coach', '', '', ''],
+    ['', '', '', ''],
+    ['Client', D.name || '', '', ''],
+    ['Date', new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}), '', ''],
+    ['Currency', D.cur || 'USD', '', ''],
+    ['Health Score', (D.score || 0) + ' / 100', '', ''],
+    ['', '', '', ''],
+    ['INCOME', '', '', ''],
+    ['Monthly Salary (after tax)', D.income || 0, '', ''],
+    ['Side Income', D.sideIncome || 0, '', ''],
+    ['Investment / Rental Income', D.investIncome || 0, '', ''],
+    ['Total Monthly Income', (D.income||0)+(D.sideIncome||0)+(D.investIncome||0), '', ''],
+    ['', '', '', ''],
+    ['EXPENSES', '', '', ''],
+    ['Housing (rent or mortgage)', D.rent || 0, '', ''],
+    ['Utilities and Phone', D.utilities || 0, '', ''],
+    ['Car Payment', D.carPayment || 0, '', ''],
+    ['Car Insurance', D.carInsurance || 0, '', ''],
+    ['Health Insurance', D.healthInsurance || 0, '', ''],
+    ['Groceries', D.groceries || 0, '', ''],
+    ['Dining Out and Food Delivery', D.dining || 0, '', ''],
+    ['Transport and Fuel', D.transport || 0, '', ''],
+    ['Subscriptions', D.subscriptions || 0, '', ''],
+    ['Remittances to Family', D.remittances || 0, '', ''],
+    ['Childcare', D.daycare || 0, '', ''],
+    ['Retirement Contribution', D.retirementContrib || 0, '', ''],
+    ['Total Monthly Expenses', Math.round(D.totalExpenses || 0), '', ''],
+    ['', '', '', ''],
+    ['BALANCE', '', '', ''],
+    ['Monthly Available', Math.round(D.avail || 0), '', ''],
+    ['', '', '', ''],
+    ['DEBT AND SAVINGS', '', '', ''],
+    ['Total Debt', D.debt || 0, '', ''],
+    ['Total Savings', D.savings || 0, '', ''],
+    ['Emergency Fund', D.emergency || 0, '', ''],
+  ];
 
-  // Add metadata rows at top
-  currentRows.push(['Sum Goals — Financial Report']);
-  currentRows.push(['Prepared by Mina, your financial coach']);
-  currentRows.push(['Client:', D.name || '']);
-  currentRows.push(['Date:', new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})]);
-  currentRows.push(['Currency:', D.cur || 'USD']);
-  currentRows.push([]);
+  var wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+
+  // Column widths
+  wsSummary['!cols'] = [{wch:36},{wch:22},{wch:16},{wch:16}];
+
+  // Apply styles via cell-by-cell
+  function styleCell(ws, addr, opts) {
+    if (!ws[addr]) ws[addr] = {v:'', t:'s'};
+    ws[addr].s = opts;
+  }
+
+  var titleStyle   = {font:{bold:true,sz:14,color:{rgb:'00C9A7'}}, fill:{fgColor:{rgb:'0C0F1A'}}, alignment:{horizontal:'left'}};
+  var subStyle     = {font:{italic:true,sz:9,color:{rgb:'8B9CB6'}}, fill:{fgColor:{rgb:'141827'}}};
+  var headerStyle  = {font:{bold:true,sz:10,color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'141827'}}, alignment:{horizontal:'left'}};
+  var sectionStyle = {font:{bold:true,sz:9,color:{rgb:'00C9A7'}}, fill:{fgColor:{rgb:'1A2035'}}, alignment:{horizontal:'left'}};
+  var labelStyle   = {font:{sz:9,color:{rgb:'C8D0E0'}}, fill:{fgColor:{rgb:'141827'}}};
+  var valueStyle   = {font:{bold:true,sz:9,color:{rgb:'F0F4FF'}}, fill:{fgColor:{rgb:'141827'}}, alignment:{horizontal:'right'}};
+  var totalStyle   = {font:{bold:true,sz:10,color:{rgb:'00C9A7'}}, fill:{fgColor:{rgb:'0C0F1A'}}, alignment:{horizontal:'right'}};
+
+  var sectionRows  = [0,1,8,14,29,35];
+  var totalRows    = [12,27,30,33,34];
+
+  summaryData.forEach(function(row, ri) {
+    var rNum = ri + 1;
+    var addr0 = 'A' + rNum;
+    var addr1 = 'B' + rNum;
+
+    if (ri === 0) { styleCell(wsSummary, addr0, titleStyle); return; }
+    if (ri === 1) { styleCell(wsSummary, addr0, subStyle); return; }
+    if (sectionRows.includes(ri)) {
+      styleCell(wsSummary, addr0, sectionStyle);
+      styleCell(wsSummary, addr1, sectionStyle);
+      return;
+    }
+    if (totalRows.includes(ri)) {
+      styleCell(wsSummary, addr0, {font:{bold:true,sz:9,color:{rgb:'F0F4FF'}}, fill:{fgColor:{rgb:'0C0F1A'}}});
+      styleCell(wsSummary, addr1, totalStyle);
+      return;
+    }
+    if (row[0] === '') return;
+    styleCell(wsSummary, addr0, labelStyle);
+    if (row[1] !== '') styleCell(wsSummary, addr1, valueStyle);
+  });
+
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── DEBT SHEET ──────────────────────────────────────────────────────────────
+  if (D.debts && D.debts.length > 0) {
+    var debtHeader = ['Debt Type', 'Balance', 'Min Payment / Month', 'APR %', 'Priority', 'Missed Payments'];
+    var debtRows = [debtHeader];
+    D.debts.forEach(function(d) {
+      debtRows.push([
+        d.typeName || d.type || 'Debt',
+        d.amount || 0,
+        d.payment || 0,
+        d.rate || 0,
+        d.urgency === 'high' ? 'ATTACK FIRST' : 'Structured',
+        d.missed ? 'YES — urgent' : 'No'
+      ]);
+    });
+    var wsDebt = XLSX.utils.aoa_to_sheet(debtRows);
+    wsDebt['!cols'] = [{wch:22},{wch:14},{wch:20},{wch:10},{wch:16},{wch:16}];
+    XLSX.utils.book_append_sheet(wb, wsDebt, 'Debt Breakdown');
+  }
+
+  // ── PLAN SHEET — parse Mina's structured data ──────────────────────────────
+  var planRows = [['MINA\'S PLAN', ''],['Client: '+D.name,''],['','']] ;
+  var lines = structuredData.split('\n');
+  var inTable = false;
+  var tableHeaders = null;
 
   lines.forEach(function(line) {
     line = line.trim();
-    if (!line) { currentRows.push([]); return; }
+    if (!line) { planRows.push(['', '']); return; }
+
+    // Detect pipe-separated table rows (Month | Date | Payment etc.)
+    if (line.includes(' | ') || (line.includes('|') && line.split('|').length > 2)) {
+      var cols = line.split('|').map(function(c){return c.trim();});
+      if (!inTable) {
+        inTable = true;
+        tableHeaders = cols;
+        planRows.push(cols); // header row
+      } else {
+        planRows.push(cols);
+      }
+      return;
+    } else {
+      inTable = false;
+      tableHeaders = null;
+    }
 
     // Section header
-    if (line.endsWith(':') && line.length < 60) {
-      if (currentRows.length > 8) {
-        sheets.push({name: currentSheetName, rows: currentRows.slice()});
-        currentSheetName = line.replace(':','').trim().slice(0,31);
-        currentRows = [
-          ['Sum Goals — ' + line.replace(':','').trim()],
-          ['Client: ' + (D.name || '')],
-          []
-        ];
-      } else {
-        currentRows.push([line.toUpperCase()]);
-      }
+    if ((line.endsWith(':') && line.length < 70) ||
+        (line === line.toUpperCase() && line.replace(/[^A-Z]/g,'').length > 3)) {
+      planRows.push([line.replace(':',''), '']);
       return;
     }
 
     // Key: value
     if (line.includes(':')) {
-      var parts = line.split(':');
-      currentRows.push([parts[0].trim(), parts.slice(1).join(':').trim()]);
+      var ci = line.indexOf(':');
+      planRows.push([line.substring(0,ci).trim(), line.substring(ci+1).trim()]);
       return;
     }
 
-    // Plain line — split into single cell
-    currentRows.push([line]);
+    planRows.push([line, '']);
   });
 
-  sheets.push({name: currentSheetName, rows: currentRows });
+  var wsPlan = XLSX.utils.aoa_to_sheet(planRows);
+  wsPlan['!cols'] = [{wch:36},{wch:18},{wch:16},{wch:16},{wch:18},{wch:18}];
 
-  // Always add a Summary sheet with key numbers
-  var summaryRows = [
-    ['Sum Goals — Financial Summary'],
-    ['Client', D.name || ''],
-    ['Date', new Date().toLocaleDateString()],
-    [],
-    ['INCOME', ''],
-    ['Monthly salary', D.income || 0],
-    ['Side income', D.sideIncome || 0],
-    ['Investment income', D.investIncome || 0],
-    ['Total monthly income', (D.income||0) + (D.sideIncome||0) + (D.investIncome||0)],
-    [],
-    ['EXPENSES', ''],
-    ['Housing', D.rent || 0],
-    ['Utilities and phone', D.utilities || 0],
-    ['Car payment', D.carPayment || 0],
-    ['Car insurance', D.carInsurance || 0],
-    ['Health insurance', D.healthInsurance || 0],
-    ['Groceries', D.groceries || 0],
-    ['Dining out', D.dining || 0],
-    ['Transport', D.transport || 0],
-    ['Subscriptions', D.subscriptions || 0],
-    ['Remittances', D.remittances || 0],
-    ['Childcare', D.daycare || 0],
-    ['Retirement contribution', D.retirementContrib || 0],
-    ['Total expenses', Math.round(D.totalExpenses || 0)],
-    [],
-    ['BALANCE', ''],
-    ['Monthly available', Math.round(D.avail || 0)],
-    [],
-    ['DEBT AND SAVINGS', ''],
-    ['Total debt', D.debt || 0],
-    ['Total savings', D.savings || 0],
-    ['Emergency fund', D.emergency || 0],
-    [],
-    ['Health score', (D.score || 0) + '/100']
+  // Style the plan sheet header row
+  styleCell(wsPlan, 'A1', titleStyle);
+
+  XLSX.utils.book_append_sheet(wb, wsPlan, 'Mina\'s Plan');
+
+  // ── MONTHLY BUDGET SHEET ───────────────────────────────────────────────────
+  var totalIncome = (D.income||0)+(D.sideIncome||0)+(D.investIncome||0);
+  var budgetRows = [
+    ['MONTHLY BUDGET TRACKER', '', '', ''],
+    ['', '', '', ''],
+    ['CATEGORY', 'BUDGETED', 'ACTUAL', 'DIFFERENCE'],
+    ['INCOME', '', '', ''],
+    ['Salary', D.income||0, '', ''],
+    ['Side Income', D.sideIncome||0, '', ''],
+    ['Other Income', D.investIncome||0, '', ''],
+    ['Total Income', totalIncome, '', ''],
+    ['', '', '', ''],
+    ['FIXED EXPENSES', '', '', ''],
+    ['Housing', D.rent||0, '', ''],
+    ['Utilities and Phone', D.utilities||0, '', ''],
+    ['Car Payment', D.carPayment||0, '', ''],
+    ['Car Insurance', D.carInsurance||0, '', ''],
+    ['Health Insurance', D.healthInsurance||0, '', ''],
+    ['Retirement', D.retirementContrib||0, '', ''],
+    ['', '', '', ''],
+    ['VARIABLE EXPENSES', '', '', ''],
+    ['Groceries', D.groceries||0, '', ''],
+    ['Dining Out', D.dining||0, '', ''],
+    ['Transport', D.transport||0, '', ''],
+    ['Subscriptions', D.subscriptions||0, '', ''],
+    ['Remittances', D.remittances||0, '', ''],
+    ['Childcare', D.daycare||0, '', ''],
+    ['Total Expenses', Math.round(D.totalExpenses||0), '', ''],
+    ['', '', '', ''],
+    ['AVAILABLE', Math.round(D.avail||0), '', ''],
+    ['', '', '', ''],
+    ['SAVINGS AND DEBT', '', '', ''],
+    ['Emergency Fund', D.emergency||0, '', ''],
+    ['Total Savings', D.savings||0, '', ''],
+    ['Total Debt', D.debt||0, '', ''],
   ];
 
-  sheets.unshift({name: 'Summary', rows: summaryRows});
+  var wsBudget = XLSX.utils.aoa_to_sheet(budgetRows);
+  wsBudget['!cols'] = [{wch:28},{wch:16},{wch:16},{wch:16}];
 
-  sheets.forEach(function(s) {
-    var ws = XLSX.utils.aoa_to_sheet(s.rows);
+  // Header row style for budget table
+  styleCell(wsBudget, 'A1', titleStyle);
+  styleCell(wsBudget, 'A3', sectionStyle);
+  styleCell(wsBudget, 'B3', sectionStyle);
+  styleCell(wsBudget, 'C3', sectionStyle);
+  styleCell(wsBudget, 'D3', sectionStyle);
 
-    // Column widths
-    ws['!cols'] = [{wch:32}, {wch:28}];
+  XLSX.utils.book_append_sheet(wb, wsBudget, 'Monthly Budget');
 
-    XLSX.utils.book_append_sheet(wb, ws, s.name.slice(0,31) || 'Sheet');
-  });
-
-  var fileName = 'SumGoals_' + (D.name ? D.name.replace(/\s+/g,'_')+'_' : '') + new Date().toISOString().slice(0,10) + '.xlsx';
+  var fileName = 'SumGoals_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.xlsx';
   XLSX.writeFile(wb, fileName);
 }
 
