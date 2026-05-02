@@ -595,6 +595,69 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   font-size:11px; color:var(--dim); margin-top:6px;
   font-style:italic;
 }
+
+/* GOAL CARDS */
+.goal-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:18px; padding:22px; position:relative;
+  transition:border-color 0.2s;
+}
+.goal-card:hover { border-color:var(--border-bright); }
+.goal-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+.goal-type-label { font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--teal); margin-bottom:4px; }
+.goal-name { font-family:var(--font-h); font-size:22px; font-style:italic; color:var(--white); }
+.goal-why { font-size:12px; color:var(--dim); font-style:italic; margin-top:3px; line-height:1.5; }
+.goal-amounts { text-align:right; }
+.goal-target { font-family:var(--font-h); font-size:24px; font-style:italic; color:var(--gold); }
+.goal-remaining { font-size:11px; color:var(--dim); margin-top:2px; }
+.goal-progress-track { height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:10px; }
+.goal-progress-fill { height:6px; border-radius:3px; background:linear-gradient(90deg,var(--teal),var(--gold)); transition:width 1.2s ease; }
+.goal-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.goal-stat { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
+.goal-stat-label { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
+.goal-stat-value { font-family:var(--font-h); font-size:16px; font-style:italic; color:var(--white); }
+.goal-mina-note { background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--soft,#C8D0E0); font-style:italic; line-height:1.65; margin-bottom:12px; }
+.goal-actions { display:flex; gap:8px; }
+.goal-btn { padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font-b); transition:all 0.2s; }
+.goal-btn.primary { background:var(--teal); color:#0C0F1A; border:none; }
+.goal-btn.secondary { background:transparent; border:1px solid var(--border); color:var(--muted); }
+.goal-btn.secondary:hover { border-color:var(--teal-border); color:var(--teal); }
+.goal-btn.danger { background:transparent; border:1px solid var(--red-border); color:var(--red); }
+.goal-achieved { background:linear-gradient(135deg,rgba(0,201,167,0.1),rgba(201,168,76,0.07)); border-color:var(--teal-border); }
+
+/* GOAL MODAL INPUTS */
+.goal-input {
+  width:100%; background:var(--surface2); border:1.5px solid var(--border);
+  border-radius:10px; padding:11px 14px; color:var(--white);
+  font-size:14px; font-family:var(--font-b); outline:none;
+  transition:border-color 0.2s;
+}
+.goal-input:focus { border-color:var(--teal-border); }
+.goal-input::placeholder { color:var(--dim); }
+
+/* GOAL TYPE BUTTONS */
+.goal-type-btn {
+  background:var(--surface2); border:1.5px solid var(--border);
+  border-left:3px solid transparent;
+  border-radius:11px; padding:12px 14px; cursor:pointer;
+  transition:all 0.18s;
+}
+.goal-type-btn:hover { border-color:var(--border-bright); border-left-color:rgba(0,201,167,0.4); }
+.goal-type-btn.selected { border-color:var(--teal-border); border-left-color:var(--teal); background:var(--teal-dim); }
+.goal-type-btn.selected div:first-child { color:var(--white); }
+
+/* CHAT HISTORY */
+.chat-history-date {
+  text-align:center; font-size:10px; color:var(--dim);
+  padding:8px 0; letter-spacing:0.08em; text-transform:uppercase;
+}
+.chat-session-divider {
+  display:flex; align-items:center; gap:10px; padding:12px 0;
+}
+.chat-session-divider::before,.chat-session-divider::after {
+  content:''; flex:1; height:1px; background:var(--border);
+}
+.chat-session-label { font-size:10px; color:var(--dim); white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -628,6 +691,10 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     <div class="sb-item" id="nav-payday" onclick="showPage('payday')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">04</div>
       <div class="sb-item-label">Payday Plan</div>
+    </div>
+    <div class="sb-item" id="nav-goals" onclick="showPage('goals')">
+      <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">05</div>
+      <div class="sb-item-label">Life Goals</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-section-label">Account</div>
@@ -813,7 +880,96 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     <div class="payday-page-grid" id="paydayPage"></div>
   </div>
 
+  <!-- GOALS PAGE -->
+  <div class="page" id="page-goals">
+    <div class="page-header">
+      <div class="page-eyebrow">Coached by Mina — your real targets</div>
+      <div class="page-title">Life <span>Goals</span></div>
+      <div class="page-date">Every goal has a real plan behind it. Not a savings bar — a strategy.</div>
+    </div>
+
+    <!-- Conflict banner — shown when goals conflict with debt -->
+    <div id="goalConflictBanner" style="display:none;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:16px 20px;margin-bottom:18px;display:none">
+      <div style="font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px">Mina's honest assessment</div>
+      <div id="goalConflictMsg" style="font-size:13px;color:var(--white-soft);line-height:1.7;font-style:italic"></div>
+    </div>
+
+    <!-- Active goals -->
+    <div id="goalsList" style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px"></div>
+
+    <!-- Add goal CTA -->
+    <div style="background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(201,168,76,0.04));border:1px dashed rgba(0,201,167,0.25);border-radius:18px;padding:28px;text-align:center" id="addGoalCTA">
+      <div style="font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--white);margin-bottom:7px">What are you working toward?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.65">Mina builds a real savings plan for each goal — based on your actual income, your debt, and your timeline. Not a generic calculator. A coached commitment.</div>
+      <button onclick="openGoalModal()" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.2s">Add my first goal</button>
+    </div>
+  </div>
+
 </main>
+
+<!-- GOAL MODAL -->
+<div id="goalOverlay" style="display:none;position:fixed;inset:0;background:rgba(12,15,26,0.94);backdrop-filter:blur(18px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border:1px solid var(--gold-border);border-radius:20px;padding:32px;width:100%;max-width:480px;position:relative;max-height:90vh;overflow-y:auto">
+    <button onclick="closeGoalModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1">×</button>
+    <div style="font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--white);margin-bottom:4px">Add a life goal</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:22px">Mina will build a real monthly savings plan for this goal based on your finances.</div>
+
+    <!-- Goal type -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">What is your goal?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px" id="goalTypeGrid">
+      <div class="goal-type-btn" onclick="selectGoalType('house','Buy a Home')" data-type="house"><div style="font-size:13px;font-weight:600">Buy a Home</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Down payment + closing costs</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('car','New Car')" data-type="car"><div style="font-size:13px;font-weight:600">New Car</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Cash or down payment</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('wedding','Wedding')" data-type="wedding"><div style="font-size:13px;font-weight:600">Wedding</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Full ceremony budget</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('travel','Travel')" data-type="travel"><div style="font-size:13px;font-weight:600">Travel</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Trip or sabbatical</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('education','Education')" data-type="education"><div style="font-size:13px;font-weight:600">Education</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Degree, course, certification</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('business','Start a Business')" data-type="business"><div style="font-size:13px;font-weight:600">Start a Business</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Startup capital</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('emergency','Emergency Fund')" data-type="emergency"><div style="font-size:13px;font-weight:600">Emergency Fund</div><div style="font-size:11px;color:var(--dim);margin-top:2px">3-6 months of expenses</div></div>
+      <div class="goal-type-btn" onclick="selectGoalType('other','Custom Goal')" data-type="other"><div style="font-size:13px;font-weight:600">Custom Goal</div><div style="font-size:11px;color:var(--dim);margin-top:2px">Anything else</div></div>
+    </div>
+
+    <!-- Goal name (for custom) -->
+    <div id="goalNameWrap" style="display:none;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Goal name</div>
+      <input id="goalNameInput" class="goal-input" type="text" placeholder="e.g. Family vacation to Morocco...">
+    </div>
+
+    <!-- Why it matters -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Why does this matter to you?</div>
+      <textarea id="goalWhy" class="goal-input" rows="2" placeholder="e.g. I want my children to have their own home one day. This is what I am working toward." style="resize:none"></textarea>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">Mina uses this to keep you motivated and honest when things get hard.</div>
+    </div>
+
+    <!-- Target amount -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Target amount</div>
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--dim)" id="goalCurSymbol">$</span>
+        <input id="goalAmount" class="goal-input" type="number" min="0" placeholder="0" style="padding-left:38px">
+      </div>
+    </div>
+
+    <!-- Target date -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Target date</div>
+      <input id="goalDate" class="goal-input" type="date" style="color-scheme:dark">
+    </div>
+
+    <!-- Already saved -->
+    <div style="margin-bottom:22px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Already saved toward this goal</div>
+      <div style="position:relative">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--dim)" id="goalCurSymbol2">$</span>
+        <input id="goalSaved" class="goal-input" type="number" min="0" placeholder="0 if starting fresh" style="padding-left:38px">
+      </div>
+    </div>
+
+    <!-- Mina's assessment preview -->
+    <div id="goalPreview" style="display:none;background:var(--surface2);border:1px solid var(--teal-border);border-radius:12px;padding:16px;margin-bottom:18px;font-size:13px;color:var(--white-soft);line-height:1.7;font-style:italic"></div>
+
+    <button onclick="saveGoal()" id="saveGoalBtn" style="width:100%;padding:13px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.2s">Add this goal</button>
+  </div>
+</div>
 
 <!-- MOBILE NAV -->
 <div class="mobile-nav">
@@ -821,6 +977,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   <div class="mob-item" id="mob-mina" onclick="showPage('mina')"><div class="mob-dot"></div>Mina</div>
   <div class="mob-item" id="mob-debt" onclick="showPage('debt')"><div class="mob-dot"></div>Debt</div>
   <div class="mob-item" id="mob-payday" onclick="showPage('payday')"><div class="mob-dot"></div>Payday</div>
+  <div class="mob-item" id="mob-goals" onclick="showPage('goals')"><div class="mob-dot"></div>Goals</div>
 </div>
 
 <script>
@@ -858,6 +1015,7 @@ async function init() {
     user = r.data.session.user;
     document.getElementById('loadingSub').textContent = 'Loading your financial profile...';
     await loadAllData();
+    await loadGoals();
     renderAll();
   } catch(e) {
     console.error('Init error:', e);
@@ -1317,7 +1475,7 @@ function getNextPayday() {
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────────
 function showPage(page) {
-  ['dashboard','mina','debt','payday'].forEach(function(p){
+  ['dashboard','mina','debt','payday','goals'].forEach(function(p){
     var pg = document.getElementById('page-'+p);
     if(pg) pg.classList.toggle('active', p===page);
     var nav = document.getElementById('nav-'+p);
@@ -1437,7 +1595,28 @@ function buildSystemPrompt() {
     '  Payday: ' + (D.paydayDate || 'not set') + ' (' + D.paydayFreq + ')\n' +
     (D.previousAttempt ? '  What stopped them before: ' + (prevMap[D.previousAttempt] || D.previousAttempt) + '\n' : '') +
     (D.fears.length > 0 ? '\nTHEIR DEEPEST FEARS: ' + fearDesc + '\n' : '') +
-    (D.goals.length > 0 ? 'THEIR REAL GOALS: ' + goalDesc + '\n' : '') +
+    (D.goals.length > 0 ? 'THEIR STATED GOALS: ' + goalDesc + '\n' : '') +
+
+    // Active life goals with real numbers
+    (function() {
+      if (!userGoals || userGoals.length === 0) return '';
+      var activeGoals = userGoals.filter(function(g){ return !g.achieved; });
+      if (activeGoals.length === 0) return '';
+      var lines = '\nACTIVE LIFE GOALS (from Goals page):\n';
+      activeGoals.forEach(function(g) {
+        var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
+        var months = g.target_date ? Math.max(1,Math.round((new Date(g.target_date)-new Date())/(1000*60*60*24*30.4))) : 0;
+        var monthly = months > 0 && rem > 0 ? Math.ceil(rem/months) : 0;
+        lines += '  - '+g.goal_name+': target '+D.cur+' '+(g.target_amount||0).toLocaleString();
+        if (g.saved_amount > 0) lines += ', saved so far: '+D.cur+' '+(g.saved_amount||0).toLocaleString();
+        if (rem > 0) lines += ', still needs: '+D.cur+' '+rem.toLocaleString();
+        if (g.target_date) lines += ', by: '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+        if (monthly > 0) lines += ', requires: '+D.cur+' '+monthly.toLocaleString()+'/month';
+        if (g.why) lines += ' (reason: '+g.why+')';
+        lines += '\n';
+      });
+      return lines;
+    })() +
 
     '\nSTRICT COACHING RULES — NEVER BREAK:\n' +
     '1. NEVER say you lack their data — you have everything above.\n' +
@@ -1467,45 +1646,99 @@ function buildSystemPrompt() {
     'Use the client\'s real numbers from their profile. Currency is ' + D.cur + '. The tags and their content are stripped from the chat display. Do not mention the tags in your spoken response — just say "I have prepared your plan — you can download it as PDF or Excel below."';
 }
 
-function initChat() {
+async function initChat() {
   chatReady = true;
   chatHistory = [];
   var msgs = document.getElementById('chatMessages');
   msgs.innerHTML = '';
 
-  var h = new Date().getHours();
-  var greet = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  var intro = greet+', '+D.firstName+'. ';
-  var totalIncome = D.income + D.sideIncome + D.investIncome;
+  // Load conversation history from Supabase
+  var historyLoaded = false;
+  try {
+    var r = await sb.from('chat_history')
+      .select('role,content,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', {ascending:true})
+      .limit(60);
 
-  if (totalIncome === 0) {
-    intro += "I'm ready to be your financial coach — but I don't have your numbers yet. Please complete your profile setup first so I can give you real advice.";
-  } else {
-    intro += 'I have reviewed your complete profile. ';
-    if (D.score > 0) intro += 'Your health score is '+D.score+'/100. ';
-    if (D.avail < 0) intro += 'Your expenses exceed your income by '+D.cur+' '+Math.abs(Math.round(D.avail)).toLocaleString()+'/month — this is our priority. ';
-    else if (D.avail > 0) intro += 'You have '+D.cur+' '+Math.round(D.avail).toLocaleString()+' available each month. ';
-    if (D.debt > 0) intro += 'I can see your '+D.cur+' '+D.debt.toLocaleString()+' in debt. ';
-    if (D.fears.length > 0) {
-      var fearMap = {debt:'getting out of debt',paycheck:'breaking the paycheck cycle',emergency:'building your safety net',family:'providing for your family',future:'securing your future',shame:'your financial situation',alone:'not having guidance',job:'job security'};
-      intro += 'I know your concern about '+( fearMap[D.fears[0]] || D.fears[0])+' — that is exactly where we start. ';
+    if (r.data && r.data.length > 0) {
+      historyLoaded = true;
+      var lastDate = null;
+
+      r.data.forEach(function(m) {
+        // Show date divider when day changes
+        var msgDate = new Date(m.created_at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+        if (msgDate !== lastDate) {
+          var div = document.createElement('div');
+          div.className = 'chat-history-date';
+          div.textContent = msgDate;
+          msgs.appendChild(div);
+          lastDate = msgDate;
+        }
+
+        var role = m.role === 'assistant' ? 'mina' : 'user';
+        var div2 = document.createElement('div');
+        div2.className = 'msg ' + role;
+
+        var displayText = m.content
+          .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g, '[PDF plan — download available above]')
+          .replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g, '')
+          .trim();
+        div2.innerHTML = displayText.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+
+        var time = document.createElement('span');
+        time.className = 'msg-time';
+        time.textContent = new Date(m.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        div2.appendChild(time);
+        msgs.appendChild(div2);
+
+        chatHistory.push({role: m.role, content: m.content});
+      });
+
+      // Session divider before new messages
+      var newDiv = document.createElement('div');
+      newDiv.className = 'chat-session-divider';
+      newDiv.innerHTML = '<span class="chat-session-label">New session — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '</span>';
+      msgs.appendChild(newDiv);
+
+      msgs.scrollTop = msgs.scrollHeight;
     }
-    intro += 'What would you like to work on today?';
-  }
+  } catch(e) { console.log('History load error:', e); }
 
-  addMsg('mina', intro);
+  // Show intro only if no history
+  if (!historyLoaded) {
+    var h = new Date().getHours();
+    var greet = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+    var totalIncome = D.income + D.sideIncome + D.investIncome;
+    var intro = greet+', '+D.firstName+'. ';
+
+    if (totalIncome === 0) {
+      intro += "I am ready to be your financial coach — but I need your numbers first. Please complete your profile so I can give you real advice.";
+    } else {
+      intro += 'I have reviewed your complete financial profile. ';
+      if (D.score > 0) intro += 'Your health score is '+D.score+'/100. ';
+      if (D.avail < 0) intro += 'Your expenses exceed your income by '+D.cur+' '+Math.abs(Math.round(D.avail)).toLocaleString()+' per month — this is our first priority. ';
+      else if (D.avail > 0) intro += 'You have '+D.cur+' '+Math.round(D.avail).toLocaleString()+' available each month after expenses. ';
+      if (D.debt > 0) intro += 'Your '+D.cur+' '+D.debt.toLocaleString()+' in debt is being tracked. ';
+      if (D.fears.length > 0) {
+        var fearMap2 = {debt:'getting out of debt',paycheck:'breaking the paycheck cycle',emergency:'building your safety net',family:'providing for your family',retirement:'securing your retirement',shame:'your financial situation',job:'job security',home:'owning a home'};
+        intro += 'I know your concern about '+(fearMap2[D.fears[0]]||D.fears[0])+' — that is exactly where we start. ';
+      }
+      intro += 'What would you like to work on today?';
+    }
+    addMsg('mina', intro, false); // false = don't save greeting to DB
+  }
 }
 
-function addMsg(role, text) {
+function addMsg(role, text, persist) {
+  if (persist === undefined) persist = true;
   var msgs = document.getElementById('chatMessages');
   var div = document.createElement('div');
   div.className = 'msg ' + role;
 
-  // Detect export blocks
   var pdfMatch   = text.match(/\[PDF\]([\s\S]*?)\[\/PDF\]/);
   var excelMatch = text.match(/\[EXCEL\]([\s\S]*?)\[\/EXCEL\]/);
 
-  // Strip export tags from displayed text
   var displayText = text
     .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g, '')
     .replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g, '')
@@ -1513,11 +1746,9 @@ function addMsg(role, text) {
 
   div.innerHTML = displayText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-  // Build export buttons if tags found
   if ((pdfMatch || excelMatch) && role === 'mina') {
     var exportRow = document.createElement('div');
     exportRow.className = 'export-row';
-
     if (pdfMatch) {
       var pdfData = pdfMatch[1].trim();
       var btnPdf = document.createElement('button');
@@ -1526,7 +1757,6 @@ function addMsg(role, text) {
       btnPdf.onclick = function() { generatePDF(pdfData, displayText); };
       exportRow.appendChild(btnPdf);
     }
-
     if (excelMatch) {
       var xlData = excelMatch[1].trim();
       var btnXl = document.createElement('button');
@@ -1535,7 +1765,6 @@ function addMsg(role, text) {
       btnXl.onclick = function() { generateExcel(xlData); };
       exportRow.appendChild(btnXl);
     }
-
     var hint = document.createElement('div');
     hint.className = 'export-hint';
     hint.textContent = 'Your file is ready to download.';
@@ -1550,7 +1779,19 @@ function addMsg(role, text) {
 
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
-  chatHistory.push({role: role === 'mina' ? 'assistant' : 'user', content: text});
+
+  var dbRole = role === 'mina' ? 'assistant' : 'user';
+  chatHistory.push({role: dbRole, content: text});
+
+  // Save to Supabase for persistence
+  if (persist && user) {
+    sb.from('chat_history').insert([{
+      user_id: user.id,
+      role: dbRole,
+      content: text,
+      created_at: new Date().toISOString()
+    }]).then(function(){}).catch(function(){});
+  }
 }
 
 // ── PDF GENERATOR ─────────────────────────────────────────────────────────────
@@ -1994,6 +2235,328 @@ function askMinaPayday() {
   setTimeout(function(){
     usePrompt('My payday is coming up in a few days. Give me exact step-by-step instructions for what to do with my money the moment my salary arrives. Based on my real numbers — what do I pay first, what do I transfer, what is my daily budget until the next payday?');
   }, 300);
+}
+
+// ─── GOALS SYSTEM ─────────────────────────────────────────────────────────────
+var userGoals = [];
+var editingGoalId = null;
+var selectedGoalType = '';
+var selectedGoalLabel = '';
+
+var GOAL_ICONS = {
+  house:'Home', car:'Car', wedding:'Wedding', travel:'Travel',
+  education:'Education', business:'Business', emergency:'Safety Net', other:'Goal'
+};
+
+async function loadGoals() {
+  try {
+    var r = await sb.from('user_goals').select('*').eq('user_id', user.id).order('created_at',{ascending:true});
+    if (r.data) userGoals = r.data;
+  } catch(e) {
+    // Fall back to localStorage
+    try { userGoals = JSON.parse(localStorage.getItem('vera_goals_full')||'[]'); } catch(e2){}
+  }
+  renderGoalsPage();
+}
+
+function renderGoalsPage() {
+  var el = document.getElementById('goalsList');
+  var cta = document.getElementById('addGoalCTA');
+  if (!el) return;
+
+  if (userGoals.length === 0) {
+    el.innerHTML = '';
+    cta.style.display = 'block';
+    cta.querySelector('button').textContent = 'Add my first goal';
+    renderGoalConflict();
+    return;
+  }
+
+  cta.style.display = 'block';
+  cta.querySelector('button').textContent = 'Add another goal';
+
+  el.innerHTML = '';
+  userGoals.forEach(function(goal) {
+    el.appendChild(buildGoalCard(goal));
+  });
+
+  renderGoalConflict();
+}
+
+function buildGoalCard(goal) {
+  var wrap = document.createElement('div');
+  wrap.className = 'goal-card' + (goal.achieved ? ' goal-achieved' : '');
+
+  var target = parseFloat(goal.target_amount) || 0;
+  var saved  = parseFloat(goal.saved_amount)  || 0;
+  var remaining = Math.max(0, target - saved);
+  var pct = target > 0 ? Math.min(100, Math.round((saved/target)*100)) : 0;
+
+  // Monthly savings needed
+  var monthsLeft = 0;
+  var monthlyNeeded = 0;
+  if (goal.target_date) {
+    var now = new Date();
+    var tgt = new Date(goal.target_date);
+    monthsLeft = Math.max(1, Math.round((tgt - now)/(1000*60*60*24*30.4)));
+    monthlyNeeded = remaining > 0 ? Math.ceil(remaining / monthsLeft) : 0;
+  }
+
+  // Mina's assessment
+  var minaNote = buildGoalAssessment(goal, monthlyNeeded, monthsLeft, remaining);
+
+  // Feasibility color
+  var feasColor = 'var(--teal)';
+  if (D.avail > 0 && monthlyNeeded > D.avail * 0.5) feasColor = 'var(--red)';
+  else if (D.avail > 0 && monthlyNeeded > D.avail * 0.25) feasColor = 'var(--gold)';
+
+  var dateLabel = goal.target_date ? new Date(goal.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'No date set';
+
+  wrap.innerHTML =
+    '<div class="goal-card-top">'+
+      '<div>'+
+        '<div class="goal-type-label">'+(GOAL_ICONS[goal.goal_type]||'Goal').toUpperCase()+'</div>'+
+        '<div class="goal-name">'+escHtml(goal.goal_name)+'</div>'+
+        (goal.why ? '<div class="goal-why">"'+escHtml(goal.why)+'"</div>' : '')+
+      '</div>'+
+      '<div class="goal-amounts">'+
+        '<div class="goal-target">'+D.cur+' '+target.toLocaleString()+'</div>'+
+        '<div class="goal-remaining">'+(pct < 100 ? D.cur+' '+remaining.toLocaleString()+' remaining' : 'Achieved')+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="goal-progress-track"><div class="goal-progress-fill" style="width:'+pct+'%"></div></div>'+
+    '<div class="goal-stats">'+
+      '<div class="goal-stat"><div class="goal-stat-label">Saved</div><div class="goal-stat-value">'+D.cur+' '+saved.toLocaleString()+'</div></div>'+
+      '<div class="goal-stat"><div class="goal-stat-label">Progress</div><div class="goal-stat-value">'+pct+'%</div></div>'+
+      '<div class="goal-stat"><div class="goal-stat-label">Target date</div><div class="goal-stat-value" style="font-size:12px">'+dateLabel+'</div></div>'+
+      '<div class="goal-stat"><div class="goal-stat-label">Monthly needed</div><div class="goal-stat-value" style="color:'+feasColor+'">'+D.cur+' '+monthlyNeeded.toLocaleString()+'</div></div>'+
+    '</div>'+
+    '<div class="goal-mina-note">'+minaNote+'</div>'+
+    '<div class="goal-actions">'+
+      '<button class="goal-btn primary" onclick="askMinaAboutGoal(\''+goal.id+'\')">Ask Mina about this</button>'+
+      '<button class="goal-btn secondary" onclick="updateSaved(\''+goal.id+'\')" style="display:'+(!goal.achieved?'block':'none')+'">Update savings</button>'+
+      (pct>=100&&!goal.achieved ? '<button class="goal-btn secondary" onclick="markAchieved(\''+goal.id+'\')">Mark achieved</button>' : '')+
+      '<button class="goal-btn danger" onclick="deleteGoal(\''+goal.id+'\')">Remove</button>'+
+    '</div>';
+
+  return wrap;
+}
+
+function buildGoalAssessment(goal, monthlyNeeded, monthsLeft, remaining) {
+  if (remaining <= 0) return 'You have reached this goal. This is real progress — do not let it slide back.';
+
+  var avail = D.avail || 0;
+  var debt = D.debt || 0;
+
+  if (avail <= 0) {
+    return 'Your expenses currently exceed your income, which means you cannot save toward this goal yet. The first step is closing that gap. Talk to me about cutting expenses or increasing income first.';
+  }
+
+  var canAfford = monthlyNeeded <= avail * 0.3;
+  var stretch   = monthlyNeeded > avail * 0.3 && monthlyNeeded <= avail * 0.6;
+  var tooMuch   = monthlyNeeded > avail * 0.6;
+
+  var msg = '';
+
+  if (debt > 0 && monthlyNeeded > 0) {
+    msg += 'You are carrying '+D.cur+' '+debt.toLocaleString()+' in debt at the same time as this goal. ';
+    if (tooMuch) {
+      msg += 'Pursuing both simultaneously would strain your finances significantly. I recommend eliminating your high-interest debt first, then redirecting those payments toward this goal. That discipline will get you here faster. ';
+    } else if (stretch) {
+      msg += 'You can pursue both with discipline — but the goal needs to be the secondary priority until your high-interest debt is under control. ';
+    } else {
+      msg += 'Your available income can handle both if you stay disciplined. ';
+    }
+  }
+
+  if (canAfford) {
+    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month is realistic on your current income. Set up an automatic transfer on payday — not at the end of the month.';
+  } else if (stretch) {
+    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month is a stretch but achievable with real discipline. You would need to commit '+Math.round((monthlyNeeded/avail)*100)+'% of your available income to this goal.';
+  } else if (tooMuch) {
+    var altMonths = remaining > 0 && avail > 0 ? Math.ceil(remaining/(avail*0.25)) : 0;
+    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month to hit that deadline is not realistic at your current income. ';
+    if (altMonths > 0) {
+      var altDate = new Date(); altDate.setMonth(altDate.getMonth()+altMonths);
+      msg += 'A more honest timeline would be '+altDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})+' — saving '+D.cur+' '+Math.ceil(avail*0.25).toLocaleString()+' per month. I will not lie to you about what is possible.';
+    }
+  }
+
+  return msg;
+}
+
+function renderGoalConflict() {
+  var banner = document.getElementById('goalConflictBanner');
+  var msg = document.getElementById('goalConflictMsg');
+  if (!banner || !msg) return;
+
+  if (userGoals.length === 0 || !D.debt) { banner.style.display = 'none'; return; }
+
+  var totalMonthlyNeeded = userGoals.reduce(function(s,g) {
+    if (g.achieved) return s;
+    var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
+    if (!g.target_date || rem <= 0) return s;
+    var months = Math.max(1,Math.round((new Date(g.target_date)-new Date())/(1000*60*60*24*30.4)));
+    return s + Math.ceil(rem/months);
+  }, 0);
+
+  if (totalMonthlyNeeded > 0 && D.debt > 0 && D.avail > 0) {
+    banner.style.display = 'block';
+    msg.textContent = 'Your active goals require '+D.cur+' '+totalMonthlyNeeded.toLocaleString()+' per month in savings. You also carry '+D.cur+' '+D.debt.toLocaleString()+' in debt. My recommendation: eliminate high-interest debt first, then redirect those payments into your goals. Trying to do everything simultaneously slows everything down.';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function openGoalModal() {
+  selectedGoalType = '';
+  selectedGoalLabel = '';
+  editingGoalId = null;
+  document.getElementById('goalNameWrap').style.display = 'none';
+  document.getElementById('goalNameInput').value = '';
+  document.getElementById('goalWhy').value = '';
+  document.getElementById('goalAmount').value = '';
+  document.getElementById('goalSaved').value = '';
+  document.getElementById('goalDate').value = '';
+  document.getElementById('goalPreview').style.display = 'none';
+  document.getElementById('goalCurSymbol').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
+  document.getElementById('goalCurSymbol2').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
+  document.querySelectorAll('.goal-type-btn').forEach(function(b){ b.classList.remove('selected'); });
+  var ov = document.getElementById('goalOverlay');
+  ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGoalModal() {
+  document.getElementById('goalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function selectGoalType(type, label) {
+  selectedGoalType = type;
+  selectedGoalLabel = label;
+  document.querySelectorAll('.goal-type-btn').forEach(function(b){
+    b.classList.toggle('selected', b.getAttribute('data-type') === type);
+  });
+  document.getElementById('goalNameWrap').style.display = type === 'other' ? 'block' : 'none';
+  updateGoalPreview();
+}
+
+function updateGoalPreview() {
+  var amount = parseFloat(document.getElementById('goalAmount').value) || 0;
+  var dateVal = document.getElementById('goalDate').value;
+  var preview = document.getElementById('goalPreview');
+
+  if (!amount || !dateVal || !selectedGoalType) { preview.style.display = 'none'; return; }
+
+  var months = Math.max(1, Math.round((new Date(dateVal) - new Date())/(1000*60*60*24*30.4)));
+  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
+  var remaining = Math.max(0, amount - saved);
+  var monthly = Math.ceil(remaining / months);
+
+  var avail = D.avail || 0;
+  var feasible = avail > 0 && monthly <= avail * 0.4;
+
+  var txt = 'To reach '+D.cur+' '+amount.toLocaleString()+' by '+new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})+', you need to save '+D.cur+' '+monthly.toLocaleString()+' per month for '+months+' months. ';
+  if (avail > 0) {
+    txt += feasible
+      ? 'That is '+Math.round((monthly/avail)*100)+'% of your available income — achievable with discipline.'
+      : 'That is '+Math.round((monthly/avail)*100)+'% of your available income. I will tell you honestly: this timeline is very aggressive given your current finances.';
+  }
+
+  preview.textContent = txt;
+  preview.style.display = 'block';
+}
+
+// Wire up live preview
+document.addEventListener('DOMContentLoaded', function() {
+  ['goalAmount','goalDate','goalSaved'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateGoalPreview);
+  });
+});
+
+async function saveGoal() {
+  var type  = selectedGoalType;
+  var label = selectedGoalLabel;
+  var name  = type === 'other' ? document.getElementById('goalNameInput').value.trim() : label;
+  var why   = document.getElementById('goalWhy').value.trim();
+  var amt   = parseFloat(document.getElementById('goalAmount').value) || 0;
+  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
+  var date  = document.getElementById('goalDate').value;
+
+  if (!type) { alert('Please select a goal type.'); return; }
+  if (!name) { alert('Please enter a goal name.'); return; }
+  if (!amt)  { alert('Please enter a target amount.'); return; }
+
+  var goal = {
+    user_id: user.id,
+    goal_type: type,
+    goal_name: name,
+    why: why,
+    target_amount: amt,
+    saved_amount: saved,
+    target_date: date || null,
+    achieved: false,
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    var r = await sb.from('user_goals').insert([goal]).select().single();
+    if (r.data) { goal = r.data; }
+  } catch(e) {
+    goal.id = 'local_'+Date.now();
+  }
+
+  userGoals.push(goal);
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  closeGoalModal();
+  renderGoalsPage();
+}
+
+async function deleteGoal(id) {
+  if (!confirm('Remove this goal?')) return;
+  try { await sb.from('user_goals').delete().eq('id',id); } catch(e){}
+  userGoals = userGoals.filter(function(g){ return g.id !== id; });
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  renderGoalsPage();
+}
+
+async function markAchieved(id) {
+  try { await sb.from('user_goals').update({achieved:true}).eq('id',id); } catch(e){}
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (g) g.achieved = true;
+  renderGoalsPage();
+}
+
+async function updateSaved(id) {
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (!g) return;
+  var newAmt = prompt('How much have you now saved toward this goal? (current: '+D.cur+' '+(g.saved_amount||0).toLocaleString()+')', g.saved_amount||0);
+  if (newAmt === null) return;
+  var n = parseFloat(newAmt) || 0;
+  try { await sb.from('user_goals').update({saved_amount:n}).eq('id',id); } catch(e){}
+  g.saved_amount = n;
+  if (n >= g.target_amount) g.achieved = true;
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  renderGoalsPage();
+}
+
+function askMinaAboutGoal(id) {
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (!g) return;
+  var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
+  var msg = 'I have a goal: '+g.goal_name+'. Target: '+D.cur+' '+g.target_amount.toLocaleString()+'. ';
+  if (g.saved_amount > 0) msg += 'I have already saved '+D.cur+' '+g.saved_amount.toLocaleString()+'. ';
+  if (g.target_date) msg += 'I want to reach it by '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})+'. ';
+  if (g.why) msg += 'Why it matters: '+g.why+'. ';
+  msg += 'Build me a specific monthly savings plan for this goal, considering my current income, expenses, and debt situation.';
+  showPage('mina');
+  setTimeout(function(){ usePrompt(msg); }, 400);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function signOut() {
