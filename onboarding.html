@@ -708,10 +708,11 @@ function toggleW(val, el) {
 // Override next for slide 2 to route through moment->sentence logic
 var _origNext2 = next;
 function next() {
-  // Slide 3 (sentence) goes to slide 4
   if(cur === 3) { showSlide(4); return; }
   _origNext2();
 }
+
+var MOMENT_RESP = {
   en: {
     scared: 'That fear is telling you something true. The gap between income and expenses is the most urgent thing I fix. But before we look at numbers I need to understand the full weight of what you are carrying.',
     debt: 'Avoiding it does not make it smaller \u2014 it makes it more expensive. I am glad you are here. Let me understand your full situation before we talk numbers.',
