@@ -7,928 +7,1114 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0C0F1A;--surface:#141827;--surface2:#1A2035;--teal:#00C9A7;--teal-d:#00A888;--teal-dim:rgba(0,201,167,0.07);--teal-border:rgba(0,201,167,0.2);--gold:#C9A84C;--gold-dim:rgba(201,168,76,0.07);--gold-border:rgba(201,168,76,0.2);--white:#F0F4FF;--soft:#C8D0E0;--muted:#8B9CB6;--dim:#4A5568;--border:rgba(255,255,255,0.07);--border-lit:rgba(255,255,255,0.12);--red:#EF4444;--red-dim:rgba(239,68,68,0.07);--red-border:rgba(239,68,68,0.18);--fh:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif}
+:root{
+  --bg:#0C0F1A;--surface:#141827;--surface2:#1A2035;
+  --teal:#00C9A7;--teal-d:#00A888;--teal-dim:rgba(0,201,167,0.07);--teal-b:rgba(0,201,167,0.2);
+  --gold:#C9A84C;--gold-dim:rgba(201,168,76,0.07);--gold-b:rgba(201,168,76,0.22);
+  --white:#F0F4FF;--soft:#C8D0E0;--muted:#8B9CB6;--dim:#4A5568;
+  --bord:rgba(255,255,255,0.07);--bord-lit:rgba(255,255,255,0.13);
+  --red:#EF4444;--red-dim:rgba(239,68,68,0.07);--red-b:rgba(239,68,68,0.2);
+  --fh:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--white);font-family:var(--fb);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
-.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(12,15,26,0.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
-.logo{font-family:var(--fh);font-size:20px;font-weight:700;color:var(--white)}
-.logo span{color:var(--teal);font-style:italic}
-.prog-area{flex:1;max-width:280px;margin:0 28px}
-.prog-track{height:2px;background:rgba(255,255,255,0.06);border-radius:1px}
-.prog-fill{height:2px;background:var(--teal);border-radius:1px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
-.prog-text{font-size:10px;color:var(--dim);margin-top:5px;text-align:right;letter-spacing:0.05em}
-.step-count{font-size:11px;color:var(--dim);font-weight:500}
-.content{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 24px 100px}
-.slide{width:100%;max-width:580px;display:none}
-.slide.active{display:block;animation:fadeUp 0.38s ease both}
-.mina-block{display:flex;gap:14px;margin-bottom:28px;align-items:flex-start}
-.mina-mark{flex-shrink:0;margin-top:3px;display:flex;flex-direction:column;align-items:center;gap:4px}
-.mina-init{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:15px;font-style:italic;color:var(--gold);font-weight:700}
-.mina-live{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2s ease infinite;margin-top:2px}
-.mina-speech{flex:1}
-.mina-who{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
-.mina-text{font-size:14px;color:var(--soft);line-height:1.78;font-style:italic}
-.mina-text strong{color:var(--white);font-style:normal;font-weight:600}
-.mina-text .teal{color:var(--teal);font-style:normal}
-.q-title{font-family:var(--fh);font-size:clamp(28px,4.5vw,42px);font-weight:700;font-style:italic;color:var(--white);line-height:1.05;letter-spacing:-0.5px;margin-bottom:6px}
-.q-title span{color:var(--teal)}
-.q-hint{font-size:13px;color:var(--dim);margin-bottom:22px;line-height:1.6}
-.q-hint strong{color:var(--muted)}
-.choices{display:flex;flex-direction:column;gap:8px}
-.choices.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.choices.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.choice{background:var(--surface);border:1.5px solid var(--border);border-left:3px solid transparent;border-radius:11px;padding:14px 18px;cursor:pointer;transition:all 0.18s ease;display:flex;flex-direction:column;gap:2px}
-.choice:hover{border-color:var(--border-lit);border-left-color:rgba(0,201,167,0.35);transform:translateX(2px)}
-.choice.sel{border-color:var(--teal-border);border-left-color:var(--teal);background:var(--teal-dim);transform:translateX(3px)}
-.c-label{font-size:14px;font-weight:500;color:var(--muted);transition:color 0.15s;line-height:1.3}
-.choice.sel .c-label{color:var(--white)}
-.choice:hover .c-label{color:var(--soft)}
-.c-sub{font-size:11px;color:var(--dim);transition:color 0.15s}
-.choice.sel .c-sub{color:rgba(0,201,167,0.6)}
-.tpair-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.tpair{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:16px 18px;cursor:pointer;transition:all 0.18s;text-align:center}
-.tpair:hover{border-color:var(--border-lit)}
-.tpair.sel{border-color:var(--teal-border);background:var(--teal-dim)}
-.tp-label{font-size:14px;font-weight:500;color:var(--muted)}
-.tpair.sel .tp-label{color:var(--white)}
-.tp-sub{font-size:11px;color:var(--dim);margin-top:2px}
-.tpair.sel .tp-sub{color:rgba(0,201,167,0.55)}
-.multi-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.multi{background:var(--surface);border:1.5px solid var(--border);border-left:3px solid transparent;border-radius:11px;padding:13px 16px;cursor:pointer;transition:all 0.15s}
-.multi:hover{border-color:var(--border-lit);border-left-color:rgba(0,201,167,0.3)}
-.multi.sel{border-color:var(--teal-border);border-left-color:var(--teal);background:var(--teal-dim)}
-.m-label{font-size:13px;font-weight:500;color:var(--muted);line-height:1.4}
-.multi.sel .m-label{color:var(--white)}
-.fg{margin-bottom:14px}
-.f-label{display:block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+@keyframes glow{0%,100%{box-shadow:0 0 18px rgba(0,201,167,0.1)}50%{box-shadow:0 0 38px rgba(0,201,167,0.28)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* WELCOME */
+.welcome{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
+.w-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.w-bg::before{content:'';position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,167,0.055),transparent 70%);top:-60px;left:50%;transform:translateX(-50%);animation:breathe 5s ease infinite}
+.w-logo{font-family:var(--fh);font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0.22em;text-transform:uppercase;margin-bottom:42px;animation:fadeIn 0.8s ease 0.2s both}
+.w-orb{width:86px;height:86px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:36px;font-style:italic;color:var(--gold);font-weight:700;position:relative;margin-bottom:34px;animation:fadeIn 0.8s ease 0.5s both,glow 4s ease 1.3s infinite}
+.w-dot{position:absolute;bottom:3px;right:3px;width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid var(--bg);animation:pulse 2s ease infinite}
+.w-langs{display:flex;flex-direction:column;gap:4px;margin-bottom:38px;animation:fadeIn 0.8s ease 0.9s both}
+.wl{font-family:var(--fh);font-style:italic;line-height:1.3}
+.wl.p{font-size:25px;color:var(--white)}.wl.s{font-size:19px;color:var(--muted)}.wl.t{font-size:15px;color:var(--dim)}
+.wl .wn{color:var(--teal);font-weight:700}.wl.s .wn{color:var(--gold)}
+.w-prompt{font-size:11px;color:var(--dim);margin-bottom:18px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;animation:fadeIn 0.8s ease 1.3s both}
+.w-btns{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;animation:fadeIn 0.8s ease 1.5s both}
+.lang-btn{padding:10px 24px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.11);background:transparent;color:var(--soft);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:all 0.2s}
+.lang-btn:hover,.lang-btn.on{border-color:var(--teal);background:var(--teal);color:#0C0F1A;transform:translateY(-2px)}
+.w-priv{position:absolute;bottom:22px;font-size:11px;color:var(--dim);animation:fadeIn 0.8s ease 2s both;padding:0 20px;text-align:center}
+
+/* ONBOARDING */
+.ob{display:none;min-height:100vh;flex-direction:column}
+.ob.on{display:flex}
+.ob-bar{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.04);z-index:200}
+.ob-fill{height:2px;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width 0.55s cubic-bezier(0.4,0,0.2,1)}
+.ob-top{position:fixed;top:2px;left:0;right:0;z-index:199;height:50px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(12,15,26,0.93);backdrop-filter:blur(20px)}
+.ob-logo{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--white)}
+.ob-logo span{color:var(--teal);font-style:italic}
+.ob-step{font-size:11px;color:var(--dim);font-weight:500}
+.ob-body{flex:1;display:flex;align-items:center;justify-content:center;padding:76px 24px 94px;min-height:100vh}
+.slide{width:100%;max-width:556px;display:none}
+.slide.on{display:block;animation:slideUp 0.36s cubic-bezier(0.4,0,0.2,1) both}
+
+/* MINA SPEECH */
+.mrow{display:flex;gap:12px;margin-bottom:22px;align-items:flex-start}
+.m-mark{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:2px}
+.m-av{width:35px;height:35px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:14px;font-style:italic;color:var(--gold);font-weight:700}
+.m-pulse{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2s ease infinite}
+.m-body{flex:1}
+.m-tag{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.m-text{font-family:var(--fh);font-size:17px;font-style:italic;color:var(--soft);line-height:1.75}
+.m-text strong{color:var(--white);font-style:normal;font-weight:600}
+.m-text .tc{color:var(--teal);font-style:normal;font-weight:600}
+
+/* SENTENCE */
+.sentence{background:linear-gradient(135deg,rgba(201,168,76,0.07),rgba(0,201,167,0.04));border:1px solid var(--gold-b);border-left:3px solid var(--gold);border-radius:4px 14px 14px 14px;padding:20px 21px;margin:16px 0;font-family:var(--fh);font-size:19px;font-style:italic;color:var(--white);line-height:1.65;position:relative}
+.sentence::before{content:'M';position:absolute;top:-11px;left:13px;background:var(--bg);padding:0 6px;font-family:var(--fh);font-size:13px;font-style:italic;color:var(--gold);font-weight:700}
+.s3-sub{margin-top:14px;font-size:13px;color:var(--dim);font-style:italic}
+
+/* TITLES */
+.stitle{font-family:var(--fh);font-size:clamp(27px,4.2vw,40px);font-weight:700;font-style:italic;color:var(--white);line-height:1.05;letter-spacing:-0.4px;margin-bottom:5px}
+.stitle span{color:var(--teal)}.stitle em{color:var(--gold)}
+.shint{font-size:13px;color:var(--dim);margin-bottom:18px;line-height:1.6}
+
+/* CHOICES */
+.choices{display:flex;flex-direction:column;gap:7px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.ch{background:var(--surface);border:1.5px solid var(--bord);border-left:3px solid transparent;border-radius:11px;padding:13px 16px;cursor:pointer;transition:all 0.15s ease;display:flex;flex-direction:column;gap:2px}
+.ch:hover{border-color:var(--bord-lit);border-left-color:rgba(0,201,167,0.32);transform:translateX(3px)}
+.ch.on{border-color:var(--teal-b);border-left-color:var(--teal);background:var(--teal-dim);transform:translateX(4px)}
+.cl{font-size:14px;font-weight:500;color:var(--muted);line-height:1.3;transition:color 0.13s}
+.ch.on .cl,.ch:hover .cl{color:var(--white)}
+.cs{font-size:11px;color:var(--dim);transition:color 0.13s}
+.ch.on .cs{color:rgba(0,201,167,0.62)}
+
+/* TOGGLE */
+.trow{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
+.tp{background:var(--surface);border:1.5px solid var(--bord);border-radius:11px;padding:13px 16px;cursor:pointer;transition:all 0.15s;text-align:center}
+.tp:hover{border-color:var(--bord-lit)}
+.tp.on{border-color:var(--teal-b);background:var(--teal-dim)}
+.tpl{font-size:14px;font-weight:500;color:var(--muted)}.tp.on .tpl{color:var(--white)}
+.tps{font-size:11px;color:var(--dim);margin-top:2px}.tp.on .tps{color:rgba(0,201,167,0.6)}
+
+/* FIELDS */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .fw{position:relative}
-.fpre{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--dim);pointer-events:none;z-index:1}
-.field{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:13px 16px;font-size:16px;font-family:var(--fb);color:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;-webkit-appearance:none}
-.field.pre{padding-left:42px}
-.field:focus{border-color:var(--teal-border);box-shadow:0 0 0 3px rgba(0,201,167,0.06)}
-.field::placeholder{color:var(--dim);font-size:14px}
-.f-note{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.55}
-.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.reveal{overflow:hidden;max-height:0;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0}
-.reveal.open{max-height:500px;opacity:1}
-.rev-inner{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:16px;margin-top:10px}
-.debt-entries{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
-.debt-card{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:18px;position:relative}
-.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.fpre{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--dim);pointer-events:none;z-index:1}
+.field{width:100%;background:var(--surface);border:1.5px solid var(--bord);border-radius:11px;padding:11px 14px;font-size:15px;font-family:var(--fb);color:var(--white);outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none}
+.field.pre{padding-left:38px}
+.field:focus{border-color:var(--teal-b);box-shadow:0 0 0 3px rgba(0,201,167,0.05)}
+.field::placeholder{color:var(--dim);font-size:13px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fnote{font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5}
+
+/* REVEAL */
+.reveal{overflow:hidden;max-height:0;opacity:0;transition:max-height 0.38s ease,opacity 0.28s ease}
+.reveal.on{max-height:380px;opacity:1}
+.rev-in{background:var(--surface2);border:1px solid var(--bord);border-radius:11px;padding:14px;margin-top:9px}
+
+/* DEBT */
+.debt-entries{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+.dc{background:var(--surface2);border:1px solid var(--bord);border-radius:12px;padding:16px}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .dc-name{font-size:13px;font-weight:600;color:var(--white)}
-.dc-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:8px;display:none}
-.dc-badge.high{color:var(--red);background:var(--red-dim);border:1px solid var(--red-border)}
-.dc-badge.low{color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-border)}
-.dc-rm{background:none;border:none;cursor:pointer;color:var(--dim);font-size:17px;line-height:1;transition:color 0.15s;padding:2px 6px;margin-left:8px}
+.dc-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:7px;display:none}
+.dc-badge.high{color:var(--red);background:var(--red-dim);border:1px solid var(--red-b)}
+.dc-badge.low{color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal-b)}
+.dc-rm{background:none;border:none;cursor:pointer;color:var(--dim);font-size:17px;line-height:1;transition:color 0.13s;padding:2px 4px;margin-left:6px}
 .dc-rm:hover{color:var(--red)}
-.dg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.dg .field{font-size:14px;padding:10px 14px;border-radius:9px}
-.dg .field.pre{padding-left:38px}
-.dg .fpre{font-size:12px;left:12px}
-.missed-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;background:var(--red-dim);border:1px solid var(--red-border);border-radius:8px;cursor:pointer}
-.missed-row input{accent-color:var(--red);width:14px;height:14px;cursor:pointer;flex-shrink:0}
-.missed-row label{font-size:12px;color:var(--muted);cursor:pointer;line-height:1.4}
-.btn-add{width:100%;padding:13px;background:transparent;border:1.5px dashed rgba(255,255,255,0.1);border-radius:11px;color:var(--dim);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.2s}
-.btn-add:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
-.no-debt-row{display:flex;align-items:center;gap:12px;padding:14px 18px;margin-top:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;cursor:pointer;transition:all 0.2s}
-.no-debt-row:hover{border-color:var(--border-lit)}
-.no-debt-row.sel{border-color:var(--teal-border);background:var(--teal-dim)}
-.ndb{width:18px;height:18px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
-.no-debt-row.sel .ndb{background:var(--teal);border-color:var(--teal)}
-.ndc{display:none;width:9px;height:7px}
-.no-debt-row.sel .ndc{display:block}
-.ndt{font-size:13px;font-weight:500;color:var(--muted)}
-.no-debt-row.sel .ndt{color:var(--white)}
-.botnav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:14px 32px;display:flex;align-items:center;gap:12px;background:rgba(12,15,26,0.96);backdrop-filter:blur(24px);border-top:1px solid var(--border)}
-.btn-back{padding:12px 22px;background:transparent;border:1.5px solid var(--border);border-radius:10px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.2s;white-space:nowrap}
-.btn-back:hover{border-color:var(--border-lit);color:var(--white)}
-.btn-back:disabled{opacity:0.28;cursor:not-allowed}
-.btn-next{flex:1;max-width:340px;padding:13px 24px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.2s;letter-spacing:0.02em}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.df{width:100%;background:var(--surface);border:1.5px solid var(--bord);border-radius:9px;padding:9px 12px;font-size:14px;font-family:var(--fb);color:var(--white);outline:none;transition:border-color 0.2s;appearance:none}
+.df:focus{border-color:var(--teal-b)}
+.df.pre{padding-left:32px}
+.dfp{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--dim);pointer-events:none}
+.mrow-d{display:flex;align-items:center;gap:7px;margin-top:8px;padding:7px 10px;background:var(--red-dim);border:1px solid var(--red-b);border-radius:7px;cursor:pointer}
+.mrow-d input{accent-color:var(--red);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+.mrow-d label{font-size:11px;color:var(--muted);cursor:pointer}
+.btn-add{width:100%;padding:11px;background:transparent;border:1.5px dashed rgba(255,255,255,0.09);border-radius:11px;color:var(--dim);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.18s}
+.btn-add:hover{border-color:var(--teal-b);color:var(--teal);background:var(--teal-dim)}
+.nd-row{display:flex;align-items:center;gap:10px;padding:12px 16px;margin-top:8px;background:var(--surface);border:1.5px solid var(--bord);border-radius:11px;cursor:pointer;transition:all 0.18s}
+.nd-row:hover{border-color:var(--bord-lit)}
+.nd-row.on{border-color:var(--teal-b);background:var(--teal-dim)}
+.ndb{width:16px;height:16px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.13s}
+.nd-row.on .ndb{background:var(--teal);border-color:var(--teal)}
+.ndc{display:none;width:8px;height:6px}.nd-row.on .ndc{display:block}
+.ndt{font-size:13px;font-weight:500;color:var(--muted)}.nd-row.on .ndt{color:var(--white)}
+
+/* NAV */
+.ob-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:11px 22px;display:flex;align-items:center;gap:9px;background:rgba(12,15,26,0.96);backdrop-filter:blur(22px);border-top:1px solid var(--bord)}
+.btn-back{padding:11px 19px;background:transparent;border:1.5px solid var(--bord);border-radius:10px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--fb);transition:all 0.18s;white-space:nowrap}
+.btn-back:hover{border-color:var(--bord-lit);color:var(--white)}
+.btn-back:disabled{opacity:0.2;cursor:not-allowed}
+.btn-next{flex:1;max-width:300px;padding:12px 20px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.18s;letter-spacing:0.02em}
 .btn-next:hover{background:var(--teal-d);transform:translateY(-1px)}
-.btn-next:disabled{background:var(--surface2);color:var(--dim);cursor:not-allowed;transform:none}
-.btn-skip{font-size:12px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:var(--fb);padding:4px;transition:color 0.2s;white-space:nowrap}
+.btn-skip{font-size:12px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:var(--fb);padding:4px;transition:color 0.18s;white-space:nowrap}
 .btn-skip:hover{color:var(--muted)}
-.analysis{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:40px}
+
+/* ANALYSIS */
+.analysis{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:34px}
 .analysis.on{display:flex;animation:fadeIn 0.3s ease}
-.a-logo{font-family:var(--fh);font-size:26px;font-weight:700;color:var(--white)}
+.a-logo{font-family:var(--fh);font-size:25px;font-weight:700;color:var(--white)}
 .a-logo span{color:var(--teal);font-style:italic}
-.a-sub{font-size:13px;color:var(--dim);margin-top:-28px}
-.a-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
-.a-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:11px;transition:all 0.35s}
-.a-row.live{border-color:var(--teal-border)}
-.a-row.done{border-color:rgba(0,201,167,0.12);background:var(--teal-dim)}
-.a-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:all 0.3s}
+.a-sub{font-size:13px;color:var(--dim);margin-top:-26px}
+.a-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:310px}
+.a-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--bord);border-radius:11px;transition:all 0.3s}
+.a-row.live{border-color:var(--teal-b)}.a-row.done{border-color:rgba(0,201,167,0.11);background:var(--teal-dim)}
+.a-dot{width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:all 0.3s}
 .a-row.live .a-dot{background:var(--teal);animation:pulse 1s ease infinite}
 .a-row.done .a-dot{background:var(--teal);animation:none}
-.a-txt{font-size:13px;font-weight:500;color:var(--dim);transition:color 0.3s;flex:1}
-.a-row.live .a-txt{color:var(--white)}
-.a-row.done .a-txt{color:var(--teal)}
-.a-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--teal);border-radius:50%;animation:spin 0.65s linear infinite;flex-shrink:0}
+.a-txt{font-size:13px;font-weight:500;color:var(--dim);flex:1;transition:color 0.3s}
+.a-row.live .a-txt{color:var(--white)}.a-row.done .a-txt{color:var(--teal)}
+.a-spin{width:14px;height:14px;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--teal);border-radius:50%;animation:spin 0.62s linear infinite;flex-shrink:0}
 .a-row.done .a-spin{display:none}
-.result{display:none;min-height:100vh;padding:74px 24px 120px}
+
+/* RESULT */
+.result{display:none;min-height:100vh;padding:38px 24px 108px}
 .result.on{display:block;animation:fadeIn 0.5s ease}
-.r-inner{max-width:600px;margin:0 auto}
-.r-mina{display:flex;gap:14px;margin-bottom:26px}
-.r-bubble{flex:1;background:var(--surface);border:1px solid var(--gold-border);border-radius:4px 16px 16px 16px;padding:22px 24px;font-size:14px;color:var(--soft);line-height:1.8;font-style:italic;position:relative}
-.r-bubble::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),rgba(0,201,167,0.6),transparent);border-radius:2px}
+.r-inner{max-width:554px;margin:0 auto}
+.r-logo{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--white);margin-bottom:26px}
+.r-logo span{color:var(--teal);font-style:italic}
+.r-mina{display:flex;gap:12px;margin-bottom:20px}
+.r-bubble{flex:1;background:var(--surface);border:1px solid var(--gold-b);border-radius:4px 16px 16px 16px;padding:20px 22px;font-family:var(--fh);font-size:16px;color:var(--soft);line-height:1.78;font-style:italic;position:relative}
+.r-bubble::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent);border-radius:2px}
 .r-bubble strong{color:var(--white);font-style:normal}
 .r-bubble .hi{color:var(--teal);font-style:normal;font-weight:600}
 .r-bubble .lo{color:var(--red);font-style:normal;font-weight:600}
 .r-bubble .go{color:var(--gold);font-style:normal;font-weight:600}
-.score-band{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;display:grid;grid-template-columns:80px 1fr;gap:20px;align-items:center;margin-bottom:14px}
-.s-ring{position:relative;width:80px;height:80px}
-.s-ring svg{width:80px;height:80px;transform:rotate(-90deg)}
+.score-card{background:var(--surface);border:1px solid var(--bord);border-radius:15px;padding:19px 21px;display:grid;grid-template-columns:76px 1fr;gap:16px;align-items:center;margin-bottom:11px}
+.s-ring{position:relative;width:76px;height:76px}
+.s-ring svg{width:76px;height:76px;transform:rotate(-90deg)}
 .rbg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:7}
 .rarc{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 1.8s cubic-bezier(0.4,0,0.2,1)}
-.rlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.rlabel span{font-family:var(--fh);font-size:24px;font-style:italic;color:var(--white)}
-.s-verdict{font-family:var(--fh);font-size:21px;font-style:italic;color:var(--white);margin-bottom:5px}
+.rl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.rl span{font-family:var(--fh);font-size:22px;font-style:italic;color:var(--white)}
+.s-verdict{font-family:var(--fh);font-size:19px;font-style:italic;color:var(--white);margin-bottom:4px}
 .s-detail{font-size:13px;color:var(--muted);line-height:1.6}
-.snapshot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.snap{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
-.snap-lbl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:7px}
-.snap-val{font-family:var(--fh);font-size:21px;font-style:italic;color:var(--white)}
-.snap-val.teal{color:var(--teal)}
-.snap-val.red{color:var(--red)}
-.snap-val.gold{color:var(--gold)}
-.plan-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:14px}
-.plan-title{font-family:var(--fh);font-size:20px;font-style:italic;color:var(--white);margin-bottom:16px}
-.plan-row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.snapshot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
+.snap{background:var(--surface);border:1px solid var(--bord);border-radius:12px;padding:13px;text-align:center}
+.snap-l{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.11em;font-weight:700;margin-bottom:5px}
+.snap-v{font-family:var(--fh);font-size:19px;font-style:italic;color:var(--white)}
+.snap-v.teal{color:var(--teal)}.snap-v.red{color:var(--red)}.snap-v.gold{color:var(--gold)}
+.plan-card{background:var(--surface);border:1px solid var(--bord);border-radius:15px;padding:19px 21px;margin-bottom:11px}
+.plan-title{font-family:var(--fh);font-size:18px;font-style:italic;color:var(--white);margin-bottom:13px}
+.plan-row{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--bord)}
 .plan-row:last-child{border-bottom:none}
-.plan-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--teal-dim);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--teal);margin-top:1px}
-.plan-text{font-size:13px;color:var(--muted);line-height:1.65}
+.plan-num{width:19px;height:19px;border-radius:50%;flex-shrink:0;background:var(--teal-dim);border:1px solid var(--teal-b);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--teal);margin-top:1px}
+.plan-text{font-size:13px;color:var(--muted);line-height:1.6}
 .plan-text strong{color:var(--white)}
-.save-card{background:linear-gradient(135deg,rgba(0,201,167,0.07),rgba(201,168,76,0.04));border:1px solid var(--teal-border);border-radius:18px;padding:28px;text-align:center}
-.save-title{font-family:var(--fh);font-size:26px;font-style:italic;color:var(--white);margin-bottom:7px}
-.save-sub{font-size:14px;color:var(--muted);margin-bottom:22px;line-height:1.65}
-.btn-save{width:100%;padding:15px;background:var(--teal);color:#0C0F1A;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.2s;letter-spacing:0.02em}
+.save-card{background:var(--surface);border:1px solid var(--gold-b);border-radius:17px;padding:26px;text-align:center;position:relative;overflow:hidden}
+.save-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent)}
+.save-title{font-family:var(--fh);font-size:24px;font-style:italic;color:var(--white);margin-bottom:7px}
+.save-sub{font-size:13px;color:var(--muted);margin-bottom:7px;line-height:1.7;max-width:390px;margin-left:auto;margin-right:auto}
+.save-priv{font-size:11px;color:var(--dim);margin-bottom:20px;font-style:italic}
+.btn-save{width:100%;padding:13px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fb);transition:all 0.18s}
 .btn-save:hover{background:var(--teal-d);transform:translateY(-2px)}
-.save-note{font-size:11px;color:var(--dim);margin-top:11px}
-.overlay{position:fixed;inset:0;background:rgba(12,15,26,0.94);backdrop-filter:blur(18px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
-.overlay.open{display:flex;animation:fadeIn 0.2s ease}
-.modal{background:var(--surface);border:1px solid var(--gold-border);border-radius:20px;padding:34px;width:100%;max-width:400px;position:relative}
-.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1;transition:color 0.2s}
-.modal-close:hover{color:var(--white)}
-.ml{font-family:var(--fh);font-size:21px;font-weight:700;color:var(--white);text-align:center;margin-bottom:3px}
-.ml span{color:var(--teal);font-style:italic}
-.ms{font-size:13px;color:var(--muted);text-align:center;margin-bottom:22px}
-.fl{display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.fi{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--white);font-size:14px;font-family:var(--fb);outline:none;transition:border-color 0.2s;margin-bottom:12px}
-.fi:focus{border-color:var(--teal-border)}
-.fi::placeholder{color:var(--dim)}
-.pw{position:relative;margin-bottom:12px}
-.pw .fi{margin-bottom:0;padding-right:44px}
-.peye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dim);padding:4px;transition:color 0.2s}
-.peye:hover{color:var(--teal)}
-.btn-auth{width:100%;padding:13px;background:var(--teal);color:#0C0F1A;border:none;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;margin-top:4px}
-.btn-auth:hover{background:var(--teal-d)}
-.btn-auth:disabled{background:var(--dim);cursor:not-allowed}
-.divider{display:flex;align-items:center;gap:12px;margin:14px 0;font-size:12px;color:var(--dim)}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.btn-google{width:100%;padding:11px;background:var(--surface2);color:var(--white);border:1.5px solid var(--border);border-radius:9px;font-weight:500;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px}
-.btn-google:hover{border-color:var(--border-lit)}
-.aerr{padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
-.spinner{width:13px;height:13px;border:2px solid rgba(12,15,26,0.25);border-top-color:#0C0F1A;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
-.verify-state{text-align:center;padding:8px 0}
-.verify-title{font-family:var(--fh);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px}
-.verify-sub{font-size:13px;color:var(--muted);line-height:1.7}
-.verify-tip{margin-top:16px;padding:12px 14px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:9px;font-size:12px;color:var(--muted)}
-@media(max-width:600px){.topbar{padding:0 18px}.botnav{padding:12px 18px}.content{padding:72px 16px 90px}.choices.g2,.choices.g3{grid-template-columns:1fr 1fr}.f-row,.dg{grid-template-columns:1fr}.multi-list{grid-template-columns:1fr}.snapshot{grid-template-columns:1fr 1fr}.score-band{grid-template-columns:1fr;text-align:center}.f-row{grid-template-columns:1fr}}
+.save-note{font-size:11px;color:var(--dim);margin-top:9px}
 
-/* WELCOME SCREEN */
-.welcome-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;padding:32px 24px;text-align:center}
-@keyframes breathe{0%,100%{transform:scale(1);opacity:0.7}50%{transform:scale(1.08);opacity:1}}
-@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,201,167,0.15)}50%{box-shadow:0 0 40px rgba(0,201,167,0.35)}}
-.w-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.w-bg::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,167,0.06) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);animation:breathe 6s ease infinite}
-.w-logo{font-family:var(--fh);font-size:15px;font-weight:600;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:48px;animation:fadeIn 0.8s ease 0.3s both}
-.w-orb{width:96px;height:96px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:42px;font-style:italic;color:var(--gold);font-weight:700;animation:glow 4s ease infinite;position:relative;margin-bottom:40px}
-.w-dot{position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;background:var(--teal);border:2px solid var(--bg);animation:pulse 2s ease infinite}
-.w-langs{display:flex;flex-direction:column;gap:6px;margin-bottom:44px}
-.wl{font-family:var(--fh);font-style:italic;color:var(--soft);line-height:1.4}
-.wl.p{font-size:28px;color:var(--white)}.wl.s{font-size:22px;color:var(--muted)}.wl.t{font-size:18px;color:var(--dim)}
-.wl .wname{color:var(--teal);font-weight:700}
-.w-prompt{font-size:12px;color:var(--dim);margin-bottom:24px;letter-spacing:0.08em;text-transform:uppercase;font-weight:500}
-.w-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.lang-btn{padding:12px 28px;border-radius:50px;border:1.5px solid var(--border-lit,rgba(255,255,255,0.12));background:transparent;color:var(--soft);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:all 0.25s}
-.lang-btn:hover,.lang-btn.sel{border-color:var(--teal);background:var(--teal);color:#0C0F1A;transform:translateY(-2px)}
-.w-priv{position:absolute;bottom:28px;font-size:11px;color:var(--dim);padding:0 24px;text-align:center}
-/* SENTENCE BOX */
-.sentence-box{background:linear-gradient(135deg,rgba(201,168,76,0.07),rgba(0,201,167,0.04));border:1px solid var(--gold-border);border-left:3px solid var(--gold);border-radius:4px 14px 14px 14px;padding:20px 22px;margin:20px 0;font-family:var(--fh);font-size:19px;font-style:italic;color:var(--white);line-height:1.65;position:relative}
-.sentence-box::before{content:'M';position:absolute;top:-12px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--fh);font-size:14px;font-style:italic;color:var(--gold);font-weight:700}
+/* AUTH */
+.overlay{position:fixed;inset:0;background:rgba(12,15,26,0.94);backdrop-filter:blur(18px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex;animation:fadeIn 0.2s ease}
+.modal{background:var(--surface);border:1px solid var(--gold-b);border-radius:19px;padding:30px;width:100%;max-width:385px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-x{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;line-height:1;transition:color 0.18s}
+.modal-x:hover{color:var(--white)}
+.m-logo{font-family:var(--fh);font-size:19px;font-weight:700;color:var(--white);text-align:center;margin-bottom:3px}
+.m-logo span{color:var(--teal);font-style:italic}
+.m-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:5px}
+.m-priv{font-size:11px;color:var(--dim);text-align:center;font-style:italic;margin-bottom:18px}
+.fi-l{display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.fi{width:100%;background:var(--surface2);border:1.5px solid var(--bord);border-radius:9px;padding:10px 12px;color:var(--white);font-size:14px;font-family:var(--fb);outline:none;transition:border-color 0.18s;margin-bottom:10px}
+.fi:focus{border-color:var(--teal-b)}.fi::placeholder{color:var(--dim)}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pw-wrap{position:relative;margin-bottom:10px}
+.pw-wrap .fi{margin-bottom:0;padding-right:40px}
+.peye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dim);padding:4px;transition:color 0.18s}
+.peye:hover{color:var(--teal)}
+.aerr{padding:8px 10px;border-radius:7px;font-size:13px;margin-bottom:10px;display:none;background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
+.btn-auth{width:100%;padding:12px;background:var(--teal);color:#0C0F1A;border:none;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.18s;margin-top:3px}
+.btn-auth:hover{background:var(--teal-d)}.btn-auth:disabled{background:var(--dim);cursor:not-allowed}
+.divider{display:flex;align-items:center;gap:10px;margin:11px 0;font-size:12px;color:var(--dim)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bord)}
+.btn-google{width:100%;padding:10px;background:var(--surface2);color:var(--white);border:1.5px solid var(--bord);border-radius:9px;font-weight:500;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-google:hover{border-color:var(--bord-lit)}
+.spinner{width:12px;height:12px;border:2px solid rgba(12,15,26,0.25);border-top-color:#0C0F1A;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:5px}
+.ver-state{text-align:center;padding:6px 0}
+.ver-title{font-family:var(--fh);font-size:21px;font-style:italic;color:var(--white);margin-bottom:7px}
+.ver-sub{font-size:13px;color:var(--muted);line-height:1.7}
+.ver-tip{margin-top:13px;padding:10px 12px;background:var(--teal-dim);border:1px solid var(--teal-b);border-radius:8px;font-size:12px;color:var(--muted)}
+
+@media(max-width:570px){
+  .ob-body{padding:70px 15px 82px}
+  .g2,.g3{grid-template-columns:1fr 1fr}
+  .frow,.dg{grid-template-columns:1fr}
+  .snapshot{grid-template-columns:1fr 1fr}
+  .score-card{grid-template-columns:1fr;text-align:center}
+  .fi-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-
-<div id="welcomeScreen" class="welcome-screen">
+<!-- WELCOME -->
+<div id="ws" class="welcome">
   <div class="w-bg"></div>
   <div class="w-logo">Sum Goals</div>
   <div class="w-orb">M<div class="w-dot"></div></div>
   <div class="w-langs">
-    <div class="wl p">I speak <span class="wname">English</span>.</div>
-    <div class="wl s">Je parle <span class="wname" style="color:var(--gold)">français</span>.</div>
-    <div class="wl t">Hablo <span class="wname">español</span>.</div>
+    <div class="wl p">I speak <span class="wn">English</span>.</div>
+    <div class="wl s">Je parle <span class="wn">français</span>.</div>
+    <div class="wl t">Hablo <span class="wn">español</span>.</div>
   </div>
   <div class="w-prompt" id="wPrompt">Which language feels like home to you?</div>
   <div class="w-btns">
-    <button class="lang-btn" onclick="chooseLang('en')">English</button>
-    <button class="lang-btn" onclick="chooseLang('fr')">Français</button>
-    <button class="lang-btn" onclick="chooseLang('es')">Español</button>
+    <button class="lang-btn" onclick="go('en')">English</button>
+    <button class="lang-btn" onclick="go('fr')">Français</button>
+    <button class="lang-btn" onclick="go('es')">Español</button>
   </div>
   <div class="w-priv" id="wPriv">Everything you tell me stays between us. No ads. No data sales. Just coaching.</div>
 </div>
 
-<div class="topbar">
-  <div class="logo">Sum <span>Goals</span></div>
-  <div class="prog-area"><div class="prog-track"><div class="prog-fill" id="pf" style="width:0%"></div></div><div class="prog-text" id="pt">Getting started</div></div>
-  <div class="step-count" id="sc"></div>
-</div>
-<div class="content">
+<!-- ONBOARDING -->
+<div id="ob" class="ob">
+  <div class="ob-bar"><div class="ob-fill" id="obFill" style="width:0%"></div></div>
+  <div class="ob-top"><div class="ob-logo">Sum <span>Goals</span></div><div class="ob-step" id="obStep"></div></div>
+  <div class="ob-body">
 
-
-    <!-- SLIDE 1 · Single or family — Mina personalizes everything from this -->
-    <div class="slide active" id="s1">
-      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s1who">MINA — YOUR COACH</div><div class="mina-text" id="s1says">Before anything else — one question that changes how I speak to you and what I focus on. There is no right answer. Just the honest one.</div></div></div>
-      <div class="q-title" id="s1title">What is your <span>situation?</span></div>
+    <!-- S1: Situation -->
+    <div class="slide on" id="s1">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag" id="s1tag">MINA — YOUR COACH</div><div class="m-text" id="s1txt">Before anything else — one question that changes how I speak to you. There is no right answer.</div></div></div>
+      <div class="stitle" id="s1title">What is your <span>situation?</span></div>
       <div class="choices">
-        <div class="choice" onclick="pickSituation('single',this)"><div class="c-label" id="sit1">I am single — providing for myself</div><div class="c-sub" id="sits1">My financial decisions affect me directly</div></div>
-        <div class="choice" onclick="pickSituation('partner',this)"><div class="c-label" id="sit2">I have a partner — we manage finances together or separately</div><div class="c-sub" id="sits2">Two incomes, shared responsibilities</div></div>
-        <div class="choice" onclick="pickSituation('family',this)"><div class="c-label" id="sit3">I have a family — children depend on me</div><div class="c-sub" id="sits3">My decisions protect people I love</div></div>
-        <div class="choice" onclick="pickSituation('caregiver',this)"><div class="c-label" id="sit4">I support family abroad or aging parents</div><div class="c-sub" id="sits4">I carry responsibilities beyond my household</div></div>
-        <div class="choice" onclick="pickSituation('all',this)"><div class="c-label" id="sit5">All of the above — I am the one everyone depends on</div><div class="c-sub" id="sits5">Partner, children, family abroad — all of it</div></div>
+        <div class="ch" onclick="setSit('single',this)"><div class="cl" id="s1a">I am single — providing for myself</div><div class="cs" id="s1as">My financial decisions affect me directly</div></div>
+        <div class="ch" onclick="setSit('partner',this)"><div class="cl" id="s1b">I have a partner — we manage finances together</div><div class="cs" id="s1bs">Two people, shared responsibilities</div></div>
+        <div class="ch" onclick="setSit('family',this)"><div class="cl" id="s1c">I have a family — children depend on me</div><div class="cs" id="s1cs">My decisions protect people I love</div></div>
+        <div class="ch" onclick="setSit('caregiver',this)"><div class="cl" id="s1d">I support family abroad or aging parents</div><div class="cs" id="s1ds">I carry responsibilities beyond my household</div></div>
+        <div class="ch" onclick="setSit('all',this)"><div class="cl" id="s1e">All of the above — I am the one everyone depends on</div><div class="cs" id="s1es">Partner, children, family abroad — all of it</div></div>
       </div>
     </div>
 
-    <!-- SLIDE 2 · What brought you here -->
+    <!-- S2: Moment -->
     <div class="slide" id="s2">
-      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who" id="s2who">MINA</div><div class="mina-text" id="s2says">Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong></div></div></div>
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag" id="s2tag">MINA</div><div class="m-text" id="s2txt">What brought you here? Most people come to me at a specific moment — something happened, or something they were ignoring became impossible to ignore. <strong id="s2bold">What was that moment for you?</strong></div></div></div>
       <div class="choices">
-        <div class="choice" onclick="pickMoment('scared',this)"><div class="c-label" id="s2c1">My expenses have been higher than my income and I am scared of where this leads</div></div>
-        <div class="choice" onclick="pickMoment('debt',this)"><div class="c-label" id="s2c2">I have debt I have been avoiding looking at directly</div></div>
-        <div class="choice" onclick="pickMoment('family',this)"><div class="c-label" id="s2c3">I want to build something for my family and I do not know if it is possible</div></div>
-        <div class="choice" onclick="pickMoment('responsible',this)"><div class="c-label" id="s2c4">I am the one everyone depends on and I am not sure I am doing enough</div></div>
-        <div class="choice" onclick="pickMoment('emergency',this)"><div class="c-label" id="s2c5">An emergency destroyed what I had built and I am starting over</div></div>
-        <div class="choice" onclick="pickMoment('first',this)"><div class="c-label" id="s2c6">I have never had a real financial plan and I want one for the first time</div></div>
+        <div class="ch" onclick="setMoment('scared',this)"><div class="cl" id="s2a">My expenses are higher than my income and I am scared</div></div>
+        <div class="ch" onclick="setMoment('debt',this)"><div class="cl" id="s2b">I have debt I have been avoiding looking at</div></div>
+        <div class="ch" onclick="setMoment('family',this)"><div class="cl" id="s2c">I want to build something for my family and I do not know if it is possible</div></div>
+        <div class="ch" onclick="setMoment('responsible',this)"><div class="cl" id="s2d">I am the one everyone depends on and I am not sure I am doing enough</div></div>
+        <div class="ch" onclick="setMoment('emergency',this)"><div class="cl" id="s2e">An emergency destroyed what I had built and I am starting over</div></div>
+        <div class="ch" onclick="setMoment('first',this)"><div class="cl" id="s2f">I have never had a real financial plan and I want one</div></div>
       </div>
     </div>
 
-    <!-- SLIDE 3 · Mina responds + THE SENTENCE -->
+    <!-- S3: The sentence -->
     <div class="slide" id="s3">
-      <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">MINA</div><div class="mina-text" id="s3intro">I see what you are carrying.</div></div></div>
-      <div class="mina-block" style="margin-top:-10px"><div class="mina-mark"><div style="width:38px"></div></div><div class="mina-speech"><div class="mina-text" id="s3resp" style="color:var(--muted);font-style:normal;font-size:13px"></div></div></div>
-      <div class="sentence-box" id="theSentence">You have been taking care of everyone around you for so long that you forgot someone was supposed to take care of you too. I am here for that.</div>
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s3txt">I see what you are carrying.</div></div></div>
+      <div class="sentence" id="theSentence">You have been taking care of everyone around you for so long that you forgot someone was supposed to take care of you too. I am here for that.</div>
+      <div class="s3-sub" id="s3sub">Take your time. Then press Continue when you are ready.</div>
     </div>
 
-
+    <!-- S4: Country + Currency + Age -->
     <div class="slide" id="s4">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina — Your financial coach</div><div class="mina-text">Before you share a single number with me, I want to be completely honest with you. I cannot see your bank account, your credit file, or any external data. <strong>I only know what you tell me.</strong> Everything you share is encrypted and never sold to anyone. You can be completely honest with me. I have heard every financial situation. <span class="teal">Nothing surprises me. Nothing judges you.</span></div></div></div>
-  <div class="q-title">Your privacy is<br><span>sacred.</span></div>
-  <div class="q-hint">Four things I promise before we begin.</div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">No bank access</div><div style="font-size:12px;color:var(--muted)">I cannot see your accounts or transactions. Only what you choose to tell me.</div></div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Never sold</div><div style="font-size:12px;color:var(--muted)">Your financial information is never shared with advertisers or any third party. Ever.</div></div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Fully encrypted</div><div style="font-size:12px;color:var(--muted)">Your data is encrypted in transit and at rest. Only you can see it.</div></div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:11px;padding:16px 20px"><div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px">Delete anytime</div><div style="font-size:12px;color:var(--muted)">Remove your account and every piece of data at any moment. No questions asked.</div></div>
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s4txt">Three quick things before we look at your numbers. Where you live, your currency, and your age — these change my advice significantly.</div></div></div>
+      <div class="stitle" id="s4title">Where, <span>what currency,</span> how old?</div>
+      <div class="fg">
+        <div class="fl" id="s4cl">Country where you live</div>
+        <select class="field" id="countrySelect" onchange="setCountry(this.value)">
+          <option value="" id="s4cp">Select your country...</option>
+          <option value="us">United States</option><option value="ca">Canada</option>
+          <option value="uk">United Kingdom</option><option value="fr">France</option>
+          <option value="be">Belgium</option><option value="ma">Morocco</option>
+          <option value="ae">UAE</option><option value="mx">Mexico</option>
+          <option value="es">Spain</option><option value="br">Brazil</option>
+          <option value="sn">Senegal</option><option value="dz">Algeria</option>
+          <option value="other" id="s4ot">Other</option>
+        </select>
+      </div>
+      <div class="reveal" id="countryOther"><div class="rev-in"><div class="fl" id="s4otl">Type your country</div><input class="field" type="text" placeholder="e.g. Germany, India..." oninput="D.country_name=this.value"></div></div>
+      <div class="fg">
+        <div class="fl" id="s4curl">Your currency</div>
+        <select class="field" id="currSelect" onchange="setCurr(this.value)">
+          <option value="USD">USD — US Dollar ($)</option><option value="CAD">CAD — Canadian Dollar ($)</option>
+          <option value="EUR">EUR — Euro (€)</option><option value="GBP">GBP — British Pound (£)</option>
+          <option value="MAD">MAD — Moroccan Dirham</option><option value="AED">AED — UAE Dirham</option>
+          <option value="MXN">MXN — Mexican Peso</option><option value="BRL">BRL — Brazilian Real</option>
+          <option value="XOF">XOF — CFA Franc</option><option value="DZD">DZD — Algerian Dinar</option>
+          <option value="OTHER" id="s4curo">Other currency...</option>
+        </select>
+      </div>
+      <div class="reveal" id="currOther"><div class="rev-in"><div class="fl" id="s4corl">Currency code</div><input class="field" type="text" placeholder="e.g. INR, TRY, SGD..." oninput="D.currency=this.value.toUpperCase().trim();upPre()"></div></div>
+      <div class="fl" id="s4al">Your age range</div>
+      <div class="choices g2" style="margin-top:8px">
+        <div class="ch" onclick="pick('age_range','18-24',this)"><div class="cl" id="s4a1">18 to 24</div></div>
+        <div class="ch" onclick="pick('age_range','25-34',this)"><div class="cl" id="s4a2">25 to 34</div></div>
+        <div class="ch" onclick="pick('age_range','35-44',this)"><div class="cl" id="s4a3">35 to 44</div></div>
+        <div class="ch" onclick="pick('age_range','45-54',this)"><div class="cl" id="s4a4">45 to 54</div></div>
+        <div class="ch" onclick="pick('age_range','55+',this)"><div class="cl" id="s4a5">55 and above</div></div>
+      </div>
+    </div>
+
+    <!-- S5: Income -->
+    <div class="slide" id="s5">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s5txt">Not the number on your contract — the amount that actually arrives in your account each month after taxes. If it varies, give me a typical month.</div></div></div>
+      <div class="stitle" id="s5title">Your monthly <span>income.</span></div>
+      <div class="fg"><div class="fl" id="s5l1">Monthly salary after tax</div><div class="fw"><span class="fpre" id="preSal">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.monthly_income=n(this.value)"></div></div>
+      <div class="trow">
+        <div class="tp" id="tSY" onclick="D.income_stable=true;tp('S','Y')"><div class="tpl" id="s5stable">Stable</div><div class="tps" id="s5stables">Same every month</div></div>
+        <div class="tp" id="tSN" onclick="D.income_stable=false;tp('S','N')"><div class="tpl" id="s5var">Variable</div><div class="tps" id="s5vars">Changes month to month</div></div>
+      </div>
+      <div class="trow">
+        <div class="tp" id="tExY" onclick="D.has_extra=true;tp('Ex','Y');openR('extraR')"><div class="tpl" id="s5extra">I have extra income</div><div class="tps" id="s5extras">Side work, rental, investment</div></div>
+        <div class="tp" id="tExN" onclick="D.has_extra=false;D.side_income=0;D.invest_income=0;tp('Ex','N');closeR('extraR')"><div class="tpl" id="s5noextra">Salary only</div></div>
+      </div>
+      <div class="reveal" id="extraR"><div class="rev-in"><div class="frow">
+        <div class="fg"><div class="fl" id="s5el1">Side or freelance</div><div class="fw"><span class="fpre" id="preSide">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.side_income=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s5el2">Rental or investment</div><div class="fw"><span class="fpre" id="preInv">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.invest_income=n(this.value)"></div></div>
+      </div></div></div>
+    </div>
+
+    <!-- S6: All expenses -->
+    <div class="slide" id="s6">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s6txt"><strong id="s6bold">Be honest here.</strong> Most people underestimate spending by 30%. Enter what you actually spend — not what you wish you spent.</div></div></div>
+      <div class="stitle" id="s6title">Your monthly <span>expenses.</span></div>
+      <div class="frow">
+        <div class="fg"><div class="fl" id="s6l1">Housing (rent or mortgage)</div><div class="fw"><span class="fpre" id="preRent">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.rent=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l2">Utilities and phone</div><div class="fw"><span class="fpre" id="preUtil">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.utilities=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l3">Groceries and household</div><div class="fw"><span class="fpre" id="preGroc">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.groceries=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l4">Dining out and food delivery</div><div class="fw"><span class="fpre" id="preDine">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.dining=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l5">Transport and fuel</div><div class="fw"><span class="fpre" id="preTrans">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.transport=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l6">Car payment (if any)</div><div class="fw"><span class="fpre" id="preCarP">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.car_payment=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l7">Health and insurance</div><div class="fw"><span class="fpre" id="preIns">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.insurance=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s6l8">Subscriptions</div><div class="fw"><span class="fpre" id="preSubs">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.subscriptions=n(this.value)"></div></div>
+      </div>
+      <div class="trow" style="margin-top:8px">
+        <div class="tp" id="tRmY" onclick="D.sends_remittances=true;tp('Rm','Y');openR('remitR')"><div class="tpl" id="s6rm">I send money abroad</div><div class="tps" id="s6rms">Family in another country</div></div>
+        <div class="tp" id="tRmN" onclick="D.sends_remittances=false;D.remittances=0;tp('Rm','N');closeR('remitR')"><div class="tpl" id="s6nrm">No remittances</div></div>
+      </div>
+      <div class="reveal" id="remitR"><div class="rev-in"><div class="fl" id="s6rml">Monthly amount sent abroad</div><div class="fw"><span class="fpre" id="preRemit">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.remittances=n(this.value)"></div><div class="fnote" id="s6rmn">Include everything. I will never ask you to cut this.</div></div></div>
+      <div class="trow" style="margin-top:8px">
+        <div class="tp" id="tDcY" onclick="D.pays_daycare=true;tp('Dc','Y');openR('dayR')"><div class="tpl" id="s6dc">I pay for childcare</div><div class="tps" id="s6dcs">Daycare, nanny, after-school</div></div>
+        <div class="tp" id="tDcN" onclick="D.pays_daycare=false;D.daycare=0;tp('Dc','N');closeR('dayR')"><div class="tpl" id="s6ndc">No childcare costs</div></div>
+      </div>
+      <div class="reveal" id="dayR"><div class="rev-in"><div class="fl" id="s6dcl">Monthly childcare cost</div><div class="fw"><span class="fpre" id="preDay">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.daycare=n(this.value)"></div></div></div>
+    </div>
+
+    <!-- S7: Debts -->
+    <div class="slide" id="s7">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s7txt">Tell me every debt you carry. The order we attack them matters enormously. <strong id="s7bold">Every debt you hide from me is a debt I cannot help you eliminate.</strong></div></div></div>
+      <div class="stitle" id="s7title">Your <span>debts.</span></div>
+      <div class="debt-entries" id="debtEntries"></div>
+      <button class="btn-add" id="addDebtBtn" onclick="addDebt()">Add a debt</button>
+      <div class="nd-row" id="ndRow" onclick="toggleND()">
+        <div class="ndb" id="ndb"><svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="ndt" id="s7nd">I have no debts — I am completely debt free</div>
+      </div>
+    </div>
+
+    <!-- S8: Savings + Credit -->
+    <div class="slide" id="s8">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s8txt">How much do you have saved right now? Total across all accounts. Enter 0 if there is nothing. <span class="tc" id="s8tc">There is no judgment — I need the real number.</span></div></div></div>
+      <div class="stitle" id="s8title">Your <span>savings.</span></div>
+      <div class="frow">
+        <div class="fg"><div class="fl" id="s8l1">Total savings right now</div><div class="fw"><span class="fpre" id="preSav">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.total_savings=n(this.value)"></div></div>
+        <div class="fg"><div class="fl" id="s8l2">Emergency fund (of that total)</div><div class="fw"><span class="fpre" id="preEmg">$</span><input class="field pre" type="number" min="0" placeholder="0 if none" oninput="D.emergency_fund=n(this.value)"></div></div>
+      </div>
+      <div class="fl" id="s8cl" style="margin-top:8px">Credit health</div>
+      <div class="choices" style="margin-top:8px">
+        <div class="ch" onclick="pick('credit_health','excellent',this)"><div class="cl" id="s8cr1">Excellent (740+)</div></div>
+        <div class="ch" onclick="pick('credit_health','good',this)"><div class="cl" id="s8cr2">Good (670–739)</div></div>
+        <div class="ch" onclick="pick('credit_health','fair',this)"><div class="cl" id="s8cr3">Fair (580–669)</div></div>
+        <div class="ch" onclick="pick('credit_health','poor',this)"><div class="cl" id="s8cr4">Poor (below 580)</div></div>
+        <div class="ch" onclick="pick('credit_health','none',this)"><div class="cl" id="s8cr5">No credit history</div></div>
+      </div>
+    </div>
+
+    <!-- S9: Payday -->
+    <div class="slide" id="s9">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s9txt">When do you get paid? I will build your payday survival plan around this date — exactly what to do within 24 hours of your salary arriving.</div></div></div>
+      <div class="stitle" id="s9title">Your <span>payday.</span></div>
+      <div class="choices g3" style="margin-bottom:13px">
+        <div class="ch" onclick="pick('payday_frequency','monthly',this)"><div class="cl" id="s9f1">Monthly</div></div>
+        <div class="ch" onclick="pick('payday_frequency','biweekly',this)"><div class="cl" id="s9f2">Every 2 weeks</div></div>
+        <div class="ch" onclick="pick('payday_frequency','weekly',this)"><div class="cl" id="s9f3">Weekly</div></div>
+      </div>
+      <div class="fg"><div class="fl" id="s9dl">Next payday date</div><input class="field" type="date" id="paydayInp" oninput="D.payday_date=this.value" style="color-scheme:dark"></div>
+    </div>
+
+    <!-- S10: What stopped you -->
+    <div class="slide" id="s10">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s10txt">Have you tried before? Your answer tells me what approach will actually work for you this time.</div></div></div>
+      <div class="stitle" id="s10title">What stopped <span>you before?</span></div>
+      <div class="choices">
+        <div class="ch" onclick="pick('previous_attempt','no_plan',this);next()"><div class="cl" id="s10a">I never had a real plan</div></div>
+        <div class="ch" onclick="pick('previous_attempt','no_stick',this);next()"><div class="cl" id="s10b">I started but could not stick to it</div></div>
+        <div class="ch" onclick="pick('previous_attempt','emergency',this);next()"><div class="cl" id="s10c">An emergency derailed everything</div></div>
+        <div class="ch" onclick="pick('previous_attempt','income_low',this);next()"><div class="cl" id="s10d">My income felt too low to save anything</div></div>
+        <div class="ch" onclick="pick('previous_attempt','tried_all',this);next()"><div class="cl" id="s10e">I have tried everything and nothing worked</div></div>
+        <div class="ch" onclick="pick('previous_attempt','first_time',this);next()"><div class="cl" id="s10f">This is my first time facing this</div></div>
+      </div>
+    </div>
+
+    <!-- S11: Fears -->
+    <div class="slide" id="s11">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s11txt">What are your deepest financial fears? These are not weaknesses. They are what I am going to help you eliminate.</div></div></div>
+      <div class="stitle" id="s11title">Your <span>fears.</span></div>
+      <div class="choices g2">
+        <div class="ch" onclick="multi('fears','debt',this)"><div class="cl" id="s11a">Never getting out of debt</div></div>
+        <div class="ch" onclick="multi('fears','paycheck',this)"><div class="cl" id="s11b">Living paycheck to paycheck forever</div></div>
+        <div class="ch" onclick="multi('fears','emergency',this)"><div class="cl" id="s11c">One emergency destroying everything</div></div>
+        <div class="ch" onclick="multi('fears','family',this)"><div class="cl" id="s11d">Not providing enough for my family</div></div>
+        <div class="ch" onclick="multi('fears','retire',this)"><div class="cl" id="s11e">Not having enough to retire</div></div>
+        <div class="ch" onclick="multi('fears','home',this)"><div class="cl" id="s11f">Never being able to buy a home</div></div>
+        <div class="ch" onclick="multi('fears','job',this)"><div class="cl" id="s11g">Losing my job with no cushion</div></div>
+        <div class="ch" onclick="multi('fears','shame',this)"><div class="cl" id="s11h">The shame of my financial situation</div></div>
+      </div>
+    </div>
+
+    <!-- S12: Goals -->
+    <div class="slide" id="s12">
+      <div class="mrow"><div class="m-mark"><div class="m-av">M</div><div class="m-pulse"></div></div><div class="m-body"><div class="m-tag">MINA</div><div class="m-text" id="s12txt">What do you actually want for your life? Not what you think you should want — what you genuinely want.</div></div></div>
+      <div class="stitle" id="s12title">Your real <span>goals.</span></div>
+      <div class="choices g2">
+        <div class="ch" onclick="multi('goals','debt',this)"><div class="cl" id="s12a">Eliminate every debt</div></div>
+        <div class="ch" onclick="multi('goals','save',this)"><div class="cl" id="s12b">Build real savings</div></div>
+        <div class="ch" onclick="multi('goals','house',this)"><div class="cl" id="s12c">Buy my own home</div></div>
+        <div class="ch" onclick="multi('goals','emergency',this)"><div class="cl" id="s12d">Build a solid emergency fund</div></div>
+        <div class="ch" onclick="multi('goals','family',this)"><div class="cl" id="s12e">Provide a better life for my family</div></div>
+        <div class="ch" onclick="multi('goals','retire',this)"><div class="cl" id="s12f">Retire comfortably</div></div>
+        <div class="ch" onclick="multi('goals','business',this)"><div class="cl" id="s12g">Start my own business</div></div>
+        <div class="ch" onclick="multi('goals','freedom',this)"><div class="cl" id="s12h">Stop the anxiety around money forever</div></div>
+      </div>
+    </div>
+
+  </div><!-- /ob-body -->
+
+  <div class="ob-nav">
+    <button class="btn-back" id="btnBack" onclick="prev()" disabled>Back</button>
+    <button class="btn-next" id="btnNext" onclick="next()">Continue</button>
+    <button class="btn-skip" id="btnSkip" onclick="next()" style="display:none">Skip</button>
   </div>
 </div>
 
-<div class="slide" id="s5">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What language do you feel most comfortable in? I will coach you in your language — not just translate words, but think in your context.</div></div></div>
-  <div class="q-title">Your language,<br><span>your comfort.</span></div>
-  <div class="choices g2">
-    <div class="choice" onclick="pick('lang','en',this)"><div class="c-label">English</div></div>
-    <div class="choice" onclick="pick('lang','es',this)"><div class="c-label">Español</div></div>
-    <div class="choice" onclick="pick('lang','fr',this)"><div class="c-label">Français</div></div>
-    <div class="choice" onclick="pick('lang','ar',this)"><div class="c-label">العربية</div></div>
-    <div class="choice" onclick="pick('lang','pt',this)"><div class="c-label">Português</div></div>
-    <div class="choice" onclick="pick('lang','other',this)"><div class="c-label">Other language</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s6">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Where do you currently live? Tax rules, available financial products, and cost of living benchmarks all depend on your country. I need this to give you advice that is actually relevant to your reality — not a generic American plan.</div></div></div>
-  <div class="q-title">Where do you<br><span>live today?</span></div>
-  <div class="choices g3" style="margin-bottom:10px">
-    <div class="choice" onclick="pick('country','us',this);closeR('cOR')"><div class="c-label">United States</div></div>
-    <div class="choice" onclick="pick('country','ca',this);closeR('cOR')"><div class="c-label">Canada</div></div>
-    <div class="choice" onclick="pick('country','uk',this);closeR('cOR')"><div class="c-label">United Kingdom</div></div>
-    <div class="choice" onclick="pick('country','fr',this);closeR('cOR')"><div class="c-label">France</div></div>
-    <div class="choice" onclick="pick('country','ma',this);closeR('cOR')"><div class="c-label">Morocco</div></div>
-    <div class="choice" onclick="pick('country','ae',this);closeR('cOR')"><div class="c-label">UAE</div></div>
-    <div class="choice" onclick="pick('country','mx',this);closeR('cOR')"><div class="c-label">Mexico</div></div>
-    <div class="choice" onclick="pick('country','br',this);closeR('cOR')"><div class="c-label">Brazil</div></div>
-    <div class="choice" onclick="pick('country','other',this);openR('cOR')"><div class="c-label">Other country</div></div>
-  </div>
-  <div class="reveal" id="cOR"><div class="rev-inner"><div class="f-label">Type your country</div><input class="field" type="text" placeholder="e.g. Algeria, Germany, India..." oninput="D.country_name=this.value"></div></div>
-</div>
-
-<div class="slide" id="s7">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What currency do you earn and spend in? Every number in your plan stays in your currency. I do not convert or confuse.</div></div></div>
-  <div class="q-title">Your<br><span>currency.</span></div>
-  <div class="choices g3" style="margin-bottom:10px">
-    <div class="choice" onclick="setCur('USD',this)"><div class="c-label">USD</div><div class="c-sub">US Dollar</div></div>
-    <div class="choice" onclick="setCur('CAD',this)"><div class="c-label">CAD</div><div class="c-sub">Canadian Dollar</div></div>
-    <div class="choice" onclick="setCur('EUR',this)"><div class="c-label">EUR</div><div class="c-sub">Euro</div></div>
-    <div class="choice" onclick="setCur('GBP',this)"><div class="c-label">GBP</div><div class="c-sub">British Pound</div></div>
-    <div class="choice" onclick="setCur('MAD',this)"><div class="c-label">MAD</div><div class="c-sub">Moroccan Dirham</div></div>
-    <div class="choice" onclick="setCur('AED',this)"><div class="c-label">AED</div><div class="c-sub">UAE Dirham</div></div>
-    <div class="choice" onclick="setCur('MXN',this)"><div class="c-label">MXN</div><div class="c-sub">Mexican Peso</div></div>
-    <div class="choice" onclick="setCur('BRL',this)"><div class="c-label">BRL</div><div class="c-sub">Brazilian Real</div></div>
-    <div class="choice" onclick="setCur('OTHER',this);openR('curR')"><div class="c-label">Other</div><div class="c-sub">150+ supported</div></div>
-  </div>
-  <div class="reveal" id="curR"><div class="rev-inner"><div class="f-label">Currency code</div><input class="field" type="text" placeholder="e.g. INR, TRY, DZD, SGD..." oninput="D.currency=this.value.toUpperCase().trim();updatePre()"></div></div>
-</div>
-
-<div class="slide" id="s8">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">A 28-year-old with the same debt as a 52-year-old has a completely different urgency and timeline. My advice adapts to where you actually are in life.</div></div></div>
-  <div class="q-title">Your<br><span>age range.</span></div>
-  <div class="choices">
-    <div class="choice" onclick="pick('age_range','18-24',this);next()"><div class="c-label">18 to 24</div><div class="c-sub">Starting out</div></div>
-    <div class="choice" onclick="pick('age_range','25-34',this);next()"><div class="c-label">25 to 34</div><div class="c-sub">Building years</div></div>
-    <div class="choice" onclick="pick('age_range','35-44',this);next()"><div class="c-label">35 to 44</div><div class="c-sub">Peak earning years</div></div>
-    <div class="choice" onclick="pick('age_range','45-54',this);next()"><div class="c-label">45 to 54</div><div class="c-sub">Pre-retirement preparation</div></div>
-    <div class="choice" onclick="pick('age_range','55+',this);next()"><div class="c-label">55 and above</div><div class="c-sub">Late career or retired</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s9">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What is your monthly salary <strong>after taxes</strong>? The exact amount that arrives in your account — not the gross figure on your contract. If your income varies, give me a typical month.</div></div></div>
-  <div class="q-title">Your monthly<br><span>take-home.</span></div>
-  <div class="fg"><div class="f-label">Monthly salary after tax</div><div class="fw"><span class="fpre" id="preSal">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.monthly_income=n(this.value)"></div></div>
-  <div class="q-hint" style="margin-bottom:14px">Is your income stable every month?</div>
-  <div class="tpair-row">
-    <div class="tpair" id="tSY" onclick="D.income_stable=true;tp('S','Y')"><div class="tp-label">Stable</div><div class="tp-sub">Same amount every month</div></div>
-    <div class="tpair" id="tSN" onclick="D.income_stable=false;tp('S','N')"><div class="tp-label">Variable</div><div class="tp-sub">Changes month to month</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s10">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Do you have any income besides your main salary? Freelance work, a side business, rental income, dividends — anything extra that comes in regularly.</div></div></div>
-  <div class="q-title">Any other<br><span>income?</span></div>
-  <div class="tpair-row" style="margin-bottom:10px">
-    <div class="tpair" id="tSiY" onclick="D.has_side=true;tp('Si','Y');openR('siR')"><div class="tp-label">Yes, I have side income</div><div class="tp-sub">Freelance, gigs, business</div></div>
-    <div class="tpair" id="tSiN" onclick="D.has_side=false;D.side_income=0;tp('Si','N');closeR('siR')"><div class="tp-label">Salary only</div><div class="tp-sub">No additional income</div></div>
-  </div>
-  <div class="reveal" id="siR"><div class="rev-inner"><div class="f-label">Side income — monthly average</div><div class="fw"><span class="fpre" id="preSi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.side_income=n(this.value)"></div></div></div>
-  <div class="tpair-row" style="margin-top:10px">
-    <div class="tpair" id="tIvY" onclick="D.has_invest=true;tp('Iv','Y');openR('ivR')"><div class="tp-label">Rental or investment income</div><div class="tp-sub">Passive income each month</div></div>
-    <div class="tpair" id="tIvN" onclick="D.has_invest=false;D.invest_income=0;tp('Iv','N');closeR('ivR')"><div class="tp-label">No passive income</div></div>
-  </div>
-  <div class="reveal" id="ivR"><div class="rev-inner"><div class="f-label">Rental or investment income — monthly</div><div class="fw"><span class="fpre" id="preIv">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.invest_income=n(this.value)"></div></div></div>
-</div>
-
-<div class="slide" id="s11">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Do you send money to family or loved ones in another country? This is one of the most important — and most invisible — financial commitments many people carry. I need to see it to plan around it honestly.</div></div></div>
-  <div class="q-title">Sending money<br><span>home?</span></div>
-  <div class="tpair-row" style="margin-bottom:10px">
-    <div class="tpair" id="tRmY" onclick="D.sends_remittances=true;tp('Rm','Y');openR('rmR')"><div class="tp-label">Yes, I send money regularly</div></div>
-    <div class="tpair" id="tRmN" onclick="D.sends_remittances=false;D.remittances=0;tp('Rm','N');closeR('rmR')"><div class="tp-label">No, I do not send money abroad</div></div>
-  </div>
-  <div class="reveal" id="rmR"><div class="rev-inner"><div class="f-label">How much do you send per month on average?</div><div class="fw"><span class="fpre" id="preRm">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.remittances=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include everything — parents, siblings, spouse, children abroad. All of it.</div></div></div>
-</div>
-
-<div class="slide" id="s12">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Housing is almost always the largest expense. Whether you rent, own, or live with family changes the advice I give you — particularly around wealth building and long-term planning.</div></div></div>
-  <div class="q-title">Your<br><span>housing situation.</span></div>
-  <div class="choices" style="margin-bottom:10px">
-    <div class="choice" onclick="pick('housing_type','rent',this);openR('hcR');closeR('mgR')"><div class="c-label">I rent</div><div class="c-sub">Monthly rent payment</div></div>
-    <div class="choice" onclick="pick('housing_type','own_mortgage',this);openR('hcR');openR('mgR')"><div class="c-label">I own my home — still paying mortgage</div><div class="c-sub">Monthly mortgage payment</div></div>
-    <div class="choice" onclick="pick('housing_type','own_free',this);closeR('hcR');closeR('mgR');D.rent=0"><div class="c-label">I own my home — no mortgage</div><div class="c-sub">Fully paid off</div></div>
-    <div class="choice" onclick="pick('housing_type','family',this);closeR('hcR');closeR('mgR');D.rent=0"><div class="c-label">Living with family</div><div class="c-sub">No housing cost</div></div>
-  </div>
-  <div class="reveal" id="hcR"><div class="rev-inner"><div class="f-label">Monthly rent or mortgage payment</div><div class="fw"><span class="fpre" id="preRe">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.rent=n(this.value)"></div></div></div>
-  <div class="reveal" id="mgR"><div class="rev-inner" style="margin-top:8px"><div class="f-label">Remaining mortgage balance (optional)</div><div class="fw"><span class="fpre" id="preMg">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.mortgage_balance=n(this.value)"></div></div></div>
-</div>
-
-<div class="slide" id="s13">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Your fixed monthly bills — the ones that leave your account whether you want them to or not. Enter what you actually pay. Skip anything that does not apply.</div></div></div>
-  <div class="q-title">Your fixed<br><span>monthly bills.</span></div>
-  <div class="f-row">
-    <div class="fg"><div class="f-label">Electricity and utilities</div><div class="fw"><span class="fpre" id="preUt">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.utilities=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Phone and internet</div><div class="fw"><span class="fpre" id="prePh">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.phone_internet=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Car payment (if any)</div><div class="fw"><span class="fpre" id="preCp">$</span><input class="field pre" type="number" min="0" placeholder="0 if none" oninput="D.car_payment=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Car insurance</div><div class="fw"><span class="fpre" id="preCi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.car_insurance=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Health insurance premium</div><div class="fw"><span class="fpre" id="preHi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.health_insurance=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Life or other insurance</div><div class="fw"><span class="fpre" id="preLi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.life_insurance=n(this.value)"></div></div>
-  </div>
-</div>
-
-<div class="slide" id="s14">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Now the spending that changes month to month. <strong>Be honest here.</strong> Most people underestimate groceries by 20% and dining by 40%. Think about every coffee, every lunch, every food delivery this month — not the ideal version. The real one.</div></div></div>
-  <div class="q-title">Your variable<br><span>spending.</span></div>
-  <div class="f-row">
-    <div class="fg"><div class="f-label">Groceries and household supplies</div><div class="fw"><span class="fpre" id="preGr">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.groceries=n(this.value)"></div></div>
-    <div class="fg"><div class="f-label">Dining out and food delivery</div><div class="fw"><span class="fpre" id="preDi">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.dining=n(this.value)"></div><div class="f-note">Every coffee, restaurant, takeaway, delivery app</div></div>
-    <div class="fg"><div class="f-label">Transport and fuel</div><div class="fw"><span class="fpre" id="preTr">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.transport=n(this.value)"></div><div class="f-note">Gas, public transport, Uber — not car payment</div></div>
-    <div class="fg"><div class="f-label">Subscriptions</div><div class="fw"><span class="fpre" id="preSb">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.subscriptions=n(this.value)"></div><div class="f-note">Streaming, gym, apps, memberships — all of them</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s15">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How many people depend on you financially? And do you pay for childcare or daycare? These are often the largest invisible expenses in a family budget — and the ones that make people feel most trapped. I need to see them clearly.</div></div></div>
-  <div class="q-title">Your family<br><span>expenses.</span></div>
-  <div class="q-hint">Who depends on you financially?</div>
-  <div class="choices g3" style="margin-bottom:16px">
-    <div class="choice" onclick="pick('dependents','0',this)"><div class="c-label">Only myself</div></div>
-    <div class="choice" onclick="pick('dependents','1',this)"><div class="c-label">1 person</div></div>
-    <div class="choice" onclick="pick('dependents','2',this)"><div class="c-label">2 people</div></div>
-    <div class="choice" onclick="pick('dependents','3',this)"><div class="c-label">3 people</div></div>
-    <div class="choice" onclick="pick('dependents','4+',this)"><div class="c-label">4 or more</div></div>
-  </div>
-  <div class="tpair-row" style="margin-bottom:10px">
-    <div class="tpair" id="tDcY" onclick="D.pays_daycare=true;tp('Dc','Y');openR('dcR')"><div class="tp-label">I pay for childcare or daycare</div></div>
-    <div class="tpair" id="tDcN" onclick="D.pays_daycare=false;D.daycare=0;tp('Dc','N');closeR('dcR')"><div class="tp-label">No childcare costs</div></div>
-  </div>
-  <div class="reveal" id="dcR"><div class="rev-inner"><div class="f-label">Monthly daycare or childcare cost</div><div class="fw"><span class="fpre" id="preDc">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.daycare=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include daycare, after-school care, nanny, babysitter — everything you pay for child care each month.</div></div></div>
-</div>
-
-<div class="slide" id="s16">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Are you contributing to a retirement or pension plan? Many immigrants have no pension plan at all — that is not a failure, it is simply something we need to plan around. I need to know either way.</div></div></div>
-  <div class="q-title">Retirement<br><span>contributions.</span></div>
-  <div class="tpair-row" style="margin-bottom:10px">
-    <div class="tpair" id="tRtY" onclick="D.has_retirement=true;tp('Rt','Y');openR('rtR')"><div class="tp-label">Yes, I contribute monthly</div></div>
-    <div class="tpair" id="tRtN" onclick="D.has_retirement=false;D.retirement_contribution=0;tp('Rt','N');closeR('rtR')"><div class="tp-label">No retirement plan</div></div>
-  </div>
-  <div class="reveal" id="rtR"><div class="rev-inner"><div class="f-label">Monthly contribution amount</div><div class="fw"><span class="fpre" id="preRt">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.retirement_contribution=n(this.value)"></div><div class="f-note" style="margin-top:7px">Include 401k, IRA, pension, employer match — everything going toward your retirement each month.</div></div></div>
-</div>
-
-<div class="slide" id="s17">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Tell me every debt you carry. Add each one separately — I need the individual details to build the right strategy. The order we attack debts matters enormously. <strong>Every debt you hide from me is a debt I cannot help you eliminate.</strong></div></div></div>
-  <div class="q-title">Your<br><span>debts.</span></div>
-  <div class="debt-entries" id="debtEntries"></div>
-  <button class="btn-add" onclick="addDebt()">Add a debt</button>
-  <div class="no-debt-row" id="ndr" onclick="toggleND()">
-    <div class="ndb" id="ndb"><svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg></div>
-    <div class="ndt">I have no debts — I am completely debt free</div>
-  </div>
-</div>
-
-<div class="slide" id="s18">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How much do you have in savings right now? Total across all accounts. Enter 0 if there is nothing. <span class="teal">There is no judgment. I need the real number, not the comfortable one.</span></div></div></div>
-  <div class="q-title">Your<br><span>savings.</span></div>
-  <div class="fg"><div class="f-label">Total savings right now</div><div class="fw"><span class="fpre" id="preSv">$</span><input class="field pre" type="number" min="0" placeholder="0" oninput="D.total_savings=n(this.value)"></div></div>
-  <div class="fg"><div class="f-label">Emergency fund — of that total</div><div class="fw"><span class="fpre" id="preEm">$</span><input class="field pre" type="number" min="0" placeholder="0 if none" oninput="D.emergency_fund=n(this.value)"></div><div class="f-note">Money set aside specifically for emergencies. Enter 0 if you have not separated it yet.</div></div>
-</div>
-
-<div class="slide" id="s19">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">How would you describe your credit health? I do not need your exact score — just an honest range. This determines which debt strategies are available to you and what financial products you can realistically access.</div></div></div>
-  <div class="q-title">Your credit<br><span>health.</span></div>
-  <div class="choices">
-    <div class="choice" onclick="pick('credit_health','excellent',this);next()"><div class="c-label">Excellent</div><div class="c-sub">740 or above — no missed payments, long history</div></div>
-    <div class="choice" onclick="pick('credit_health','good',this);next()"><div class="c-label">Good</div><div class="c-sub">670 to 739 — mostly on time, a few minor issues</div></div>
-    <div class="choice" onclick="pick('credit_health','fair',this);next()"><div class="c-label">Fair</div><div class="c-sub">580 to 669 — some late payments or high utilization</div></div>
-    <div class="choice" onclick="pick('credit_health','poor',this);next()"><div class="c-label">Poor</div><div class="c-sub">Below 580 — missed payments, collections, or defaults</div></div>
-    <div class="choice" onclick="pick('credit_health','none',this);next()"><div class="c-label">No credit history</div><div class="c-sub">New to the country or never built credit</div></div>
-    <div class="choice" onclick="pick('credit_health','unknown',this);next()"><div class="c-label">I have never checked</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s20">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">When do you get paid? I will build your payday survival plan around this date — telling you exactly what to do with your money within 24 hours of it arriving.</div></div></div>
-  <div class="q-title">Your payday<br><span>date.</span></div>
-  <div class="choices g3" style="margin-bottom:16px">
-    <div class="choice" onclick="pick('payday_frequency','monthly',this)"><div class="c-label">Monthly</div></div>
-    <div class="choice" onclick="pick('payday_frequency','biweekly',this)"><div class="c-label">Every two weeks</div></div>
-    <div class="choice" onclick="pick('payday_frequency','weekly',this)"><div class="c-label">Weekly</div></div>
-  </div>
-  <div class="fg"><div class="f-label">Next payday date</div><input class="field" type="date" id="pdInp" oninput="D.payday_date=this.value" style="color-scheme:dark"></div>
-</div>
-
-<div class="slide" id="s21">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">Have you tried to fix your finances before? What happened? This is not a judgment question. Your answer tells me what approach will actually work for you — not the generic one that may have already failed you.</div></div></div>
-  <div class="q-title">What stopped<br><span>you before?</span></div>
-  <div class="choices">
-    <div class="choice" onclick="pick('previous_attempt','no_plan',this);next()"><div class="c-label">I never had a real plan</div><div class="c-sub">Did not know where to start</div></div>
-    <div class="choice" onclick="pick('previous_attempt','no_stick',this);next()"><div class="c-label">I started but could not stick to it</div><div class="c-sub">Life got in the way</div></div>
-    <div class="choice" onclick="pick('previous_attempt','emergency',this);next()"><div class="c-label">An emergency derailed everything</div><div class="c-sub">Medical bill, job loss, crisis</div></div>
-    <div class="choice" onclick="pick('previous_attempt','income_low',this);next()"><div class="c-label">My income was too low to save anything</div><div class="c-sub">Nothing left after expenses</div></div>
-    <div class="choice" onclick="pick('previous_attempt','tried_all',this);next()"><div class="c-label">I have tried everything and nothing worked</div><div class="c-sub">Feeling stuck and defeated</div></div>
-    <div class="choice" onclick="pick('previous_attempt','first_time',this);next()"><div class="c-label">This is my first time facing this</div><div class="c-sub">Never tackled it before</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s22">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What are your biggest financial fears? Select as many as feel true. These are not weaknesses — they are exactly what I am going to help you eliminate, one by one.</div></div></div>
-  <div class="q-title">Your deepest<br><span>fears.</span></div>
-  <div class="multi-list">
-    <div class="multi" onclick="tm('fears','debt',this)"><div class="m-label">Never getting out of debt</div></div>
-    <div class="multi" onclick="tm('fears','paycheck',this)"><div class="m-label">Living paycheck to paycheck forever</div></div>
-    <div class="multi" onclick="tm('fears','emergency',this)"><div class="m-label">One emergency destroying everything</div></div>
-    <div class="multi" onclick="tm('fears','family',this)"><div class="m-label">Not providing enough for my family</div></div>
-    <div class="multi" onclick="tm('fears','retirement',this)"><div class="m-label">Not having enough to retire</div></div>
-    <div class="multi" onclick="tm('fears','shame',this)"><div class="m-label">The shame of my financial situation</div></div>
-    <div class="multi" onclick="tm('fears','job',this)"><div class="m-label">Losing my job with no financial cushion</div></div>
-    <div class="multi" onclick="tm('fears','home',this)"><div class="m-label">Never being able to buy a home</div></div>
-  </div>
-</div>
-
-<div class="slide" id="s23">
-  <div class="mina-block"><div class="mina-mark"><div class="mina-init">M</div><div class="mina-live"></div></div><div class="mina-speech"><div class="mina-who">Mina</div><div class="mina-text">What do you actually want your financial life to look like? Not what you think you should want — what you <strong>genuinely</strong> want. Pick as many as are true.</div></div></div>
-  <div class="q-title">Your real<br><span>goals.</span></div>
-  <div class="multi-list">
-    <div class="multi" onclick="tm('goals','debt',this)"><div class="m-label">Eliminate every debt completely</div></div>
-    <div class="multi" onclick="tm('goals','save',this)"><div class="m-label">Build real savings for the first time</div></div>
-    <div class="multi" onclick="tm('goals','house',this)"><div class="m-label">Buy my own home</div></div>
-    <div class="multi" onclick="tm('goals','emergency',this)"><div class="m-label">Build a solid emergency fund</div></div>
-    <div class="multi" onclick="tm('goals','family',this)"><div class="m-label">Provide a better life for my family</div></div>
-    <div class="multi" onclick="tm('goals','retire',this)"><div class="m-label">Retire comfortably one day</div></div>
-    <div class="multi" onclick="tm('goals','business',this)"><div class="m-label">Start my own business</div></div>
-    <div class="multi" onclick="tm('goals','freedom',this)"><div class="m-label">Stop the anxiety around money forever</div></div>
-  </div>
-</div>
-
-</div>
-
-<div class="botnav" id="bn">
-  <button class="btn-back" id="bb" onclick="prev()" disabled>Back</button>
-  <button class="btn-next" id="bnt" onclick="next()">Continue</button>
-  <button class="btn-skip" id="bsk" onclick="next()" style="display:none">Skip this</button>
-</div>
-
-<div class="analysis" id="ana">
+<!-- ANALYSIS -->
+<div class="analysis" id="analysis">
   <div class="a-logo">Sum <span>Goals</span></div>
-  <div class="a-sub">Mina is reviewing your complete situation</div>
+  <div class="a-sub" id="aSub">Mina is reviewing your complete situation</div>
   <div class="a-list">
-    <div class="a-row" id="ar1"><div class="a-dot"></div><div class="a-txt">Reviewing your income and expenses</div><div class="a-spin"></div></div>
-    <div class="a-row" id="ar2"><div class="a-dot"></div><div class="a-txt">Calculating your financial health score</div><div class="a-spin"></div></div>
-    <div class="a-row" id="ar3"><div class="a-dot"></div><div class="a-txt">Building your debt elimination strategy</div><div class="a-spin"></div></div>
-    <div class="a-row" id="ar4"><div class="a-dot"></div><div class="a-txt">Preparing your personalized plan</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar1"><div class="a-dot"></div><div class="a-txt" id="at1">Reviewing your income and expenses</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar2"><div class="a-dot"></div><div class="a-txt" id="at2">Calculating your financial health score</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar3"><div class="a-dot"></div><div class="a-txt" id="at3">Searching for hidden benefits you may be missing</div><div class="a-spin"></div></div>
+    <div class="a-row" id="ar4"><div class="a-dot"></div><div class="a-txt" id="at4">Building your personalized plan</div><div class="a-spin"></div></div>
   </div>
 </div>
 
-<div class="result" id="res">
+<!-- RESULT -->
+<div class="result" id="result">
   <div class="r-inner">
-    <div class="r-mina"><div class="mina-mark"><div class="mina-init">M</div></div><div class="r-bubble" id="rMsg"></div></div>
-    <div class="score-band">
-      <div class="s-ring"><svg viewBox="0 0 80 80"><circle class="rbg" cx="40" cy="40" r="35"/><circle class="rarc" id="rArc" cx="40" cy="40" r="35"/></svg><div class="rlabel"><span id="rSc">—</span></div></div>
+    <div class="r-logo">Sum <span>Goals</span></div>
+    <div class="r-mina"><div class="m-mark"><div class="m-av">M</div></div><div class="r-bubble" id="rMsg"></div></div>
+    <div class="score-card">
+      <div class="s-ring"><svg viewBox="0 0 76 76"><circle class="rbg" cx="38" cy="38" r="33"/><circle class="rarc" id="rArc" cx="38" cy="38" r="33"/></svg><div class="rl"><span id="rSc">—</span></div></div>
       <div><div class="s-verdict" id="rVerd">—</div><div class="s-detail" id="rDet">—</div></div>
     </div>
     <div class="snapshot">
-      <div class="snap"><div class="snap-lbl">Monthly available</div><div class="snap-val" id="rAv">—</div></div>
-      <div class="snap"><div class="snap-lbl">Total debt</div><div class="snap-val" id="rDb">—</div></div>
-      <div class="snap"><div class="snap-lbl">Savings</div><div class="snap-val gold" id="rSav">—</div></div>
+      <div class="snap"><div class="snap-l" id="rSnL1">Monthly available</div><div class="snap-v" id="rAv">—</div></div>
+      <div class="snap"><div class="snap-l" id="rSnL2">Total debt</div><div class="snap-v" id="rDb">—</div></div>
+      <div class="snap"><div class="snap-l" id="rSnL3">Savings</div><div class="snap-v gold" id="rSav">—</div></div>
     </div>
     <div class="plan-card" id="rPlan"></div>
     <div class="save-card">
-      <div class="save-title">Your plan is ready. Do not lose it.</div>
-      <div class="save-sub">Create your free account in 30 seconds. Mina saves your complete profile — every number, every goal, every detail. Every time you return she picks up exactly where you left off.</div>
-      <button class="btn-save" onclick="openAuth()">Save my plan and create my account</button>
-      <div class="save-note">No credit card required. Takes 30 seconds. Cancel anytime.</div>
+      <div class="save-title" id="svTitle">Your plan is ready.</div>
+      <div class="save-sub" id="svSub">Create your free account and Mina saves your complete profile. Every time you return she picks up exactly where you left off.</div>
+      <div class="save-priv" id="svPriv">Everything you tell me stays between us. No ads. No data sales. Just coaching.</div>
+      <button class="btn-save" id="svBtn" onclick="openAuth()">Save my plan and start with Mina</button>
+      <div class="save-note" id="svNote">No credit card required. Takes 30 seconds.</div>
     </div>
   </div>
 </div>
 
-<div class="overlay" id="ov">
+<!-- AUTH -->
+<div class="overlay" id="authOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeAuth()">×</button>
-    <div id="authC">
-      <div class="ml">Sum <span>Goals</span></div>
-      <div class="ms">Your plan is ready. Save it now.</div>
+    <button class="modal-x" onclick="closeAuth()">×</button>
+    <div id="authContent">
+      <div class="m-logo">Sum <span>Goals</span></div>
+      <div class="m-sub" id="authSub">Your plan is ready. Save it now.</div>
+      <div class="m-priv" id="authPriv">No ads. No data sales. Just coaching.</div>
       <div class="aerr" id="aerr"></div>
-      <div class="f-row" style="margin-bottom:0">
-        <div><label class="fl">First name</label><input class="fi" id="fFi" type="text" placeholder="First name"></div>
-        <div><label class="fl">Last name</label><input class="fi" id="fLa" type="text" placeholder="Last name"></div>
+      <div class="fi-row" style="margin-bottom:0">
+        <div><label class="fi-l" id="authFn">First name</label><input class="fi" id="fFi" type="text" placeholder="First name"></div>
+        <div><label class="fi-l" id="authLn">Last name</label><input class="fi" id="fLa" type="text" placeholder="Last name"></div>
       </div>
-      <label class="fl">Email address</label><input class="fi" id="fEm" type="email" placeholder="you@email.com">
-      <label class="fl">Phone <span style="color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><input class="fi" id="fPh" type="tel" placeholder="+1 555 000 0000">
-      <label class="fl">Password</label>
-      <div class="pw"><input class="fi" id="fPw" type="password" placeholder="At least 8 characters"><button class="peye" onclick="togglePw()" type="button" id="pEye"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.55">By creating an account you agree to our <a href="#" style="color:var(--teal)">Terms</a> and <a href="#" style="color:var(--teal)">Privacy Policy</a>. No ads. Your data is never sold.</div>
+      <label class="fi-l" id="authEm">Email</label><input class="fi" id="fEm" type="email" placeholder="you@email.com">
+      <label class="fi-l" id="authPw">Password</label>
+      <div class="pw-wrap"><input class="fi" id="fPw" type="password" placeholder="At least 8 characters"><button class="peye" onclick="tgPw()" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;line-height:1.55">By signing up you agree to our <a href="/privacy.html" style="color:var(--teal)">Privacy Policy</a>. No ads. Your data is never sold.</div>
       <button class="btn-auth" id="sBtn" onclick="doSignup()">Create my free account</button>
-      <div class="divider">or</div>
-      <button class="btn-google" onclick="doGoogle()"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button>
+      <div class="divider" id="authOr">or</div>
+      <button class="btn-google" onclick="doGoogle()">
+        <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <span id="authGoogle">Continue with Google</span>
+      </button>
     </div>
-    <div id="verC" style="display:none">
-      <div class="verify-state">
-        <div class="verify-title">Check your inbox</div>
-        <div class="verify-sub" id="verSub">We sent a verification link. Click it and Mina will be waiting for you with your complete plan.</div>
-        <div class="verify-tip">Did not receive it? Check your spam folder. Add <strong style="color:var(--white)">vera@sumgoals.com</strong> to your contacts.</div>
+    <div id="verifyContent" style="display:none">
+      <div class="ver-state">
+        <div class="m-av" style="width:48px;height:48px;font-size:19px;margin:0 auto 13px">M</div>
+        <div class="ver-title" id="verTitle">Check your inbox</div>
+        <div class="ver-sub" id="verSub">Click the link we sent you. Mina will be waiting.</div>
+        <div class="ver-tip" id="verTip">Not there? Check spam. Add mina@sumgoals.com to your contacts.</div>
       </div>
     </div>
   </div>
 </div>
-
 <script>
 var SB_URL='https://dmdvoygnzbosjbwsriea.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
 var sb=supabase.createClient(SB_URL,SB_KEY);
-var T=24,cur=1,OPT=[8,9,14,18];
-var D={lang:'en',country:'',country_name:'',currency:'USD',age_range:'',situation:'',weight:[],moment:'',monthly_income:0,income_stable:null,has_side:false,side_income:0,has_invest:false,invest_income:0,sends_remittances:false,remittances:0,housing_type:'',rent:0,mortgage_balance:0,utilities:0,phone_internet:0,car_payment:0,car_insurance:0,health_insurance:0,life_insurance:0,groceries:0,dining:0,transport:0,subscriptions:0,dependents:0,pays_daycare:false,daycare:0,has_retirement:false,retirement_contribution:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
-function n(v){return parseFloat(v)||0;}
-function showSlide(i){document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('active');});var el=document.getElementById('s'+i);if(el)el.classList.add('active');cur=i;document.getElementById('bb').disabled=i<=1;document.getElementById('pf').style.width=(((i-1)/T)*100)+'%';document.getElementById('pt').textContent='Step '+i+' of '+T;document.getElementById('sc').textContent=Math.round(((i-1)/T)*100)+'% complete';document.getElementById('bsk').style.display=OPT.includes(i)?'block':'none';updatePre();window.scrollTo(0,0);}
+
+var lang='en',cur=1,TOTAL=12,OPTIONAL=[9];
+var D={lang:'en',situation:'',moment:'',country:'',country_name:'',currency:'USD',age_range:'',monthly_income:0,income_stable:null,has_extra:false,side_income:0,invest_income:0,rent:0,utilities:0,groceries:0,dining:0,transport:0,car_payment:0,insurance:0,subscriptions:0,sends_remittances:false,remittances:0,pays_daycare:false,daycare:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
+
+// FULL TRANSLATIONS — every element ID
+var TR={
+en:{
+  wPrompt:'Which language feels like home to you?',
+  wPriv:'Everything you tell me stays between us. No ads. No data sales. Just coaching.',
+  back:'Back',next:'Continue',skip:'Skip',
+  aSub:'Mina is reviewing your complete situation',
+  at1:'Reviewing your income and expenses',at2:'Calculating your financial health score',
+  at3:'Searching for hidden benefits you may be missing',at4:'Building your personalized plan',
+  svTitle:'Your plan is ready.',
+  svSub:'Create your free account and Mina saves your complete profile. Every time you return she picks up exactly where you left off.',
+  svPriv:'Everything you tell me stays between us. No ads. No data sales. Just coaching.',
+  svBtn:'Save my plan and start with Mina',svNote:'No credit card required. Takes 30 seconds.',
+  authSub:'Your plan is ready. Save it now.',authPriv:'No ads. No data sales. Just coaching.',
+  authFn:'First name',authLn:'Last name',authEm:'Email',authPw:'Password',
+  authOr:'or',authGoogle:'Continue with Google',
+  verTitle:'Check your inbox',verSub:'Click the link we sent you. Mina will be waiting.',
+  verTip:'Not there? Check spam. Add mina@sumgoals.com to your contacts.',
+  s1tag:'MINA — YOUR COACH',
+  s1txt:'Before anything else — one question that changes how I speak to you. There is no right answer.',
+  s1title:'What is your <span>situation?</span>',
+  s1a:'I am single — providing for myself',s1as:'My financial decisions affect me directly',
+  s1b:'I have a partner — we manage finances together',s1bs:'Two people, shared responsibilities',
+  s1c:'I have a family — children depend on me',s1cs:'My decisions protect people I love',
+  s1d:'I support family abroad or aging parents',s1ds:'I carry responsibilities beyond my household',
+  s1e:'All of the above — I am the one everyone depends on',s1es:'Partner, children, family abroad — all of it',
+  s2tag:'MINA',s2txt:'What brought you here? Most people come to me at a specific moment — something happened, or something they were ignoring became impossible to ignore.',
+  s2bold:'What was that moment for you?',
+  s2a:'My expenses are higher than my income and I am scared',
+  s2b:'I have debt I have been avoiding looking at',
+  s2c:'I want to build something for my family and I do not know if it is possible',
+  s2d:'I am the one everyone depends on and I am not sure I am doing enough',
+  s2e:'An emergency destroyed what I had built and I am starting over',
+  s2f:'I have never had a real financial plan and I want one',
+  s3txt:'I see what you are carrying.',
+  s3sub:'Take your time. Then press Continue when you are ready.',
+  sentence:'You have been taking care of everyone around you for so long that you forgot someone was supposed to take care of you too. I am here for that.',
+  s4txt:'Three quick things before we look at your numbers. Where you live, your currency, and your age — these change my advice significantly.',
+  s4title:'Where, <span>what currency,</span> how old?',
+  s4cl:'Country where you live',s4cp:'Select your country...',s4ot:'Other',
+  s4curl:'Your currency',s4curo:'Other currency...',
+  s4otl:'Type your country',s4corl:'Currency code',s4al:'Your age range',
+  s4a1:'18 to 24',s4a2:'25 to 34',s4a3:'35 to 44',s4a4:'45 to 54',s4a5:'55 and above',
+  s5txt:'Not the number on your contract — the amount that actually arrives in your account each month after taxes. If it varies, give me a typical month.',
+  s5title:'Your monthly <span>income.</span>',s5l1:'Monthly salary after tax',
+  s5stable:'Stable',s5stables:'Same every month',s5var:'Variable',s5vars:'Changes month to month',
+  s5extra:'I have extra income',s5extras:'Side work, rental, investment',s5noextra:'Salary only',
+  s5el1:'Side or freelance',s5el2:'Rental or investment',
+  s6txt:'Most people underestimate spending by 30%. Enter what you actually spend — not what you wish you spent.',
+  s6bold:'Be honest here.',
+  s6title:'Your monthly <span>expenses.</span>',
+  s6l1:'Housing (rent or mortgage)',s6l2:'Utilities and phone',
+  s6l3:'Groceries and household',s6l4:'Dining out and food delivery',
+  s6l5:'Transport and fuel',s6l6:'Car payment (if any)',
+  s6l7:'Health and insurance',s6l8:'Subscriptions',
+  s6rm:'I send money abroad',s6rms:'Family in another country',s6nrm:'No remittances',
+  s6rml:'Monthly amount sent abroad',s6rmn:'Include everything. I will never ask you to cut this.',
+  s6dc:'I pay for childcare',s6dcs:'Daycare, nanny, after-school',
+  s6ndc:'No childcare costs',s6dcl:'Monthly childcare cost',
+  s7txt:'Tell me every debt you carry. The order we attack them matters enormously.',
+  s7bold:'Every debt you hide from me is a debt I cannot help you eliminate.',
+  s7title:'Your <span>debts.</span>',s7nd:'I have no debts — I am completely debt free',addDebtTxt:'Add a debt',
+  s8txt:'How much do you have saved right now? Total across all accounts. Enter 0 if there is nothing.',
+  s8tc:'There is no judgment — I need the real number.',
+  s8title:'Your <span>savings.</span>',s8l1:'Total savings right now',s8l2:'Emergency fund (of that total)',
+  s8cl:'Credit health',s8cr1:'Excellent (740+)',s8cr2:'Good (670-739)',s8cr3:'Fair (580-669)',
+  s8cr4:'Poor (below 580)',s8cr5:'No credit history',
+  s9txt:'When do you get paid? I will build your payday survival plan around this date.',
+  s9title:'Your <span>payday.</span>',s9f1:'Monthly',s9f2:'Every 2 weeks',s9f3:'Weekly',s9dl:'Next payday date',
+  s10txt:'Have you tried before? Your answer tells me what approach will actually work for you this time.',
+  s10title:'What stopped <span>you before?</span>',
+  s10a:'I never had a real plan',s10b:'I started but could not stick to it',
+  s10c:'An emergency derailed everything',s10d:'My income felt too low to save anything',
+  s10e:'I have tried everything and nothing worked',s10f:'This is my first time facing this',
+  s11txt:'What are your deepest financial fears? These are not weaknesses. They are what I am going to help you eliminate.',
+  s11title:'Your <span>fears.</span>',
+  s11a:'Never getting out of debt',s11b:'Living paycheck to paycheck forever',
+  s11c:'One emergency destroying everything',s11d:'Not providing enough for my family',
+  s11e:'Not having enough to retire',s11f:'Never being able to buy a home',
+  s11g:'Losing my job with no cushion',s11h:'The shame of my financial situation',
+  s12txt:"What do you actually want for your life? Not what you think you should want — what you genuinely want.",
+  s12title:'Your real <span>goals.</span>',
+  s12a:'Eliminate every debt',s12b:'Build real savings',s12c:'Buy my own home',
+  s12d:'Build a solid emergency fund',s12e:'Provide a better life for my family',
+  s12f:'Retire comfortably',s12g:'Start my own business',s12h:'Stop the anxiety around money forever',
+  rSnL1:'Monthly available',rSnL2:'Total debt',rSnL3:'Savings'
+},
+fr:{
+  wPrompt:'Quelle langue vous semble la plus naturelle\u00a0?',
+  wPriv:'Tout ce que vous me confiez reste entre nous. Pas de publicit\u00e9s. Pas de vente de donn\u00e9es. Juste du coaching.',
+  back:'Retour',next:'Continuer',skip:'Passer',
+  aSub:'Mina examine votre situation compl\u00e8te',
+  at1:'Analyse de vos revenus et d\u00e9penses',at2:'Calcul de votre score de sant\u00e9 financi\u00e8re',
+  at3:"Recherche d'aides que vous manquez peut-\u00eatre",at4:'Cr\u00e9ation de votre plan personnalis\u00e9',
+  svTitle:'Votre plan est pr\u00eat.',
+  svSub:"Cr\u00e9ez votre compte gratuit et Mina sauvegarde votre profil complet. Chaque fois que vous revenez, elle reprend exactement l\u00e0 o\u00f9 vous vous \u00eates arr\u00eat\u00e9.",
+  svPriv:'Tout ce que vous me confiez reste entre nous. Pas de publicit\u00e9s. Pas de vente de donn\u00e9es.',
+  svBtn:'Sauvegarder mon plan et commencer avec Mina',svNote:'Aucune carte de cr\u00e9dit requise. Prend 30 secondes.',
+  authSub:'Votre plan est pr\u00eat. Sauvegardez-le maintenant.',authPriv:'Pas de publicit\u00e9s. Pas de vente de donn\u00e9es.',
+  authFn:'Pr\u00e9nom',authLn:'Nom',authEm:'Email',authPw:'Mot de passe',
+  authOr:'ou',authGoogle:'Continuer avec Google',
+  verTitle:'V\u00e9rifiez votre bo\u00eete mail',verSub:'Cliquez sur le lien envoy\u00e9. Mina vous attendra.',
+  verTip:'Pas re\u00e7u\u00a0? V\u00e9rifiez les spams. Ajoutez mina@sumgoals.com \u00e0 vos contacts.',
+  s1tag:'MINA \u2014 VOTRE COACH',
+  s1txt:'Avant tout \u2014 une question qui change la mani\u00e8re dont je vous parle. Il n\'y a pas de bonne r\u00e9ponse.',
+  s1title:'Quelle est votre <span>situation\u00a0?</span>',
+  s1a:'Je suis seul(e) \u2014 je subviens \u00e0 mes propres besoins',s1as:'Mes d\u00e9cisions financi\u00e8res me concernent directement',
+  s1b:"J'ai un partenaire \u2014 nous g\u00e9rons les finances ensemble",s1bs:'Deux personnes, responsabilit\u00e9s partag\u00e9es',
+  s1c:"J'ai une famille \u2014 des enfants d\u00e9pendent de moi",s1cs:"Mes d\u00e9cisions prot\u00e8gent les gens que j'aime",
+  s1d:"Je soutiens ma famille \u00e0 l'\u00e9tranger ou mes parents vieillissants",s1ds:'Je porte des responsabilit\u00e9s au-del\u00e0 de mon foyer',
+  s1e:'Tout cela \u2014 je suis celui que tout le monde appelle',s1es:"Partenaire, enfants, famille \u00e0 l'\u00e9tranger \u2014 tout cela",
+  s2tag:'MINA',s2txt:"Qu'est-ce qui vous a amen\u00e9 ici\u00a0? La plupart des gens viennent me voir \u00e0 un moment pr\u00e9cis \u2014 quelque chose s'est pass\u00e9, ou quelque chose qu'ils ignoraient est devenu impossible \u00e0 ignorer.",
+  s2bold:'Quel \u00e9tait ce moment pour vous\u00a0?',
+  s2a:"Mes d\u00e9penses sont sup\u00e9rieures \u00e0 mes revenus et j'ai peur",
+  s2b:"J'ai des dettes que j'\u00e9vite de regarder en face",
+  s2c:"Je veux construire quelque chose pour ma famille et je ne sais pas si c'est possible",
+  s2d:'Je suis celui dont tout le monde d\u00e9pend et je ne suis pas s\u00fbr de faire assez',
+  s2e:"Une urgence a d\u00e9truit ce que j'avais construit et je recommence \u00e0 z\u00e9ro",
+  s2f:"Je n'ai jamais eu de vrai plan financier et j'en veux un",
+  s3txt:'Je vois ce que vous portez.',
+  s3sub:'Prenez le temps qu\'il vous faut. Puis appuyez sur Continuer quand vous \u00eates pr\u00eat(e).',
+  sentence:'Vous vous \u00eates occup\u00e9(e) de tout le monde autour de vous depuis si longtemps que vous avez oubli\u00e9 que quelqu\'un \u00e9tait cens\u00e9 s\'occuper de vous aussi. Je suis l\u00e0 pour \u00e7a.',
+  s4txt:'Trois choses rapides avant de regarder vos chiffres. O\u00f9 vous vivez, votre devise et votre \u00e2ge \u2014 ces trois \u00e9l\u00e9ments changent mes conseils significativement.',
+  s4title:'O\u00f9, <span>quelle devise,</span> quel \u00e2ge\u00a0?',
+  s4cl:'Pays o\u00f9 vous vivez',s4cp:'S\u00e9lectionnez votre pays...',s4ot:'Autre',
+  s4curl:'Votre devise',s4curo:'Autre devise...',
+  s4otl:'Tapez votre pays',s4corl:'Code de devise',s4al:'Votre tranche d\'\u00e2ge',
+  s4a1:'18 \u00e0 24 ans',s4a2:'25 \u00e0 34 ans',s4a3:'35 \u00e0 44 ans',s4a4:'45 \u00e0 54 ans',s4a5:'55 ans et plus',
+  s5txt:'Pas le chiffre sur votre contrat \u2014 le montant qui arrive r\u00e9ellement sur votre compte chaque mois apr\u00e8s imp\u00f4ts.',
+  s5title:'Votre revenu <span>mensuel.</span>',s5l1:'Salaire mensuel apr\u00e8s imp\u00f4ts',
+  s5stable:'Stable',s5stables:'Le m\u00eame chaque mois',s5var:'Variable',s5vars:"Change d'un mois \u00e0 l'autre",
+  s5extra:"J'ai des revenus suppl\u00e9mentaires",s5extras:'Freelance, location, investissement',s5noextra:'Salaire uniquement',
+  s5el1:'Revenus freelance ou de c\u00f4t\u00e9',s5el2:'Revenus locatifs ou investissements',
+  s6txt:'La plupart des gens sous-estiment leurs d\u00e9penses de 30\u00a0%. Entrez ce que vous d\u00e9pensez r\u00e9ellement.',
+  s6bold:'Soyez honn\u00eate.',
+  s6title:'Vos d\u00e9penses <span>mensuelles.</span>',
+  s6l1:'Logement (loyer ou cr\u00e9dit)',s6l2:'Charges et t\u00e9l\u00e9phone',
+  s6l3:'Courses et m\u00e9nage',s6l4:'Restaurants et livraisons',
+  s6l5:'Transport et carburant',s6l6:'Cr\u00e9dit voiture (si applicable)',
+  s6l7:'Sant\u00e9 et assurances',s6l8:'Abonnements',
+  s6rm:"J'envoie de l'argent \u00e0 l'\u00e9tranger",s6rms:'Famille dans un autre pays',s6nrm:'Pas de transferts',
+  s6rml:"Montant mensuel envoy\u00e9 \u00e0 l'\u00e9tranger",s6rmn:"Incluez tout. Je ne vous demanderai jamais de r\u00e9duire cela.",
+  s6dc:"Je paie une garde d'enfants",s6dcs:'Cr\u00e8che, nounou, p\u00e9riscolaire',
+  s6ndc:'Pas de frais de garde',s6dcl:'Co\u00fbt mensuel de garde',
+  s7txt:'Dites-moi chaque dette que vous portez. L\'ordre dans lequel nous les attaquons est crucial.',
+  s7bold:'Chaque dette que vous me cachez est une dette que je ne peux pas vous aider \u00e0 \u00e9liminer.',
+  s7title:'Vos <span>dettes.</span>',s7nd:'Je n\'ai aucune dette \u2014 je suis compl\u00e8tement libre de dettes',addDebtTxt:'Ajouter une dette',
+  s8txt:'Combien avez-vous d\'\u00e9conomies en ce moment\u00a0? Total sur tous les comptes. Entrez 0 s\'il n\'y a rien.',
+  s8tc:'Aucun jugement \u2014 j\'ai besoin du vrai chiffre.',
+  s8title:'Vos <span>\u00e9conomies.</span>',s8l1:'Total des \u00e9conomies actuelles',s8l2:'Fonds d\'urgence (parmi ce total)',
+  s8cl:'Sant\u00e9 de cr\u00e9dit',s8cr1:'Excellent (740+)',s8cr2:'Bon (670-739)',s8cr3:'Correct (580-669)',
+  s8cr4:'M\u00e9diocre (en dessous de 580)',s8cr5:'Pas d\'historique de cr\u00e9dit',
+  s9txt:'Quand \u00eates-vous pay\u00e9(e)\u00a0? Je vais construire votre plan de survie autour de cette date.',
+  s9title:'Votre <span>date de paie.</span>',s9f1:'Mensuel',s9f2:'Toutes les 2 semaines',s9f3:'Hebdomadaire',s9dl:'Prochaine date de paie',
+  s10txt:'Avez-vous d\u00e9j\u00e0 essay\u00e9\u00a0? Votre r\u00e9ponse me dit quelle approche fonctionnera vraiment cette fois.',
+  s10title:'Qu\'est-ce qui vous a <span>arr\u00eat\u00e9 avant\u00a0?</span>',
+  s10a:"Je n'ai jamais eu de vrai plan",s10b:"J'ai commenc\u00e9 mais je n'ai pas pu m'y tenir",
+  s10c:'Une urgence a tout derail\u00e9',s10d:'Mon revenu semblait trop bas pour \u00e9pargner',
+  s10e:"J'ai tout essay\u00e9 et rien n'a fonctionn\u00e9",s10f:"C'est la premi\u00e8re fois que j'affronte cela",
+  s11txt:'Quelles sont vos plus grandes peurs financi\u00e8res\u00a0? Ce ne sont pas des faiblesses. C\'est ce que je vais vous aider \u00e0 \u00e9liminer.',
+  s11title:'Vos <span>peurs.</span>',
+  s11a:'Ne jamais sortir des dettes',s11b:'Vivre de paie en paie pour toujours',
+  s11c:'Une urgence qui d\u00e9truit tout',s11d:'Ne pas subvenir suffisamment aux besoins de ma famille',
+  s11e:'Ne pas avoir assez pour la retraite',s11f:'Ne jamais pouvoir acheter un logement',
+  s11g:'Perdre mon emploi sans coussin financier',s11h:'La honte de ma situation financi\u00e8re',
+  s12txt:'Que voulez-vous vraiment\u00a0? Pas ce que vous pensez devoir vouloir \u2014 ce que vous voulez g\u00e9nuinement pour votre vie.',
+  s12title:'Vos vrais <span>objectifs.</span>',
+  s12a:'Eliminer toutes mes dettes',s12b:'Construire de vraies \u00e9conomies',s12c:'Acheter mon propre logement',
+  s12d:"Constituer un fonds d'urgence solide",s12e:'Offrir une meilleure vie \u00e0 ma famille',
+  s12f:'Prendre une retraite confortable',s12g:'Lancer ma propre entreprise',s12h:"Arr\u00eater l'anxi\u00e9t\u00e9 autour de l'argent pour toujours",
+  rSnL1:'Disponible mensuel',rSnL2:'Total des dettes',rSnL3:'\u00c9conomies'
+},
+es:{
+  wPrompt:'\u00bfQu\u00e9 idioma te resulta m\u00e1s natural?',
+  wPriv:'Todo lo que me cuentes se queda entre nosotros. Sin publicidad. Sin venta de datos. Solo coaching.',
+  back:'Atr\u00e1s',next:'Continuar',skip:'Saltar',
+  aSub:'Mina est\u00e1 revisando tu situaci\u00f3n completa',
+  at1:'Revisando tus ingresos y gastos',at2:'Calculando tu puntuaci\u00f3n de salud financiera',
+  at3:'Buscando beneficios ocultos que podr\u00edas estar perdiendo',at4:'Construyendo tu plan personalizado',
+  svTitle:'Tu plan est\u00e1 listo.',
+  svSub:'Crea tu cuenta gratuita y Mina guarda tu perfil completo. Cada vez que regreses ella contin\u00faa exactamente donde lo dejaste.',
+  svPriv:'Todo lo que me cuentes se queda entre nosotros. Sin publicidad. Sin venta de datos.',
+  svBtn:'Guardar mi plan y empezar con Mina',svNote:'Sin tarjeta de cr\u00e9dito. Toma 30 segundos.',
+  authSub:'Tu plan est\u00e1 listo. Gu\u00e1rdalo ahora.',authPriv:'Sin publicidad. Sin venta de datos.',
+  authFn:'Nombre',authLn:'Apellido',authEm:'Email',authPw:'Contrase\u00f1a',
+  authOr:'o',authGoogle:'Continuar con Google',
+  verTitle:'Revisa tu bandeja de entrada',verSub:'Haz clic en el enlace. Mina te estar\u00e1 esperando.',
+  verTip:'\u00bfNo lo recibiste? Revisa spam. Agrega mina@sumgoals.com a tus contactos.',
+  s1tag:'MINA \u2014 TU COACH',
+  s1txt:'Antes que nada \u2014 una pregunta que cambia c\u00f3mo te hablo. No hay respuesta correcta.',
+  s1title:'\u00bfCu\u00e1l es tu <span>situaci\u00f3n?</span>',
+  s1a:'Soy soltero(a) \u2014 me mantengo a m\u00ed mismo',s1as:'Mis decisiones financieras me afectan directamente',
+  s1b:'Tengo pareja \u2014 gestionamos las finanzas juntos',s1bs:'Dos personas, responsabilidades compartidas',
+  s1c:'Tengo familia \u2014 los ni\u00f1os dependen de m\u00ed',s1cs:'Mis decisiones protegen a las personas que amo',
+  s1d:'Apoyo a familia en el extranjero o a padres mayores',s1ds:'Llevo responsabilidades m\u00e1s all\u00e1 de mi hogar',
+  s1e:'Todo lo anterior \u2014 soy a quien todos llaman',s1es:'Pareja, hijos, familia en el extranjero \u2014 todo',
+  s2tag:'MINA',s2txt:'\u00bfQu\u00e9 te trajo aqu\u00ed? La mayor\u00eda de las personas vienen a m\u00ed en un momento espec\u00edfico \u2014 algo ocurri\u00f3, o algo que estaban ignorando se volvi\u00f3 imposible de seguir ignorando.',
+  s2bold:'\u00bfCu\u00e1l fue ese momento para ti?',
+  s2a:'Mis gastos son m\u00e1s altos que mis ingresos y tengo miedo',
+  s2b:'Tengo deudas que he estado evitando mirar',
+  s2c:'Quiero construir algo para mi familia y no s\u00e9 si es posible',
+  s2d:'Soy de quien todos dependen y no estoy seguro de estar haciendo lo suficiente',
+  s2e:'Una emergencia destruy\u00f3 lo que hab\u00eda construido y estoy empezando de nuevo',
+  s2f:'Nunca he tenido un plan financiero real y quiero uno',
+  s3txt:'Veo lo que cargas.',
+  s3sub:'T\u00f3mate el tiempo que necesites. Luego presiona Continuar cuando est\u00e9s listo(a).',
+  sentence:'Has cuidado de todos a tu alrededor durante tanto tiempo que olvidaste que alguien deb\u00eda cuidarte a ti tambi\u00e9n. Estoy aqu\u00ed para eso.',
+  s4txt:'Tres cosas r\u00e1pidas antes de ver tus n\u00fameros. D\u00f3nde vives, tu moneda y tu edad \u2014 estos cambian mis consejos significativamente.',
+  s4title:'\u00bfD\u00f3nde, <span>qu\u00e9 moneda,</span> qu\u00e9 edad?',
+  s4cl:'Pa\u00eds donde vives',s4cp:'Selecciona tu pa\u00eds...',s4ot:'Otro',
+  s4curl:'Tu moneda',s4curo:'Otra moneda...',
+  s4otl:'Escribe tu pa\u00eds',s4corl:'C\u00f3digo de moneda',s4al:'Tu rango de edad',
+  s4a1:'18 a 24',s4a2:'25 a 34',s4a3:'35 a 44',s4a4:'45 a 54',s4a5:'55 y m\u00e1s',
+  s5txt:'No el n\u00famero en tu contrato \u2014 el monto que realmente llega a tu cuenta cada mes despu\u00e9s de impuestos.',
+  s5title:'Tu ingreso <span>mensual.</span>',s5l1:'Salario mensual despu\u00e9s de impuestos',
+  s5stable:'Estable',s5stables:'El mismo cada mes',s5var:'Variable',s5vars:'Cambia mes a mes',
+  s5extra:'Tengo ingresos extra',s5extras:'Trabajo independiente, alquiler, inversi\u00f3n',s5noextra:'Solo salario',
+  s5el1:'Trabajo independiente',s5el2:'Alquiler o inversi\u00f3n',
+  s6txt:'La mayor\u00eda subestima sus gastos en un 30%. Escribe lo que realmente gastas.',
+  s6bold:'S\u00e9 honesto.',
+  s6title:'Tus gastos <span>mensuales.</span>',
+  s6l1:'Vivienda (alquiler o hipoteca)',s6l2:'Servicios y tel\u00e9fono',
+  s6l3:'Comestibles y hogar',s6l4:'Restaurantes y comida a domicilio',
+  s6l5:'Transporte y combustible',s6l6:'Pago de auto (si aplica)',
+  s6l7:'Salud y seguros',s6l8:'Suscripciones',
+  s6rm:'Env\u00edo dinero al extranjero',s6rms:'Familia en otro pa\u00eds',s6nrm:'Sin remesas',
+  s6rml:'Monto mensual enviado al extranjero',s6rmn:'Incluye todo. Nunca te pedir\u00e9 que recortes esto.',
+  s6dc:'Pago guarderia o cuidado de ni\u00f1os',s6dcs:'Guarder\u00eda, ni\u00f1era, extraescolar',
+  s6ndc:'Sin costos de guarderia',s6dcl:'Costo mensual de guarderia',
+  s7txt:'D\u00edme cada deuda que llevas. El orden en que las atacamos importa enormemente.',
+  s7bold:'Cada deuda que me ocultas es una deuda que no puedo ayudarte a eliminar.',
+  s7title:'Tus <span>deudas.</span>',s7nd:'No tengo deudas \u2014 estoy completamente libre de deudas',addDebtTxt:'Agregar una deuda',
+  s8txt:'\u00bfCu\u00e1nto tienes ahorrado ahora mismo? Total en todas las cuentas. Escribe 0 si no hay nada.',
+  s8tc:'Sin juicios \u2014 necesito el n\u00famero real.',
+  s8title:'Tus <span>ahorros.</span>',s8l1:'Total de ahorros ahora mismo',s8l2:'Fondo de emergencia (de ese total)',
+  s8cl:'Salud crediticia',s8cr1:'Excelente (740+)',s8cr2:'Buena (670-739)',s8cr3:'Regular (580-669)',
+  s8cr4:'Mala (menos de 580)',s8cr5:'Sin historial crediticio',
+  s9txt:'\u00bfCu\u00e1ndo te pagan? Construir\u00e9 tu plan de supervivencia alrededor de esta fecha.',
+  s9title:'Tu <span>fecha de cobro.</span>',s9f1:'Mensual',s9f2:'Cada 2 semanas',s9f3:'Semanal',s9dl:'Pr\u00f3xima fecha de cobro',
+  s10txt:'\u00bfLo has intentado antes? Tu respuesta me dice qu\u00e9 enfoque funcionar\u00e1 realmente esta vez.',
+  s10title:'\u00bfQu\u00e9 te <span>detuvo antes?</span>',
+  s10a:'Nunca tuve un plan real',s10b:'Empec\u00e9 pero no pude mantenerlo',
+  s10c:'Una emergencia lo derrib\u00f3 todo',s10d:'Mis ingresos se sent\u00edan demasiado bajos para ahorrar',
+  s10e:'Lo he intentado todo y nada funcion\u00f3',s10f:'Es la primera vez que me enfrento a esto',
+  s11txt:'\u00bfCu\u00e1les son tus mayores miedos financieros? No son debilidades. Son lo que voy a ayudarte a eliminar.',
+  s11title:'Tus <span>miedos.</span>',
+  s11a:'Nunca salir de las deudas',s11b:'Vivir de sueldo en sueldo para siempre',
+  s11c:'Una emergencia destruyendo todo',s11d:'No proveer suficiente para mi familia',
+  s11e:'No tener suficiente para jubilarme',s11f:'Nunca poder comprar una casa',
+  s11g:'Perder mi trabajo sin colch\u00f3n',s11h:'La verg\u00fcenza de mi situaci\u00f3n financiera',
+  s12txt:'\u00bfQu\u00e9 quieres realmente? No lo que crees que debes querer \u2014 lo que genuinamente quieres para tu vida.',
+  s12title:'Tus verdaderos <span>objetivos.</span>',
+  s12a:'Eliminar todas las deudas',s12b:'Construir ahorros reales',s12c:'Comprar mi propia casa',
+  s12d:'Construir un fondo de emergencia s\u00f3lido',s12e:'Dar una vida mejor a mi familia',
+  s12f:'Jubilarme c\u00f3modamente',s12g:'Iniciar mi propio negocio',s12h:'Detener la ansiedad por el dinero para siempre',
+  rSnL1:'Disponible mensual',rSnL2:'Total de deudas',rSnL3:'Ahorros'
+}
+};
+
+// LANGUAGE
+function go(l){
+  lang=l;D.lang=l;
+  applyLang(l);
+  setTimeout(function(){
+    var ws=document.getElementById('ws');
+    ws.style.transition='opacity 0.48s ease';ws.style.opacity='0';
+    setTimeout(function(){
+      ws.style.display='none';
+      document.getElementById('ob').classList.add('on');
+      showSlide(1);
+    },480);
+  },280);
+}
+
+function applyLang(l){
+  var t=TR[l]||TR.en;
+  Object.keys(t).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.innerHTML=t[id];
+  });
+  // Sentence is a text node — set separately
+  var sent=document.getElementById('theSentence');
+  if(sent) sent.textContent=t.sentence||TR.en.sentence;
+  upPre();
+}
+
+// NAVIGATION
+function showSlide(i){
+  document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('on');});
+  var el=document.getElementById('s'+i);if(el)el.classList.add('on');
+  cur=i;
+  document.getElementById('btnBack').disabled=(i<=1);
+  document.getElementById('obFill').style.width=(((i-1)/TOTAL)*100)+'%';
+  document.getElementById('obStep').textContent=i+' / '+TOTAL;
+  document.getElementById('btnSkip').style.display=OPTIONAL.includes(i)?'block':'none';
+  upPre();window.scrollTo(0,0);
+}
+
 function next(){
+  if(cur===2){checkHeavy();return;}
   if(cur===3){showSlide(4);return;}
-  if(cur<T)showSlide(cur+1);
+  if(cur<TOTAL)showSlide(cur+1);
   else runAna();
 }
-function prev(){if(cur>1)showSlide(cur-1);}
-function pick(f,v,el){D[f]=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');}
-function setCur(v,el){D.currency=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');if(v==='OTHER')openR('curR');else closeR('curR');updatePre();}
-function tp(g,v){var y=document.getElementById('t'+g+'Y');var nn=document.getElementById('t'+g+'N');if(y)y.classList.toggle('sel',v==='Y');if(nn)nn.classList.toggle('sel',v==='N');}
-function tm(f,v,el){el.classList.toggle('sel');var a=D[f]||[];var i=a.indexOf(v);if(i>-1)a.splice(i,1);else a.push(v);D[f]=a;}
-function openR(id){var e=document.getElementById(id);if(e)e.classList.add('open');}
-function closeR(id){var e=document.getElementById(id);if(e)e.classList.remove('open');}
-function sym(){var m={USD:'$',CAD:'$',EUR:'€',GBP:'£',MAD:'MAD ',AED:'AED ',MXN:'$',BRL:'R$'};return m[D.currency]||(D.currency?' '+D.currency+' ':'$');}
-function updatePre(){var s=sym();document.querySelectorAll('.fpre').forEach(function(el){if(!el.textContent.includes('APR'))el.textContent=s;});}
-var DT=[{v:'credit_card',l:'Credit card',u:'high',ul:'High interest — attack first'},{v:'payday_loan',l:'Payday or cash loan',u:'high',ul:'Very high interest — most urgent'},{v:'personal_loan',l:'Personal loan',u:'high',ul:'High interest'},{v:'buy_now_pay_later',l:'Buy now pay later',u:'high',ul:'High interest'},{v:'car_loan',l:'Car loan',u:'low',ul:'Structured debt'},{v:'student_loan',l:'Student loan',u:'low',ul:'Structured debt'},{v:'medical',l:'Medical bills',u:'low',ul:'Often negotiable'},{v:'family_friends',l:'Family or friends',u:'low',ul:'Personal debt'},{v:'other',l:'Other debt',u:'low',ul:'Other'}];
-function addDebt(){document.getElementById('ndr').classList.remove('sel');document.getElementById('ndb').innerHTML='';D.no_debt=false;var idx=D.debts.length;D.debts.push({type:'',typeName:'',urgency:'',amount:0,payment:0,rate:0,missed:false});var opts=DT.map(function(t){return'<option value="'+t.v+'">'+t.l+'</option>';}).join('');var s=sym();var h='<div class="debt-card" id="dc'+idx+'"><div class="dc-top"><div class="dc-name" id="dcN'+idx+'">New debt</div><div style="display:flex;align-items:center;gap:6px"><span class="dc-badge" id="dcB'+idx+'"></span><button class="dc-rm" onclick="rmDebt('+idx+')">×</button></div></div><div class="dg"><div style="grid-column:1/-1"><select class="field" onchange="setDT('+idx+',this)"><option value="">Select the type of debt...</option>'+opts+'</select></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Remaining balance" oninput="D.debts['+idx+'].amount=n(this.value)"></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Monthly minimum payment" oninput="D.debts['+idx+'].payment=n(this.value)"></div><div class="fw"><span class="fpre" style="font-size:11px;letter-spacing:0.04em">APR</span><input class="field pre" type="number" min="0" max="200" step="0.1" placeholder="Interest rate %" oninput="D.debts['+idx+'].rate=n(this.value)"></div><div class="fw"><span class="fpre">'+s+'</span><input class="field pre" type="number" min="0" placeholder="Original amount (optional)" oninput="D.debts['+idx+'].original=n(this.value)"></div></div><div class="missed-row"><input type="checkbox" id="ms'+idx+'" onchange="D.debts['+idx+'].missed=this.checked"><label for="ms'+idx+'">I have missed payments on this debt</label></div></div>';var w=document.createElement('div');w.innerHTML=h;document.getElementById('debtEntries').appendChild(w.firstChild);}
-function setDT(idx,sel){var t=DT.find(function(t){return t.v===sel.value;});if(!t)return;D.debts[idx].type=t.v;D.debts[idx].typeName=t.l;D.debts[idx].urgency=t.u;var nm=document.getElementById('dcN'+idx);var b=document.getElementById('dcB'+idx);if(nm)nm.textContent=t.l;if(b){b.textContent=t.ul;b.className='dc-badge '+t.u;b.style.display='inline-block';}}
+
+function prev(){
+  // From s4: if light situation (no sentence shown), go back to s2
+  if(cur===4&&D.situation&&['single','partner'].includes(D.situation)){showSlide(2);return;}
+  if(cur>1)showSlide(cur-1);
+}
+
+function checkHeavy(){
+  var heavy=['family','caregiver','all'];
+  if(heavy.includes(D.situation)){
+    var hv={en:'I see what you are carrying. Before we look at a single number, I want you to read this.',fr:'Je vois ce que vous portez. Avant de regarder un seul chiffre, je veux que vous lisiez ceci.',es:'Veo lo que cargas. Antes de ver un solo n\u00famero, quiero que leas esto.'};
+    var el=document.getElementById('s3txt');if(el)el.textContent=hv[lang]||hv.en;
+    showSlide(3);
+  } else {
+    showSlide(4);
+  }
+}
+
+// INTERACTIONS
+function setSit(sit,el){
+  D.situation=sit;
+  var g=el.closest('.choices');if(g)g.querySelectorAll('.ch').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  setTimeout(function(){showSlide(2);},250);
+}
+
+function setMoment(m,el){
+  D.moment=m;
+  var g=el.closest('.choices');if(g)g.querySelectorAll('.ch').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  setTimeout(function(){next();},250);
+}
+
+function pick(f,v,el){
+  D[f]=v;
+  var g=el.closest('.choices');if(g)g.querySelectorAll('.ch').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+}
+
+function multi(f,v,el){
+  el.classList.toggle('on');
+  var a=D[f]||[];var i=a.indexOf(v);
+  if(i>-1)a.splice(i,1);else a.push(v);D[f]=a;
+}
+
+function tp(g,v){
+  var y=document.getElementById('t'+g+'Y');var nn=document.getElementById('t'+g+'N');
+  if(y)y.classList.toggle('on',v==='Y');if(nn)nn.classList.toggle('on',v==='N');
+}
+
+function setCountry(v){
+  D.country=v;
+  if(v==='other')openR('countryOther');else closeR('countryOther');
+}
+
+function setCurr(v){
+  D.currency=v;
+  if(v==='OTHER')openR('currOther');else closeR('currOther');
+  upPre();
+}
+
+function openR(id){var e=document.getElementById(id);if(e)e.classList.add('on');}
+function closeR(id){var e=document.getElementById(id);if(e)e.classList.remove('on');}
+function n(v){return parseFloat(v)||0;}
+function sym(){var m={USD:'$',CAD:'$',EUR:'\u20ac',GBP:'\u00a3',MAD:'MAD ',AED:'AED ',MXN:'$',BRL:'R$',XOF:'XOF ',DZD:'DZD '};return m[D.currency]||(D.currency+' ');}
+function upPre(){var s=sym();document.querySelectorAll('.fpre').forEach(function(el){if(!el.textContent.includes('APR'))el.textContent=s;});}
+
+// DEBT
+var DT=[{v:'credit_card',l:'Credit card',u:'high',ul:'High interest — attack first'},{v:'payday_loan',l:'Payday loan',u:'high',ul:'Very high interest — most urgent'},{v:'personal_loan',l:'Personal loan',u:'high',ul:'High interest'},{v:'buy_now_pay_later',l:'Buy now pay later',u:'high',ul:'High interest'},{v:'car_loan',l:'Car loan',u:'low',ul:'Structured debt'},{v:'student_loan',l:'Student loan',u:'low',ul:'Structured debt'},{v:'medical',l:'Medical bills',u:'low',ul:'Often negotiable'},{v:'family_friends',l:'Family or friends',u:'low',ul:'Personal debt'},{v:'other',l:'Other debt',u:'low',ul:'Other'}];
+
+function addDebt(){
+  document.getElementById('ndRow').classList.remove('on');
+  document.getElementById('ndb').innerHTML='';
+  D.no_debt=false;
+  var idx=D.debts.length;
+  D.debts.push({type:'',typeName:'',urgency:'',amount:0,payment:0,rate:0,missed:false});
+  var opts=DT.map(function(t){return'<option value="'+t.v+'">'+t.l+'</option>';}).join('');
+  var s=sym();
+  var h='<div class="dc" id="dc'+idx+'"><div class="dc-top"><div class="dc-name" id="dcN'+idx+'">—</div><div style="display:flex;align-items:center;gap:5px"><span class="dc-badge" id="dcB'+idx+'"></span><button class="dc-rm" onclick="rmDebt('+idx+')">×</button></div></div><div class="dg"><div style="grid-column:1/-1"><select class="df" onchange="setDT('+idx+',this)"><option value="">Select debt type...</option>'+opts+'</select></div><div class="fw"><span class="dfp">'+s+'</span><input class="df pre" type="number" min="0" placeholder="Remaining balance" oninput="D.debts['+idx+'].amount=n(this.value)"></div><div class="fw"><span class="dfp">'+s+'</span><input class="df pre" type="number" min="0" placeholder="Monthly minimum" oninput="D.debts['+idx+'].payment=n(this.value)"></div><div class="fw"><span class="dfp" style="font-size:10px;letter-spacing:0.03em">APR</span><input class="df pre" type="number" min="0" max="200" step="0.1" placeholder="Interest %" oninput="D.debts['+idx+'].rate=n(this.value)"></div></div><div class="mrow-d"><input type="checkbox" id="ms'+idx+'" onchange="D.debts['+idx+'].missed=this.checked"><label for="ms'+idx+'">I have missed payments on this debt</label></div></div>';
+  var w=document.createElement('div');w.innerHTML=h;
+  document.getElementById('debtEntries').appendChild(w.firstChild);
+}
+
+function setDT(idx,sel){
+  var f=DT.find(function(t){return t.v===sel.value;});if(!f)return;
+  D.debts[idx].type=f.v;D.debts[idx].typeName=f.l;D.debts[idx].urgency=f.u;
+  var nm=document.getElementById('dcN'+idx);if(nm)nm.textContent=f.l;
+  var b=document.getElementById('dcB'+idx);
+  if(b){b.textContent=f.ul;b.className='dc-badge '+f.u;b.style.display='inline-block';}
+}
+
 function rmDebt(idx){var el=document.getElementById('dc'+idx);if(el)el.remove();D.debts[idx]=null;D.debts=D.debts.filter(Boolean);}
-function toggleND(){D.no_debt=!D.no_debt;document.getElementById('ndr').classList.toggle('sel',D.no_debt);document.getElementById('ndb').innerHTML=D.no_debt?'<svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg>':'';if(D.no_debt){D.debts=[];document.getElementById('debtEntries').innerHTML='';}}
-function togglePw(){var i=document.getElementById('fPw');i.type=i.type==='password'?'text':'password';document.getElementById('pEye').style.color=i.type==='text'?'var(--teal)':'var(--dim)';}
-function calc(){D.total_income=D.monthly_income+D.side_income+D.invest_income;D.total_expenses=D.rent+D.utilities+D.phone_internet+D.car_payment+D.car_insurance+D.health_insurance+D.life_insurance+D.groceries+D.dining+D.transport+D.subscriptions+D.remittances+D.daycare+D.retirement_contribution;D.monthly_available=D.total_income-D.total_expenses;D.total_debt=D.debts.filter(Boolean).reduce(function(s,d){return s+(d.amount||0);},0);D.health_score=scoreCalc();saveLS();}
-function scoreCalc(){if(D.total_income===0)return 0;var s=50,r=D.monthly_available/D.total_income;if(r>=0.25)s+=22;else if(r>=0.15)s+=13;else if(r>=0.05)s+=5;else if(r<0)s-=25;else s-=5;if(D.total_debt===0){s+=18;}else{var dti=D.total_debt/(D.total_income*12);if(dti<0.3)s+=8;else if(dti<0.7)s+=0;else if(dti<1.5)s-=12;else s-=22;var ms=D.debts.filter(Boolean).filter(function(d){return d.missed;}).length;s-=ms*7;}var me=D.total_expenses||D.total_income*0.7;if(D.emergency_fund>=me*6)s+=14;else if(D.emergency_fund>=me*3)s+=8;else if(D.emergency_fund>0)s+=2;else s-=4;if(D.has_retirement)s+=5;if(D.credit_health==='poor')s-=6;if(D.credit_health==='none')s-=3;return Math.min(100,Math.max(5,Math.round(s)));}
-function saveLS(){localStorage.setItem('vera_profile',JSON.stringify({language:D.lang,currency:D.currency,country:D.country,country_name:D.country_name,age_range:D.age_range,housing_type:D.housing_type,monthly_income:D.monthly_income,income_stable:D.income_stable,side_income:D.side_income,invest_income:D.invest_income,sends_remittances:D.sends_remittances,remittances:D.remittances,rent:D.rent,mortgage_balance:D.mortgage_balance,dependents:D.dependents,pays_daycare:D.pays_daycare,daycare:D.daycare,has_retirement:D.has_retirement,retirement_contribution:D.retirement_contribution,credit_health:D.credit_health,payday_date:D.payday_date,payday_frequency:D.payday_frequency,previous_attempt:D.previous_attempt,total_savings:D.total_savings,emergency_fund:D.emergency_fund}));localStorage.setItem('vera_fin',JSON.stringify({monthly_income:D.monthly_income,total_income:D.total_income,utilities:D.utilities,phone_internet:D.phone_internet,car_payment:D.car_payment,car_insurance:D.car_insurance,health_insurance:D.health_insurance,life_insurance:D.life_insurance,groceries:D.groceries,dining:D.dining,transport:D.transport,subscriptions:D.subscriptions,remittances:D.remittances,daycare:D.daycare,retirement_contribution:D.retirement_contribution,total_expenses:D.total_expenses,monthly_budget:D.monthly_available,total_debt:D.total_debt,total_savings:D.total_savings,emergency_fund:D.emergency_fund,health_score:D.health_score}));localStorage.setItem('vera_debts',JSON.stringify(D.debts.filter(Boolean)));localStorage.setItem('vera_fears',JSON.stringify(D.fears));localStorage.setItem('vera_goals',JSON.stringify(D.goals));}
-function runAna(){calc();document.getElementById('bn').style.display='none';document.getElementById('ana').classList.add('on');var rows=['ar1','ar2','ar3','ar4'],i=0;function step(){if(i>0){var p=document.getElementById(rows[i-1]);p.classList.remove('live');p.classList.add('done');p.querySelector('.a-spin').style.display='none';}if(i<rows.length){document.getElementById(rows[i]).classList.add('live');i++;setTimeout(step,950);}else{setTimeout(showRes,500);}}setTimeout(step,300);}
-function showRes(){document.getElementById('ana').classList.remove('on');document.getElementById('res').classList.add('on');var s=sym(),sc=D.health_score,av=D.monthly_available,ti=D.total_income;var col=sc>=70?'#00C9A7':sc>=50?'#C9A84C':'#EF4444';var arc=document.getElementById('rArc');arc.style.stroke=col;setTimeout(function(){arc.style.strokeDashoffset=220-(220*sc/100);},300);document.getElementById('rSc').textContent=sc;var verd=sc>=70?'Strong financial position':sc>=50?'Needs real attention':sc>=35?'Under serious pressure':'Immediate action needed';var det=sc>=70?'You are in better shape than most people I work with. What you are missing is a system, not more money.':sc>=50?'You are managing — but only just. The leaks are fixable faster than you think.':sc>=35?'Your finances are under real pressure. I have helped people in harder situations find a real way out.':'Your finances need immediate attention. You faced this honestly today. That is the first step and it matters.';document.getElementById('rVerd').textContent=verd;document.getElementById('rDet').textContent=det;var aEl=document.getElementById('rAv');aEl.textContent=av>=0?s+Math.round(av).toLocaleString():'−'+s+Math.abs(Math.round(av)).toLocaleString();aEl.className='snap-val '+(av>=0?'teal':'red');document.getElementById('rDb').textContent=D.total_debt>0?s+D.total_debt.toLocaleString():'Debt free';document.getElementById('rDb').className='snap-val '+(D.total_debt>0?'red':'teal');document.getElementById('rSav').textContent=s+D.total_savings.toLocaleString();var pm={no_plan:'You told me you never had a real plan. That ends today.',no_stick:'You told me life got in the way before. I am going to make sure that does not happen again.',emergency:'You told me an emergency derailed you. That is exactly why building your emergency fund is the first wall we put up.',income_low:'You told me your income felt too low to save. Let me show you otherwise.',tried_all:'You told me you have tried everything. What you have not tried is a plan built entirely around your own numbers. This is different.',first_time:'It takes real courage to face this for the first time. I will make sure it is worth it.'};var msg='';if(D.previous_attempt&&pm[D.previous_attempt])msg+='<strong>'+pm[D.previous_attempt]+'</strong> ';if(av<0){msg+='Your expenses exceed your income by <span class="lo">'+s+Math.abs(Math.round(av)).toLocaleString()+' every month.</span> This is the first thing we fix — before anything else. ';}else if(av>0&&ti>0){var pct=Math.round((av/ti)*100);msg+='You have <span class="hi">'+s+Math.round(av).toLocaleString()+' available each month</span> — '+pct+'% of your income. ';if(pct<10)msg+='That margin is thin. We need to widen it. ';}if(D.total_debt>0&&av>0){var mo=Math.ceil(D.total_debt/(av*0.6));msg+='Following my strategy, your <span class="lo">'+s+D.total_debt.toLocaleString()+' in debt</span> could be eliminated in approximately <span class="hi">'+mo+' months.</span> That is math — not a promise. ';}else if(D.total_debt>0){msg+='Your <span class="lo">'+s+D.total_debt.toLocaleString()+' in debt</span> is the most urgent item on your list. ';}if(D.daycare>0)msg+='I see you carry <span class="go">'+s+D.daycare.toLocaleString()+' per month in childcare</span> — that is a real commitment I have factored into every calculation. ';if(D.remittances>0)msg+='Your family support of <span class="go">'+s+D.remittances.toLocaleString()+' per month</span> is accounted for. I will never ask you to cut that. ';if(D.emergency_fund===0)msg+='You have no emergency fund — that is the first wall of protection we build together. ';document.getElementById('rMsg').innerHTML=msg;var plans=[];if(av<0)plans.push({t:'Emergency budget surgery',b:'We identify and cut expenses until income exceeds expenses. Everything else depends on this.'});if(D.emergency_fund<(D.total_expenses||ti*0.7)*3)plans.push({t:'Emergency fund of '+s+Math.round((D.total_expenses||ti*0.7)*3).toLocaleString(),b:'Three months of expenses as a buffer. Your first financial wall. Nothing replaces this.'});if(D.total_debt>0){var hh=D.debts.filter(Boolean).some(function(d){return['credit_card','payday_loan','personal_loan','buy_now_pay_later'].includes(d.type);});plans.push({t:'Debt elimination — '+(hh?'Avalanche method':'Snowball method'),b:hh?'Your high-interest debt is costing you the most. We attack it first and roll every freed payment into the next one.':'Smallest balance first to build momentum. Then we roll those payments into the next debt.'});}if(D.total_savings<ti*3)plans.push({t:'Automated savings of '+s+Math.round(Math.max(av>0?av*0.1:0,50)).toLocaleString()+' per month',b:'Transferred the moment your salary arrives — not what is left over. This single habit separates people who save from people who do not.'});if(D.payday_date)plans.push({t:'Payday survival plan',b:'Exact instructions for what to do within 24 hours of your salary arriving — what to transfer first, what to pay, your daily limit.'});if(!D.has_retirement&&(D.age_range==='35-44'||D.age_range==='45-54'||D.age_range==='55+'))plans.push({t:'Retirement contribution plan',b:'You are in the years when this becomes urgent. Even a small monthly amount now makes an enormous difference over time.'});var ph='<div class="plan-title">What Mina will do for you</div>';plans.slice(0,5).forEach(function(p,i){ph+='<div class="plan-row"><div class="plan-num">'+(i+1)+'</div><div class="plan-text"><strong>'+p.t+'.</strong> '+p.b+'</div></div>';});document.getElementById('rPlan').innerHTML=ph;}
-function openAuth(){document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';}
-function closeAuth(){document.getElementById('ov').classList.remove('open');document.body.style.overflow='';}
+
+function toggleND(){
+  D.no_debt=!D.no_debt;
+  document.getElementById('ndRow').classList.toggle('on',D.no_debt);
+  document.getElementById('ndb').innerHTML=D.no_debt?'<svg class="ndc" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg>':'';
+  if(D.no_debt){D.debts=[];document.getElementById('debtEntries').innerHTML='';}
+}
+
+function tgPw(){var i=document.getElementById('fPw');i.type=i.type==='password'?'text':'password';}
+
+// CALCULATE
+function calc(){
+  D.total_income=D.monthly_income+D.side_income+D.invest_income;
+  D.total_expenses=D.rent+D.utilities+D.groceries+D.dining+D.transport+D.car_payment+D.insurance+D.subscriptions+D.remittances+D.daycare;
+  D.monthly_available=D.total_income-D.total_expenses;
+  D.total_debt=D.debts.filter(Boolean).reduce(function(s,d){return s+(d.amount||0);},0);
+  D.health_score=scoreCalc();
+  saveLS();
+}
+
+function scoreCalc(){
+  if(!D.total_income)return 0;
+  var s=50,r=D.monthly_available/D.total_income;
+  if(r>=0.25)s+=22;else if(r>=0.15)s+=13;else if(r>=0.05)s+=5;else if(r<0)s-=25;else s-=5;
+  if(!D.total_debt){s+=18;}else{
+    var dti=D.total_debt/(D.total_income*12);
+    if(dti<0.3)s+=8;else if(dti<0.7)s+=0;else if(dti<1.5)s-=12;else s-=22;
+    D.debts.filter(Boolean).forEach(function(d){if(d.missed)s-=7;});
+  }
+  var me=D.total_expenses||D.total_income*0.7;
+  if(D.emergency_fund>=me*6)s+=14;else if(D.emergency_fund>=me*3)s+=8;else if(D.emergency_fund>0)s+=2;else s-=4;
+  if(D.credit_health==='poor')s-=6;if(D.credit_health==='none')s-=3;
+  return Math.min(100,Math.max(5,Math.round(s)));
+}
+
+function saveLS(){
+  localStorage.setItem('vera_profile',JSON.stringify({language:D.lang,currency:D.currency,country:D.country,country_name:D.country_name,age_range:D.age_range,situation:D.situation,moment:D.moment,monthly_income:D.monthly_income,income_stable:D.income_stable,side_income:D.side_income,invest_income:D.invest_income,sends_remittances:D.sends_remittances,remittances:D.remittances,rent:D.rent,utilities:D.utilities,groceries:D.groceries,dining:D.dining,transport:D.transport,car_payment:D.car_payment,insurance:D.insurance,subscriptions:D.subscriptions,pays_daycare:D.pays_daycare,daycare:D.daycare,total_savings:D.total_savings,emergency_fund:D.emergency_fund,credit_health:D.credit_health,payday_date:D.payday_date,payday_frequency:D.payday_frequency,previous_attempt:D.previous_attempt}));
+  localStorage.setItem('vera_fin',JSON.stringify({monthly_income:D.monthly_income,total_income:D.total_income,total_expenses:D.total_expenses,monthly_budget:D.monthly_available,total_debt:D.total_debt,total_savings:D.total_savings,emergency_fund:D.emergency_fund,health_score:D.health_score}));
+  localStorage.setItem('vera_debts',JSON.stringify(D.debts.filter(Boolean)));
+  localStorage.setItem('vera_fears',JSON.stringify(D.fears));
+  localStorage.setItem('vera_goals',JSON.stringify(D.goals));
+}
+
+// ANALYSIS
+function runAna(){
+  calc();
+  document.getElementById('ob').classList.remove('on');
+  document.getElementById('analysis').classList.add('on');
+  var rows=['ar1','ar2','ar3','ar4'],i=0;
+  function step(){
+    if(i>0){var p=document.getElementById(rows[i-1]);p.classList.remove('live');p.classList.add('done');var sp=p.querySelector('.a-spin');if(sp)sp.style.display='none';}
+    if(i<rows.length){document.getElementById(rows[i]).classList.add('live');i++;setTimeout(step,980);}
+    else setTimeout(showRes,480);
+  }
+  setTimeout(step,280);
+}
+
+// RESULT
+function showRes(){
+  document.getElementById('analysis').classList.remove('on');
+  document.getElementById('result').classList.add('on');
+  var t=TR[lang]||TR.en,s=sym(),sc=D.health_score,av=D.monthly_available,ti=D.total_income;
+  var col=sc>=70?'#00C9A7':sc>=50?'#C9A84C':'#EF4444';
+  var arc=document.getElementById('rArc');arc.style.stroke=col;
+  setTimeout(function(){arc.style.strokeDashoffset=220-(220*sc/100);},380);
+  document.getElementById('rSc').textContent=sc;
+  var VK=sc>=70?'high':sc>=50?'mid':sc>=35?'low':'vlow';
+  var VD={en:{high:'Strong financial position',mid:'Needs real attention',low:'Under serious pressure',vlow:'Immediate action needed'},fr:{high:'Position financi\u00e8re solide',mid:'N\u00e9cessite une vraie attention',low:'Sous pression s\u00e9rieuse',vlow:'Action imm\u00e9diate n\u00e9cessaire'},es:{high:'Posici\u00f3n financiera s\u00f3lida',mid:'Necesita atenci\u00f3n real',low:'Bajo presi\u00f3n seria',vlow:'Acci\u00f3n inmediata necesaria'}};
+  var DD={en:{high:'You are in better shape than most people I work with. What you are missing is a system.',mid:'You are managing — but only just. The leaks are fixable faster than you think.',low:'Your finances are under real pressure. I have helped people in harder situations find a way out.',vlow:'Your finances need immediate attention. You faced this honestly today. That is the first step.'},fr:{high:"Vous \u00eates en meilleure forme que la plupart. Ce qu'il vous manque, c'est un syst\u00e8me.",mid:'Vous g\u00e9rez \u2014 mais de justesse. Les fuites sont r\u00e9parables plus vite que vous ne le pensez.',low:"Vos finances sont sous pression. J'ai aid\u00e9 des personnes dans des situations plus difficiles \u00e0 trouver une sortie.",vlow:'Vos finances n\u00e9cessitent une attention imm\u00e9diate. Vous avez fait face \u00e0 cela honn\u00eatement aujourd\'hui.'},es:{high:'Est\u00e1s en mejor forma que la mayor\u00eda. Lo que te falta es un sistema.',mid:'Est\u00e1s gestionando \u2014 pero por poco. Las fugas son reparables m\u00e1s r\u00e1pido de lo que crees.',low:'Tus finanzas est\u00e1n bajo presi\u00f3n. He ayudado a personas en situaciones m\u00e1s dif\u00edciles a encontrar una salida.',vlow:'Tus finanzas necesitan atenci\u00f3n inmediata. Enfrentaste esto honestamente hoy.'}};
+  document.getElementById('rVerd').textContent=(VD[lang]||VD.en)[VK];
+  document.getElementById('rDet').textContent=(DD[lang]||DD.en)[VK];
+  var aEl=document.getElementById('rAv');
+  aEl.textContent=av>=0?s+Math.round(av).toLocaleString():'\u2212'+s+Math.abs(Math.round(av)).toLocaleString();
+  aEl.className='snap-v '+(av>=0?'teal':'red');
+  var df={en:'Debt free',fr:'Sans dettes',es:'Sin deudas'};
+  document.getElementById('rDb').textContent=D.total_debt>0?s+D.total_debt.toLocaleString():(df[lang]||df.en);
+  document.getElementById('rDb').className='snap-v '+(D.total_debt>0?'red':'teal');
+  document.getElementById('rSav').textContent=s+D.total_savings.toLocaleString();
+
+  var PM={
+    no_plan:{en:'You told me you never had a real plan. That ends today.',fr:"Vous m'avez dit que vous n'avez jamais eu de vrai plan. Cela se termine aujourd'hui.",es:'Me dijiste que nunca tuviste un plan real. Eso termina hoy.'},
+    no_stick:{en:'You told me life got in the way. I am going to make sure that does not happen again.',fr:"Vous m'avez dit que la vie s'\u00e9tait mise en travers. Je vais m'assurer que cela ne se reproduise pas.",es:'Me dijiste que la vida se interpuso. Voy a asegurarme de que eso no vuelva a pasar.'},
+    emergency:{en:'You told me an emergency derailed you. That is exactly why building your emergency fund is the first wall we put up.',fr:"Vous m'avez dit qu'une urgence vous a d\u00e9raill\u00e9. C'est exactement pourquoi construire votre fonds d'urgence est la priorit\u00e9.",es:'Me dijiste que una emergencia te descarril\u00f3. Por eso construir tu fondo de emergencia es la primera prioridad.'},
+    income_low:{en:'You told me your income felt too low to save. Let me show you otherwise.',fr:"Vous m'avez dit que votre revenu semblait trop bas pour \u00e9pargner. Laissez-moi vous montrer le contraire.",es:'Me dijiste que tus ingresos se sent\u00edan demasiado bajos para ahorrar. D\u00e9jame mostrarte lo contrario.'},
+    tried_all:{en:'You told me you have tried everything. What you have not tried is a plan built entirely around your own numbers.',fr:"Vous m'avez dit que vous avez tout essay\u00e9. Ce que vous n'avez pas essay\u00e9 c'est un plan construit enti\u00e8rement autour de vos propres chiffres.",es:'Me dijiste que lo has intentado todo. Lo que no has intentado es un plan construido alrededor de tus propios n\u00fameros.'},
+    first_time:{en:'It takes real courage to face this for the first time. I will make sure it is worth it.',fr:"Il faut un vrai courage pour faire face \u00e0 cela pour la premi\u00e8re fois. Je vais m'assurer que \u00e7a en vaut la peine.",es:'Se necesita verdadero coraje para enfrentar esto por primera vez. Me asegurar\u00e9 de que valga la pena.'}
+  };
+  var msg='';
+  if(D.moment&&PM[D.moment]){var pm=PM[D.moment];msg+='<strong>'+(pm[lang]||pm.en)+'</strong> ';}
+  if(av<0){var d1={en:'Your expenses exceed your income by',fr:'Vos d\u00e9penses d\u00e9passent vos revenus de',es:'Tus gastos superan tus ingresos en'};var d2={en:'every month. This is the first thing we fix.',fr:'par mois. C\'est la premi\u00e8re chose que nous corrigeons.',es:'cada mes. Esto es lo primero que arreglamos.'};msg+=(d1[lang]||d1.en)+' <span class="lo">'+s+Math.abs(Math.round(av)).toLocaleString()+'</span> '+(d2[lang]||d2.en)+' ';}
+  else if(av>0&&ti>0){var pct=Math.round((av/ti)*100);var a1={en:'You have',fr:'Vous avez',es:'Tienes'};var a2={en:'available each month \u2014 '+pct+'% of your income.',fr:'disponible chaque mois \u2014 '+pct+'% de votre revenu.',es:'disponible cada mes \u2014 '+pct+'% de tus ingresos.'};msg+=(a1[lang]||a1.en)+' <span class="hi">'+s+Math.round(av).toLocaleString()+'</span> '+(a2[lang]||a2.en)+' ';}
+  if(D.total_debt>0&&av>0){var mo=Math.ceil(D.total_debt/(av*0.6));var db1={en:'Following my strategy your',fr:'En suivant ma strat\u00e9gie votre',es:'Siguiendo mi estrategia tu'};var db2={en:'in debt could be eliminated in approximately <span class="hi">'+mo+' months.</span>',fr:'de dettes pourrait \u00eatre \u00e9limin\u00e9e en environ <span class="hi">'+mo+' mois.</span>',es:'en deudas podr\u00eda eliminarse en aproximadamente <span class="hi">'+mo+' meses.</span>'};msg+=(db1[lang]||db1.en)+' <span class="lo">'+s+D.total_debt.toLocaleString()+'</span> '+(db2[lang]||db2.en)+' ';}
+  if(D.remittances>0){var r1={en:'Your family support of',fr:'Votre soutien familial de',es:'Tu apoyo familiar de'};var r2={en:'per month is accounted for. I will never ask you to cut that.',fr:'par mois est pris en compte. Je ne vous demanderai jamais de r\u00e9duire cela.',es:'al mes est\u00e1 contemplado. Nunca te pedir\u00e9 que lo recortes.'};msg+=(r1[lang]||r1.en)+' <span class="go">'+s+D.remittances.toLocaleString()+'</span> '+(r2[lang]||r2.en)+' ';}
+  if(!D.emergency_fund){var em={en:'You have no emergency fund \u2014 that is the first wall of protection we build together.',fr:"Vous n'avez pas de fonds d'urgence \u2014 c'est le premier mur de protection que nous construisons ensemble.",es:'No tienes fondo de emergencia \u2014 esa es la primera pared de protecci\u00f3n que construimos juntos.'};msg+=(em[lang]||em.en);}
+  document.getElementById('rMsg').innerHTML=msg;
+
+  var plans=[];
+  if(av<0)plans.push({en:{t:'Emergency budget surgery',b:'We identify and cut expenses until income exceeds expenses.'},fr:{t:'Chirurgie budg\u00e9taire d\'urgence',b:'Nous r\u00e9duisons les d\u00e9penses jusqu\u00e0 ce que les revenus d\u00e9passent les d\u00e9penses.'},es:{t:'Cirug\u00eda presupuestaria de emergencia',b:'Reducimos gastos hasta que los ingresos superen los gastos.'}});
+  if(D.emergency_fund<(D.total_expenses||ti*0.7)*3){var tgt=Math.round((D.total_expenses||ti*0.7)*3);plans.push({en:{t:'Emergency fund of '+s+tgt.toLocaleString(),b:'Three months of expenses. Your first financial wall.'},fr:{t:"Fonds d'urgence de "+s+tgt.toLocaleString(),b:'Trois mois de d\u00e9penses. Votre premier mur financier.'},es:{t:'Fondo de emergencia de '+s+tgt.toLocaleString(),b:'Tres meses de gastos. Tu primera pared financiera.'}});}
+  if(D.total_debt>0){var hh=D.debts.filter(Boolean).some(function(d){return['credit_card','payday_loan','personal_loan','buy_now_pay_later'].includes(d.type);});plans.push({en:{t:'Debt elimination \u2014 '+(hh?'Avalanche method':'Snowball method'),b:hh?'Attack highest interest first.':'Smallest balance first to build momentum.'},fr:{t:'\u00c9limination des dettes \u2014 m\u00e9thode '+(hh?'avalanche':'boule de neige'),b:hh?'Attaquer d\'abord les int\u00e9r\u00eats les plus \u00e9lev\u00e9s.':"Le plus petit solde d'abord pour prendre de l'\u00e9lan."},es:{t:'Eliminaci\u00f3n de deudas \u2014 m\u00e9todo '+(hh?'avalancha':'bola de nieve'),b:hh?'Atacar primero los intereses m\u00e1s altos.':'El saldo m\u00e1s peque\u00f1o primero para ganar impulso.'}});}
+  var mo2=Math.max(av>0?Math.round(av*0.1):50,50);
+  plans.push({en:{t:'Automated savings of '+s+mo2.toLocaleString()+' per month',b:'Transferred the moment your salary arrives. Not what is left over.'},fr:{t:'\u00c9pargne automatis\u00e9e de '+s+mo2.toLocaleString()+' par mois',b:'Transf\u00e9r\u00e9 d\u00e8s que votre salaire arrive.'},es:{t:'Ahorro automatizado de '+s+mo2.toLocaleString()+' al mes',b:'Transferido en el momento en que llega tu salario.'}});
+  var pt={en:'What Mina will do for you',fr:'Ce que Mina va faire pour vous',es:'Lo que Mina har\u00e1 por ti'};
+  var ph='<div class="plan-title">'+(pt[lang]||pt.en)+'</div>';
+  plans.slice(0,5).forEach(function(p,i){var pl=p[lang]||p.en;ph+='<div class="plan-row"><div class="plan-num">'+(i+1)+'</div><div class="plan-text"><strong>'+pl.t+'.</strong> '+pl.b+'</div></div>';});
+  document.getElementById('rPlan').innerHTML=ph;
+}
+
+// AUTH
+function openAuth(){document.getElementById('authOverlay').classList.add('on');document.body.style.overflow='hidden';}
+function closeAuth(){document.getElementById('authOverlay').classList.remove('on');document.body.style.overflow='';}
 function showErr(m){var e=document.getElementById('aerr');e.textContent=m;e.style.display='block';}
 function clearErr(){document.getElementById('aerr').style.display='none';}
-async function doSignup(){clearErr();var fi=document.getElementById('fFi').value.trim(),la=document.getElementById('fLa').value.trim(),em=document.getElementById('fEm').value.trim(),ph=document.getElementById('fPh').value.trim(),pw=document.getElementById('fPw').value;if(!fi)return showErr('Please enter your first name.');if(!la)return showErr('Please enter your last name.');if(!em||!/^[^@]+@[^@]+\.[^@]+$/.test(em))return showErr('Please enter a valid email address.');if(pw.length<8)return showErr('Your password must be at least 8 characters.');var btn=document.getElementById('sBtn');btn.innerHTML='<span class="spinner"></span>Creating your account...';btn.disabled=true;var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la,phone:ph},emailRedirectTo:'https://sumgoals.com/verify.html'}});btn.innerHTML='Create my free account';btn.disabled=false;if(r.error){if(r.error.message.toLowerCase().includes('already'))return showErr('This email is already registered. Please sign in from the main page.');return showErr(r.error.message);}if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return showErr('This email is already registered. Please sign in from the main page.');document.getElementById('authC').style.display='none';document.getElementById('verC').style.display='block';document.getElementById('verSub').innerHTML='We sent a verification link to <strong style="color:var(--white)">'+em+'</strong>. Click it and Mina will be waiting for you.';}
-async function doGoogle(){var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+'/dashboard.html'}});if(r.error)showErr(r.error.message);}
-document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)closeAuth();});
-async function init(){var r=await sb.auth.getSession();if(r.data.session){window.location.href='/dashboard.html';return;}/* Welcome screen shows by default */}
+
+async function doSignup(){
+  clearErr();
+  var fi=document.getElementById('fFi').value.trim(),la=document.getElementById('fLa').value.trim();
+  var em=document.getElementById('fEm').value.trim(),pw=document.getElementById('fPw').value;
+  if(!fi)return showErr('Please enter your first name.');
+  if(!la)return showErr('Please enter your last name.');
+  if(!em||!/^[^@]+@[^@]+\.[^@]+$/.test(em))return showErr('Please enter a valid email.');
+  if(pw.length<8)return showErr('Password must be at least 8 characters.');
+  var btn=document.getElementById('sBtn');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la},emailRedirectTo:'https://sumgoals.com/verify.html'}});
+  btn.textContent='Create my free account';btn.disabled=false;
+  if(r.error)return showErr(r.error.message);
+  if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return showErr('Email already registered.');
+  document.getElementById('authContent').style.display='none';
+  document.getElementById('verifyContent').style.display='block';
+  var sent={en:'We sent a link to',fr:'Nous avons envoy\u00e9 un lien \u00e0',es:'Enviamos un enlace a'};
+  var cont={en:'. Click it and Mina will be waiting.',fr:'. Cliquez dessus et Mina vous attendra.',es:'. Haz clic y Mina te estar\u00e1 esperando.'};
+  document.getElementById('verSub').innerHTML=(sent[lang]||sent.en)+' <strong style="color:var(--white)">'+em+'</strong>'+(cont[lang]||cont.en);
+}
+
+async function doGoogle(){
+  var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://sumgoals.com/dashboard.html'}});
+  if(r.error)showErr(r.error.message);
+}
+
+document.getElementById('authOverlay').addEventListener('click',function(e){if(e.target===this)closeAuth();});
+
+async function init(){
+  var r=await sb.auth.getSession();
+  if(r.data.session){window.location.href='/dashboard.html';}
+}
 init();
-
-
-// ── LANGUAGE AND EMOTIONAL FLOW ────────────────────────────────────────────────
-var lang = 'en';
-var D_weight = [];
-var D_moment = '';
-
-// ── SITUATION & MOMENT ────────────────────────────────────────────────────────
-function pickSituation(situation, el) {
-  D.situation = situation;
-  D.weight = situation === 'all' ? ['partner','children','remittances','parents'] :
-             situation === 'caregiver' ? ['remittances','parents'] :
-             situation === 'family' ? ['children'] :
-             situation === 'partner' ? ['partner'] : ['self'];
-  D_weight = D.weight;
-  var g = el.closest('.choices');
-  if(g) g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});
-  el.classList.add('sel');
-  setTimeout(function(){showSlide(2);}, 280);
-}
-
-function pickMoment(moment, el) {
-  D_moment = moment;
-  D.moment = moment;
-  var g = el.closest('.choices');
-  if(g) g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});
-  el.classList.add('sel');
-  var resp = (MOMENT_RESP[lang] || MOMENT_RESP.en)[moment] || 'I hear you.';
-  var el2 = document.getElementById('s3resp');
-  if(el2) el2.textContent = resp;
-  // Check if heavy weight — show sentence or skip straight to slide 4
-  var heavy = ['children','remittances','parents','all','caregiver','family'];
-  var isHeavy = D.situation && heavy.includes(D.situation);
-  if(isHeavy) {
-    var s3i = document.getElementById('s3intro');
-    var hv = {en:'I see what you are carrying. Before we talk about a single number, I want you to read this.',fr:'Je vois ce que vous portez. Avant de parler d\'un seul chiffre, je veux que vous lisiez ceci.',es:'Veo lo que cargas. Antes de hablar de un solo número, quiero que leas esto.'};
-    if(s3i) s3i.textContent = hv[lang] || hv.en;
-    setTimeout(function(){showSlide(3);}, 280);
-  } else {
-    setTimeout(function(){showSlide(4);}, 280);
-  }
-}
-
-function toggleW(val, el) {
-  el.classList.toggle('sel');
-  var idx = D_weight.indexOf(val);
-  if(idx > -1) D_weight.splice(idx, 1); else D_weight.push(val);
-  if(val === 'all') {
-    D_weight = ['self','partner','children','remittances','parents','all'];
-    document.querySelectorAll('#s3 .choice').forEach(function(c){c.classList.add('sel');});
-  }
-  D.weight = D_weight;
-}
-
-var MOMENT_RESP = {
-  en: {
-    scared: 'That fear is telling you something true. The gap between income and expenses is the most urgent thing I fix. But before we look at numbers I need to understand the full weight of what you are carrying.',
-    debt: 'Avoiding it does not make it smaller \u2014 it makes it more expensive. I am glad you are here. Let me understand your full situation before we talk numbers.',
-    family: 'That goal is real and it is achievable. I have helped people in harder situations than yours build the life they wanted. I need to understand what you are working with first.',
-    responsible: 'Carrying that weight quietly is exhausting. You deserve someone in your corner who actually knows your numbers. Let me understand what you are carrying.',
-    emergency: 'Starting over is not failure \u2014 it is information. I need to know exactly where you are right now so we can build something that holds this time.',
-    first: 'The fact that you are here today matters. Everyone starts somewhere. Let me build your first real plan.'
-  },
-  fr: {
-    scared: 'Cette peur vous dit quelque chose de vrai. L\u2019\u00e9cart entre revenus et d\u00e9penses est la chose la plus urgente que je r\u00e8gle. Mais avant les chiffres j\u2019ai besoin de comprendre le poids de ce que vous portez.',
-    debt: 'L\u2019\u00e9viter ne le rend pas plus petit \u2014 cela le rend plus co\u00fbteux. Je suis contente que vous soyez l\u00e0.',
-    family: 'Cet objectif est r\u00e9el et r\u00e9alisable. J\u2019ai aid\u00e9 des personnes dans des situations plus difficiles \u00e0 construire la vie qu\u2019elles voulaient.',
-    responsible: 'Porter ce poids en silence est \u00e9puisant. Vous m\u00e9ritez quelqu\u2019un dans votre coin qui conna\u00eet vraiment vos chiffres.',
-    emergency: 'Recommencer n\u2019est pas un \u00e9chec \u2014 c\u2019est une information. J\u2019ai besoin de savoir exactement o\u00f9 vous en \u00eates.',
-    first: 'Le fait que vous soyez ici aujourd\u2019hui compte. Tout le monde commence quelque part.'
-  },
-  es: {
-    scared: 'Ese miedo te est\u00e1 diciendo algo verdadero. La brecha entre ingresos y gastos es lo m\u00e1s urgente que resuelvo. Pero antes de los n\u00fameros necesito entender el peso de lo que cargas.',
-    debt: 'Evitarlo no lo hace m\u00e1s peque\u00f1o \u2014 lo hace m\u00e1s caro. Me alegra que est\u00e9s aqu\u00ed.',
-    family: 'Ese objetivo es real y alcanzable. He ayudado a personas en situaciones m\u00e1s dif\u00edciles a construir la vida que quer\u00edan.',
-    responsible: 'Cargar ese peso en silencio es agotador. Mereces a alguien de tu lado que realmente conozca tus n\u00fameros.',
-    emergency: 'Empezar de nuevo no es fracasar \u2014 es informaci\u00f3n. Necesito saber exactamente d\u00f3nde est\u00e1s ahora.',
-    first: 'El hecho de que est\u00e9s aqu\u00ed hoy importa. Todo el mundo empieza en alg\u00fan lugar.'
-  }
-};
-
-var SENTENCES = {
-  en: 'You have been taking care of everyone around you for so long that you forgot someone was supposed to take care of you too. I am here for that.',
-  fr: 'Vous vous \u00eates occup\u00e9 de tout le monde autour de vous depuis si longtemps que vous avez oubli\u00e9 que quelqu\u2019un \u00e9tait cens\u00e9 s\u2019occuper de vous aussi. Je suis l\u00e0 pour \u00e7a.',
-  es: 'Has cuidado de todos a tu alrededor durante tanto tiempo que olvidaste que alguien deb\u00eda cuidarte a ti tambi\u00e9n. Estoy aqu\u00ed para eso.'
-};
-
-var PRIVACY = {
-  en: 'Everything you tell me stays between us. No ads. No data sales. Just coaching.',
-  fr: 'Tout ce que vous me confiez reste entre nous. Pas de publicit\u00e9s. Pas de vente de donn\u00e9es. Juste du coaching.',
-  es: 'Todo lo que me cuentes se queda entre nosotros. Sin publicidad. Sin venta de datos. Solo coaching.'
-};
-
-function chooseLang(l) {
-  lang = l;
-  D.lang = l;
-  document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.remove('sel');});
-  document.querySelectorAll('.lang-btn').forEach(function(b){
-    if(b.onclick && b.onclick.toString().includes("'"+l+"'")) b.classList.add('sel');
-  });
-
-  // Apply all translations
-  applyAllTranslations(l);
-
-  // Transition to onboarding
-  setTimeout(function(){
-    var ws = document.getElementById('welcomeScreen');
-    ws.style.transition = 'opacity 0.5s ease';
-    ws.style.opacity = '0';
-    setTimeout(function(){
-      ws.style.display = 'none';
-      showSlide(1);
-    }, 500);
-  }, 350);
-}
-
-function applyAllTranslations(l) {
-  var tr = TRANSLATIONS[l] || TRANSLATIONS.en;
-
-  // Update all translatable elements
-  Object.keys(tr).forEach(function(id) {
-    var el = document.getElementById(id);
-    if(el) el.innerHTML = tr[id];
-  });
-
-  // Update THE SENTENCE
-  var sent = document.getElementById('theSentence');
-  if(sent) sent.textContent = SENTENCES[l] || SENTENCES.en;
-
-  // Update privacy
-  var priv = document.getElementById('wPriv');
-  if(priv) priv.textContent = PRIVACY[l] || PRIVACY.en;
-
-  // Update nav buttons
-  var bb = document.getElementById('bb'); if(bb) bb.textContent = tr.back || 'Back';
-  var bnt = document.getElementById('bnt'); if(bnt) bnt.textContent = tr.next || 'Continue';
-  var bsk = document.getElementById('bsk'); if(bsk) bsk.textContent = tr.skip || 'Skip this';
-
-  // Update lang confirm card
-  var langNames = {en:'English',fr:'Français',es:'Español'};
-  var langCont = {en:'Continue in English',fr:'Continuer en français',es:'Continuar en español'};
-  var s3ll = document.getElementById('s3ll'); if(s3ll) s3ll.textContent = langNames[l]||langNames.en;
-  var s3ls = document.getElementById('s3ls'); if(s3ls) s3ls.textContent = langCont[l]||langCont.en;
-
-  updatePre();
-}
-
-// Full translation tables for all slide text
-var TRANSLATIONS = {
-  en: {
-    back:'Back', next:'Continue', skip:'Skip this',
-    s1title:'What is your <span>situation?</span>',
-    sit1:'I am single — providing for myself',
-    sits1:'My financial decisions affect me directly',
-    sit2:'I have a partner — we manage finances together or separately',
-    sits2:'Two incomes, shared responsibilities',
-    sit3:'I have a family — children depend on me',
-    sits3:'My decisions protect people I love',
-    sit4:'I support family abroad or aging parents',
-    sits4:'I carry responsibilities beyond my household',
-    sit5:'All of the above — I am the one everyone depends on',
-    sits5:'Partner, children, family abroad — all of it',
-    s1who:'MINA — YOUR COACH',
-    s1says:'Before we look at any numbers, I want to understand what brought you here. Most people come to me at a specific moment — something happened, or something they have been ignoring became impossible to ignore any longer. <strong>What was that moment for you?</strong>',
-    s1c1:'My expenses have been higher than my income and I am scared of where this leads',
-    s1c2:'I have debt I have been avoiding looking at directly',
-    s1c3:'I want to build something for my family and I do not know if it is possible',
-    s1c4:'I am the one everyone depends on and I am not sure I am doing enough',
-    s1c5:'An emergency destroyed what I had built and I am starting over',
-    s1c6:'I have never had a real financial plan and I want one for the first time',
-    s2title:'Who <span>depends on you?</span>',
-    s2hint:'Select everything that is true. Do not minimize what you carry.',
-    s2c1:'I provide for myself',s2c2:'I support a partner or spouse',
-    s2c3:'I have children who depend on me',s2c4:'I send money to family in another country',
-    s2c5:'I support my parents or siblings',s2c6:'All of the above — I am the one everyone calls',
-    s3q:'Your language <span>feels right?</span>',
-    s3hint:'Everything from this point forward stays in the language you chose.',
-    s3ch:'Change language',
-    wPrompt:'Which language feels like home to you?'
-  },
-  fr: {
-    back:'Retour', next:'Continuer', skip:'Passer',
-    s1title:"Quelle est votre <span>situation ?</span>",
-    sit1:"Je suis seul(e) — je subviens à mes propres besoins",
-    sits1:"Mes décisions financières me concernent directement",
-    sit2:"J'ai un partenaire — nous gérons les finances ensemble ou séparément",
-    sits2:"Deux revenus, responsabilités partagées",
-    sit3:"J'ai une famille — des enfants dépendent de moi",
-    sits3:"Mes décisions protègent les gens que j'aime",
-    sit4:"Je soutiens ma famille à l'étranger ou mes parents vieillissants",
-    sits4:"Je porte des responsabilités au-delà de mon foyer",
-    sit5:"Tout cela — je suis celui que tout le monde appelle",
-    sits5:"Partenaire, enfants, famille à l'étranger — tout cela",
-    s1who:'MINA — VOTRE COACH',
-    s1says:"Avant de regarder les chiffres, je veux comprendre ce qui vous a amené ici. La plupart des gens viennent me voir à un moment précis — quelque chose s'est passé, ou quelque chose qu'ils ignoraient est devenu impossible à ignorer. <strong>Quel était ce moment pour vous ?</strong>",
-    s1c1:"Mes dépenses sont supérieures à mes revenus et j'ai peur de là où cela mène",
-    s1c2:"J'ai des dettes que j'évite de regarder en face",
-    s1c3:"Je veux construire quelque chose pour ma famille et je ne sais pas si c'est possible",
-    s1c4:"Je suis celui dont tout le monde dépend et je ne suis pas sûr de faire assez",
-    s1c5:"Une urgence a détruit ce que j'avais construit et je recommence à zéro",
-    s1c6:"Je n'ai jamais eu de vrai plan financier et je veux en avoir un pour la première fois",
-    s2title:"Qui <span>dépend de vous ?</span>",
-    s2hint:"Sélectionnez tout ce qui est vrai. Ne minimisez pas ce que vous portez.",
-    s2c1:"Je subviens à mes propres besoins",s2c2:"Je soutiens un partenaire ou un époux",
-    s2c3:"J'ai des enfants qui dépendent de moi",s2c4:"J'envoie de l'argent à ma famille à l'étranger",
-    s2c5:"Je soutiens mes parents ou mes frères et sœurs",s2c6:"Tout cela — je suis celui que tout le monde appelle",
-    s3q:"Votre langue <span>vous convient ?</span>",
-    s3hint:"Tout ce qui suit sera dans la langue que vous avez choisie.",
-    s3ch:"Changer de langue",
-    wPrompt:"Quelle langue vous semble la plus naturelle ?"
-  },
-  es: {
-    back:'Atrás', next:'Continuar', skip:'Saltar',
-    s1title:'¿Cuál es tu <span>situación?</span>',
-    sit1:'Soy soltero(a) — me mantengo a mí mismo',
-    sits1:'Mis decisiones financieras me afectan directamente',
-    sit2:'Tengo pareja — gestionamos las finanzas juntos o por separado',
-    sits2:'Dos ingresos, responsabilidades compartidas',
-    sit3:'Tengo familia — los niños dependen de mí',
-    sits3:'Mis decisiones protegen a las personas que amo',
-    sit4:'Apoyo a familia en el extranjero o a padres mayores',
-    sits4:'Llevo responsabilidades más allá de mi hogar',
-    sit5:'Todo lo anterior — soy a quien todos llaman',
-    sits5:'Pareja, hijos, familia en el extranjero — todo',
-    s1who:'MINA — TU COACH',
-    s1says:'Antes de ver ningún número, quiero entender qué te trajo aquí. La mayoría de las personas vienen a mí en un momento específico — algo ocurrió, o algo que estaban ignorando se volvió imposible de seguir ignorando. <strong>¿Cuál fue ese momento para ti?</strong>',
-    s1c1:'Mis gastos han sido más altos que mis ingresos y tengo miedo de a dónde lleva esto',
-    s1c2:'Tengo deudas que he estado evitando mirar directamente',
-    s1c3:'Quiero construir algo para mi familia y no sé si es posible',
-    s1c4:'Soy de quien todos dependen y no estoy seguro de estar haciendo lo suficiente',
-    s1c5:'Una emergencia destruyó lo que había construido y estoy empezando de nuevo',
-    s1c6:'Nunca he tenido un plan financiero real y quiero uno por primera vez',
-    s2title:'¿Quién <span>depende de ti?</span>',
-    s2hint:'Selecciona todo lo que sea verdad. No minimices lo que cargas.',
-    s2c1:'Me mantengo a mí mismo',s2c2:'Mantengo a una pareja o cónyuge',
-    s2c3:'Tengo hijos que dependen de mí',s2c4:'Envío dinero a familia en otro país',
-    s2c5:'Mantengo a mis padres o hermanos',s2c6:'Todo lo anterior — soy a quien todos llaman',
-    s3q:'Tu idioma <span>¿se siente bien?</span>',
-    s3hint:'Todo a partir de aquí será en el idioma que elegiste.',
-    s3ch:'Cambiar idioma',
-    wPrompt:'¿Qué idioma te resulta más natural?'
-  }
-};
-
-function goBackToLang() {
-  var ws = document.getElementById('welcomeScreen');
-  ws.style.display = 'flex';
-  ws.style.opacity = '1';
-}
-
-function pickMoment(moment, el) {
-  D_moment = moment;
-  D.moment = moment;
-  var g = el.closest('.choices');
-  if(g) g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});
-  el.classList.add('sel');
-  var resp = (MOMENT_RESP[lang] || MOMENT_RESP.en)[moment] || 'I understand.';
-  var el2 = document.getElementById('s2resp');
-  if(el2) el2.textContent = resp;
-  setTimeout(function(){next();}, 280);
-}
-
-function toggleW(val, el) {
-  el.classList.toggle('sel');
-  var idx = D_weight.indexOf(val);
-  if(idx > -1) D_weight.splice(idx, 1); else D_weight.push(val);
-  if(val === 'all') {
-    D_weight = ['self','partner','children','remittances','parents','all'];
-    document.querySelectorAll('#s2 .choice').forEach(function(c){c.classList.add('sel');});
-  }
-  D.weight = D_weight;
-}
-
-
 </script>
 </body>
 </html>
