@@ -596,34 +596,107 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   font-style:italic;
 }
 
-/* GOAL CARDS */
+/* GOAL COACHING CARDS */
 .goal-card {
   background:var(--surface); border:1px solid var(--border);
-  border-radius:18px; padding:22px; position:relative;
+  border-radius:18px; overflow:hidden;
   transition:border-color 0.2s;
 }
 .goal-card:hover { border-color:var(--border-bright); }
-.goal-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
-.goal-type-label { font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--teal); margin-bottom:4px; }
-.goal-name { font-family:var(--font-h); font-size:22px; font-style:italic; color:var(--white); }
-.goal-why { font-size:12px; color:var(--dim); font-style:italic; margin-top:3px; line-height:1.5; }
-.goal-amounts { text-align:right; }
-.goal-target { font-family:var(--font-h); font-size:24px; font-style:italic; color:var(--gold); }
-.goal-remaining { font-size:11px; color:var(--dim); margin-top:2px; }
-.goal-progress-track { height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom:10px; }
-.goal-progress-fill { height:6px; border-radius:3px; background:linear-gradient(90deg,var(--teal),var(--gold)); transition:width 1.2s ease; }
-.goal-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
-.goal-stat { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
-.goal-stat-label { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
-.goal-stat-value { font-family:var(--font-h); font-size:16px; font-style:italic; color:var(--white); }
-.goal-mina-note { background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--soft,#C8D0E0); font-style:italic; line-height:1.65; margin-bottom:12px; }
-.goal-actions { display:flex; gap:8px; }
-.goal-btn { padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font-b); transition:all 0.2s; }
+.goal-card-header {
+  padding:20px 22px 0;
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.goal-type-label {
+  font-size:9px; font-weight:700; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--teal); margin-bottom:4px;
+}
+.goal-name {
+  font-family:var(--font-h); font-size:24px;
+  font-style:italic; color:var(--white); line-height:1.1;
+}
+.goal-why {
+  font-size:12px; color:var(--dim); font-style:italic;
+  margin-top:5px; line-height:1.55;
+}
+.goal-target-display { text-align:right; flex-shrink:0; margin-left:16px; }
+.goal-target { font-family:var(--font-h); font-size:26px; font-style:italic; color:var(--gold); }
+.goal-date-label { font-size:11px; color:var(--dim); margin-top:2px; }
+.goal-progress-wrap { padding:16px 22px 0; }
+.goal-progress-track {
+  height:5px; background:rgba(255,255,255,0.05);
+  border-radius:3px; overflow:hidden;
+}
+.goal-progress-fill {
+  height:5px; border-radius:3px;
+  background:linear-gradient(90deg,var(--teal),var(--gold));
+  transition:width 1.2s ease;
+}
+.goal-progress-labels {
+  display:flex; justify-content:space-between;
+  font-size:10px; color:var(--dim); margin-top:5px;
+}
+
+/* THE KEY SECTION — Mina's coaching, not a table */
+.goal-mina-coaching {
+  margin:16px 22px;
+  background:rgba(201,168,76,0.05);
+  border:1px solid var(--gold-border);
+  border-radius:12px; padding:16px 18px;
+  position:relative;
+}
+.goal-mina-coaching::before {
+  content:'M';
+  position:absolute; top:-10px; left:14px;
+  background:var(--surface); padding:0 6px;
+  font-family:var(--font-h); font-size:14px;
+  font-style:italic; color:var(--gold); font-weight:700;
+}
+.goal-coaching-text {
+  font-size:13px; color:var(--white-soft);
+  line-height:1.8; font-style:italic;
+}
+.goal-coaching-text strong { color:var(--white); font-style:normal; }
+.goal-coaching-text .teal { color:var(--teal); font-style:normal; font-weight:600; }
+.goal-coaching-text .red { color:var(--red); font-style:normal; font-weight:600; }
+.goal-coaching-text .gold { color:var(--gold); font-style:normal; font-weight:600; }
+
+/* NEXT STEP — the action card */
+.goal-next-step {
+  margin:0 22px 16px;
+  background:var(--teal-dim);
+  border:1px solid var(--teal-border);
+  border-radius:10px; padding:12px 16px;
+  font-size:13px; color:var(--white);
+}
+.goal-next-label {
+  font-size:9px; font-weight:700; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--teal); margin-bottom:5px;
+}
+
+.goal-numbers-row {
+  display:flex; gap:8px; padding:0 22px 16px; flex-wrap:wrap;
+}
+.goal-number-chip {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:8px 12px; text-align:center;
+}
+.goal-chip-label { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px; }
+.goal-chip-value { font-family:var(--font-h); font-size:15px; font-style:italic; color:var(--white); }
+
+.goal-actions {
+  display:flex; gap:8px; padding:0 22px 18px; flex-wrap:wrap;
+}
+.goal-btn { padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font-b); transition:all 0.2s; }
 .goal-btn.primary { background:var(--teal); color:#0C0F1A; border:none; }
 .goal-btn.secondary { background:transparent; border:1px solid var(--border); color:var(--muted); }
 .goal-btn.secondary:hover { border-color:var(--teal-border); color:var(--teal); }
 .goal-btn.danger { background:transparent; border:1px solid var(--red-border); color:var(--red); }
-.goal-achieved { background:linear-gradient(135deg,rgba(0,201,167,0.1),rgba(201,168,76,0.07)); border-color:var(--teal-border); }
+.goal-achieved-banner {
+  background:var(--teal-dim); border-top:1px solid var(--teal-border);
+  padding:12px 22px; font-size:13px; font-weight:600; color:var(--teal);
+  text-align:center;
+}
 
 /* GOAL MODAL INPUTS */
 .goal-input {
@@ -634,8 +707,6 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
 }
 .goal-input:focus { border-color:var(--teal-border); }
 .goal-input::placeholder { color:var(--dim); }
-
-/* GOAL TYPE BUTTONS */
 .goal-type-btn {
   background:var(--surface2); border:1.5px solid var(--border);
   border-left:3px solid transparent;
@@ -645,8 +716,6 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
 .goal-type-btn:hover { border-color:var(--border-bright); border-left-color:rgba(0,201,167,0.4); }
 .goal-type-btn.selected { border-color:var(--teal-border); border-left-color:var(--teal); background:var(--teal-dim); }
 .goal-type-btn.selected div:first-child { color:var(--white); }
-
-/* CHAT HISTORY */
 .chat-history-date {
   text-align:center; font-size:10px; color:var(--dim);
   padding:8px 0; letter-spacing:0.08em; text-transform:uppercase;
@@ -885,23 +954,30 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     <div class="page-header">
       <div class="page-eyebrow">Coached by Mina — your real targets</div>
       <div class="page-title">Life <span>Goals</span></div>
-      <div class="page-date">Every goal has a real plan behind it. Not a savings bar — a strategy.</div>
     </div>
 
-    <!-- Conflict banner — shown when goals conflict with debt -->
-    <div id="goalConflictBanner" style="display:none;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:16px 20px;margin-bottom:18px;display:none">
-      <div style="font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px">Mina's honest assessment</div>
-      <div id="goalConflictMsg" style="font-size:13px;color:var(--white-soft);line-height:1.7;font-style:italic"></div>
+    <!-- Mina's overall goals assessment — loads dynamically -->
+    <div id="goalsMinaBlock" style="display:none;margin-bottom:20px">
+      <div class="mina-card" style="animation:none">
+        <div class="mina-avatar">M</div>
+        <div style="flex:1">
+          <div class="mina-header">
+            <span class="mina-name-label">MINA — ON YOUR GOALS</span>
+            <div class="mina-status"><div class="mina-dot"></div>Active</div>
+          </div>
+          <div class="mina-message" id="goalsMinaMsg" style="font-style:italic;color:var(--white-soft);line-height:1.8">Reviewing your goals...</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Active goals -->
-    <div id="goalsList" style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px"></div>
+    <!-- Active goals list -->
+    <div id="goalsList" style="display:flex;flex-direction:column;gap:18px;margin-bottom:20px"></div>
 
-    <!-- Add goal CTA -->
-    <div style="background:linear-gradient(135deg,rgba(0,201,167,0.06),rgba(201,168,76,0.04));border:1px dashed rgba(0,201,167,0.25);border-radius:18px;padding:28px;text-align:center" id="addGoalCTA">
+    <!-- Add goal -->
+    <div style="background:linear-gradient(135deg,rgba(0,201,167,0.05),rgba(201,168,76,0.03));border:1px dashed rgba(0,201,167,0.22);border-radius:18px;padding:28px;text-align:center" id="addGoalCTA">
       <div style="font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--white);margin-bottom:7px">What are you working toward?</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.65">Mina builds a real savings plan for each goal — based on your actual income, your debt, and your timeline. Not a generic calculator. A coached commitment.</div>
-      <button onclick="openGoalModal()" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.2s">Add my first goal</button>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.65;max-width:480px;margin-left:auto;margin-right:auto">Tell Mina your goal and she will give you a real plan — honest about what is possible, specific about what to do next. Not a savings bar. A coaching conversation.</div>
+      <button onclick="openGoalModal()" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b)">Add a goal</button>
     </div>
   </div>
 
@@ -1044,6 +1120,12 @@ async function loadAllData() {
   try { lsDebts = JSON.parse(localStorage.getItem('vera_debts')||'[]'); } catch(e){}
   try { lsFears = JSON.parse(localStorage.getItem('vera_fears')||'[]'); } catch(e){}
   try { lsGoals = JSON.parse(localStorage.getItem('vera_goals')||'[]'); } catch(e){}
+
+  // Emotional context from new onboarding
+  D.situation = lsP.situation || '';
+  D.moment = lsP.moment || localStorage.getItem('vera_moment') || '';
+  D.previousAttempt = lsP.previous_attempt || sbProfile.previous_attempt || '';
+  D.lang = sbProfile.language || lsP.language || lsP.lang || 'en';
 
   // 3. Merge — localStorage is primary (freshest from onboarding)
   // Name: prefer full_name over username/email
@@ -1243,34 +1325,206 @@ function renderAll() {
 }
 
 function renderMinaBriefing(hasData) {
-  var h = new Date().getHours();
-  var greet = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  var msg = '';
   var totalIncome = D.income + D.sideIncome + D.investIncome;
+  var lang = D.lang || 'en';
+  var firstName = D.firstName || '';
+  var s = D.cur + ' ';
+  var msg = '';
 
+  // ── TRANSLATIONS ──────────────────────────────────────────────────────────
+  var T = {
+    en: {
+      greet: ['Good morning','Good afternoon','Good evening'],
+      noData: 'I am ready to build your complete financial plan — but I need your numbers first. <a href="/onboarding.html" style="color:var(--teal);font-style:normal;font-weight:600">Complete your setup</a> so I can give you real advice, not guesses.',
+      // First login responses by situation
+      first_single: 'I have read everything you shared with me. You are managing alone — which means every decision lands entirely on you. That is a lot of weight. Here is where we start.',
+      first_partner: 'I have read everything you shared. Two incomes, shared responsibilities — which means the plan I build for you needs to account for both sides. Here is what I see right now.',
+      first_family: 'I have read everything you shared. You are carrying your family — every financial decision you make ripples outward to people who depend on you. Let me show you where we stand.',
+      first_caregiver: 'I have read everything you shared. You are supporting people across two worlds at the same time. That is not a small thing. Here is the honest picture.',
+      first_all: 'I have read everything you shared. You are carrying more than most people I work with — partner, children, family abroad, all of it. Before we look at numbers, I want you to know: I see all of it. Here is where we start.',
+      first_default: 'I have read everything you shared with me. Let me show you exactly where you stand.',
+      // Moment responses (first login)
+      moment_scared: 'You told me your expenses are higher than your income and you are scared. That fear is correct. The gap is real. But it is fixable — and I am going to show you exactly how.',
+      moment_debt: 'You told me you have been avoiding your debt. Today we stop avoiding it. I have seen the numbers. Here is the honest picture.',
+      moment_family: 'You told me you want to build something for your family but you do not know if it is possible. Based on what you shared with me — it is. The path is harder than you would like. It is not closed.',
+      moment_responsible: 'You told me you are the one everyone depends on and you are not sure you are doing enough. Here is what I see in your numbers.',
+      moment_emergency: 'You told me an emergency destroyed what you had built. Starting over is not failure. It is information. Here is exactly where you are now.',
+      moment_first: 'You told me this is your first time facing this seriously. Then let this be the last time you face it without a real plan.',
+      // Previous attempt responses
+      prev_no_plan: 'You told me you never had a real plan. That ends today.',
+      prev_no_stick: 'You told me you started before but could not stick to it. I am going to make sure that does not happen again.',
+      prev_emergency: 'You told me an emergency derailed you before. That is exactly why the first thing we build is your emergency fund.',
+      prev_income_low: 'You told me your income felt too low to save anything. Let me show you otherwise.',
+      prev_tried_all: 'You told me you have tried everything and nothing worked. What you have not tried is a plan built entirely around your own numbers.',
+      prev_first_time: 'It takes real courage to face this for the first time. I will make sure it is worth it.',
+      // Financial state
+      deficit: 'Your expenses exceed your income by <span class="danger">{0}</span> every month. This is the first thing we fix — before anything else.',
+      available: 'You have <span class="highlight">{0} available</span> this month after all expenses.',
+      debt_tracked: 'Your <span class="danger">{0} in debt</span> is tracked.',
+      debt_free: 'Following my strategy you could be debt-free in approximately <span class="highlight">{0} months.</span>',
+      remittances: 'Your <span class="gold">{0} in family support</span> is accounted for. I will never ask you to cut that.',
+      no_emergency: 'You have no emergency fund. That is the first wall of protection we build.',
+      // Returning user
+      return_same: 'Nothing has changed since your last visit. That is either discipline or avoidance. Let us find out which.',
+      return_improved: 'Something has improved since you were last here.',
+      return_worse: 'Something needs attention since your last visit.',
+      return_default: 'Welcome back.',
+      ask: 'What do you want to work on today?'
+    },
+    fr: {
+      greet: ['Bonjour','Bonne après-midi','Bonsoir'],
+      noData: 'Je suis prête à construire votre plan financier complet — mais j\'ai besoin de vos chiffres d\'abord. <a href="/onboarding.html" style="color:var(--teal);font-style:normal;font-weight:600">Complétez votre profil</a> pour que je puisse vous donner de vrais conseils.',
+      first_single: 'J\'ai lu tout ce que vous m\'avez partagé. Vous gérez seul(e) — ce qui signifie que chaque décision repose entièrement sur vous. C\'est beaucoup à porter. Voici par où nous commençons.',
+      first_partner: 'J\'ai lu tout ce que vous m\'avez partagé. Deux revenus, responsabilités partagées — le plan que je construis doit tenir compte des deux côtés. Voici ce que je vois en ce moment.',
+      first_family: 'J\'ai lu tout ce que vous m\'avez partagé. Vous portez votre famille — chaque décision financière que vous prenez a des répercussions sur les personnes qui dépendent de vous. Laissez-moi vous montrer où nous en sommes.',
+      first_caregiver: 'J\'ai lu tout ce que vous m\'avez partagé. Vous soutenez des personnes dans deux mondes en même temps. Ce n\'est pas une petite chose. Voici la situation honnête.',
+      first_all: 'J\'ai lu tout ce que vous m\'avez partagé. Vous portez plus que la plupart des personnes avec qui je travaille — partenaire, enfants, famille à l\'étranger, tout cela. Voici par où nous commençons.',
+      first_default: 'J\'ai lu tout ce que vous m\'avez partagé. Laissez-moi vous montrer exactement où vous en êtes.',
+      moment_scared: 'Vous m\'avez dit que vos dépenses dépassent vos revenus et que vous avez peur. Cette peur est juste. L\'écart est réel. Mais il est réparable — et je vais vous montrer exactement comment.',
+      moment_debt: 'Vous m\'avez dit que vous évitez vos dettes. Aujourd\'hui on arrête d\'éviter. J\'ai vu les chiffres. Voici la situation honnête.',
+      moment_family: 'Vous m\'avez dit que vous voulez construire quelque chose pour votre famille mais vous ne savez pas si c\'est possible. D\'après ce que vous m\'avez partagé — c\'est possible. Le chemin est plus difficile que vous le souhaitez. Il n\'est pas fermé.',
+      moment_responsible: 'Vous m\'avez dit que vous êtes celui dont tout le monde dépend et que vous n\'êtes pas sûr(e) de faire assez. Voici ce que je vois dans vos chiffres.',
+      moment_emergency: 'Vous m\'avez dit qu\'une urgence a détruit ce que vous aviez construit. Recommencer n\'est pas un échec. C\'est une information. Voici exactement où vous en êtes maintenant.',
+      moment_first: 'Vous m\'avez dit que c\'est la première fois que vous affrontez cela sérieusement. Que ce soit la dernière fois sans un vrai plan.',
+      prev_no_plan: 'Vous m\'avez dit que vous n\'avez jamais eu de vrai plan. Cela se termine aujourd\'hui.',
+      prev_no_stick: 'Vous m\'avez dit que vous avez commencé mais que vous n\'avez pas pu vous y tenir. Je vais m\'assurer que cela ne se reproduise pas.',
+      prev_emergency: 'Vous m\'avez dit qu\'une urgence vous a déraillé avant. C\'est exactement pourquoi la première chose que nous construisons est votre fonds d\'urgence.',
+      prev_income_low: 'Vous m\'avez dit que votre revenu semblait trop bas pour épargner. Laissez-moi vous montrer le contraire.',
+      prev_tried_all: 'Vous m\'avez dit que vous avez tout essayé et que rien n\'a fonctionné. Ce que vous n\'avez pas essayé, c\'est un plan construit entièrement autour de vos propres chiffres.',
+      prev_first_time: 'Il faut un vrai courage pour faire face à cela pour la première fois. Je vais m\'assurer que ça en vaut la peine.',
+      deficit: 'Vos dépenses dépassent vos revenus de <span class="danger">{0}</span> chaque mois. C\'est la première chose que nous corrigeons — avant tout le reste.',
+      available: 'Vous avez <span class="highlight">{0} disponible</span> ce mois-ci après toutes les dépenses.',
+      debt_tracked: 'Votre <span class="danger">dette de {0}</span> est suivie.',
+      debt_free: 'En suivant ma stratégie, vous pourriez être libre de dettes en environ <span class="highlight">{0} mois.</span>',
+      remittances: 'Votre <span class="gold">soutien familial de {0}</span> est pris en compte. Je ne vous demanderai jamais de réduire cela.',
+      no_emergency: 'Vous n\'avez pas de fonds d\'urgence. C\'est le premier mur de protection que nous construisons.',
+      return_same: 'Rien n\'a changé depuis votre dernière visite. C\'est soit de la discipline, soit de l\'évitement. Découvrons lequel.',
+      return_improved: 'Quelque chose s\'est amélioré depuis votre dernière visite.',
+      return_worse: 'Quelque chose nécessite votre attention depuis votre dernière visite.',
+      return_default: 'Bon retour.',
+      ask: 'Sur quoi voulez-vous travailler aujourd\'hui ?'
+    },
+    es: {
+      greet: ['Buenos días','Buenas tardes','Buenas noches'],
+      noData: 'Estoy lista para construir tu plan financiero completo — pero primero necesito tus números. <a href="/onboarding.html" style="color:var(--teal);font-style:normal;font-weight:600">Completa tu perfil</a> para que pueda darte consejos reales.',
+      first_single: 'He leído todo lo que compartiste conmigo. Gestionas solo(a) — lo que significa que cada decisión recae directamente sobre ti. Eso es mucho peso. Aquí es por donde empezamos.',
+      first_partner: 'He leído todo lo que compartiste. Dos ingresos, responsabilidades compartidas — el plan que construyo necesita tener en cuenta ambos lados. Esto es lo que veo ahora mismo.',
+      first_family: 'He leído todo lo que compartiste. Llevas a tu familia — cada decisión financiera que tomas repercute en las personas que dependen de ti. Déjame mostrarte dónde estamos.',
+      first_caregiver: 'He leído todo lo que compartiste. Estás apoyando a personas en dos mundos al mismo tiempo. Eso no es poca cosa. Aquí está el panorama honesto.',
+      first_all: 'He leído todo lo que compartiste. Llevas más que la mayoría de las personas con las que trabajo — pareja, hijos, familia en el extranjero, todo eso. Aquí es por donde empezamos.',
+      first_default: 'He leído todo lo que compartiste conmigo. Déjame mostrarte exactamente dónde estás.',
+      moment_scared: 'Me dijiste que tus gastos son más altos que tus ingresos y tienes miedo. Ese miedo es correcto. La brecha es real. Pero se puede solucionar — y te voy a mostrar exactamente cómo.',
+      moment_debt: 'Me dijiste que has estado evitando tus deudas. Hoy dejamos de evitarlas. He visto los números. Aquí está el panorama honesto.',
+      moment_family: 'Me dijiste que quieres construir algo para tu familia pero no sabes si es posible. Según lo que compartiste conmigo — lo es. El camino es más difícil de lo que te gustaría. No está cerrado.',
+      moment_responsible: 'Me dijiste que eres de quien todos dependen y no estás seguro(a) de estar haciendo lo suficiente. Esto es lo que veo en tus números.',
+      moment_emergency: 'Me dijiste que una emergencia destruyó lo que habías construido. Empezar de nuevo no es fracasar. Es información. Aquí es exactamente donde estás ahora.',
+      moment_first: 'Me dijiste que esta es la primera vez que enfrentas esto en serio. Que sea la última vez sin un plan real.',
+      prev_no_plan: 'Me dijiste que nunca tuviste un plan real. Eso termina hoy.',
+      prev_no_stick: 'Me dijiste que empezaste pero no pudiste mantenerlo. Voy a asegurarme de que eso no vuelva a pasar.',
+      prev_emergency: 'Me dijiste que una emergencia te descarriló antes. Por eso lo primero que construimos es tu fondo de emergencia.',
+      prev_income_low: 'Me dijiste que tus ingresos se sentían demasiado bajos para ahorrar. Déjame mostrarte lo contrario.',
+      prev_tried_all: 'Me dijiste que lo has intentado todo y nada funcionó. Lo que no has intentado es un plan construido completamente alrededor de tus propios números.',
+      prev_first_time: 'Se necesita verdadero coraje para enfrentar esto por primera vez. Me aseguraré de que valga la pena.',
+      deficit: 'Tus gastos superan tus ingresos en <span class="danger">{0}</span> cada mes. Esto es lo primero que arreglamos — antes que cualquier otra cosa.',
+      available: 'Tienes <span class="highlight">{0} disponible</span> este mes después de todos los gastos.',
+      debt_tracked: 'Tu <span class="danger">deuda de {0}</span> está siendo rastreada.',
+      debt_free: 'Siguiendo mi estrategia podrías estar libre de deudas en aproximadamente <span class="highlight">{0} meses.</span>',
+      remittances: 'Tu <span class="gold">apoyo familiar de {0}</span> está contemplado. Nunca te pediré que lo recortes.',
+      no_emergency: 'No tienes fondo de emergencia. Esa es la primera pared de protección que construimos.',
+      return_same: 'Nada ha cambiado desde tu última visita. Eso es disciplina o evitación. Descubramos cuál.',
+      return_improved: 'Algo ha mejorado desde tu última visita.',
+      return_worse: 'Algo necesita atención desde tu última visita.',
+      return_default: 'Bienvenido(a) de nuevo.',
+      ask: '¿En qué quieres trabajar hoy?'
+    }
+  };
+
+  var t = T[lang] || T.en;
+  var h = new Date().getHours();
+  var greet = h < 12 ? t.greet[0] : h < 17 ? t.greet[1] : t.greet[2];
+
+  // ── NO DATA ───────────────────────────────────────────────────────────────
   if (!hasData) {
-    msg = greet+', <strong>'+D.firstName+'</strong>. I am ready to build your complete financial plan — but I need your numbers first. Your profile is not complete yet. Complete your setup so I can give you real advice, not guesses.';
-  } else {
-    msg = greet+', <strong>'+D.firstName+'.</strong> ';
-    if (D.score > 0) {
-      if (D.score >= 70) msg += 'Your financial health is in a <span class="highlight">strong position at '+D.score+'/100.</span> ';
-      else if (D.score >= 50) msg += 'Your health score is <span class="gold">'+D.score+'/100</span> — there are clear improvements we can make together. ';
-      else msg += 'Your health score is <span class="danger">'+D.score+'/100</span>. We have real work to do — and I am going to be honest with you about where to start. ';
-    }
-    if (D.avail < 0) {
-      msg += 'Your expenses are <span class="danger">'+D.cur+' '+Math.abs(Math.round(D.avail)).toLocaleString()+'</span> over your income every month. This is the first thing we fix. ';
-    } else if (D.avail > 0) {
-      msg += 'You have <span class="highlight">'+D.cur+' '+Math.round(D.avail).toLocaleString()+' available</span> this month after expenses. ';
-    }
-    if (D.debt > 0) {
-      var months = D.avail > 0 ? Math.ceil(D.debt / (D.avail * 0.6)) : 0;
-      msg += 'Your <span class="danger">'+D.cur+' '+D.debt.toLocaleString()+' debt</span> is being tracked. ';
-      if (months > 0) msg += 'With the right strategy, you could be debt-free in approximately <span class="highlight">'+months+' months.</span>';
-    }
-    if (D.paydayDate && !D.debt) {
-      msg += 'Let me know what you want to work on today.';
-    }
+    msg = greet + ', <strong>' + firstName + '</strong>. ' + t.noData;
+    document.getElementById('minaBriefing').innerHTML = msg;
+    return;
   }
+
+  // ── DETECT FIRST LOGIN vs RETURNING ───────────────────────────────────────
+  var isFirstLogin = !localStorage.getItem('vera_dashboard_visited');
+  if (isFirstLogin) localStorage.setItem('vera_dashboard_visited', Date.now());
+
+  // ── FIRST LOGIN — THE MIRROR ───────────────────────────────────────────────
+  if (isFirstLogin) {
+    // 1. Situation-based opener
+    var sitKey = 'first_' + (D.situation || 'default');
+    var sitMsg = t[sitKey] || t.first_default;
+    msg = sitMsg + ' ';
+
+    // 2. Previous attempt — what stopped them before
+    if (D.previousAttempt && t['prev_' + D.previousAttempt]) {
+      msg += t['prev_' + D.previousAttempt] + ' ';
+    }
+
+    // 3. Financial reality — honest and specific
+    if (D.avail < 0) {
+      msg += t.deficit.replace('{0}', s + Math.abs(Math.round(D.avail)).toLocaleString()) + ' ';
+    } else if (D.avail > 0) {
+      msg += t.available.replace('{0}', s + Math.round(D.avail).toLocaleString()) + ' ';
+    }
+
+    if (D.debt > 0) {
+      msg += t.debt_tracked.replace('{0}', s + D.debt.toLocaleString()) + ' ';
+      if (D.avail > 0) {
+        var months = Math.ceil(D.debt / (D.avail * 0.6));
+        msg += t.debt_free.replace('{0}', months) + ' ';
+      }
+    }
+
+    if (D.remittances > 0) {
+      msg += t.remittances.replace('{0}', s + D.remittances.toLocaleString()) + ' ';
+    }
+
+    if (!D.emergency || D.emergency === 0) {
+      msg += t.no_emergency + ' ';
+    }
+
+  } else {
+    // ── RETURNING USER — check what changed ───────────────────────────────
+    var lastScore = parseInt(localStorage.getItem('vera_last_score') || '0');
+    var lastAvail = parseFloat(localStorage.getItem('vera_last_avail') || '0');
+
+    msg = greet + ', <strong>' + firstName + '.</strong> ';
+
+    if (lastScore > 0 && D.score > lastScore + 2) {
+      msg += t.return_improved + ' ';
+    } else if (lastScore > 0 && D.score < lastScore - 2) {
+      msg += t.return_worse + ' ';
+    } else if (lastScore > 0) {
+      msg += t.return_same + ' ';
+    } else {
+      msg += t.return_default + ' ';
+    }
+
+    // Current state
+    if (D.avail < 0) {
+      msg += t.deficit.replace('{0}', s + Math.abs(Math.round(D.avail)).toLocaleString()) + ' ';
+    } else if (D.avail > 0) {
+      msg += t.available.replace('{0}', s + Math.round(D.avail).toLocaleString()) + ' ';
+    }
+
+    if (D.debt > 0 && D.avail > 0) {
+      var mo = Math.ceil(D.debt / (D.avail * 0.6));
+      msg += t.debt_tracked.replace('{0}', s + D.debt.toLocaleString()) + ' ';
+      msg += t.debt_free.replace('{0}', mo) + ' ';
+    }
+
+    msg += t.ask;
+  }
+
+  // Save current state for next visit comparison
+  localStorage.setItem('vera_last_score', D.score || 0);
+  localStorage.setItem('vera_last_avail', D.avail || 0);
 
   document.getElementById('minaBriefing').innerHTML = msg;
 }
@@ -1708,25 +1962,42 @@ async function initChat() {
   // Show intro only if no history
   if (!historyLoaded) {
     var h = new Date().getHours();
-    var greet = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+    var lang = D.lang || 'en';
+    var greets = {en:['Good morning','Good afternoon','Good evening'],fr:['Bonjour','Bonne après-midi','Bonsoir'],es:['Buenos días','Buenas tardes','Buenas noches']};
+    var greetArr = greets[lang] || greets.en;
+    var greet = h<12?greetArr[0]:h<17?greetArr[1]:greetArr[2];
     var totalIncome = D.income + D.sideIncome + D.investIncome;
-    var intro = greet+', '+D.firstName+'. ';
+    var intro = greet + ', ' + D.firstName + '. ';
 
     if (totalIncome === 0) {
-      intro += "I am ready to be your financial coach — but I need your numbers first. Please complete your profile so I can give you real advice.";
+      var noData = {en:"I am ready to be your financial coach — but I need your numbers first. Please complete your profile so I can give you real advice.",fr:"Je suis prête à être votre coach financier — mais j'ai d'abord besoin de vos chiffres. Veuillez compléter votre profil.",es:"Estoy lista para ser tu coach financiera — pero primero necesito tus números. Por favor completa tu perfil."};
+      intro += noData[lang] || noData.en;
     } else {
-      intro += 'I have reviewed your complete financial profile. ';
-      if (D.score > 0) intro += 'Your health score is '+D.score+'/100. ';
-      if (D.avail < 0) intro += 'Your expenses exceed your income by '+D.cur+' '+Math.abs(Math.round(D.avail)).toLocaleString()+' per month — this is our first priority. ';
-      else if (D.avail > 0) intro += 'You have '+D.cur+' '+Math.round(D.avail).toLocaleString()+' available each month after expenses. ';
-      if (D.debt > 0) intro += 'Your '+D.cur+' '+D.debt.toLocaleString()+' in debt is being tracked. ';
-      if (D.fears.length > 0) {
-        var fearMap2 = {debt:'getting out of debt',paycheck:'breaking the paycheck cycle',emergency:'building your safety net',family:'providing for your family',retirement:'securing your retirement',shame:'your financial situation',job:'job security',home:'owning a home'};
-        intro += 'I know your concern about '+(fearMap2[D.fears[0]]||D.fears[0])+' — that is exactly where we start. ';
+      // Use situation if available
+      var sitIntros = {
+        en:{family:'I have your complete profile in front of me. You are carrying your family — every number here represents people who depend on you. Let me show you exactly where we stand and what we do first.',caregiver:'I have your complete profile. You are supporting people across two worlds. That changes how I prioritize everything. Here is where we start.',all:'I have your complete profile. You are carrying more than most people I work with. Let me be direct with you about where things stand.',single:'I have your complete profile. You are managing this alone — which means every win and every decision is entirely yours. Here is where we stand.',partner:'I have your complete profile. Two people, shared responsibilities. Here is the honest picture.',default:'I have reviewed your complete financial profile. Here is where we stand.'},
+        fr:{family:'J\'ai votre profil complet devant moi. Vous portez votre famille — chaque chiffre représente des personnes qui dépendent de vous. Voici exactement où nous en sommes.',caregiver:'J\'ai votre profil complet. Vous soutenez des personnes dans deux mondes. Cela change ma façon de prioriser tout. Voici par où nous commençons.',all:'J\'ai votre profil complet. Vous portez plus que la plupart. Permettez-moi d\'être direct sur la situation.',single:'J\'ai votre profil complet. Vous gérez seul(e) — chaque victoire et chaque décision vous appartient entièrement.',partner:'J\'ai votre profil complet. Deux personnes, responsabilités partagées. Voici la situation honnête.',default:'J\'ai examiné votre profil financier complet. Voici où nous en sommes.'},
+        es:{family:'Tengo tu perfil completo frente a mí. Llevas a tu familia — cada número aquí representa personas que dependen de ti.',caregiver:'Tengo tu perfil completo. Estás apoyando a personas en dos mundos. Eso cambia cómo priorizo todo.',all:'Tengo tu perfil completo. Llevas más que la mayoría de las personas con las que trabajo.',single:'Tengo tu perfil completo. Gestionas esto solo(a) — cada logro y cada decisión es completamente tuya.',partner:'Tengo tu perfil completo. Dos personas, responsabilidades compartidas. Aquí está el panorama honesto.',default:'He revisado tu perfil financiero completo. Aquí es donde estamos.'}
+      };
+      var sitLang = sitIntros[lang] || sitIntros.en;
+      intro += (sitLang[D.situation] || sitLang.default) + ' ';
+
+      var s = D.cur + ' ';
+      if (D.avail < 0) {
+        var def = {en:'Your expenses exceed your income by '+s+Math.abs(Math.round(D.avail)).toLocaleString()+' per month — this is the first priority.',fr:'Vos dépenses dépassent vos revenus de '+s+Math.abs(Math.round(D.avail)).toLocaleString()+' par mois — c\'est la première priorité.',es:'Tus gastos superan tus ingresos en '+s+Math.abs(Math.round(D.avail)).toLocaleString()+' al mes — esta es la primera prioridad.'};
+        intro += (def[lang]||def.en) + ' ';
+      } else if (D.avail > 0) {
+        var av = {en:'You have '+s+Math.round(D.avail).toLocaleString()+' available each month after expenses.',fr:'Vous avez '+s+Math.round(D.avail).toLocaleString()+' disponible chaque mois après les dépenses.',es:'Tienes '+s+Math.round(D.avail).toLocaleString()+' disponible cada mes después de los gastos.'};
+        intro += (av[lang]||av.en) + ' ';
       }
-      intro += 'What would you like to work on today?';
+      if (D.debt > 0) {
+        var db = {en:'Your '+s+D.debt.toLocaleString()+' in debt is tracked.',fr:'Votre dette de '+s+D.debt.toLocaleString()+' est suivie.',es:'Tu deuda de '+s+D.debt.toLocaleString()+' está rastreada.'};
+        intro += (db[lang]||db.en) + ' ';
+      }
+      var ask = {en:'What would you like to work on today?',fr:'Sur quoi voulez-vous travailler aujourd\'hui ?',es:'¿En qué quieres trabajar hoy?'};
+      intro += ask[lang]||ask.en;
     }
-    addMsg('mina', intro, false); // false = don't save greeting to DB
+    addMsg('mina', intro, false);
   }
 }
 
@@ -2239,9 +2510,387 @@ function askMinaPayday() {
 
 // ─── GOALS SYSTEM ─────────────────────────────────────────────────────────────
 var userGoals = [];
-var editingGoalId = null;
 var selectedGoalType = '';
 var selectedGoalLabel = '';
+
+var GOAL_LABELS = {
+  house:'Buy a Home', car:'New Car', wedding:'Wedding',
+  travel:'Travel', education:'Education', business:'Start a Business',
+  emergency:'Emergency Fund', other:'Custom Goal'
+};
+
+async function loadGoals() {
+  try {
+    var r = await sb.from('user_goals').select('*').eq('user_id', user.id).order('created_at',{ascending:true});
+    if (r.data) userGoals = r.data;
+  } catch(e) {
+    try { userGoals = JSON.parse(localStorage.getItem('vera_goals_full')||'[]'); } catch(e2){}
+  }
+  renderGoalsPage();
+}
+
+async function renderGoalsPage() {
+  var el = document.getElementById('goalsList');
+  var cta = document.getElementById('addGoalCTA');
+  var minaBlock = document.getElementById('goalsMinaBlock');
+  if (!el) return;
+
+  el.innerHTML = '';
+
+  if (userGoals.length === 0) {
+    if (minaBlock) minaBlock.style.display = 'none';
+    cta.querySelector('button').textContent = 'Add my first goal';
+    return;
+  }
+
+  cta.querySelector('button').textContent = 'Add another goal';
+
+  // Build each goal card
+  userGoals.forEach(function(goal) {
+    el.appendChild(buildGoalCard(goal));
+  });
+
+  // Ask Mina for an overall multi-goal assessment if there are goals
+  if (minaBlock) {
+    minaBlock.style.display = 'block';
+    var msgEl = document.getElementById('goalsMinaMsg');
+    if (msgEl) {
+      msgEl.textContent = 'Reviewing your goals...';
+      askMinaOverallGoals(msgEl);
+    }
+  }
+}
+
+async function askMinaOverallGoals(el) {
+  if (!user) return;
+  var activeGoals = userGoals.filter(function(g){ return !g.achieved; });
+  if (activeGoals.length === 0) return;
+
+  var goalSummary = activeGoals.map(function(g) {
+    var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
+    var months = g.target_date ? Math.max(1,Math.round((new Date(g.target_date)-new Date())/(1000*60*60*24*30.4))) : 0;
+    var monthly = months > 0 ? Math.ceil(rem/months) : 0;
+    return g.goal_name+' (target: '+D.cur+' '+g.target_amount.toLocaleString()+(g.saved_amount>0?', saved: '+D.cur+' '+g.saved_amount.toLocaleString():'')+
+      (g.target_date?', by: '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}):'')+
+      (monthly>0?', needs: '+D.cur+' '+monthly+'/month':'')+
+      (g.why?', reason: "'+g.why+'"':'')+')';
+  }).join(' | ');
+
+  var prompt = 'The client has '+activeGoals.length+' active life goal(s): '+goalSummary+'. '+
+    'Their monthly available income after expenses is '+D.cur+' '+Math.round(D.avail||0).toLocaleString()+'. '+
+    'Their total debt is '+D.cur+' '+(D.debt||0).toLocaleString()+'. '+
+    'Give a direct, honest, human coaching response in 3-4 sentences. '+
+    'Tell them the hard truth about whether these goals are realistic simultaneously. '+
+    'Recommend a priority order. Be specific. Write like a real coach talking to a real person — no lists, no bullets, no asterisks. Pure prose.';
+
+  try {
+    var session = await sb.auth.getSession();
+    var res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.data.session.access_token},
+      body:JSON.stringify({message:prompt, history:[], systemPrompt:buildSystemPrompt()})
+    });
+    var data = await res.json();
+    if (data.response && el) {
+      el.innerHTML = data.response
+        .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g,'')
+        .replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g,'')
+        .trim();
+    }
+  } catch(e) { if(el) el.textContent = 'Talk to me about your goals one at a time for a detailed plan.'; }
+}
+
+function buildGoalCard(goal) {
+  var wrap = document.createElement('div');
+  wrap.className = 'goal-card';
+
+  var target  = parseFloat(goal.target_amount) || 0;
+  var saved   = parseFloat(goal.saved_amount)  || 0;
+  var remaining = Math.max(0, target - saved);
+  var pct = target > 0 ? Math.min(100, Math.round((saved/target)*100)) : 0;
+
+  var monthsLeft = 0, monthlyNeeded = 0;
+  var dateLabel = 'No date set';
+  if (goal.target_date) {
+    var tgt = new Date(goal.target_date+'T00:00:00');
+    monthsLeft = Math.max(1, Math.round((tgt - new Date())/(1000*60*60*24*30.4)));
+    monthlyNeeded = remaining > 0 ? Math.ceil(remaining/monthsLeft) : 0;
+    dateLabel = tgt.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  }
+
+  // Feasibility color
+  var avail = D.avail || 0;
+  var chipColor = 'var(--teal)';
+  if (avail > 0 && monthlyNeeded > avail * 0.5) chipColor = 'var(--red)';
+  else if (avail > 0 && monthlyNeeded > avail * 0.25) chipColor = 'var(--gold)';
+
+  wrap.innerHTML =
+    '<div class="goal-card-header">'+
+      '<div style="flex:1">'+
+        '<div class="goal-type-label">'+(GOAL_LABELS[goal.goal_type]||'Goal').toUpperCase()+'</div>'+
+        '<div class="goal-name">'+escHtml(goal.goal_name)+'</div>'+
+        (goal.why?'<div class="goal-why">"'+escHtml(goal.why)+'"</div>':'')+
+      '</div>'+
+      '<div class="goal-target-display">'+
+        '<div class="goal-target">'+D.cur+' '+target.toLocaleString()+'</div>'+
+        '<div class="goal-date-label">by '+dateLabel+'</div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="goal-progress-wrap">'+
+      '<div class="goal-progress-track"><div class="goal-progress-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="goal-progress-labels"><span>'+D.cur+' '+saved.toLocaleString()+' saved</span><span>'+pct+'% complete</span></div>'+
+    '</div>'+
+
+    '<div class="goal-numbers-row">'+
+      '<div class="goal-number-chip"><div class="goal-chip-label">Still needed</div><div class="goal-chip-value">'+D.cur+' '+remaining.toLocaleString()+'</div></div>'+
+      '<div class="goal-number-chip"><div class="goal-chip-label">Months left</div><div class="goal-chip-value">'+(monthsLeft||'—')+'</div></div>'+
+      '<div class="goal-number-chip"><div class="goal-chip-label">Per month</div><div class="goal-chip-value" style="color:'+chipColor+'">'+D.cur+' '+monthlyNeeded.toLocaleString()+'</div></div>'+
+    '</div>'+
+
+    // Mina's coaching — will be filled by API call
+    '<div class="goal-mina-coaching">'+
+      '<div class="goal-coaching-text" id="coaching_'+goal.id+'">'+
+        '<span style="color:var(--dim);font-size:12px">Mina is reviewing this goal...</span>'+
+      '</div>'+
+    '</div>'+
+
+    // Next step — will be filled by API call
+    '<div class="goal-next-step" id="nextstep_'+goal.id+'" style="display:none">'+
+      '<div class="goal-next-label">Mina\'s next step for you</div>'+
+      '<div id="nextsteptext_'+goal.id+'"></div>'+
+    '</div>'+
+
+    (goal.achieved ? '<div class="goal-achieved-banner">Goal achieved. Do not let it slide back.</div>' : '')+
+
+    '<div class="goal-actions">'+
+      '<button class="goal-btn primary" onclick="deepDiveGoal(\''+goal.id+'\')">Talk to Mina about this</button>'+
+      '<button class="goal-btn secondary" onclick="updateSaved(\''+goal.id+'\')">Update savings</button>'+
+      (pct>=100&&!goal.achieved?'<button class="goal-btn secondary" onclick="markAchieved(\''+goal.id+'\')">Mark achieved</button>':'')+
+      '<button class="goal-btn danger" onclick="deleteGoal(\''+goal.id+'\')">Remove</button>'+
+    '</div>';
+
+  // Load Mina's coaching for this goal asynchronously
+  setTimeout(function(){ loadGoalCoaching(goal, monthlyNeeded, monthsLeft, remaining); }, 100);
+
+  return wrap;
+}
+
+async function loadGoalCoaching(goal, monthlyNeeded, monthsLeft, remaining) {
+  var coachingEl = document.getElementById('coaching_'+goal.id);
+  var nextEl     = document.getElementById('nextstep_'+goal.id);
+  var nextTxtEl  = document.getElementById('nextsteptext_'+goal.id);
+  if (!coachingEl || !user) return;
+
+  // If coaching already cached on the goal object, use it
+  if (goal._coaching) {
+    coachingEl.innerHTML = goal._coaching;
+    if (goal._nextstep && nextEl && nextTxtEl) {
+      nextTxtEl.textContent = goal._nextstep;
+      nextEl.style.display = 'block';
+    }
+    return;
+  }
+
+  var avail = D.avail || 0;
+  var debt  = D.debt  || 0;
+  var dateLabel = goal.target_date ? new Date(goal.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'no date set';
+
+  var prompt = 'The client has this life goal: "'+goal.goal_name+'". '+
+    (goal.why ? 'Why it matters to them: "'+goal.why+'". ' : '')+
+    'Target amount: '+D.cur+' '+goal.target_amount.toLocaleString()+'. '+
+    'Already saved toward it: '+D.cur+' '+(goal.saved_amount||0).toLocaleString()+'. '+
+    'Still needs: '+D.cur+' '+remaining.toLocaleString()+'. '+
+    'Target date: '+dateLabel+'. '+
+    (monthlyNeeded>0 ? 'To hit that date they need to save '+D.cur+' '+monthlyNeeded.toLocaleString()+'/month. ' : '')+
+    'Their monthly available after all expenses and debt: '+D.cur+' '+Math.round(avail).toLocaleString()+'. '+
+    (debt>0 ? 'They also carry '+D.cur+' '+debt.toLocaleString()+' in debt. ' : '')+
+    'Write 3-4 sentences of real coaching about this specific goal. '+
+    'Is this timeline realistic? What does it actually require? What is the biggest obstacle? What is the one thing they must do differently? '+
+    'Be direct and human. No lists, no asterisks, no bullets. '+
+    'Then on a new line write exactly: NEXT: followed by one specific, concrete action they should take this week toward this goal.';
+
+  try {
+    var session = await sb.auth.getSession();
+    var res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.data.session.access_token},
+      body:JSON.stringify({message:prompt, history:[], systemPrompt:buildSystemPrompt()})
+    });
+    var data = await res.json();
+    if (!data.response) return;
+
+    var text = data.response.replace(/\[PDF\][\s\S]*?\[\/PDF\]/g,'').replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g,'').trim();
+
+    // Split coaching from next step
+    var nextIdx = text.lastIndexOf('\nNEXT:');
+    var coaching = nextIdx > -1 ? text.substring(0, nextIdx).trim() : text;
+    var nextStep = nextIdx > -1 ? text.substring(nextIdx+6).trim() : '';
+
+    // Cache on goal
+    goal._coaching = coaching;
+    goal._nextstep = nextStep;
+
+    if (coachingEl) coachingEl.innerHTML = coaching.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    if (nextStep && nextEl && nextTxtEl) {
+      nextTxtEl.textContent = nextStep;
+      nextEl.style.display = 'block';
+    }
+  } catch(e) {
+    if (coachingEl) coachingEl.textContent = 'Talk to me about this goal for a detailed plan.';
+  }
+}
+
+function deepDiveGoal(id) {
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (!g) return;
+  var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
+  var dateStr = g.target_date ? ' by '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}) : '';
+  var msg = 'Let\'s talk about my goal to '+g.goal_name+'. I need '+D.cur+' '+g.target_amount.toLocaleString()+dateStr+'.';
+  if (g.saved_amount > 0) msg += ' I have saved '+D.cur+' '+g.saved_amount.toLocaleString()+' so far.';
+  if (g.why) msg += ' This matters to me because: '+g.why+'.';
+  msg += ' Give me your most honest assessment and a specific monthly action plan.';
+  showPage('mina');
+  setTimeout(function(){ usePrompt(msg); }, 400);
+}
+
+function openGoalModal() {
+  selectedGoalType = '';
+  selectedGoalLabel = '';
+  document.getElementById('goalNameWrap').style.display = 'none';
+  document.getElementById('goalNameInput').value = '';
+  document.getElementById('goalWhy').value = '';
+  document.getElementById('goalAmount').value = '';
+  document.getElementById('goalSaved').value = '';
+  document.getElementById('goalDate').value = '';
+  document.getElementById('goalPreview').style.display = 'none';
+  document.getElementById('goalCurSymbol').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
+  document.getElementById('goalCurSymbol2').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
+  document.querySelectorAll('.goal-type-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('goalOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGoalModal() {
+  document.getElementById('goalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function selectGoalType(type, label) {
+  selectedGoalType = type;
+  selectedGoalLabel = label;
+  document.querySelectorAll('.goal-type-btn').forEach(function(b){
+    b.classList.toggle('selected', b.getAttribute('data-type') === type);
+  });
+  document.getElementById('goalNameWrap').style.display = type === 'other' ? 'block' : 'none';
+  updateGoalPreview();
+}
+
+function updateGoalPreview() {
+  var amount  = parseFloat(document.getElementById('goalAmount').value) || 0;
+  var dateVal = document.getElementById('goalDate').value;
+  var preview = document.getElementById('goalPreview');
+  if (!amount || !dateVal || !selectedGoalType) { preview.style.display = 'none'; return; }
+
+  var months = Math.max(1, Math.round((new Date(dateVal) - new Date())/(1000*60*60*24*30.4)));
+  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
+  var remaining = Math.max(0, amount - saved);
+  var monthly = Math.ceil(remaining / months);
+  var avail = D.avail || 0;
+
+  var txt = 'To reach '+D.cur+' '+amount.toLocaleString()+' by '+new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})+
+    ', you need to save '+D.cur+' '+monthly.toLocaleString()+' per month for '+months+' months.';
+  if (avail > 0) {
+    var pctOfAvail = Math.round((monthly/avail)*100);
+    txt += pctOfAvail <= 30
+      ? ' That is '+pctOfAvail+'% of your available income — realistic.'
+      : pctOfAvail <= 60
+      ? ' That is '+pctOfAvail+'% of your available income — aggressive but possible.'
+      : ' That is '+pctOfAvail+'% of your available income — this timeline will require real sacrifice or a longer timeline.';
+  }
+
+  preview.textContent = txt;
+  preview.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  ['goalAmount','goalDate','goalSaved'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateGoalPreview);
+  });
+});
+
+async function saveGoal() {
+  var type  = selectedGoalType;
+  var label = selectedGoalLabel;
+  var name  = type === 'other' ? document.getElementById('goalNameInput').value.trim() : label;
+  var why   = document.getElementById('goalWhy').value.trim();
+  var amt   = parseFloat(document.getElementById('goalAmount').value) || 0;
+  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
+  var date  = document.getElementById('goalDate').value;
+
+  if (!type)  { alert('Please select a goal type.'); return; }
+  if (!name)  { alert('Please enter a goal name.'); return; }
+  if (!amt)   { alert('Please enter a target amount.'); return; }
+
+  var goal = {
+    user_id: user.id,
+    goal_type: type,
+    goal_name: name,
+    why: why,
+    target_amount: amt,
+    saved_amount: saved,
+    target_date: date || null,
+    achieved: false,
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    var r = await sb.from('user_goals').insert([goal]).select().single();
+    if (r.data) goal = r.data;
+  } catch(e) { goal.id = 'local_'+Date.now(); }
+
+  userGoals.push(goal);
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  closeGoalModal();
+  renderGoalsPage();
+}
+
+async function deleteGoal(id) {
+  if (!confirm('Remove this goal?')) return;
+  try { await sb.from('user_goals').delete().eq('id',id); } catch(e){}
+  userGoals = userGoals.filter(function(g){ return g.id !== id; });
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  renderGoalsPage();
+}
+
+async function markAchieved(id) {
+  try { await sb.from('user_goals').update({achieved:true}).eq('id',id); } catch(e){}
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (g) g.achieved = true;
+  renderGoalsPage();
+}
+
+async function updateSaved(id) {
+  var g = userGoals.find(function(g){ return g.id === id; });
+  if (!g) return;
+  var newAmt = prompt('How much have you now saved toward this goal?\n(current: '+D.cur+' '+(g.saved_amount||0).toLocaleString()+')', g.saved_amount||0);
+  if (newAmt === null) return;
+  var n = parseFloat(newAmt) || 0;
+  try { await sb.from('user_goals').update({saved_amount:n}).eq('id',id); } catch(e){}
+  g.saved_amount = n;
+  if (n >= g.target_amount) g.achieved = true;
+  g._coaching = null; // reset so coaching reloads with new numbers
+  g._nextstep = null;
+  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
+  renderGoalsPage();
+}
+
+function renderGoalConflict() {} // kept for compatibility
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 var GOAL_ICONS = {
   house:'Home', car:'Car', wedding:'Wedding', travel:'Travel',
@@ -2283,281 +2932,6 @@ function renderGoalsPage() {
   renderGoalConflict();
 }
 
-function buildGoalCard(goal) {
-  var wrap = document.createElement('div');
-  wrap.className = 'goal-card' + (goal.achieved ? ' goal-achieved' : '');
-
-  var target = parseFloat(goal.target_amount) || 0;
-  var saved  = parseFloat(goal.saved_amount)  || 0;
-  var remaining = Math.max(0, target - saved);
-  var pct = target > 0 ? Math.min(100, Math.round((saved/target)*100)) : 0;
-
-  // Monthly savings needed
-  var monthsLeft = 0;
-  var monthlyNeeded = 0;
-  if (goal.target_date) {
-    var now = new Date();
-    var tgt = new Date(goal.target_date);
-    monthsLeft = Math.max(1, Math.round((tgt - now)/(1000*60*60*24*30.4)));
-    monthlyNeeded = remaining > 0 ? Math.ceil(remaining / monthsLeft) : 0;
-  }
-
-  // Mina's assessment
-  var minaNote = buildGoalAssessment(goal, monthlyNeeded, monthsLeft, remaining);
-
-  // Feasibility color
-  var feasColor = 'var(--teal)';
-  if (D.avail > 0 && monthlyNeeded > D.avail * 0.5) feasColor = 'var(--red)';
-  else if (D.avail > 0 && monthlyNeeded > D.avail * 0.25) feasColor = 'var(--gold)';
-
-  var dateLabel = goal.target_date ? new Date(goal.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'}) : 'No date set';
-
-  wrap.innerHTML =
-    '<div class="goal-card-top">'+
-      '<div>'+
-        '<div class="goal-type-label">'+(GOAL_ICONS[goal.goal_type]||'Goal').toUpperCase()+'</div>'+
-        '<div class="goal-name">'+escHtml(goal.goal_name)+'</div>'+
-        (goal.why ? '<div class="goal-why">"'+escHtml(goal.why)+'"</div>' : '')+
-      '</div>'+
-      '<div class="goal-amounts">'+
-        '<div class="goal-target">'+D.cur+' '+target.toLocaleString()+'</div>'+
-        '<div class="goal-remaining">'+(pct < 100 ? D.cur+' '+remaining.toLocaleString()+' remaining' : 'Achieved')+'</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="goal-progress-track"><div class="goal-progress-fill" style="width:'+pct+'%"></div></div>'+
-    '<div class="goal-stats">'+
-      '<div class="goal-stat"><div class="goal-stat-label">Saved</div><div class="goal-stat-value">'+D.cur+' '+saved.toLocaleString()+'</div></div>'+
-      '<div class="goal-stat"><div class="goal-stat-label">Progress</div><div class="goal-stat-value">'+pct+'%</div></div>'+
-      '<div class="goal-stat"><div class="goal-stat-label">Target date</div><div class="goal-stat-value" style="font-size:12px">'+dateLabel+'</div></div>'+
-      '<div class="goal-stat"><div class="goal-stat-label">Monthly needed</div><div class="goal-stat-value" style="color:'+feasColor+'">'+D.cur+' '+monthlyNeeded.toLocaleString()+'</div></div>'+
-    '</div>'+
-    '<div class="goal-mina-note">'+minaNote+'</div>'+
-    '<div class="goal-actions">'+
-      '<button class="goal-btn primary" onclick="askMinaAboutGoal(\''+goal.id+'\')">Ask Mina about this</button>'+
-      '<button class="goal-btn secondary" onclick="updateSaved(\''+goal.id+'\')" style="display:'+(!goal.achieved?'block':'none')+'">Update savings</button>'+
-      (pct>=100&&!goal.achieved ? '<button class="goal-btn secondary" onclick="markAchieved(\''+goal.id+'\')">Mark achieved</button>' : '')+
-      '<button class="goal-btn danger" onclick="deleteGoal(\''+goal.id+'\')">Remove</button>'+
-    '</div>';
-
-  return wrap;
-}
-
-function buildGoalAssessment(goal, monthlyNeeded, monthsLeft, remaining) {
-  if (remaining <= 0) return 'You have reached this goal. This is real progress — do not let it slide back.';
-
-  var avail = D.avail || 0;
-  var debt = D.debt || 0;
-
-  if (avail <= 0) {
-    return 'Your expenses currently exceed your income, which means you cannot save toward this goal yet. The first step is closing that gap. Talk to me about cutting expenses or increasing income first.';
-  }
-
-  var canAfford = monthlyNeeded <= avail * 0.3;
-  var stretch   = monthlyNeeded > avail * 0.3 && monthlyNeeded <= avail * 0.6;
-  var tooMuch   = monthlyNeeded > avail * 0.6;
-
-  var msg = '';
-
-  if (debt > 0 && monthlyNeeded > 0) {
-    msg += 'You are carrying '+D.cur+' '+debt.toLocaleString()+' in debt at the same time as this goal. ';
-    if (tooMuch) {
-      msg += 'Pursuing both simultaneously would strain your finances significantly. I recommend eliminating your high-interest debt first, then redirecting those payments toward this goal. That discipline will get you here faster. ';
-    } else if (stretch) {
-      msg += 'You can pursue both with discipline — but the goal needs to be the secondary priority until your high-interest debt is under control. ';
-    } else {
-      msg += 'Your available income can handle both if you stay disciplined. ';
-    }
-  }
-
-  if (canAfford) {
-    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month is realistic on your current income. Set up an automatic transfer on payday — not at the end of the month.';
-  } else if (stretch) {
-    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month is a stretch but achievable with real discipline. You would need to commit '+Math.round((monthlyNeeded/avail)*100)+'% of your available income to this goal.';
-  } else if (tooMuch) {
-    var altMonths = remaining > 0 && avail > 0 ? Math.ceil(remaining/(avail*0.25)) : 0;
-    msg += 'Saving '+D.cur+' '+monthlyNeeded.toLocaleString()+' per month to hit that deadline is not realistic at your current income. ';
-    if (altMonths > 0) {
-      var altDate = new Date(); altDate.setMonth(altDate.getMonth()+altMonths);
-      msg += 'A more honest timeline would be '+altDate.toLocaleDateString('en-US',{month:'long',year:'numeric'})+' — saving '+D.cur+' '+Math.ceil(avail*0.25).toLocaleString()+' per month. I will not lie to you about what is possible.';
-    }
-  }
-
-  return msg;
-}
-
-function renderGoalConflict() {
-  var banner = document.getElementById('goalConflictBanner');
-  var msg = document.getElementById('goalConflictMsg');
-  if (!banner || !msg) return;
-
-  if (userGoals.length === 0 || !D.debt) { banner.style.display = 'none'; return; }
-
-  var totalMonthlyNeeded = userGoals.reduce(function(s,g) {
-    if (g.achieved) return s;
-    var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
-    if (!g.target_date || rem <= 0) return s;
-    var months = Math.max(1,Math.round((new Date(g.target_date)-new Date())/(1000*60*60*24*30.4)));
-    return s + Math.ceil(rem/months);
-  }, 0);
-
-  if (totalMonthlyNeeded > 0 && D.debt > 0 && D.avail > 0) {
-    banner.style.display = 'block';
-    msg.textContent = 'Your active goals require '+D.cur+' '+totalMonthlyNeeded.toLocaleString()+' per month in savings. You also carry '+D.cur+' '+D.debt.toLocaleString()+' in debt. My recommendation: eliminate high-interest debt first, then redirect those payments into your goals. Trying to do everything simultaneously slows everything down.';
-  } else {
-    banner.style.display = 'none';
-  }
-}
-
-function openGoalModal() {
-  selectedGoalType = '';
-  selectedGoalLabel = '';
-  editingGoalId = null;
-  document.getElementById('goalNameWrap').style.display = 'none';
-  document.getElementById('goalNameInput').value = '';
-  document.getElementById('goalWhy').value = '';
-  document.getElementById('goalAmount').value = '';
-  document.getElementById('goalSaved').value = '';
-  document.getElementById('goalDate').value = '';
-  document.getElementById('goalPreview').style.display = 'none';
-  document.getElementById('goalCurSymbol').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
-  document.getElementById('goalCurSymbol2').textContent = D.cur === 'EUR' ? '€' : D.cur === 'GBP' ? '£' : '$';
-  document.querySelectorAll('.goal-type-btn').forEach(function(b){ b.classList.remove('selected'); });
-  var ov = document.getElementById('goalOverlay');
-  ov.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeGoalModal() {
-  document.getElementById('goalOverlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-function selectGoalType(type, label) {
-  selectedGoalType = type;
-  selectedGoalLabel = label;
-  document.querySelectorAll('.goal-type-btn').forEach(function(b){
-    b.classList.toggle('selected', b.getAttribute('data-type') === type);
-  });
-  document.getElementById('goalNameWrap').style.display = type === 'other' ? 'block' : 'none';
-  updateGoalPreview();
-}
-
-function updateGoalPreview() {
-  var amount = parseFloat(document.getElementById('goalAmount').value) || 0;
-  var dateVal = document.getElementById('goalDate').value;
-  var preview = document.getElementById('goalPreview');
-
-  if (!amount || !dateVal || !selectedGoalType) { preview.style.display = 'none'; return; }
-
-  var months = Math.max(1, Math.round((new Date(dateVal) - new Date())/(1000*60*60*24*30.4)));
-  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
-  var remaining = Math.max(0, amount - saved);
-  var monthly = Math.ceil(remaining / months);
-
-  var avail = D.avail || 0;
-  var feasible = avail > 0 && monthly <= avail * 0.4;
-
-  var txt = 'To reach '+D.cur+' '+amount.toLocaleString()+' by '+new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})+', you need to save '+D.cur+' '+monthly.toLocaleString()+' per month for '+months+' months. ';
-  if (avail > 0) {
-    txt += feasible
-      ? 'That is '+Math.round((monthly/avail)*100)+'% of your available income — achievable with discipline.'
-      : 'That is '+Math.round((monthly/avail)*100)+'% of your available income. I will tell you honestly: this timeline is very aggressive given your current finances.';
-  }
-
-  preview.textContent = txt;
-  preview.style.display = 'block';
-}
-
-// Wire up live preview
-document.addEventListener('DOMContentLoaded', function() {
-  ['goalAmount','goalDate','goalSaved'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateGoalPreview);
-  });
-});
-
-async function saveGoal() {
-  var type  = selectedGoalType;
-  var label = selectedGoalLabel;
-  var name  = type === 'other' ? document.getElementById('goalNameInput').value.trim() : label;
-  var why   = document.getElementById('goalWhy').value.trim();
-  var amt   = parseFloat(document.getElementById('goalAmount').value) || 0;
-  var saved = parseFloat(document.getElementById('goalSaved').value) || 0;
-  var date  = document.getElementById('goalDate').value;
-
-  if (!type) { alert('Please select a goal type.'); return; }
-  if (!name) { alert('Please enter a goal name.'); return; }
-  if (!amt)  { alert('Please enter a target amount.'); return; }
-
-  var goal = {
-    user_id: user.id,
-    goal_type: type,
-    goal_name: name,
-    why: why,
-    target_amount: amt,
-    saved_amount: saved,
-    target_date: date || null,
-    achieved: false,
-    created_at: new Date().toISOString()
-  };
-
-  try {
-    var r = await sb.from('user_goals').insert([goal]).select().single();
-    if (r.data) { goal = r.data; }
-  } catch(e) {
-    goal.id = 'local_'+Date.now();
-  }
-
-  userGoals.push(goal);
-  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
-  closeGoalModal();
-  renderGoalsPage();
-}
-
-async function deleteGoal(id) {
-  if (!confirm('Remove this goal?')) return;
-  try { await sb.from('user_goals').delete().eq('id',id); } catch(e){}
-  userGoals = userGoals.filter(function(g){ return g.id !== id; });
-  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
-  renderGoalsPage();
-}
-
-async function markAchieved(id) {
-  try { await sb.from('user_goals').update({achieved:true}).eq('id',id); } catch(e){}
-  var g = userGoals.find(function(g){ return g.id === id; });
-  if (g) g.achieved = true;
-  renderGoalsPage();
-}
-
-async function updateSaved(id) {
-  var g = userGoals.find(function(g){ return g.id === id; });
-  if (!g) return;
-  var newAmt = prompt('How much have you now saved toward this goal? (current: '+D.cur+' '+(g.saved_amount||0).toLocaleString()+')', g.saved_amount||0);
-  if (newAmt === null) return;
-  var n = parseFloat(newAmt) || 0;
-  try { await sb.from('user_goals').update({saved_amount:n}).eq('id',id); } catch(e){}
-  g.saved_amount = n;
-  if (n >= g.target_amount) g.achieved = true;
-  localStorage.setItem('vera_goals_full', JSON.stringify(userGoals));
-  renderGoalsPage();
-}
-
-function askMinaAboutGoal(id) {
-  var g = userGoals.find(function(g){ return g.id === id; });
-  if (!g) return;
-  var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
-  var msg = 'I have a goal: '+g.goal_name+'. Target: '+D.cur+' '+g.target_amount.toLocaleString()+'. ';
-  if (g.saved_amount > 0) msg += 'I have already saved '+D.cur+' '+g.saved_amount.toLocaleString()+'. ';
-  if (g.target_date) msg += 'I want to reach it by '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'})+'. ';
-  if (g.why) msg += 'Why it matters: '+g.why+'. ';
-  msg += 'Build me a specific monthly savings plan for this goal, considering my current income, expenses, and debt situation.';
-  showPage('mina');
-  setTimeout(function(){ usePrompt(msg); }, 400);
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
 async function signOut() {
   await sb.auth.signOut();
