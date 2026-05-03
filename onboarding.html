@@ -1082,6 +1082,82 @@ function closeAuth(){document.getElementById('authOverlay').classList.remove('on
 function showErr(m){var e=document.getElementById('aerr');e.textContent=m;e.style.display='block';}
 function clearErr(){document.getElementById('aerr').style.display='none';}
 
+// SAVE ALL ONBOARDING DATA TO SUPABASE
+async function saveToSupabase(userId, fullName){
+  try {
+    // Save profile
+    await sb.from('profiles').upsert({
+      id: userId,
+      full_name: fullName,
+      language: D.lang,
+      currency: D.currency,
+      country: D.country,
+      country_name: D.country_name,
+      age_range: D.age_range,
+      situation: D.situation,
+      moment: D.moment,
+      previous_attempt: D.previous_attempt,
+      monthly_income: D.monthly_income,
+      income_stable: D.income_stable,
+      side_income: D.side_income,
+      invest_income: D.invest_income,
+      sends_remittances: D.sends_remittances,
+      remittances: D.remittances,
+      rent: D.rent,
+      utilities: D.utilities,
+      groceries: D.groceries,
+      dining: D.dining,
+      transport: D.transport,
+      car_payment: D.car_payment,
+      insurance: D.insurance,
+      subscriptions: D.subscriptions,
+      pays_daycare: D.pays_daycare,
+      daycare: D.daycare,
+      total_savings: D.total_savings,
+      emergency_fund: D.emergency_fund,
+      credit_health: D.credit_health,
+      payday_date: D.payday_date,
+      payday_frequency: D.payday_frequency,
+      fears: D.fears,
+      goals: D.goals,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'id' });
+
+    // Save financial data
+    await sb.from('financial_data').upsert({
+      user_id: userId,
+      monthly_income: D.monthly_income,
+      total_income: D.total_income,
+      total_expenses: D.total_expenses,
+      monthly_budget: D.monthly_available,
+      total_debt: D.total_debt,
+      total_savings: D.total_savings,
+      emergency_fund: D.emergency_fund,
+      health_score: D.health_score,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+
+    // Save debts individually
+    if(D.debts && D.debts.filter(Boolean).length > 0){
+      var debtRows = D.debts.filter(Boolean).map(function(d){
+        return {
+          user_id: userId,
+          debt_type: d.type,
+          debt_name: d.typeName,
+          balance: d.amount,
+          monthly_payment: d.payment,
+          interest_rate: d.rate,
+          missed_payments: d.missed,
+          urgency: d.urgency
+        };
+      });
+      await sb.from('debts').upsert(debtRows, { onConflict: 'user_id,debt_type' });
+    }
+  } catch(e){
+    console.log('Supabase save error (non-blocking):', e);
+  }
+}
+
 async function doSignup(){
   clearErr();
   var fi=document.getElementById('fFi').value.trim(),la=document.getElementById('fLa').value.trim();
@@ -1092,10 +1168,16 @@ async function doSignup(){
   if(pw.length<8)return showErr('Password must be at least 8 characters.');
   var btn=document.getElementById('sBtn');
   btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la},emailRedirectTo:'https://sumgoals.com/verify.html'}});
+  var fullName=fi+' '+la;
+  var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fullName},emailRedirectTo:'https://sumgoals.com/verify.html'}});
   btn.textContent='Create my free account';btn.disabled=false;
   if(r.error)return showErr(r.error.message);
   if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)return showErr('Email already registered.');
+  // Save onboarding data to Supabase immediately
+  if(r.data.user){
+    calc(); // ensure totals are calculated
+    await saveToSupabase(r.data.user.id, fullName);
+  }
   document.getElementById('authContent').style.display='none';
   document.getElementById('verifyContent').style.display='block';
   var sent={en:'We sent a link to',fr:'Nous avons envoy\u00e9 un lien \u00e0',es:'Enviamos un enlace a'};
@@ -1104,11 +1186,27 @@ async function doSignup(){
 }
 
 async function doGoogle(){
-  var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://sumgoals.com/dashboard.html'}});
+  // Save data to localStorage so it persists through OAuth redirect
+  saveLS();
+  var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://sumgoals.com/dashboard.html?onboarding=1'}});
   if(r.error)showErr(r.error.message);
 }
 
 document.getElementById('authOverlay').addEventListener('click',function(e){if(e.target===this)closeAuth();});
+
+// Listen for auth state — save to Supabase when user is confirmed
+sb.auth.onAuthStateChange(async function(event, session){
+  if(event==='SIGNED_IN' && session && session.user){
+    // Save onboarding data whenever a user signs in fresh
+    var lsP={};
+    try{ lsP=JSON.parse(localStorage.getItem('vera_profile')||'{}'); }catch(e){}
+    if(lsP.monthly_income && !localStorage.getItem('vera_saved_to_sb')){
+      calc();
+      await saveToSupabase(session.user.id, session.user.user_metadata?.full_name||'');
+      localStorage.setItem('vera_saved_to_sb','1');
+    }
+  }
+});
 
 async function init(){
   var r=await sb.auth.getSession();
