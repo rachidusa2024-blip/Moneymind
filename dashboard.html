@@ -1121,11 +1121,19 @@ async function loadAllData() {
   try { lsFears = JSON.parse(localStorage.getItem('vera_fears')||'[]'); } catch(e){}
   try { lsGoals = JSON.parse(localStorage.getItem('vera_goals')||'[]'); } catch(e){}
 
-  // Emotional context from new onboarding
-  D.situation = lsP.situation || '';
-  D.moment = lsP.moment || localStorage.getItem('vera_moment') || '';
+  // Emotional context from new onboarding — localStorage first, Supabase fallback
+  D.situation = lsP.situation || sbProfile.situation || '';
+  D.moment = lsP.moment || localStorage.getItem('vera_moment') || sbProfile.moment || '';
   D.previousAttempt = lsP.previous_attempt || sbProfile.previous_attempt || '';
   D.lang = sbProfile.language || lsP.language || lsP.lang || 'en';
+
+  // Fears and goals — localStorage first, then Supabase
+  if(lsFears.length===0 && sbProfile.fears){
+    try{ lsFears = Array.isArray(sbProfile.fears)?sbProfile.fears:JSON.parse(sbProfile.fears); }catch(e){}
+  }
+  if(lsGoals.length===0 && sbProfile.goals){
+    try{ lsGoals = Array.isArray(sbProfile.goals)?sbProfile.goals:JSON.parse(sbProfile.goals); }catch(e){}
+  }
 
   // 3. Merge — localStorage is primary (freshest from onboarding)
   // Name: prefer full_name over username/email
@@ -1140,22 +1148,25 @@ async function loadAllData() {
   D.cur = sbProfile.currency || lsP.currency || lsF.currency || 'USD';
   D.lang = sbProfile.language || lsP.language || 'en';
 
-  // Income — from localStorage first (onboarding captures it)
+  // Income — localStorage first, then Supabase profile fallback
   D.income = best(lsP.monthly_income, lsF.monthly_income, lsF.total_income, sbProfile.monthly_income);
-  D.sideIncome = best(lsP.side_income, lsF.side_income);
-  D.investIncome = best(lsP.invest_income, lsF.invest_income);
-  D.remittances = best(lsP.remittances, lsF.remittances);
+  D.sideIncome = best(lsP.side_income, lsF.side_income, sbProfile.side_income);
+  D.investIncome = best(lsP.invest_income, lsF.invest_income, sbProfile.invest_income);
+  D.remittances = best(lsP.remittances, lsF.remittances, sbProfile.remittances);
 
-  // Expenses — from localStorage (onboarding fills these)
+  // Expenses — localStorage first, then Supabase profile fallback
   D.rent = best(lsP.rent, lsF.rent, sbProfile.rent);
-  D.utilities = best(lsP.utilities, lsF.utilities);
-  D.transport = best(lsP.transport, lsF.transport);
-  D.groceries = best(lsP.groceries, lsF.groceries);
-  D.dining = best(lsP.dining, lsF.dining);
-  D.subscriptions = best(lsP.subscriptions, lsF.subscriptions);
+  D.utilities = best(lsP.utilities, lsF.utilities, sbProfile.utilities);
+  D.transport = best(lsP.transport, lsF.transport, sbProfile.transport);
+  D.groceries = best(lsP.groceries, lsF.groceries, sbProfile.groceries);
+  D.dining = best(lsP.dining, lsF.dining, sbProfile.dining);
+  D.subscriptions = best(lsP.subscriptions, lsF.subscriptions, sbProfile.subscriptions);
+  D.insurance = best(lsP.insurance, lsF.insurance, sbProfile.insurance);
+  D.carPayment = best(lsP.car_payment, lsF.car_payment, sbProfile.car_payment);
+  D.daycare = best(lsP.daycare, lsF.daycare, sbProfile.daycare);
 
-  // Calculate total expenses from components (fixes USD 0 bug)
-  var computedExpenses = D.rent + D.utilities + D.transport + D.groceries + D.dining + D.subscriptions + D.remittances;
+  // Calculate total expenses from all components
+  var computedExpenses = D.rent + D.utilities + D.transport + D.groceries + D.dining + D.subscriptions + D.remittances + (D.insurance||0) + (D.carPayment||0) + (D.daycare||0);
 
   // Calculate total income
   var totalIncome = D.income + D.sideIncome + D.investIncome;
