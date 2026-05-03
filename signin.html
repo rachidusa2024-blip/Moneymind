@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Sum Goals</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0C0F1A;--surface:#141827;--surface2:#1A2035;--teal:#00C9A7;--teal-d:#00A888;--teal-dim:rgba(0,201,167,0.07);--teal-b:rgba(0,201,167,0.2);--gold:#C9A84C;--gold-dim:rgba(201,168,76,0.07);--gold-b:rgba(201,168,76,0.22);--white:#F0F4FF;--soft:#C8D0E0;--muted:#8B9CB6;--dim:#4A5568;--bord:rgba(255,255,255,0.07);--bord-lit:rgba(255,255,255,0.13);--red:#EF4444;--red-dim:rgba(239,68,68,0.07);--red-b:rgba(239,68,68,0.2);--fh:'Cormorant Garamond',serif;--fb:'DM Sans',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+body::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,201,167,0.055),transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+body::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.04),transparent 70%);bottom:-80px;right:-80px;pointer-events:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,201,167,0.1)}50%{box-shadow:0 0 40px rgba(0,201,167,0.22)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.logo{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--white);text-decoration:none;margin-bottom:40px;display:block;text-align:center;animation:fadeUp 0.6s ease both}
+.logo span{color:var(--teal);font-style:italic}
+
+.orb{width:72px;height:72px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:30px;font-style:italic;color:var(--gold);font-weight:700;margin:0 auto 28px;position:relative;animation:fadeUp 0.6s ease 0.1s both,glow 4s ease 0.7s infinite}
+.orb-dot{position:absolute;bottom:3px;right:3px;width:12px;height:12px;border-radius:50%;background:var(--teal);border:2px solid var(--bg);animation:pulse 2s ease infinite}
+
+.card{background:var(--surface);border:1px solid var(--gold-b);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;position:relative;animation:fadeUp 0.6s ease 0.2s both}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent);border-radius:2px}
+
+.card-title{font-family:var(--fh);font-size:26px;font-style:italic;color:var(--white);text-align:center;margin-bottom:4px;font-weight:700}
+.card-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:8px}
+.card-priv{font-size:11px;color:var(--dim);text-align:center;font-style:italic;margin-bottom:24px}
+
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:22px}
+.tab{padding:9px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:all 0.18s}
+.tab.on{background:var(--surface);color:var(--white);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fg{margin-bottom:12px}
+.fi{width:100%;background:var(--surface2);border:1.5px solid var(--bord);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px;font-family:var(--fb);outline:none;transition:border-color 0.2s;margin-bottom:0}
+.fi:focus{border-color:var(--teal-b)}
+.fi::placeholder{color:var(--dim)}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.pw-wrap{position:relative}
+.pw-wrap .fi{padding-right:42px}
+.peye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--dim);padding:4px;transition:color 0.18s}
+.peye:hover{color:var(--teal)}
+
+.err{padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;background:var(--red-dim);color:var(--red);border:1px solid var(--red-b)}
+.ok{padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-b)}
+
+.btn-main{width:100%;padding:13px;background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;margin-top:4px}
+.btn-main:hover{background:var(--teal-d);transform:translateY(-1px)}
+.btn-main:disabled{background:var(--dim);cursor:not-allowed;transform:none}
+
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:12px;color:var(--dim)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bord)}
+
+.btn-google{width:100%;padding:11px;background:var(--surface2);color:var(--white);border:1.5px solid var(--bord);border-radius:10px;font-weight:500;font-size:14px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn-google:hover{border-color:var(--bord-lit)}
+
+.spinner{width:13px;height:13px;border:2px solid rgba(12,15,26,0.25);border-top-color:#0C0F1A;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-right:5px}
+
+.forgot{display:block;text-align:center;font-size:12px;color:var(--dim);margin-top:12px;cursor:pointer;transition:color 0.2s;background:none;border:none;font-family:var(--fb);width:100%}
+.forgot:hover{color:var(--muted)}
+
+.bottom-link{text-align:center;font-size:13px;color:var(--muted);margin-top:24px;animation:fadeUp 0.6s ease 0.3s both}
+.bottom-link a{color:var(--teal);text-decoration:none;font-weight:600}
+.bottom-link a:hover{text-decoration:underline}
+
+.verify-state{text-align:center;padding:12px 0}
+.verify-title{font-family:var(--fh);font-size:24px;font-style:italic;color:var(--white);margin-bottom:8px}
+.verify-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.verify-tip{padding:11px 14px;background:var(--teal-dim);border:1px solid var(--teal-b);border-radius:9px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<a href="/" class="logo">Sum <span>Goals</span></a>
+
+<div class="orb">M<div class="orb-dot"></div></div>
+
+<div class="card">
+  <div id="mainContent">
+    <div class="card-title" id="cardTitle">Welcome back</div>
+    <div class="card-sub" id="cardSub">Mina remembers everything. Pick up where you left off.</div>
+    <div class="card-priv">Everything you tell me stays between us.</div>
+
+    <div class="tabs">
+      <button class="tab on" id="tabSignin" onclick="switchTab('signin')">Sign in</button>
+      <button class="tab" id="tabSignup" onclick="switchTab('signup')">Create account</button>
+    </div>
+
+    <div class="err" id="errMsg"></div>
+    <div class="ok" id="okMsg"></div>
+
+    <!-- SIGNIN FORM -->
+    <div id="signinForm">
+      <div class="fg">
+        <label class="fl">Email</label>
+        <input class="fi" id="siEmail" type="email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" id="siPw" type="password" placeholder="Your password" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter')doSignin()">
+          <button class="peye" onclick="tgPw('siPw')" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn-main" id="btnSignin" onclick="doSignin()">Sign in</button>
+      <button class="forgot" onclick="doForgot()">Forgot your password?</button>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" style="display:none">
+      <div class="fi-row" style="margin-bottom:12px">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">First name</label>
+          <input class="fi" id="suFi" type="text" placeholder="First name" autocomplete="given-name">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Last name</label>
+          <input class="fi" id="suLa" type="text" placeholder="Last name" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Email</label>
+        <input class="fi" id="suEmail" type="email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" id="suPw" type="password" placeholder="At least 8 characters" autocomplete="new-password"
+            onkeydown="if(event.key==='Enter')doSignup()">
+          <button class="peye" onclick="tgPw('suPw')" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:13px;line-height:1.55">
+        By signing up you agree to our <a href="/privacy.html" style="color:var(--teal)">Privacy Policy</a>. No ads. Your data is never sold.
+      </div>
+      <button class="btn-main" id="btnSignup" onclick="doSignup()">Create my free account</button>
+    </div>
+
+    <div class="divider">or</div>
+    <button class="btn-google" onclick="doGoogle()">
+      <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
+
+  <!-- VERIFY STATE -->
+  <div id="verifyContent" style="display:none">
+    <div class="verify-state">
+      <div class="orb" style="width:52px;height:52px;font-size:21px;margin:0 auto 16px">M</div>
+      <div class="verify-title">Check your inbox</div>
+      <div class="verify-sub" id="verifySub">We sent a verification link. Click it and Mina will be waiting for you.</div>
+      <div class="verify-tip">Not there? Check spam. Add <strong style="color:var(--white)">mina@sumgoals.com</strong> to your contacts.</div>
+    </div>
+  </div>
+
+  <!-- RESET STATE -->
+  <div id="resetContent" style="display:none">
+    <div class="verify-state">
+      <div class="verify-title">Check your inbox</div>
+      <div class="verify-sub">We sent a password reset link. Click it to set a new password.</div>
+      <div class="verify-tip">Not there? Check spam.</div>
+      <button class="btn-main" style="margin-top:18px" onclick="showMain()">Back to sign in</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-link">
+  New to Sum Goals? <a href="/onboarding.html">Meet Mina — it's free</a>
+</div>
+
+<script>
+var SB_URL='https://dmdvoygnzbosjbwsriea.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZHZveWduemJvc2pid3NyaWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjAzNDksImV4cCI6MjA5MjAzNjM0OX0.o8m8etdU1Znupr4bkklUcXyehYIOiCU3HZxgmbzCO18';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+
+// Check if already logged in
+async function init(){
+  var r=await sb.auth.getSession();
+  if(r.data.session) window.location.href='/dashboard.html';
+}
+init();
+
+function switchTab(t){
+  var isSI=t==='signin';
+  document.getElementById('tabSignin').classList.toggle('on',isSI);
+  document.getElementById('tabSignup').classList.toggle('on',!isSI);
+  document.getElementById('signinForm').style.display=isSI?'block':'none';
+  document.getElementById('signupForm').style.display=isSI?'none':'block';
+  document.getElementById('cardTitle').textContent=isSI?'Welcome back':'Create your account';
+  document.getElementById('cardSub').textContent=isSI?'Mina remembers everything. Pick up where you left off.':'Start your journey with Mina today.';
+  clearMsgs();
+}
+
+function tgPw(id){var i=document.getElementById(id);i.type=i.type==='password'?'text':'password';}
+function showErr(m){var e=document.getElementById('errMsg');e.textContent=m;e.style.display='block';document.getElementById('okMsg').style.display='none';}
+function showOk(m){var e=document.getElementById('okMsg');e.textContent=m;e.style.display='block';document.getElementById('errMsg').style.display='none';}
+function clearMsgs(){document.getElementById('errMsg').style.display='none';document.getElementById('okMsg').style.display='none';}
+
+async function doSignin(){
+  clearMsgs();
+  var em=document.getElementById('siEmail').value.trim();
+  var pw=document.getElementById('siPw').value;
+  if(!em)return showErr('Please enter your email.');
+  if(!pw)return showErr('Please enter your password.');
+  var btn=document.getElementById('btnSignin');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  var r=await sb.auth.signInWithPassword({email:em,password:pw});
+  btn.textContent='Sign in';btn.disabled=false;
+  if(r.error){
+    if(r.error.message.toLowerCase().includes('invalid'))return showErr('Email or password is incorrect. Try again.');
+    if(r.error.message.toLowerCase().includes('email'))return showErr('Please verify your email first. Check your inbox.');
+    return showErr(r.error.message);
+  }
+  window.location.href='/dashboard.html';
+}
+
+async function doSignup(){
+  clearMsgs();
+  var fi=document.getElementById('suFi').value.trim();
+  var la=document.getElementById('suLa').value.trim();
+  var em=document.getElementById('suEmail').value.trim();
+  var pw=document.getElementById('suPw').value;
+  if(!fi)return showErr('Please enter your first name.');
+  if(!la)return showErr('Please enter your last name.');
+  if(!em||!/^[^@]+@[^@]+\.[^@]+$/.test(em))return showErr('Please enter a valid email.');
+  if(pw.length<8)return showErr('Password must be at least 8 characters.');
+  var btn=document.getElementById('btnSignup');
+  btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  var r=await sb.auth.signUp({email:em,password:pw,options:{data:{full_name:fi+' '+la},emailRedirectTo:'https://sumgoals.com/verify.html'}});
+  btn.textContent='Create my free account';btn.disabled=false;
+  if(r.error)return showErr(r.error.message);
+  if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)
+    return showErr('This email is already registered. Sign in instead.');
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('verifyContent').style.display='block';
+  document.getElementById('verifySub').innerHTML='We sent a verification link to <strong style="color:var(--white)">'+em+'</strong>. Click it and Mina will be waiting for you.';
+}
+
+async function doForgot(){
+  var em=document.getElementById('siEmail').value.trim();
+  if(!em)return showErr('Enter your email address above first.');
+  clearMsgs();
+  var r=await sb.auth.resetPasswordForEmail(em,{redirectTo:'https://sumgoals.com/signin.html'});
+  if(r.error)return showErr(r.error.message);
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('resetContent').style.display='block';
+}
+
+function showMain(){
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('resetContent').style.display='none';
+  document.getElementById('verifyContent').style.display='none';
+}
+
+async function doGoogle(){
+  var r=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://sumgoals.com/dashboard.html'}});
+  if(r.error)showErr(r.error.message);
+}
+</script>
+</body>
+</html>
