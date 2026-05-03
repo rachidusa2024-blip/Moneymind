@@ -621,7 +621,11 @@ var T=24,cur=1,OPT=[8,9,14,18];
 var D={lang:'en',country:'',country_name:'',currency:'USD',age_range:'',situation:'',weight:[],moment:'',monthly_income:0,income_stable:null,has_side:false,side_income:0,has_invest:false,invest_income:0,sends_remittances:false,remittances:0,housing_type:'',rent:0,mortgage_balance:0,utilities:0,phone_internet:0,car_payment:0,car_insurance:0,health_insurance:0,life_insurance:0,groceries:0,dining:0,transport:0,subscriptions:0,dependents:0,pays_daycare:false,daycare:0,has_retirement:false,retirement_contribution:0,debts:[],no_debt:false,total_savings:0,emergency_fund:0,credit_health:'',payday_date:'',payday_frequency:'monthly',previous_attempt:'',fears:[],goals:[],total_income:0,total_expenses:0,monthly_available:0,total_debt:0,health_score:0};
 function n(v){return parseFloat(v)||0;}
 function showSlide(i){document.querySelectorAll('.slide').forEach(function(s){s.classList.remove('active');});var el=document.getElementById('s'+i);if(el)el.classList.add('active');cur=i;document.getElementById('bb').disabled=i<=1;document.getElementById('pf').style.width=(((i-1)/T)*100)+'%';document.getElementById('pt').textContent='Step '+i+' of '+T;document.getElementById('sc').textContent=Math.round(((i-1)/T)*100)+'% complete';document.getElementById('bsk').style.display=OPT.includes(i)?'block':'none';updatePre();window.scrollTo(0,0);}
-function next(){if(cur<T)showSlide(cur+1);else runAna();}
+function next(){
+  if(cur===3){showSlide(4);return;}
+  if(cur<T)showSlide(cur+1);
+  else runAna();
+}
 function prev(){if(cur>1)showSlide(cur-1);}
 function pick(f,v,el){D[f]=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');}
 function setCur(v,el){D.currency=v;var g=el.closest('.choices');if(g)g.querySelectorAll('.choice').forEach(function(c){c.classList.remove('sel');});el.classList.add('sel');if(v==='OTHER')openR('curR');else closeR('curR');updatePre();}
@@ -924,13 +928,6 @@ function toggleW(val, el) {
   D.weight = D_weight;
 }
 
-// Single clean next() override handling all routing
-var _baseNext = next;
-function next() {
-  // Slide 3 (sentence) always goes to slide 4
-  if(cur === 3) { showSlide(4); return; }
-  _baseNext();
-}
 
 </script>
 </body>
