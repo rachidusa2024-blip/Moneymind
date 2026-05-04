@@ -1210,21 +1210,35 @@ async function loadAllData() {
   D.incomeStable = lsP.income_stable !== false;
 
   // Extended fields from new onboarding
-  D.carPayment = best(lsP.car_payment, lsF.car_payment);
+  D.carPayment = best(lsP.car_payment, lsF.car_payment, sbProfile.car_payment);
   D.carInsurance = best(lsP.car_insurance, lsF.car_insurance);
-  D.healthInsurance = best(lsP.health_insurance, lsF.health_insurance);
+  D.healthInsurance = best(lsP.health_insurance, lsF.health_insurance, sbProfile.insurance);
   D.lifeInsurance = best(lsP.life_insurance, lsF.life_insurance);
-  D.daycare = best(lsP.daycare, lsF.daycare);
+  D.daycare = best(lsP.daycare, lsF.daycare, sbProfile.daycare);
   D.retirementContrib = best(lsP.retirement_contribution, lsF.retirement_contribution);
   D.hasRetirement = lsP.has_retirement === true;
-  D.paysDaycare = lsP.pays_daycare === true;
+  D.paysDaycare = lsP.pays_daycare === true || sbProfile.pays_daycare === true;
   D.creditHealth = sbProfile.credit_health || lsP.credit_health || '';
   D.housingType = sbProfile.housing_type || lsP.housing_type || '';
   D.mortgageBalance = best(lsP.mortgage_balance, sbProfile.mortgage_balance);
   D.ageRange = sbProfile.age_range || lsP.age_range || '';
   D.country = sbProfile.country || lsP.country || '';
-  D.countryName = lsP.country_name || '';
+  D.countryName = sbProfile.country_name || lsP.country_name || '';
   D.previousAttempt = sbProfile.previous_attempt || lsP.previous_attempt || '';
+
+  // Load debts from Supabase if localStorage is empty
+  if(D.debts.length === 0){
+    try {
+      var dbDebts = await sb.from('debts').select('*').eq('user_id', user.id);
+      if(dbDebts.data && dbDebts.data.length > 0){
+        D.debts = dbDebts.data.map(function(d){
+          return {type:d.debt_type, typeName:d.debt_name, amount:d.balance||0,
+                  payment:d.monthly_payment||0, rate:d.interest_rate||0,
+                  missed:d.missed_payments||false, urgency:d.urgency||'low'};
+        });
+      }
+    } catch(e){}
+  }
 
   // Recompute expenses including new fields
   var fullExpenses = D.rent + D.utilities + D.transport + D.groceries + D.dining +
@@ -1239,6 +1253,55 @@ async function loadAllData() {
   if (D.debts.length > 0) {
     var debtTotal = D.debts.reduce(function(s,d){ return s + (parseFloat(d.amount)||0); }, 0);
     if (debtTotal > 0) D.debt = debtTotal;
+  }
+
+  // ── RESTORE localStorage from Supabase ────────────────────────────────────
+  // This ensures Mina remembers everything even after logout/login
+  if(sbProfile.monthly_income > 0 && !lsP.monthly_income){
+    localStorage.setItem('vera_profile', JSON.stringify({
+      language: sbProfile.language||'en',
+      currency: sbProfile.currency||'USD',
+      country: sbProfile.country||'',
+      country_name: sbProfile.country_name||'',
+      age_range: sbProfile.age_range||'',
+      situation: sbProfile.situation||'',
+      moment: sbProfile.moment||'',
+      previous_attempt: sbProfile.previous_attempt||'',
+      monthly_income: sbProfile.monthly_income||0,
+      income_stable: sbProfile.income_stable,
+      side_income: sbProfile.side_income||0,
+      invest_income: sbProfile.invest_income||0,
+      sends_remittances: sbProfile.sends_remittances||false,
+      remittances: sbProfile.remittances||0,
+      rent: sbProfile.rent||0,
+      utilities: sbProfile.utilities||0,
+      groceries: sbProfile.groceries||0,
+      dining: sbProfile.dining||0,
+      transport: sbProfile.transport||0,
+      car_payment: sbProfile.car_payment||0,
+      insurance: sbProfile.insurance||0,
+      subscriptions: sbProfile.subscriptions||0,
+      pays_daycare: sbProfile.pays_daycare||false,
+      daycare: sbProfile.daycare||0,
+      total_savings: sbProfile.total_savings||0,
+      emergency_fund: sbProfile.emergency_fund||0,
+      credit_health: sbProfile.credit_health||'',
+      payday_date: sbProfile.payday_date||'',
+      payday_frequency: sbProfile.payday_frequency||'monthly'
+    }));
+    localStorage.setItem('vera_fin', JSON.stringify({
+      monthly_income: sbFin.monthly_income||sbProfile.monthly_income||0,
+      total_income: sbFin.total_income||0,
+      total_expenses: sbFin.total_expenses||0,
+      monthly_budget: sbFin.monthly_budget||0,
+      total_debt: sbFin.total_debt||0,
+      total_savings: sbFin.total_savings||sbProfile.total_savings||0,
+      emergency_fund: sbFin.emergency_fund||sbProfile.emergency_fund||0,
+      health_score: sbFin.health_score||0
+    }));
+    if(sbProfile.fears) localStorage.setItem('vera_fears', JSON.stringify(sbProfile.fears));
+    if(sbProfile.goals) localStorage.setItem('vera_goals', JSON.stringify(sbProfile.goals));
+    if(D.debts.length>0) localStorage.setItem('vera_debts', JSON.stringify(D.debts));
   }
 }
 
