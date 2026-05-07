@@ -46,8 +46,8 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:10
 /* LANGUAGE INTRO */
 .w-langs{display:flex;flex-direction:column;gap:4px;margin-bottom:36px;animation:fadeUp 0.8s ease 0.9s both}
 .wl{font-family:var(--fh);font-style:italic;line-height:1.3}
-.wl.p{font-size:26px;color:var(--white)}.wl.s{font-size:20px;color:var(--muted)}.wl.t{font-size:15px;color:var(--dim)}
-.wl .wn{color:var(--teal);font-weight:700}.wl.s .wn{color:var(--gold)}
+.wl.p{font-size:26px;color:var(--white)}.wl.s{font-size:26px;color:var(--muted)}.wl.t{font-size:15px;color:var(--dim)}
+.wl .wn{color:var(--teal);font-weight:700}.wl.s .wn{color:var(--teal)}
 .w-prompt{font-size:11px;color:var(--dim);margin-bottom:18px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;animation:fadeUp 0.8s ease 1.3s both}
 .w-btns{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.8s ease 1.5s both}
 .lang-btn{padding:11px 26px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.11);background:transparent;color:var(--soft);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:all 0.22s;letter-spacing:0.02em}
@@ -302,8 +302,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:10
   </div>
   <div class="w-langs">
     <div class="wl p">I speak <span class="wn">English</span>.</div>
-    <div class="wl s">Je parle <span class="wn">français</span>.</div>
-    <div class="wl t">Hablo <span class="wn">español</span>.</div>
+    <div class="wl s">Hablo <span class="wn">español</span>.</div>
   </div>
   <div class="w-prompt" id="wPrompt">Which language feels like home to you?</div>
   <div class="w-btns">
@@ -581,7 +580,18 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:10
       <label class="fi-l" id="s8pw">Password</label>
       <div class="pw-wrap"><input class="fi" id="fPw" type="password" placeholder="At least 8 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignup()"><button class="peye" onclick="tgPw()" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <div style="font-size:11px;color:var(--dim);margin-bottom:13px;line-height:1.55">By signing up you agree to our <a href="/privacy.html" style="color:var(--teal)">Privacy Policy</a>. No ads. Your data is never sold.</div>
-      <button class="btn-auth" id="sBtn" onclick="doSignup()" style="margin-bottom:14px">Create my free account</button>
+
+      <!-- LEGAL DISCLAIMER -->
+      <div id="disclaimerBox" style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.2);border-radius:11px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px" id="disclaimerTitle">Important — Please Read</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px" id="disclaimerText">Mina provides financial information and educational guidance — not legal or financial advice. The information Mina shares about consumer protection laws, debt collection rights, and financial strategies is for educational purposes only and does not constitute legal advice. Every situation is different. For complex legal matters — including lawsuits, bankruptcy, and IRS disputes — consult a licensed attorney. Mina will always tell you when professional legal help is recommended.</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;cursor:pointer" onclick="toggleDisclaimer()">
+          <div id="disclaimerCheck" style="width:18px;height:18px;border-radius:5px;border:2px solid var(--dim);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.18s"></div>
+          <div style="font-size:12px;color:var(--soft);line-height:1.55" id="disclaimerLabel">I understand that Mina provides educational information — not legal advice — and I agree to the Terms of Service and Privacy Policy.</div>
+        </div>
+      </div>
+
+      <button class="btn-auth" id="sBtn" onclick="doSignup()" style="margin-bottom:14px" disabled>Create my free account</button>
       <div class="divider" id="s8or">or</div>
       <button class="btn-google" onclick="doGoogle()">
         <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
@@ -739,6 +749,9 @@ en:{
   s8txt:'I have everything I need. Your plan is being built right now. Create your account so I can save it — every number, every strategy, every letter.',
   s8fn:'First name',s8ln:'Last name',s8em:'Email',s8pw:'Password',
   s8or:'or',s8google:'Continue with Google',
+  disclaimerTitle:'Important — Please Read',
+  disclaimerText:'Mina provides financial information and educational guidance — not legal or financial advice. The information Mina shares about consumer protection laws, debt collection rights, and financial strategies is for educational purposes only and does not constitute legal advice. Every situation is different. For complex legal matters — including lawsuits, bankruptcy, and IRS disputes — consult a licensed attorney. Mina will always tell you when professional legal help is recommended.',
+  disclaimerLabel:'I understand that Mina provides educational information — not legal advice — and I agree to the Terms of Service and Privacy Policy.',
   aSub:'Mina is reviewing your complete situation',
   at1:'Reviewing your debt situation',
   at2:'Checking your legal rights and options',
@@ -853,6 +866,9 @@ es:{
   s8txt:'Tengo todo lo que necesito. Tu plan se está construyendo ahora mismo. Crea tu cuenta para que pueda guardarlo — cada número, cada estrategia, cada carta.',
   s8fn:'Nombre',s8ln:'Apellido',s8em:'Email',s8pw:'Contraseña',
   s8or:'o',s8google:'Continuar con Google',
+  disclaimerTitle:'Importante — Por favor lee esto',
+  disclaimerText:'Mina proporciona información financiera y orientación educativa — no asesoramiento legal o financiero. La información que Mina comparte sobre leyes de protección al consumidor, derechos de cobro de deudas y estrategias financieras es solo con fines educativos y no constituye asesoramiento legal. Cada situación es diferente. Para asuntos legales complejos — incluyendo demandas, bancarrota y disputas con el IRS — consulta a un abogado autorizado. Mina siempre te dirá cuándo se recomienda ayuda legal profesional.',
+  disclaimerLabel:'Entiendo que Mina proporciona información educativa — no asesoramiento legal — y acepto los Términos de Servicio y la Política de Privacidad.',
   aSub:'Mina está revisando tu situación completa',
   at1:'Revisando tu situación de deuda',
   at2:'Verificando tus derechos legales y opciones',
@@ -1134,6 +1150,24 @@ function tgPw(){
   i.type=i.type==='password'?'text':'password';
 }
 
+var disclaimerAccepted=false;
+function toggleDisclaimer(){
+  disclaimerAccepted=!disclaimerAccepted;
+  var box=document.getElementById('disclaimerCheck');
+  var btn=document.getElementById('sBtn');
+  if(disclaimerAccepted){
+    box.style.background='var(--teal)';
+    box.style.borderColor='var(--teal)';
+    box.innerHTML='<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if(btn) btn.disabled=false;
+  } else {
+    box.style.background='transparent';
+    box.style.borderColor='var(--dim)';
+    box.innerHTML='';
+    if(btn) btn.disabled=true;
+  }
+}
+
 // ── CALCULATE ─────────────────────────────────────────────────────────────────
 function calc(){
   var totalIncome=D.monthly_income+D.side_income;
@@ -1365,6 +1399,9 @@ function clearErr(){document.getElementById('aerr').style.display='none';}
 
 async function doSignup(){
   clearErr();
+  if(!disclaimerAccepted){
+    return showErr(lang==='es'?'Por favor acepta los términos antes de continuar.':'Please accept the terms before continuing.');
+  }
   var fi=document.getElementById('fFi').value.trim();
   var la=document.getElementById('fLa').value.trim();
   var em=document.getElementById('fEm').value.trim();
