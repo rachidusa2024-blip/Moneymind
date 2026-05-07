@@ -648,7 +648,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:10
       <div class="save-title" id="svTitle">Your plan is ready.</div>
       <div class="save-sub" id="svSub">Your account is created. Mina has saved your complete profile. Every time you return she picks up exactly where you left off.</div>
       <div class="save-priv" id="svPriv">Everything you tell me stays between us. No ads. No data sales.</div>
-      <a href="/dashboard.html" class="btn-save" id="svBtn">Open my dashboard with Mina</a>
+      <a href="/dashboard.html" class="btn-save" id="svBtn" onclick="goDashboard(event)">Open my dashboard with Mina</a>
       <div class="save-note" id="svNote">Your debt elimination plan, your letters, your complete roadmap — all waiting for you.</div>
     </div>
   </div>
@@ -1415,18 +1415,47 @@ async function doSignup(){
   var fullName=fi+' '+la;
   var r=await sb.auth.signUp({
     email:em,password:pw,
-    options:{data:{full_name:fullName},emailRedirectTo:'https://sumgoals.com/verify.html'}
+    options:{data:{full_name:fullName},emailRedirectTo:'https://sumgoals.com/dashboard.html'}
   });
   btn.textContent=lang==='es'?'Crear mi cuenta gratuita':'Create my free account';
   btn.disabled=false;
   if(r.error)return showErr(r.error.message);
   if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)
     return showErr(lang==='es'?'Este email ya está registrado.':'Email already registered.');
+
+  // Save data to Supabase
   if(r.data.user){calc();await saveToSupabase(r.data.user.id,fullName);}
-  // Show verify then run analysis
-  document.getElementById('verifyContent').style.display='block';
-  document.getElementById('sBtn').style.display='none';
-  setTimeout(function(){runAna();},2000);
+
+  // Check if Supabase confirmed immediately (email confirm disabled) or needs verification
+  var needsVerify = !r.data.session;
+
+  if(needsVerify){
+    // Email confirm is ON — show verify screen
+    var s8content=document.getElementById('s8');
+    if(s8content){
+      s8content.innerHTML='<div style="text-align:center;padding:32px 0">'+
+        '<div style="width:64px;height:64px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:28px;font-style:italic;color:var(--gold);font-weight:700;margin:0 auto 20px">M</div>'+
+        '<div style="font-family:var(--fh);font-size:26px;font-style:italic;color:var(--white);margin-bottom:10px">'+(lang==='es'?'Revisa tu correo':'Check your inbox')+'</div>'+
+        '<div style="font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:16px">'+
+          (lang==='es'?'Enviamos un enlace de verificación a <strong style="color:var(--white)">'+em+'</strong>. Haz clic en él y tu plan te estará esperando.':
+          'We sent a verification link to <strong style="color:var(--white)">'+em+'</strong>. Click it and your plan will be waiting for you.')+
+        '</div>'+
+        '<div style="padding:12px 16px;background:var(--teal-dim);border:1px solid var(--teal-b);border-radius:10px;font-size:12px;color:var(--muted)">'+
+          (lang==='es'?'¿No lo recibiste? Revisa spam. Agrega mina@sumgoals.com a tus contactos.':
+          'Not there? Check spam. Add mina@sumgoals.com to your contacts.')+
+        '</div>'+
+        '<div style="margin-top:16px;font-size:11px;color:var(--dim)">'+(lang==='es'?'Mientras tanto, aquí está lo que Mina preparó para ti:':'In the meantime here is what Mina prepared for you:')+'</div>'+
+      '</div>';
+    }
+    // Hide nav buttons
+    document.getElementById('btnNext').style.display='none';
+    document.getElementById('btnBack').style.display='none';
+    // Still show the analysis and result after 2 seconds
+    setTimeout(function(){runAna();},2000);
+  } else {
+    // Email confirm is OFF — user is already logged in, go straight to dashboard
+    window.location.href='/dashboard.html';
+  }
 }
 
 async function doGoogle(){
@@ -1435,9 +1464,21 @@ async function doGoogle(){
   if(r.error)showErr(r.error.message);
 }
 
+function goDashboard(e){
+  if(e) e.preventDefault();
+  window.location.href='/dashboard.html';
+}
+
 async function init(){
   var r=await sb.auth.getSession();
-  if(r.data.session){window.location.href='/dashboard.html';}
+  // Only redirect if we are NOT on the result screen
+  if(r.data.session){
+    var resultEl=document.getElementById('result');
+    var isOnResult=resultEl&&resultEl.classList.contains('on');
+    if(!isOnResult){
+      window.location.href='/dashboard.html';
+    }
+  }
 }
 init();
 </script>
