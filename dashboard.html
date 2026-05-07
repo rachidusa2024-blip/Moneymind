@@ -210,13 +210,14 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
 .qa-title { font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-bottom:14px; }
 .qa-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
 .qa-item {
-  display:flex;align-items:center;gap:10px;
-  padding:12px 14px;background:var(--surface2);border-radius:11px;
+  display:flex;align-items:center;
+  padding:13px 16px;background:var(--surface2);border-radius:11px;
   cursor:pointer;transition:all 0.18s;border:1px solid var(--border);
+  border-left:3px solid transparent;
 }
-.qa-item:hover { border-color:var(--teal-border);background:rgba(0,201,167,0.05);transform:translateY(-1px); }
+.qa-item:hover { border-color:var(--teal-border);border-left-color:var(--teal);background:rgba(0,201,167,0.05);transform:translateX(3px); }
 .qa-icon { font-size:16px;flex-shrink:0; }
-.qa-label { font-size:12px;font-weight:500;color:var(--muted);line-height:1.3;transition:color 0.18s; }
+.qa-label { font-size:13px;font-weight:500;color:var(--muted);line-height:1.3;transition:color 0.18s; }
 .qa-item:hover .qa-label { color:var(--white); }
 
 @media(max-width:1100px) {
@@ -1138,27 +1139,21 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <div class="qa-title" id="qaTitle">Talk to Mina about</div>
       <div class="qa-grid">
         <div class="qa-item" onclick="showPage('mina');usePrompt('A debt collector is calling me. What are my rights and what should I say?')">
-          <div class="qa-icon">📞</div>
-          <div class="qa-label" id="qa1">Collector calling me</div>
+          <div class="qa-label" id="qa1">Collector is calling me</div>
         </div>
         <div class="qa-item" onclick="showPage('mina');usePrompt('I received a court summons. What do I do and how much time do I have to respond?')">
-          <div class="qa-icon">⚖️</div>
           <div class="qa-label" id="qa2">Court paperwork received</div>
         </div>
         <div class="qa-item" onclick="showPage('mina');usePrompt('Can you write a cease and desist letter to stop collectors from contacting me?')">
-          <div class="qa-icon">✉️</div>
           <div class="qa-label" id="qa3">Write a cease and desist</div>
         </div>
         <div class="qa-item" onclick="showPage('mina');usePrompt('I have a medical bill I cannot afford. What are my options and can you help me find errors in it?')">
-          <div class="qa-icon">🏥</div>
           <div class="qa-label" id="qa4">Medical bill help</div>
         </div>
         <div class="qa-item" onclick="showPage('mina');usePrompt('What is the statute of limitations on my debt? Is my debt time-barred?')">
-          <div class="qa-icon">⏰</div>
           <div class="qa-label" id="qa5">Is my debt expired?</div>
         </div>
         <div class="qa-item" onclick="showPage('mina');usePrompt('How do I negotiate directly with a debt collector to settle for less? What should I say?')">
-          <div class="qa-icon">🤝</div>
           <div class="qa-label" id="qa6">Negotiate settlement</div>
         </div>
       </div>
@@ -2345,16 +2340,48 @@ US CONSUMER PROTECTION LAW YOU KNOW AND USE:
 - IRS: Currently Not Collectible, Installment Agreement, Offer in Compromise, Penalty Abatement — all available options. IRS is more negotiable than notices suggest.
 - Debt buyers: Buy debt for 1-7 cents on dollar. Cannot always prove chain of ownership. Settlement at 25-50 cents on dollar is common.
 
-LETTERS YOU CAN PRODUCE (tell the user, do not generate the full letter in chat — they download from dashboard):
-- Debt validation letter
-- Cease and desist letter  
+LETTERS YOU PRODUCE DIRECTLY IN THE CHAT — RIGHT NOW, WHEN ASKED:
+When a user asks for any letter, you write the complete letter immediately in your response. You do not tell them to go to another section. You do not say the letter is "waiting in their dashboard." You write it here, now, in full.
+
+After writing the letter, say: "Copy this letter exactly as written. Print it, sign it, and send it via certified mail with return receipt requested. Keep a copy for your records."
+
+Letter format — always professional, ready to send:
+[Date]
+[User's Name]
+[City, State]
+
+[Collector/Creditor Name]
+[Address if known, or "Debt Collections Department"]
+
+Re: Account Number [if known] — [Debt Type]
+
+Dear Sir or Madam,
+
+[Letter body — specific to the letter type, citing exact law sections]
+
+Sincerely,
+[User's Name]
+
+Letter types you write on demand:
+- Debt validation letter (FDCPA § 1692g)
+- Cease and desist letter (FDCPA § 1692c)
 - Pay-for-delete letter
 - Goodwill letter
 - Medical bill dispute letter
-- FDCPA violation complaint
+- FDCPA violation complaint to CFPB
 - Court response / answer to lawsuit
 - IRS response letter
-- Hardship letter to creditor
+- Hardship letter to original creditor
+- Charity care application letter
+
+NEVER say:
+- "The letter is in your dashboard"
+- "Navigate to the letters section"
+- "Download it from your account"
+- "I cannot generate legal documents in chat"
+- "The template is prepared and waiting"
+
+None of these sections exist yet. You generate the letter here, in the conversation, completely and immediately.
 
 WHEN TO REFER TO A REAL LAWYER:
 - Court date within 14 days and no response filed yet
@@ -2380,11 +2407,14 @@ STRICT RULES — NEVER BREAK:
 12. Never recommend debt settlement companies. Teach users to negotiate directly.
 13. You are speaking to a real person who is trusting you with something they may be ashamed of. Every word must honor that.
 
-EXPORT FEATURE: When the user asks for a downloadable plan, budget, or report in PDF or Excel format, include a structured data block at the END of your response using these exact tags:
-For PDF: wrap content in [PDF]...[/PDF]
-For Excel: wrap content in [EXCEL]...[/EXCEL]
-Excel format rules: Section headers in ALL CAPS followed by colon. Key-value pairs as "Label: Value". Tables with pipe separators. One row per line. Never mix formats on same line.
-The tags are stripped from chat display. Say "I have prepared your plan — you can download it below" — do not mention the tags.`;
+EXPORT FEATURE: When you write a letter OR when the user asks for a downloadable plan, budget, or document, wrap the content in export tags at the END of your response:
+For PDF: [PDF]...[/PDF]
+For Excel: [EXCEL]...[/EXCEL]
+
+When you write a letter, ALWAYS include it in [PDF] tags so the user can download it. Say: "I have written your letter above. You can also download it as a PDF using the button that appears below."
+
+Excel format: Section headers ALL CAPS with colon. Key-value as "Label: Value". Tables with pipe separators. One row per line.
+The tags are stripped from chat display automatically.`;
 }
 
 async function initChat() {
