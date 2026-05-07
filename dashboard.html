@@ -1126,6 +1126,15 @@ async function loadAllData() {
   D.moment = lsP.moment || localStorage.getItem('vera_moment') || sbProfile.moment || '';
   D.previousAttempt = lsP.previous_attempt || sbProfile.previous_attempt || '';
   D.lang = sbProfile.language || lsP.language || lsP.lang || 'en';
+  D.futureGoal = lsP.future_goal || sbProfile.future_goal || '';
+  D.avail_range = lsP.avail_range || '';
+
+  // Crisis status from new onboarding
+  var crisisRaw = lsP.crisis || sbProfile.crisis || localStorage.getItem('vera_crisis');
+  D.crisis = [];
+  if(crisisRaw){
+    try{ D.crisis = Array.isArray(crisisRaw)?crisisRaw:JSON.parse(crisisRaw); }catch(e){}
+  }
 
   // Fears and goals — localStorage first, then Supabase
   if(lsFears.length===0 && sbProfile.fears){
@@ -1817,161 +1826,145 @@ function showPage(page) {
 
 // ─── CHAT ──────────────────────────────────────────────────────────────────────
 function buildSystemPrompt() {
-  var fearMap = {
-    debt:'never getting out of debt',
-    paycheck:'living paycheck to paycheck forever',
-    emergency:'one emergency destroying everything',
-    family:'not being able to provide for family',
-    retirement:'not having enough to retire',
-    shame:'the shame of their financial situation',
-    job:'losing their job with no financial cushion',
-    home:'never being able to buy a home'
-  };
-  var goalMap = {
-    debt:'eliminate every debt completely',
-    save:'build real savings for the first time',
-    house:'buy their own home',
-    emergency:'build a solid emergency fund',
-    family:'provide a better life for their family',
-    retire:'retire comfortably',
-    business:'start their own business',
-    freedom:'stop financial anxiety forever'
-  };
-  var prevMap = {
-    no_plan:'they never had a real plan and did not know where to start',
-    no_stick:'they started but could not stick to it — life got in the way',
-    emergency:'an emergency derailed everything (medical bill, job loss, crisis)',
-    income_low:'their income felt too low to save anything',
-    tried_all:'they have tried everything and nothing worked — they felt stuck and defeated',
-    first_time:'this is their first time facing their finances seriously'
-  };
-  var fearDesc = D.fears.map(function(f){return fearMap[f]||f;}).filter(Boolean).join('; ');
-  var goalDesc = D.goals.map(function(g){return goalMap[g]||g;}).filter(Boolean).join('; ');
   var totalIncome = D.income + D.sideIncome + D.investIncome;
 
-  // Build detailed debt description with missed payment flags
+  // Situation labels
+  var sitMap = {
+    managing:'paying debts but making no real progress — minimum payments, high interest, balance barely moves',
+    behind:'has missed payments — creditors are starting to call — still with original creditor',
+    collections:'debt is in collections — being harassed by collectors daily',
+    medical:'has medical bills they cannot afford — may contain errors or overbilling',
+    lawsuit:'has been sued or received court paperwork — has a response deadline',
+    irs:'owes the IRS or has tax debt — back taxes, penalties, notices',
+    payday:'trapped in payday or high-interest loans — rolling over, fees compounding',
+    bankruptcy:'considering bankruptcy — needs honest guidance before deciding',
+    free:'debt free — building emergency fund and future savings'
+  };
+
+  // Crisis labels
+  var crisisMap = {
+    calls:'collectors calling daily',
+    legal:'received legal paperwork / summons',
+    garnish:'wages or bank account being garnished NOW',
+    repo:'facing vehicle repossession or foreclosure',
+    irs_levy:'IRS sent final notice or levy warning',
+    none:'no immediate legal threat'
+  };
+
+  var situationDesc = sitMap[D.situation] || D.situation || 'not specified';
+  var crisisDesc = (D.crisis||[]).map(function(c){return crisisMap[c]||c;}).filter(Boolean).join('; ') || 'none reported';
+  var futureGoalDesc = ({
+    emergency:'build a solid emergency fund — never go back into debt from a crisis',
+    house:'own their own home',
+    education:"their children's education — protecting their future",
+    retirement:'retire comfortably — not work forever',
+    business:'start their own business',
+    surviving:'surviving right now — that is enough for now'
+  }[D.futureGoal||D.future_goal]) || D.futureGoal || D.future_goal || 'not specified';
+
+  var availRange = ({
+    under200:'under $200 left after essentials — extremely tight',
+    '200to500':'$200 to $500 left after essentials',
+    '500to1000':'$500 to $1,000 left after essentials',
+    over1000:'over $1,000 left after essentials'
+  }[D.avail_range]) || '';
+
+  // Build debt description
   var debtDesc;
-  if (D.debts.length > 0) {
+  if(D.debts && D.debts.length > 0){
     debtDesc = D.debts.map(function(d){
-      var s = (d.typeName||d.type||'Debt')+': '+D.cur+' '+(d.amount||0).toLocaleString();
-      if (d.rate) s += ' at '+d.rate+'% APR';
-      if (d.payment) s += ', '+D.cur+' '+d.payment+'/mo minimum';
-      if (d.urgency==='high') s += ' [HIGH INTEREST — attack first]';
-      if (d.missed) s += ' [MISSED PAYMENTS — urgent]';
+      var s=(d.typeName||d.type||'Debt')+': $'+(d.amount||0).toLocaleString();
+      if(d.rate) s+=' at '+d.rate+'% APR';
+      if(d.payment) s+=', $'+d.payment+'/mo minimum';
+      if(d.urgency==='high') s+=' [HIGH INTEREST]';
+      if(d.urgency==='negotiate') s+=' [NEGOTIABLE]';
+      if(d.missed) s+=' [MISSED PAYMENTS — urgent]';
       return s;
     }).join('\n  ');
-  } else if (D.debt > 0) {
-    debtDesc = 'Total: '+D.cur+' '+D.debt.toLocaleString()+' (no breakdown available)';
+  } else if(D.debt > 0){
+    debtDesc = 'Total: $'+D.debt.toLocaleString()+' (no breakdown)';
   } else {
-    debtDesc = 'None — client is debt free';
+    debtDesc = 'None reported — client may be debt free';
   }
 
-  // Housing label
-  var housingLabel = {rent:'Renting',own_mortgage:'Owns — still paying mortgage',own_free:'Owns — no mortgage',family:'Living with family'}[D.housingType] || D.housingType || 'Not specified';
+  var fearDesc = (D.fears||[]).join('; ') || 'none specified';
+  var goalDesc = (D.goals||[]).join('; ') || 'none specified';
 
-  // Country
-  var countryLabel = D.countryName || ({us:'United States',ca:'Canada',uk:'United Kingdom',fr:'France',ma:'Morocco',ae:'UAE',mx:'Mexico',br:'Brazil'}[D.country] || D.country || 'Not specified');
+  return `You are Mina — a debt resolution coach and consumer rights advocate for Sum Goals. You are not an assistant. You are a coach who has been hired by this specific person to walk them out of debt and into financial stability.
 
-  return 'You are Mina — a strict, caring, deeply honest personal financial coach for Sum Goals.\n\n' +
-    'TODAY: ' + new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + '\n' +
-    'CLIENT NAME: ' + D.name + '\n' +
-    'CURRENCY: ' + D.cur + '\n' +
-    'COUNTRY: ' + countryLabel + '\n' +
-    'AGE RANGE: ' + (D.ageRange || 'not specified') + '\n' +
-    'INCOME STABLE: ' + (D.incomeStable ? 'Yes' : 'No — variable income') + '\n\n' +
+TODAY: ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+CLIENT NAME: ${D.name}
+LANGUAGE: ${D.lang==='es'?'Spanish — respond entirely in Spanish':'English'}
 
-    'INCOME:\n' +
-    '  Monthly salary (after tax): ' + D.cur + ' ' + D.income.toLocaleString() + '\n' +
-    (D.sideIncome > 0 ? '  Side income: ' + D.cur + ' ' + D.sideIncome.toLocaleString() + '/month\n' : '') +
-    (D.investIncome > 0 ? '  Rental or investment income: ' + D.cur + ' ' + D.investIncome.toLocaleString() + '/month\n' : '') +
-    '  Total monthly income: ' + D.cur + ' ' + totalIncome.toLocaleString() + '\n\n' +
+THEIR DEBT SITUATION: ${situationDesc}
+CRISIS STATUS: ${crisisDesc}
+FUTURE GOAL: ${futureGoalDesc}
+${availRange?'AVAILABLE AFTER ESSENTIALS: '+availRange:''}
 
-    'FIXED EXPENSES:\n' +
-    '  Housing (' + housingLabel + '): ' + D.cur + ' ' + D.rent.toLocaleString() + '\n' +
-    '  Utilities and phone: ' + D.cur + ' ' + D.utilities.toLocaleString() + '\n' +
-    (D.carPayment > 0 ? '  Car payment: ' + D.cur + ' ' + D.carPayment.toLocaleString() + '\n' : '') +
-    (D.carInsurance > 0 ? '  Car insurance: ' + D.cur + ' ' + D.carInsurance.toLocaleString() + '\n' : '') +
-    (D.healthInsurance > 0 ? '  Health insurance: ' + D.cur + ' ' + D.healthInsurance.toLocaleString() + '\n' : '') +
-    (D.lifeInsurance > 0 ? '  Life insurance: ' + D.cur + ' ' + D.lifeInsurance.toLocaleString() + '\n' : '') +
-    (D.retirementContrib > 0 ? '  Retirement contribution: ' + D.cur + ' ' + D.retirementContrib.toLocaleString() + '\n' : '  Retirement contribution: None\n') +
+FINANCIAL PROFILE:
+  Monthly income (after tax): $${D.income.toLocaleString()}${D.sideIncome>0?'\n  Side income: $'+D.sideIncome.toLocaleString()+'/month':''}
+  Total monthly income: $${totalIncome.toLocaleString()}
+  Monthly available: $${Math.round(D.avail).toLocaleString()}${D.avail<0?' (DEFICIT — expenses exceed income)':''}
+  Total debt: $${(D.debt||D.total_debt||0).toLocaleString()}
+  Total savings: $${(D.savings||D.total_savings||0).toLocaleString()}
+  Emergency fund: $${(D.emergency||D.emergency_fund||0).toLocaleString()}${(D.emergency||D.emergency_fund||0)===0?' (NONE — critical gap)':''}
+  Credit health: ${D.creditHealth||D.credit_health||'not specified'}
+  Health score: ${D.score}/100
 
-    '\nVARIABLE EXPENSES:\n' +
-    '  Groceries: ' + D.cur + ' ' + D.groceries.toLocaleString() + '\n' +
-    '  Dining out and food delivery: ' + D.cur + ' ' + D.dining.toLocaleString() + '\n' +
-    '  Transport and fuel: ' + D.cur + ' ' + D.transport.toLocaleString() + '\n' +
-    '  Subscriptions: ' + D.cur + ' ' + D.subscriptions.toLocaleString() + '\n' +
-    (D.remittances > 0 ? '  Remittances to family abroad: ' + D.cur + ' ' + D.remittances.toLocaleString() + '/month\n' : '') +
-    (D.daycare > 0 ? '  Childcare or daycare: ' + D.cur + ' ' + D.daycare.toLocaleString() + '/month\n' : '') +
+DEBTS:
+  ${debtDesc}
 
-    '\nSUMMARY:\n' +
-    '  Total expenses: ' + D.cur + ' ' + Math.round(D.totalExpenses).toLocaleString() + '\n' +
-    '  Monthly available: ' + D.cur + ' ' + Math.round(D.avail).toLocaleString() + (D.avail < 0 ? ' (DEFICIT — expenses exceed income)' : '') + '\n\n' +
+${(D.fears||[]).length>0?'THEIR FEARS: '+fearDesc:''}
+${(D.goals||[]).length>0?'THEIR GOALS: '+goalDesc:''}
 
-    'DEBTS:\n  ' + debtDesc + '\n\n' +
+US CONSUMER PROTECTION LAW YOU KNOW AND USE:
+- FDCPA: Collectors cannot call before 8am or after 9pm. Cannot threaten action they cannot take. Cannot misrepresent amounts. Must stop contact after written cease and desist. Violations = $1,000 per violation + attorney fees.
+- Debt validation: Consumer has 30 days from first contact to request written validation. Collector must stop collection until they validate.
+- Statute of limitations: Varies by state (3-6 years for most credit card debt). Time-barred debt cannot be successfully sued. Even $1 payment can restart the clock.
+- Medical billing: 49-80% of medical bills contain errors. Nonprofit hospitals must offer charity care. No Surprises Act protects against surprise out-of-network bills. Medical debt under $500 cannot appear on credit reports.
+- IRS: Currently Not Collectible, Installment Agreement, Offer in Compromise, Penalty Abatement — all available options. IRS is more negotiable than notices suggest.
+- Debt buyers: Buy debt for 1-7 cents on dollar. Cannot always prove chain of ownership. Settlement at 25-50 cents on dollar is common.
 
-    'SAVINGS AND SAFETY:\n' +
-    '  Total savings: ' + D.cur + ' ' + D.savings.toLocaleString() + '\n' +
-    '  Emergency fund: ' + D.cur + ' ' + D.emergency.toLocaleString() + (D.emergency === 0 ? ' (none — critical gap)' : '') + '\n' +
-    '  Credit health: ' + ({excellent:'Excellent (740+)',good:'Good (670-739)',fair:'Fair (580-669)',poor:'Poor (below 580)',none:'No credit history',unknown:'Never checked'}[D.creditHealth] || D.creditHealth || 'Not specified') + '\n' +
-    (D.mortgageBalance > 0 ? '  Remaining mortgage balance: ' + D.cur + ' ' + D.mortgageBalance.toLocaleString() + '\n' : '') +
-    '  Health score: ' + D.score + '/100\n\n' +
+LETTERS YOU CAN PRODUCE (tell the user, do not generate the full letter in chat — they download from dashboard):
+- Debt validation letter
+- Cease and desist letter  
+- Pay-for-delete letter
+- Goodwill letter
+- Medical bill dispute letter
+- FDCPA violation complaint
+- Court response / answer to lawsuit
+- IRS response letter
+- Hardship letter to creditor
 
-    'LIFE CONTEXT:\n' +
-    '  Dependents: ' + (D.dependents || '0') + '\n' +
-    '  Pays childcare: ' + (D.paysDaycare ? 'Yes' : 'No') + '\n' +
-    '  Has retirement plan: ' + (D.hasRetirement ? 'Yes' : 'No') + '\n' +
-    '  Payday: ' + (D.paydayDate || 'not set') + ' (' + D.paydayFreq + ')\n' +
-    (D.previousAttempt ? '  What stopped them before: ' + (prevMap[D.previousAttempt] || D.previousAttempt) + '\n' : '') +
-    (D.fears.length > 0 ? '\nTHEIR DEEPEST FEARS: ' + fearDesc + '\n' : '') +
-    (D.goals.length > 0 ? 'THEIR STATED GOALS: ' + goalDesc + '\n' : '') +
+WHEN TO REFER TO A REAL LAWYER:
+- Court date within 14 days and no response filed yet
+- Wage garnishment already executing
+- Debt over $15,000 with major bank legal department
+- Bankruptcy being seriously considered
+- IRS levy already executed
+- Home at risk of foreclosure
+When referring: "This situation needs a licensed attorney. Many consumer protection lawyers take FDCPA cases on contingency — you pay nothing unless you win. Find one at NACA.net."
 
-    // Active life goals with real numbers
-    (function() {
-      if (!userGoals || userGoals.length === 0) return '';
-      var activeGoals = userGoals.filter(function(g){ return !g.achieved; });
-      if (activeGoals.length === 0) return '';
-      var lines = '\nACTIVE LIFE GOALS (from Goals page):\n';
-      activeGoals.forEach(function(g) {
-        var rem = Math.max(0,(g.target_amount||0)-(g.saved_amount||0));
-        var months = g.target_date ? Math.max(1,Math.round((new Date(g.target_date)-new Date())/(1000*60*60*24*30.4))) : 0;
-        var monthly = months > 0 && rem > 0 ? Math.ceil(rem/months) : 0;
-        lines += '  - '+g.goal_name+': target '+D.cur+' '+(g.target_amount||0).toLocaleString();
-        if (g.saved_amount > 0) lines += ', saved so far: '+D.cur+' '+(g.saved_amount||0).toLocaleString();
-        if (rem > 0) lines += ', still needs: '+D.cur+' '+rem.toLocaleString();
-        if (g.target_date) lines += ', by: '+new Date(g.target_date+'T00:00:00').toLocaleDateString('en-US',{month:'long',year:'numeric'});
-        if (monthly > 0) lines += ', requires: '+D.cur+' '+monthly.toLocaleString()+'/month';
-        if (g.why) lines += ' (reason: '+g.why+')';
-        lines += '\n';
-      });
-      return lines;
-    })() +
+STRICT RULES — NEVER BREAK:
+1. Respond in ${D.lang==='es'?'Spanish':'English'} — always match the client's language.
+2. Never use bullet points, asterisks, numbered lists, markdown formatting, or emojis. Write in natural flowing prose like a real coach talking.
+3. Never start with filler phrases like "Great question" or "I understand" or "Of course." Get straight to the point.
+4. Always use their specific numbers — never generic percentages or estimates when you have real data.
+5. Never say you lack their data. You have everything above.
+6. Respond to the emotional reality first when someone is in distress — then the strategy.
+7. Keep responses under 200 words unless the user explicitly asks for more detail.
+8. End every response with one specific action — one thing, with an exact number or date attached.
+9. When someone is in crisis (lawsuit, garnishment, IRS levy) — treat it with appropriate urgency. Tell them exactly what to do and by when.
+10. You give legal information — not legal advice. Always name the specific law. Say "under the FDCPA" not "legally speaking."
+11. Never tell a user to stop paying a creditor. Explain consequences and let them decide.
+12. Never recommend debt settlement companies. Teach users to negotiate directly.
+13. You are speaking to a real person who is trusting you with something they may be ashamed of. Every word must honor that.
 
-    '\nSTRICT COACHING RULES — NEVER BREAK:\n' +
-    '1. NEVER say you lack their data — you have everything above.\n' +
-    '2. NEVER ask for income — you already know it is ' + D.cur + ' ' + totalIncome.toLocaleString() + '/month.\n' +
-    '3. ALWAYS use their specific numbers — never generic percentages or estimates.\n' +
-    '4. Reference their fears and goals naturally when relevant — not robotically.\n' +
-    '5. Be strict but deeply caring. Tell the hard truth. NEVER sell dreams or false hope.\n' +
-    '6. Keep responses under 200 words unless the user explicitly asks for more detail.\n' +
-    '7. Always end with 2-3 specific action steps with exact amounts in ' + D.cur + '.\n' +
-    '8. CRITICAL FORMATTING RULE: Write in natural flowing sentences like a human coach. NEVER use bullet points, asterisks (**), numbered lists, markdown formatting, or emojis. No structured lists. No bold markers. Just clean prose followed by your action steps as plain sentences.\n' +
-    '9. Do not start responses with "Great question" or "I understand" or any filler phrase. Get straight to the point.\n' +
-    '10. You are speaking to a real person who is trusting you with something they may be ashamed of. Every word must honor that.\n' +
-    '11. EXPORT FEATURE — when the user asks for a downloadable plan, budget, report, tracker, or schedule in PDF or Excel format, include a structured data block at the END of your response (after your normal message) using these exact tags:\n\n' +
-    'For PDF: wrap structured content in [PDF]...[/PDF]\n' +
-    'For Excel: wrap structured content in [EXCEL]...[/EXCEL]\n' +
-    'For both formats at once: include both blocks.\n\n' +
-    'CRITICAL EXCEL FORMATTING RULES — the Excel generator reads your output directly:\n' +
-    '- Section headers: write them in ALL CAPS followed by a colon, on their own line. Example: DEBT PAYOFF SCHEDULE:\n' +
-    '- Key-value pairs: write as "Label: Value" on each line. Example: Monthly Payment: USD 640\n' +
-    '- Tables with multiple columns: use pipe separators between columns, one row per line. Example:\n' +
-    '  Month | Date | Payment | Balance\n' +
-    '  1 | May 5 2026 | 640 | 8260\n' +
-    '  2 | June 5 2026 | 640 | 7620\n' +
-    '- NEVER use pipe separators and key-value on the same line\n' +
-    '- NEVER put multiple data points in one cell\n' +
-    '- Always include a table header row before data rows\n' +
-    'Use the client\'s real numbers from their profile. Currency is ' + D.cur + '. The tags and their content are stripped from the chat display. Do not mention the tags in your spoken response — just say "I have prepared your plan — you can download it as PDF or Excel below."';
+EXPORT FEATURE: When the user asks for a downloadable plan, budget, or report in PDF or Excel format, include a structured data block at the END of your response using these exact tags:
+For PDF: wrap content in [PDF]...[/PDF]
+For Excel: wrap content in [EXCEL]...[/EXCEL]
+Excel format rules: Section headers in ALL CAPS followed by colon. Key-value pairs as "Label: Value". Tables with pipe separators. One row per line. Never mix formats on same line.
+The tags are stripped from chat display. Say "I have prepared your plan — you can download it below" — do not mention the tags.`;
 }
 
 async function initChat() {
