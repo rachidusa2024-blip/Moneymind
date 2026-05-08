@@ -3830,81 +3830,124 @@ async function manualSync() {
   var btn = document.getElementById('syncBtn');
   if(btn) { btn.textContent = 'Syncing...'; btn.disabled = true; }
   try {
-    var lsP={}, lsF={}, lsDebts=[];
-    try{ lsP=JSON.parse(localStorage.getItem('vera_profile')||'{}'); }catch(e){}
-    try{ lsF=JSON.parse(localStorage.getItem('vera_fin')||'{}'); }catch(e){}
+    // Use D object as primary source — it is always populated when dashboard is loaded
+    // Fall back to localStorage if D has no data
+    var lsDebts=[];
     try{ lsDebts=JSON.parse(localStorage.getItem('vera_debts')||'[]'); }catch(e){}
     var lsFears=[]; try{ lsFears=JSON.parse(localStorage.getItem('vera_fears')||'[]'); }catch(e){}
     var lsGoals=[]; try{ lsGoals=JSON.parse(localStorage.getItem('vera_goals')||'[]'); }catch(e){}
 
-    var lsDebtTotal = lsDebts.reduce(function(s,d){return s+(d.amount||0);},0) || lsF.total_debt||D.debt||0;
-    var totalInc = (lsP.monthly_income||D.income||0)+(lsP.side_income||D.sideIncome||0);
-    var totalExp = (lsP.rent||D.rent||0)+(lsP.utilities||D.utilities||0)+(lsP.groceries||D.groceries||0)+
-      (lsP.dining||D.dining||0)+(lsP.transport||D.transport||0)+(lsP.subscriptions||D.subscriptions||0)+
-      (lsP.remittances||D.remittances||0)+(lsP.daycare||D.daycare||0);
+    // Use debts from D.debts if localStorage is empty
+    if(lsDebts.length===0 && D.debts && D.debts.length>0) lsDebts=D.debts;
 
-    await sb.from('profiles').upsert({
+    var debtTotal = lsDebts.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0) || D.debt || 0;
+    var totalInc = (D.income||0) + (D.sideIncome||0) + (D.investIncome||0);
+    var totalExp = (D.rent||0)+(D.utilities||0)+(D.groceries||0)+(D.dining||0)+
+      (D.transport||0)+(D.subscriptions||0)+(D.remittances||0)+(D.daycare||0)+(D.carPayment||0);
+
+    var profileData = {
       id: user.id,
       full_name: D.name||'',
-      language: lsP.language||lsP.lang||D.lang||'en',
-      currency: 'USD', country: lsP.country||'us',
-      situation: lsP.situation||D.situation||'',
-      previous_attempt: lsP.previous_attempt||'',
-      monthly_income: lsP.monthly_income||D.income||0,
-      side_income: lsP.side_income||D.sideIncome||0,
-      rent: lsP.rent||D.rent||0,
-      utilities: lsP.utilities||D.utilities||0,
-      groceries: lsP.groceries||D.groceries||0,
-      dining: lsP.dining||D.dining||0,
-      transport: lsP.transport||D.transport||0,
-      car_payment: lsP.car_payment||D.carPayment||0,
-      insurance: lsP.insurance||0,
-      subscriptions: lsP.subscriptions||D.subscriptions||0,
-      remittances: lsP.remittances||D.remittances||0,
-      daycare: lsP.daycare||D.daycare||0,
-      total_savings: lsP.total_savings||D.savings||0,
-      emergency_fund: lsP.emergency_fund||D.emergency||0,
-      credit_health: lsP.credit_health||D.creditHealth||'',
-      age_range: lsP.age_range||'',
-      fears: lsFears.length>0?lsFears:null,
-      goals: lsGoals.length>0?lsGoals:null,
+      language: D.lang||'en',
+      currency: 'USD',
+      country: D.country||'us',
+      situation: D.situation||'',
+      monthly_income: D.income||0,
+      side_income: D.sideIncome||0,
+      invest_income: D.investIncome||0,
+      rent: D.rent||0,
+      utilities: D.utilities||0,
+      groceries: D.groceries||0,
+      dining: D.dining||0,
+      transport: D.transport||0,
+      car_payment: D.carPayment||0,
+      insurance: D.insurance||D.healthInsurance||0,
+      subscriptions: D.subscriptions||0,
+      remittances: D.remittances||0,
+      daycare: D.daycare||0,
+      total_savings: D.savings||D.total_savings||0,
+      emergency_fund: D.emergency||D.emergency_fund||0,
+      credit_health: D.creditHealth||D.credit_health||'',
+      age_range: D.ageRange||'',
+      fears: lsFears.length>0?lsFears:(D.fears&&D.fears.length>0?D.fears:null),
+      goals: lsGoals.length>0?lsGoals:(D.goals&&D.goals.length>0?D.goals:null),
       updated_at: new Date().toISOString()
-    }, {onConflict:'id'});
+    };
 
-    await sb.from('financial_data').upsert({
+    console.log('Syncing profile:', profileData);
+    var r1 = await sb.from('profiles').upsert(profileData, {onConflict:'id'});
+    if(r1.error) throw r1.error;
+
+    var r2 = await sb.from('financial_data').upsert({
       user_id: user.id,
-      monthly_income: lsP.monthly_income||D.income||0,
+      monthly_income: D.income||0,
       total_income: totalInc,
       total_expenses: totalExp,
       monthly_budget: totalInc-totalExp,
-      total_debt: lsDebtTotal,
-      total_savings: lsP.total_savings||D.savings||0,
-      emergency_fund: lsP.emergency_fund||D.emergency||0,
+      total_debt: debtTotal,
+      total_savings: D.savings||D.total_savings||0,
+      emergency_fund: D.emergency||D.emergency_fund||0,
       health_score: D.score||0,
       updated_at: new Date().toISOString()
     }, {onConflict:'user_id'});
+    if(r2.error) throw r2.error;
 
     if(lsDebts.length>0){
-      var rows=lsDebts.map(function(d){
-        return {user_id:user.id,debt_type:d.type||'other',debt_name:d.typeName||d.type||'Debt',
-          balance:d.amount||0,monthly_payment:d.payment||0,interest_rate:d.rate||0,
-          missed_payments:d.missed||false,urgency:d.urgency||'low'};
+      var rows=lsDebts.filter(Boolean).map(function(d){
+        return {
+          user_id:user.id,
+          debt_type:d.type||'other',
+          debt_name:d.typeName||d.type||'Debt',
+          balance:parseFloat(d.amount)||0,
+          monthly_payment:parseFloat(d.payment)||0,
+          interest_rate:parseFloat(d.rate)||0,
+          missed_payments:d.missed||false,
+          urgency:d.urgency||'low'
+        };
       });
-      await sb.from('debts').upsert(rows,{onConflict:'user_id,debt_type'});
+      if(rows.length>0){
+        var r3 = await sb.from('debts').upsert(rows,{onConflict:'user_id,debt_type'});
+        if(r3.error) console.log('Debt sync warning:', r3.error);
+      }
     }
 
-    if(btn){ btn.textContent='Profile synced'; setTimeout(function(){btn.textContent='Sync my profile';btn.disabled=false;},2500); }
+    // Also save to localStorage so data persists in this session
+    localStorage.setItem('vera_profile', JSON.stringify({
+      language:D.lang||'en', currency:'USD', country:D.country||'us',
+      situation:D.situation||'', monthly_income:D.income||0,
+      side_income:D.sideIncome||0, invest_income:D.investIncome||0,
+      rent:D.rent||0, utilities:D.utilities||0, groceries:D.groceries||0,
+      dining:D.dining||0, transport:D.transport||0, car_payment:D.carPayment||0,
+      subscriptions:D.subscriptions||0, remittances:D.remittances||0,
+      daycare:D.daycare||0, total_savings:D.savings||0,
+      emergency_fund:D.emergency||0, credit_health:D.creditHealth||''
+    }));
+    localStorage.setItem('vera_fin', JSON.stringify({
+      monthly_income:D.income||0, total_income:totalInc,
+      total_expenses:totalExp, monthly_budget:totalInc-totalExp,
+      total_debt:debtTotal, total_savings:D.savings||0,
+      emergency_fund:D.emergency||0, health_score:D.score||0
+    }));
+    if(D.debts&&D.debts.length>0) localStorage.setItem('vera_debts',JSON.stringify(D.debts));
+    localStorage.setItem('vera_synced','1');
+
+    if(btn){ btn.textContent='Synced'; setTimeout(function(){btn.textContent='Sync my profile';btn.disabled=false;},2000); }
     console.log('Manual sync complete');
   } catch(e) {
     console.log('Sync error:', e);
     if(btn){ btn.textContent='Sync failed — retry';btn.disabled=false; }
+    alert('Sync error: ' + (e.message||JSON.stringify(e)));
   }
 }
 
 async function signOut() {
+  // Do NOT clear localStorage on signout — preserve profile data for next login
+  // Only clear session-specific items
+  localStorage.removeItem('vera_dashboard_visited');
+  localStorage.removeItem('vera_last_score');
+  localStorage.removeItem('vera_last_avail');
   await sb.auth.signOut();
-  localStorage.clear();
-  window.location.href = '/index.html';
+  window.location.href = '/signin.html';
 }
 
 init();
