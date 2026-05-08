@@ -2848,246 +2848,232 @@ function generatePDF(structuredData, fullText) {
   var doc = new window.jspdf.jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
   var pageW = doc.internal.pageSize.getWidth();
   var pageH = doc.internal.pageSize.getHeight();
-  var marginL = 25; // wider left margin for letter feel
-  var marginR = 25;
+  var marginL = 28;
+  var marginR = 28;
   var contentW = pageW - marginL - marginR;
   var y = 0;
 
-  // Detect if this is a letter (vs a financial plan/report)
-  var isLetter = structuredData.indexOf('Dear Sir') > -1 ||
-                 structuredData.indexOf('Dear Madam') > -1 ||
-                 structuredData.indexOf('Re:') > -1 ||
-                 structuredData.indexOf('Sincerely') > -1 ||
-                 fullText.indexOf('Dear Sir') > -1 ||
-                 fullText.indexOf('Sincerely') > -1;
+  // Detect letter vs report
+  var combined = (structuredData||'') + (fullText||'');
+  var isLetter = /Dear Sir|Dear Madam|Sincerely,|Re:|Subject:/i.test(combined);
 
+  // Check page space and add new page if needed
   function checkPage(needed) {
-    if (y + (needed||8) > pageH - 22) {
+    if (y + (needed||10) > pageH - 24) {
       doc.addPage();
       doc.setFillColor(255,255,255);
       doc.rect(0,0,pageW,pageH,'F');
-      y = 20;
+      y = 22;
     }
   }
 
-  // ── WHITE BASE ──
+  // White background
   doc.setFillColor(255,255,255);
   doc.rect(0,0,pageW,pageH,'F');
 
   if (isLetter) {
-    // ── LETTER LAYOUT — clean, professional, no branding ──
+    // ── LETTER MODE — clean, calm, professional ──
+    y = 24;
 
-    y = 22;
-
-    // Date — right aligned
+    // Date right-aligned
     var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     doc.setFont('helvetica','normal');
     doc.setFontSize(10);
-    doc.setTextColor(60,60,60);
+    doc.setTextColor(80,80,80);
     doc.text(dateStr, pageW - marginR, y, {align:'right'});
-    y += 14;
+    y += 16;
 
-    // Parse and render letter sections
     var content = structuredData || fullText || '';
     var lines = content.split('\n');
+    var prevBlank = false;
     var inBody = false;
-    var prevWasBlank = false;
+    var closingDone = false;
 
     lines.forEach(function(rawLine) {
       var line = rawLine.trim();
+      if (line === '[PDF]' || line === '[/PDF]') return;
 
-      // Skip export tags
-      if(line === '[PDF]' || line === '[/PDF]') return;
-
-      // Blank line = paragraph spacing
+      // Blank lines
       if (!line) {
-        if (!prevWasBlank) y += 5;
-        prevWasBlank = true;
+        if (!prevBlank) y += inBody ? 5 : 3;
+        prevBlank = true;
         return;
       }
-      prevWasBlank = false;
+      prevBlank = false;
+      checkPage(12);
 
-      checkPage(10);
-
-      // SENDER INFO (name/address lines before "Re:" or "Dear")
-      if (!inBody && (line.match(/^[A-Z][a-z]+ [A-Z]/) || line.match(/^[A-Z]{2,}/)) && line.indexOf('Re:') === -1 && line.indexOf('Dear') === -1) {
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(10);
-        doc.setTextColor(30,30,30);
-        doc.text(sanitize(line), marginL, y);
-        y += 6;
-        return;
-      }
-
-      // RE: LINE — styled as reference line
-      if (line.match(/^Re:/i) || line.match(/^Subject:/i)) {
-        y += 2;
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(10);
-        doc.setTextColor(30,30,30);
-        // Draw a subtle line above
-        doc.setDrawColor(200,200,200);
-        doc.setLineWidth(0.3);
-        doc.line(marginL, y-3, pageW-marginR, y-3);
-        var reLabel = line.substring(0, line.indexOf(':')+1);
-        var reVal = line.substring(line.indexOf(':')+1).trim();
-        doc.text(sanitize(reLabel), marginL, y);
-        doc.setFont('helvetica','normal');
-        var labelW = doc.getTextWidth(reLabel) + 4;
-        doc.text(sanitize(reVal), marginL + labelW, y);
-        doc.setDrawColor(200,200,200);
-        doc.line(marginL, y+3, pageW-marginR, y+3);
-        y += 10;
-        return;
-      }
-
-      // DEAR — salutation
-      if (line.match(/^Dear /i)) {
-        inBody = true;
-        y += 2;
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(10.5);
-        doc.setTextColor(30,30,30);
-        doc.text(sanitize(line), marginL, y);
-        y += 8;
-        return;
-      }
-
-      // SINCERELY / CLOSING
-      if (line.match(/^Sincerely/i) || line.match(/^Respectfully/i) || line.match(/^Best regards/i)) {
-        y += 6;
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(10.5);
-        doc.setTextColor(30,30,30);
-        doc.text(sanitize(line), marginL, y);
-        y += 16; // space for signature
-        return;
-      }
-
-      // NOTE / DISCLAIMER — styled differently
-      if (line.match(/^Note:/i) || line.match(/^Disclaimer:/i) || line.match(/^This (letter|document|template)/i)) {
-        checkPage(20);
+      // Note / Disclaimer block
+      if (/^Note:|^Disclaimer:|^This (letter|document|template)/i.test(line)) {
         y += 4;
-        // Light grey box
-        var noteLines = doc.splitTextToSize(sanitize(line), contentW - 8);
-        var noteH = noteLines.length * 5 + 8;
+        var nLines = doc.splitTextToSize(sanitize(line), contentW - 10);
+        var nH = nLines.length * 5.5 + 10;
         doc.setFillColor(248,248,248);
-        doc.rect(marginL, y-5, contentW, noteH, 'F');
-        doc.setDrawColor(200,200,200);
+        doc.rect(marginL, y-5, contentW, nH, 'F');
+        doc.setDrawColor(210,210,210);
         doc.setLineWidth(0.3);
-        doc.rect(marginL, y-5, contentW, noteH, 'S');
+        doc.rect(marginL, y-5, contentW, nH, 'S');
         doc.setFont('helvetica','italic');
         doc.setFontSize(8.5);
-        doc.setTextColor(100,100,100);
-        doc.text(noteLines, marginL+4, y);
-        y += noteH + 4;
+        doc.setTextColor(110,110,110);
+        doc.text(nLines, marginL+5, y);
+        y += nH + 4;
         return;
       }
 
-      // BODY TEXT — full width, proper wrap, no key-value splitting
+      // Re: / Subject: line
+      if (/^Re:|^Subject:/i.test(line)) {
+        y += 3;
+        doc.setDrawColor(200,200,200);
+        doc.setLineWidth(0.25);
+        doc.line(marginL, y-2, pageW-marginR, y-2);
+        var colon = line.indexOf(':');
+        var rLabel = line.substring(0,colon+1);
+        var rVal = line.substring(colon+1).trim();
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(10);
+        doc.setTextColor(40,40,40);
+        doc.text(sanitize(rLabel), marginL, y+5);
+        doc.setFont('helvetica','normal');
+        var lw = doc.getTextWidth(rLabel) + 3;
+        var rLines = doc.splitTextToSize(sanitize(rVal), contentW - lw);
+        doc.text(rLines, marginL + lw, y+5);
+        y += 5 + rLines.length*6;
+        doc.line(marginL, y+2, pageW-marginR, y+2);
+        y += 7;
+        return;
+      }
+
+      // Salutation
+      if (/^Dear /i.test(line)) {
+        inBody = true;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10.5);
+        doc.setTextColor(30,30,30);
+        doc.text(sanitize(line), marginL, y);
+        y += 9;
+        return;
+      }
+
+      // Closing — Sincerely etc
+      if (!closingDone && /^Sincerely|^Respectfully|^Best regards/i.test(line)) {
+        closingDone = true;
+        y += 5;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10.5);
+        doc.setTextColor(30,30,30);
+        doc.text(sanitize(line), marginL, y);
+        y += 18; // signature space
+        return;
+      }
+
+      // All other text — full width wrap, no colon splitting
       doc.setFont('helvetica','normal');
       doc.setFontSize(10.5);
       doc.setTextColor(30,30,30);
+      var lh = 6.5;
       var wrapped = doc.splitTextToSize(sanitize(line), contentW);
-      checkPage(wrapped.length * 6 + 2);
+      checkPage(wrapped.length * lh + 4);
       doc.text(wrapped, marginL, y);
-      y += wrapped.length * 6.2 + 1;
+      y += wrapped.length * lh + 2;
     });
 
-    // ── GUIDANCE SECTION — outside the letter ──
-    checkPage(50);
-    y += 8;
-    doc.setFillColor(240,247,245);
-    doc.setDrawColor(0,180,150);
-    doc.setLineWidth(0.5);
-    var guidanceStartY = y;
-
-    var guidanceTitle = 'Before Sending This Letter';
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9.5);
-    doc.setTextColor(0,120,100);
-    doc.text(guidanceTitle, marginL + 4, y + 6);
-    y += 12;
+    // ── GUIDANCE SECTION — draw background first, then text once ──
+    checkPage(70);
+    y += 10;
 
     var guidanceItems = [
       'Keep a signed copy for your personal records before sending.',
-      'Send by certified mail with return receipt requested — this creates a legal record of delivery.',
-      'Save all future written communications you receive in response.',
-      'Do not make any payment before receiving a written response to this letter.',
-      'If the situation involves litigation or a court date, consult a licensed consumer debt attorney.'
+      'Send by certified mail with return receipt requested — this creates a documented delivery record.',
+      'Save all written communications you receive in response.',
+      'You may want to review any written documentation carefully before making payment decisions.',
+      'If this situation involves a court date or active litigation, consulting a licensed consumer debt attorney is recommended.'
     ];
 
-    doc.setFont('helvetica','normal');
+    // Pre-calculate total height
     doc.setFontSize(9);
-    doc.setTextColor(50,50,50);
+    var totalGH = 14; // title + padding
     guidanceItems.forEach(function(item) {
-      var itemLines = doc.splitTextToSize('• ' + item, contentW - 8);
-      doc.text(itemLines, marginL + 4, y);
-      y += itemLines.length * 5.2 + 2;
+      var iLines = doc.splitTextToSize('  ' + item, contentW - 10);
+      totalGH += iLines.length * 5.5 + 3;
     });
+    totalGH += 6;
 
-    var guidanceH = y - guidanceStartY + 6;
-    doc.setFillColor(240,247,245);
-    doc.rect(marginL, guidanceStartY, contentW, guidanceH, 'F');
-    doc.setDrawColor(0,180,150);
+    // Check page once with full known height
+    if (y + totalGH > pageH - 24) {
+      doc.addPage();
+      doc.setFillColor(255,255,255);
+      doc.rect(0,0,pageW,pageH,'F');
+      y = 22;
+    }
+
+    var gStart = y;
+
+    // Draw background
+    doc.setFillColor(242,249,247);
+    doc.rect(marginL, gStart, contentW, totalGH, 'F');
+    doc.setDrawColor(0,170,140);
     doc.setLineWidth(0.4);
-    doc.rect(marginL, guidanceStartY, contentW, guidanceH, 'S');
-    // Re-draw text on top of background
-    y = guidanceStartY + 6;
+    doc.rect(marginL, gStart, contentW, totalGH, 'S');
+    // Left accent bar
+    doc.setFillColor(0,170,140);
+    doc.rect(marginL, gStart, 3, totalGH, 'F');
+
+    // Title
+    y = gStart + 9;
     doc.setFont('helvetica','bold');
-    doc.setFontSize(9.5);
-    doc.setTextColor(0,120,100);
-    doc.text(guidanceTitle, marginL + 4, y);
-    y += 12;
-    doc.setFont('helvetica','normal');
     doc.setFontSize(9);
-    doc.setTextColor(50,50,50);
+    doc.setTextColor(0,100,85);
+    doc.text('Before Sending This Letter', marginL + 8, y);
+    y += 9;
+
+    // Items — drawn ONCE
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.8);
+    doc.setTextColor(45,45,45);
     guidanceItems.forEach(function(item) {
-      var itemLines = doc.splitTextToSize('• ' + item, contentW - 8);
-      doc.text(itemLines, marginL + 4, y);
-      y += itemLines.length * 5.2 + 2;
+      var iLines = doc.splitTextToSize(item, contentW - 12);
+      // Bullet dot
+      doc.setFillColor(0,170,140);
+      doc.circle(marginL + 8, y - 1.5, 0.9, 'F');
+      doc.text(iLines, marginL + 12, y);
+      y += iLines.length * 5.5 + 3;
     });
 
   } else {
-    // ── REPORT / PLAN LAYOUT — existing styled layout ──
-    // Header
+    // ── REPORT / PLAN LAYOUT ──
     doc.setFillColor(12,15,26);
-    doc.rect(0,0,pageW,18,'F');
+    doc.rect(0,0,pageW,16,'F');
     doc.setFillColor(0,180,150);
-    doc.rect(0,18,pageW,2,'F');
-
+    doc.rect(0,16,pageW,2,'F');
     doc.setFont('helvetica','bold');
-    doc.setFontSize(13);
+    doc.setFontSize(12);
     doc.setTextColor(255,255,255);
-    doc.text('Sum Goals', marginL, 12);
-
-    var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    doc.text('Sum Goals', marginL, 11);
+    var dStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     doc.setFont('helvetica','normal');
     doc.setFontSize(8);
-    doc.text(dateStr, pageW-marginR, 12, {align:'right'});
-
-    y = 28;
+    doc.text(dStr, pageW-marginR, 11, {align:'right'});
+    y = 26;
 
     if(D.name){
       doc.setFont('helvetica','bold');
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setTextColor(30,30,30);
-      doc.text(sanitize(D.name + ' — Financial Plan'), marginL, y);
-      y += 3;
+      doc.text(sanitize(D.name+' - Financial Plan'), marginL, y);
+      y += 2;
       doc.setDrawColor(0,180,150);
-      doc.setLineWidth(0.6);
+      doc.setLineWidth(0.5);
       doc.line(marginL, y, pageW-marginR, y);
       y += 8;
     }
 
-    var lines = structuredData.split('\n');
-    lines.forEach(function(line){
+    var rLines = (structuredData||'').split('\n');
+    rLines.forEach(function(line){
       checkPage(10);
       line = sanitize(line.trim());
       if(!line){y+=3;return;}
-
-      var isHeader = (line === line.toUpperCase() && line.replace(/[^A-Z]/g,'').length > 3 && line.length < 60 && line.endsWith(':'));
-      if(isHeader){
+      var isHdr = line===line.toUpperCase()&&line.replace(/[^A-Z]/g,'').length>3&&line.length<60&&line.endsWith(':');
+      if(isHdr){
         y+=3;
         doc.setFillColor(30,40,60);
         doc.rect(marginL-2,y-5,contentW+4,8,'F');
@@ -3097,50 +3083,47 @@ function generatePDF(structuredData, fullText) {
         doc.text(line,marginL+2,y);
         y+=9;return;
       }
-
-      // For reports, key:value pairs are fine
-      if(line.indexOf(':')>-1 && line.indexOf(':')<35){
+      if(line.indexOf(':')>-1&&line.indexOf(':')<35){
         var ci=line.indexOf(':');
-        var key=sanitize(line.substring(0,ci).trim());
-        var val=sanitize(line.substring(ci+1).trim());
-        if(key&&val&&key.length<30){
+        var k=sanitize(line.substring(0,ci).trim());
+        var v=sanitize(line.substring(ci+1).trim());
+        if(k&&v&&k.length<30){
           doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(30,30,30);
-          doc.text(key+':',marginL+2,y);
+          doc.text(k+':',marginL+2,y);
           doc.setFont('helvetica','normal');
-          var kw=doc.getTextWidth(key+': ')+2;
-          var vlines=doc.splitTextToSize(val,contentW-kw-4);
-          doc.text(vlines,marginL+2+kw,y);
+          var kw=doc.getTextWidth(k+': ')+2;
+          var vl=doc.splitTextToSize(v,contentW-kw-4);
+          doc.text(vl,marginL+2+kw,y);
           doc.setDrawColor(230,230,230);doc.setLineWidth(0.2);
           doc.line(marginL,y+2,pageW-marginR,y+2);
-          y+=Math.max(6,vlines.length*5.5);return;
+          y+=Math.max(6,vl.length*5.5);return;
         }
       }
-
       doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,30,30);
-      var wrapped=doc.splitTextToSize(line,contentW-4);
-      doc.text(wrapped,marginL+2,y);
-      y+=wrapped.length*5.5;
+      var wr=doc.splitTextToSize(line,contentW-4);
+      doc.text(wr,marginL+2,y);
+      y+=wr.length*5.5;
     });
   }
 
-  // ── FOOTER — subtle on every page ──
+  // ── FOOTER — quiet, professional ──
   var totalPages = doc.internal.getNumberOfPages();
   for(var pg=1;pg<=totalPages;pg++){
     doc.setPage(pg);
-    doc.setDrawColor(210,210,210);
+    doc.setDrawColor(215,215,215);
     doc.setLineWidth(0.2);
-    doc.line(marginL, pageH-12, pageW-marginR, pageH-12);
+    doc.line(marginL, pageH-13, pageW-marginR, pageH-13);
     doc.setFont('helvetica','normal');
-    doc.setFontSize(7);
-    doc.setTextColor(150,150,150);
-    doc.text('Mina — Sum Goals. Educational guidance only. Not legal, financial, or tax advice.', marginL, pageH-6);
-    doc.text('Page '+pg+' of '+totalPages, pageW-marginR, pageH-6, {align:'right'});
+    doc.setFontSize(6.5);
+    doc.setTextColor(160,160,160);
+    doc.text('Mina - Sum Goals  |  Educational guidance only. Not legal, financial, or tax advice.', marginL, pageH-7);
+    doc.text(pg+' / '+totalPages, pageW-marginR, pageH-7, {align:'right'});
   }
 
-  var fileName = isLetter ?
-    'Letter_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf' :
-    'SumGoals_Plan_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf';
-  doc.save(fileName);
+  var fn = isLetter ?
+    'Letter_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf':
+    'SumGoals_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf';
+  doc.save(fn);
 }
 
 
