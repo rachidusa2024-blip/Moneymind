@@ -987,6 +987,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
         <div class="sb-user-email" id="sbEmail"></div>
       </div>
     </div>
+    <button class="sb-signout" style="margin-bottom:6px;border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)" onclick="manualSync()" id="syncBtn">Sync my profile</button>
     <button class="sb-signout" onclick="signOut()">Sign out</button>
   </div>
 </aside>
@@ -1522,24 +1523,85 @@ async function loadAllData() {
     if (debtTotal > 0) D.debt = debtTotal;
   }
 
-  // ── RESTORE localStorage from Supabase ────────────────────────────────────
-  // This ensures Mina remembers everything even after logout/login
-  if(sbProfile.monthly_income > 0 && !lsP.monthly_income){
+  // ── BIDIRECTIONAL SYNC ────────────────────────────────────────────────────
+  // If Supabase is empty but localStorage has data — push UP to Supabase
+  var lsHasData = lsP.monthly_income > 0 || lsP.situation || lsF.total_debt > 0;
+  var sbHasData = sbProfile.monthly_income > 0 || sbProfile.situation || sbFin.total_debt > 0;
+
+  if(lsHasData && !sbHasData){
+    // Push localStorage data UP to Supabase
+    try {
+      await sb.from('profiles').upsert({
+        id: user.id,
+        full_name: D.name,
+        language: lsP.language||lsP.lang||'en',
+        currency: 'USD',
+        country: lsP.country||'us',
+        situation: lsP.situation||'',
+        previous_attempt: lsP.previous_attempt||'',
+        monthly_income: lsP.monthly_income||0,
+        side_income: lsP.side_income||0,
+        invest_income: lsP.invest_income||0,
+        rent: lsP.rent||0,
+        utilities: lsP.utilities||0,
+        groceries: lsP.groceries||0,
+        dining: lsP.dining||0,
+        transport: lsP.transport||0,
+        car_payment: lsP.car_payment||0,
+        insurance: lsP.insurance||0,
+        subscriptions: lsP.subscriptions||0,
+        remittances: lsP.remittances||0,
+        daycare: lsP.daycare||0,
+        total_savings: lsP.total_savings||0,
+        emergency_fund: lsP.emergency_fund||0,
+        credit_health: lsP.credit_health||'',
+        age_range: lsP.age_range||'',
+        fears: lsFears.length>0?lsFears:null,
+        goals: lsGoals.length>0?lsGoals:null,
+        updated_at: new Date().toISOString()
+      }, {onConflict:'id'});
+
+      var totalInc = (lsP.monthly_income||0)+(lsP.side_income||0);
+      var totalExp = (lsP.rent||0)+(lsP.utilities||0)+(lsP.groceries||0)+(lsP.dining||0)+
+        (lsP.transport||0)+(lsP.car_payment||0)+(lsP.insurance||0)+(lsP.subscriptions||0)+
+        (lsP.remittances||0)+(lsP.daycare||0);
+      var lsDebtTotal = lsDebts.reduce(function(s,d){return s+(d.amount||0);},0) || lsF.total_debt||0;
+
+      await sb.from('financial_data').upsert({
+        user_id: user.id,
+        monthly_income: lsP.monthly_income||0,
+        total_income: totalInc,
+        total_expenses: totalExp,
+        monthly_budget: totalInc-totalExp,
+        total_debt: lsDebtTotal,
+        total_savings: lsP.total_savings||0,
+        emergency_fund: lsP.emergency_fund||0,
+        updated_at: new Date().toISOString()
+      }, {onConflict:'user_id'});
+
+      if(lsDebts.length>0){
+        var rows = lsDebts.map(function(d){
+          return {user_id:user.id,debt_type:d.type||'other',debt_name:d.typeName||d.type||'Debt',
+            balance:d.amount||0,monthly_payment:d.payment||0,interest_rate:d.rate||0,
+            missed_payments:d.missed||false,urgency:d.urgency||'low'};
+        });
+        await sb.from('debts').upsert(rows,{onConflict:'user_id,debt_type'});
+      }
+      console.log('Synced localStorage to Supabase');
+    } catch(e){ console.log('Sync error:', e); }
+
+  } else if(sbHasData && !lsHasData){
+    // Restore FROM Supabase to localStorage
     localStorage.setItem('vera_profile', JSON.stringify({
       language: sbProfile.language||'en',
       currency: sbProfile.currency||'USD',
       country: sbProfile.country||'',
-      country_name: sbProfile.country_name||'',
-      age_range: sbProfile.age_range||'',
       situation: sbProfile.situation||'',
       moment: sbProfile.moment||'',
       previous_attempt: sbProfile.previous_attempt||'',
       monthly_income: sbProfile.monthly_income||0,
-      income_stable: sbProfile.income_stable,
       side_income: sbProfile.side_income||0,
       invest_income: sbProfile.invest_income||0,
-      sends_remittances: sbProfile.sends_remittances||false,
-      remittances: sbProfile.remittances||0,
       rent: sbProfile.rent||0,
       utilities: sbProfile.utilities||0,
       groceries: sbProfile.groceries||0,
@@ -1548,13 +1610,12 @@ async function loadAllData() {
       car_payment: sbProfile.car_payment||0,
       insurance: sbProfile.insurance||0,
       subscriptions: sbProfile.subscriptions||0,
-      pays_daycare: sbProfile.pays_daycare||false,
+      remittances: sbProfile.remittances||0,
       daycare: sbProfile.daycare||0,
       total_savings: sbProfile.total_savings||0,
       emergency_fund: sbProfile.emergency_fund||0,
       credit_health: sbProfile.credit_health||'',
-      payday_date: sbProfile.payday_date||'',
-      payday_frequency: sbProfile.payday_frequency||'monthly'
+      age_range: sbProfile.age_range||''
     }));
     localStorage.setItem('vera_fin', JSON.stringify({
       monthly_income: sbFin.monthly_income||sbProfile.monthly_income||0,
@@ -1563,13 +1624,17 @@ async function loadAllData() {
       monthly_budget: sbFin.monthly_budget||0,
       total_debt: sbFin.total_debt||0,
       total_savings: sbFin.total_savings||sbProfile.total_savings||0,
-      emergency_fund: sbFin.emergency_fund||sbProfile.emergency_fund||0,
-      health_score: sbFin.health_score||0
+      emergency_fund: sbFin.emergency_fund||sbProfile.emergency_fund||0
     }));
     if(sbProfile.fears) localStorage.setItem('vera_fears', JSON.stringify(sbProfile.fears));
     if(sbProfile.goals) localStorage.setItem('vera_goals', JSON.stringify(sbProfile.goals));
     if(D.debts.length>0) localStorage.setItem('vera_debts', JSON.stringify(D.debts));
+    console.log('Restored Supabase to localStorage');
   }
+
+  // Also save situation and crisis to localStorage keys Mina checks
+  if(D.situation) localStorage.setItem('vera_situation', D.situation);
+  if(D.crisis && D.crisis.length>0) localStorage.setItem('vera_crisis', JSON.stringify(D.crisis));
 }
 
 function best() {
@@ -2455,6 +2520,25 @@ LETTER GENERATION — WRITE IMMEDIATELY IN CHAT
 
 When a user asks for any letter, write it completely and immediately in your response. Do not say it is in their dashboard. Do not say a template is waiting somewhere. Write it here, now, in full.
 
+LETTER TONE — CRITICAL:
+Letters must feel calm, firm, organized, and professionally written — not threatening, not like attorney notices, not intimidating. The goal is organized consumer communication that helps the user feel in control.
+
+AVOID these aggressive phrases:
+- "You must cease all collection communications immediately"
+- "Any contact after this letter will be considered a violation"
+- "You are hereby notified that you are in violation"
+- "I will pursue all available legal remedies"
+
+USE these calm, firm alternatives:
+- "I am writing to formally request that future collection communications be limited as permitted under applicable law"
+- "Continued contact inconsistent with applicable consumer protection law may constitute a violation"
+- "I ask that you direct future communications in writing"
+- "I reserve all rights available to me under applicable law"
+
+Use conditional language: "may violate" not "violates" / "may constitute" not "constitutes"
+Distinguish collectors (FDCPA applies) from original creditors (different rules) when relevant.
+Never imply identical protections exist in all states or for all creditor types.
+
 After every letter say: "Copy this letter exactly as written. Print it, sign it by hand, and send it via certified mail with return receipt requested. Keep a copy for your records. Do not call them. Written delivery creates a legal record."
 
 Every letter ends with this disclaimer:
@@ -2764,144 +2848,298 @@ function generatePDF(structuredData, fullText) {
   var doc = new window.jspdf.jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
   var pageW = doc.internal.pageSize.getWidth();
   var pageH = doc.internal.pageSize.getHeight();
-  var margin = 20;
-  var contentW = pageW - margin * 2;
+  var marginL = 25; // wider left margin for letter feel
+  var marginR = 25;
+  var contentW = pageW - marginL - marginR;
   var y = 0;
 
-  function newPage() {
-    doc.addPage();
-    doc.setFillColor(255,255,255);
-    doc.rect(0,0,pageW,pageH,'F');
-    // small teal bar top
-    doc.setFillColor(0,180,150);
-    doc.rect(0,0,pageW,5,'F');
-    y = 15;
+  // Detect if this is a letter (vs a financial plan/report)
+  var isLetter = structuredData.indexOf('Dear Sir') > -1 ||
+                 structuredData.indexOf('Dear Madam') > -1 ||
+                 structuredData.indexOf('Re:') > -1 ||
+                 structuredData.indexOf('Sincerely') > -1 ||
+                 fullText.indexOf('Dear Sir') > -1 ||
+                 fullText.indexOf('Sincerely') > -1;
+
+  function checkPage(needed) {
+    if (y + (needed||8) > pageH - 22) {
+      doc.addPage();
+      doc.setFillColor(255,255,255);
+      doc.rect(0,0,pageW,pageH,'F');
+      y = 20;
+    }
   }
 
-  // White base
+  // ── WHITE BASE ──
   doc.setFillColor(255,255,255);
   doc.rect(0,0,pageW,pageH,'F');
 
-  // ── HEADER ──
-  doc.setFillColor(0,180,150);
-  doc.rect(0,0,pageW,20,'F');
+  if (isLetter) {
+    // ── LETTER LAYOUT — clean, professional, no branding ──
 
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(14);
-  doc.setTextColor(255,255,255);
-  doc.text('Sum Goals', margin, 13);
+    y = 22;
 
-  var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(255,255,255);
-  doc.text(dateStr, pageW-margin, 13, {align:'right'});
+    // Date — right aligned
+    var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(60,60,60);
+    doc.text(dateStr, pageW - marginR, y, {align:'right'});
+    y += 14;
 
-  // Gold line
-  doc.setDrawColor(180,140,40);
-  doc.setLineWidth(1);
-  doc.line(0,20,pageW,20);
+    // Parse and render letter sections
+    var content = structuredData || fullText || '';
+    var lines = content.split('\n');
+    var inBody = false;
+    var prevWasBlank = false;
 
-  y = 30;
+    lines.forEach(function(rawLine) {
+      var line = rawLine.trim();
 
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(9);
-  doc.setTextColor(0,0,0);
-  doc.text('Prepared by Mina, your personal financial coach', margin, y);
-  y += 9;
+      // Skip export tags
+      if(line === '[PDF]' || line === '[/PDF]') return;
 
-  if (D.name) {
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(13);
-    doc.setTextColor(0,0,0);
-    doc.text(sanitize(D.name + ' - Financial Report'), margin, y);
-    y += 4;
-    doc.setDrawColor(0,180,150);
-    doc.setLineWidth(0.7);
-    doc.line(margin, y, pageW-margin, y);
-    y += 9;
-  }
-
-  // ── BODY ──
-  var lines = structuredData.split('\n');
-  lines.forEach(function(line) {
-    if (y > pageH - 20) { newPage(); }
-
-    line = sanitize(line.trim());
-    if (!line) { y += 3; return; }
-
-    // SECTION HEADER — ends with colon or is all-caps
-    var isHeader = (line.endsWith(':') && line.length < 70) ||
-                   (line === line.toUpperCase() && line.replace(/[^A-Z]/g,'').length > 3 && line.length < 70);
-
-    if (isHeader) {
-      y += 3;
-      // Dark background band
-      doc.setFillColor(30,40,60);
-      doc.rect(margin-2, y-5, contentW+4, 9, 'F');
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(8.5);
-      doc.setTextColor(0,210,170);
-      doc.text(line, margin+2, y);
-      y += 9;
-      return;
-    }
-
-    // KEY: VALUE
-    if (line.includes(':')) {
-      var ci = line.indexOf(':');
-      var key = sanitize(line.substring(0, ci).trim());
-      var val = sanitize(line.substring(ci+1).trim());
-      if (key && val) {
-        doc.setFont('helvetica','bold');
-        doc.setFontSize(9);
-        doc.setTextColor(0,0,0);
-        doc.text(key, margin+4, y);
-
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(9);
-        doc.setTextColor(0,0,0);
-        var kw = doc.getTextWidth(key)+8;
-        var vw = contentW - kw - 4;
-        var vlines = doc.splitTextToSize(val, vw);
-        doc.text(vlines, margin+4+kw, y);
-
-        // Light row separator
-        doc.setDrawColor(220,220,220);
-        doc.setLineWidth(0.2);
-        var rowH = Math.max(6, vlines.length*5.5);
-        doc.line(margin, y+2, pageW-margin, y+2);
-        y += rowH;
+      // Blank line = paragraph spacing
+      if (!line) {
+        if (!prevWasBlank) y += 5;
+        prevWasBlank = true;
         return;
       }
-    }
+      prevWasBlank = false;
 
-    // PLAIN TEXT
+      checkPage(10);
+
+      // SENDER INFO (name/address lines before "Re:" or "Dear")
+      if (!inBody && (line.match(/^[A-Z][a-z]+ [A-Z]/) || line.match(/^[A-Z]{2,}/)) && line.indexOf('Re:') === -1 && line.indexOf('Dear') === -1) {
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10);
+        doc.setTextColor(30,30,30);
+        doc.text(sanitize(line), marginL, y);
+        y += 6;
+        return;
+      }
+
+      // RE: LINE — styled as reference line
+      if (line.match(/^Re:/i) || line.match(/^Subject:/i)) {
+        y += 2;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30,30,30);
+        // Draw a subtle line above
+        doc.setDrawColor(200,200,200);
+        doc.setLineWidth(0.3);
+        doc.line(marginL, y-3, pageW-marginR, y-3);
+        var reLabel = line.substring(0, line.indexOf(':')+1);
+        var reVal = line.substring(line.indexOf(':')+1).trim();
+        doc.text(sanitize(reLabel), marginL, y);
+        doc.setFont('helvetica','normal');
+        var labelW = doc.getTextWidth(reLabel) + 4;
+        doc.text(sanitize(reVal), marginL + labelW, y);
+        doc.setDrawColor(200,200,200);
+        doc.line(marginL, y+3, pageW-marginR, y+3);
+        y += 10;
+        return;
+      }
+
+      // DEAR — salutation
+      if (line.match(/^Dear /i)) {
+        inBody = true;
+        y += 2;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10.5);
+        doc.setTextColor(30,30,30);
+        doc.text(sanitize(line), marginL, y);
+        y += 8;
+        return;
+      }
+
+      // SINCERELY / CLOSING
+      if (line.match(/^Sincerely/i) || line.match(/^Respectfully/i) || line.match(/^Best regards/i)) {
+        y += 6;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(10.5);
+        doc.setTextColor(30,30,30);
+        doc.text(sanitize(line), marginL, y);
+        y += 16; // space for signature
+        return;
+      }
+
+      // NOTE / DISCLAIMER — styled differently
+      if (line.match(/^Note:/i) || line.match(/^Disclaimer:/i) || line.match(/^This (letter|document|template)/i)) {
+        checkPage(20);
+        y += 4;
+        // Light grey box
+        var noteLines = doc.splitTextToSize(sanitize(line), contentW - 8);
+        var noteH = noteLines.length * 5 + 8;
+        doc.setFillColor(248,248,248);
+        doc.rect(marginL, y-5, contentW, noteH, 'F');
+        doc.setDrawColor(200,200,200);
+        doc.setLineWidth(0.3);
+        doc.rect(marginL, y-5, contentW, noteH, 'S');
+        doc.setFont('helvetica','italic');
+        doc.setFontSize(8.5);
+        doc.setTextColor(100,100,100);
+        doc.text(noteLines, marginL+4, y);
+        y += noteH + 4;
+        return;
+      }
+
+      // BODY TEXT — full width, proper wrap, no key-value splitting
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10.5);
+      doc.setTextColor(30,30,30);
+      var wrapped = doc.splitTextToSize(sanitize(line), contentW);
+      checkPage(wrapped.length * 6 + 2);
+      doc.text(wrapped, marginL, y);
+      y += wrapped.length * 6.2 + 1;
+    });
+
+    // ── GUIDANCE SECTION — outside the letter ──
+    checkPage(50);
+    y += 8;
+    doc.setFillColor(240,247,245);
+    doc.setDrawColor(0,180,150);
+    doc.setLineWidth(0.5);
+    var guidanceStartY = y;
+
+    var guidanceTitle = 'Before Sending This Letter';
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(0,120,100);
+    doc.text(guidanceTitle, marginL + 4, y + 6);
+    y += 12;
+
+    var guidanceItems = [
+      'Keep a signed copy for your personal records before sending.',
+      'Send by certified mail with return receipt requested — this creates a legal record of delivery.',
+      'Save all future written communications you receive in response.',
+      'Do not make any payment before receiving a written response to this letter.',
+      'If the situation involves litigation or a court date, consult a licensed consumer debt attorney.'
+    ];
+
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
-    doc.setTextColor(0,0,0);
-    var wrapped = doc.splitTextToSize(line, contentW-4);
-    doc.text(wrapped, margin+4, y);
-    y += wrapped.length * 5.5;
-  });
+    doc.setTextColor(50,50,50);
+    guidanceItems.forEach(function(item) {
+      var itemLines = doc.splitTextToSize('• ' + item, contentW - 8);
+      doc.text(itemLines, marginL + 4, y);
+      y += itemLines.length * 5.2 + 2;
+    });
 
-  // ── FOOTER on every page ──
-  var totalPages = doc.internal.getNumberOfPages();
-  for (var pg=1; pg<=totalPages; pg++) {
-    doc.setPage(pg);
-    doc.setFillColor(240,240,240);
-    doc.rect(0, pageH-11, pageW, 11, 'F');
-    doc.setDrawColor(200,200,200);
-    doc.setLineWidth(0.3);
-    doc.line(0, pageH-11, pageW, pageH-11);
+    var guidanceH = y - guidanceStartY + 6;
+    doc.setFillColor(240,247,245);
+    doc.rect(marginL, guidanceStartY, contentW, guidanceH, 'F');
+    doc.setDrawColor(0,180,150);
+    doc.setLineWidth(0.4);
+    doc.rect(marginL, guidanceStartY, contentW, guidanceH, 'S');
+    // Re-draw text on top of background
+    y = guidanceStartY + 6;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(0,120,100);
+    doc.text(guidanceTitle, marginL + 4, y);
+    y += 12;
     doc.setFont('helvetica','normal');
-    doc.setFontSize(7);
-    doc.setTextColor(0,0,0);
-    doc.text('Generated by Mina - Sum Goals. Personal financial plan, not professional financial advice.', margin, pageH-4);
-    doc.text('Page '+pg+' of '+totalPages, pageW-margin, pageH-4, {align:'right'});
+    doc.setFontSize(9);
+    doc.setTextColor(50,50,50);
+    guidanceItems.forEach(function(item) {
+      var itemLines = doc.splitTextToSize('• ' + item, contentW - 8);
+      doc.text(itemLines, marginL + 4, y);
+      y += itemLines.length * 5.2 + 2;
+    });
+
+  } else {
+    // ── REPORT / PLAN LAYOUT — existing styled layout ──
+    // Header
+    doc.setFillColor(12,15,26);
+    doc.rect(0,0,pageW,18,'F');
+    doc.setFillColor(0,180,150);
+    doc.rect(0,18,pageW,2,'F');
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(13);
+    doc.setTextColor(255,255,255);
+    doc.text('Sum Goals', marginL, 12);
+
+    var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8);
+    doc.text(dateStr, pageW-marginR, 12, {align:'right'});
+
+    y = 28;
+
+    if(D.name){
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(12);
+      doc.setTextColor(30,30,30);
+      doc.text(sanitize(D.name + ' — Financial Plan'), marginL, y);
+      y += 3;
+      doc.setDrawColor(0,180,150);
+      doc.setLineWidth(0.6);
+      doc.line(marginL, y, pageW-marginR, y);
+      y += 8;
+    }
+
+    var lines = structuredData.split('\n');
+    lines.forEach(function(line){
+      checkPage(10);
+      line = sanitize(line.trim());
+      if(!line){y+=3;return;}
+
+      var isHeader = (line === line.toUpperCase() && line.replace(/[^A-Z]/g,'').length > 3 && line.length < 60 && line.endsWith(':'));
+      if(isHeader){
+        y+=3;
+        doc.setFillColor(30,40,60);
+        doc.rect(marginL-2,y-5,contentW+4,8,'F');
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(8);
+        doc.setTextColor(0,210,170);
+        doc.text(line,marginL+2,y);
+        y+=9;return;
+      }
+
+      // For reports, key:value pairs are fine
+      if(line.indexOf(':')>-1 && line.indexOf(':')<35){
+        var ci=line.indexOf(':');
+        var key=sanitize(line.substring(0,ci).trim());
+        var val=sanitize(line.substring(ci+1).trim());
+        if(key&&val&&key.length<30){
+          doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(30,30,30);
+          doc.text(key+':',marginL+2,y);
+          doc.setFont('helvetica','normal');
+          var kw=doc.getTextWidth(key+': ')+2;
+          var vlines=doc.splitTextToSize(val,contentW-kw-4);
+          doc.text(vlines,marginL+2+kw,y);
+          doc.setDrawColor(230,230,230);doc.setLineWidth(0.2);
+          doc.line(marginL,y+2,pageW-marginR,y+2);
+          y+=Math.max(6,vlines.length*5.5);return;
+        }
+      }
+
+      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,30,30);
+      var wrapped=doc.splitTextToSize(line,contentW-4);
+      doc.text(wrapped,marginL+2,y);
+      y+=wrapped.length*5.5;
+    });
   }
 
-  var fileName = 'SumGoals_'+sanitize(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf';
+  // ── FOOTER — subtle on every page ──
+  var totalPages = doc.internal.getNumberOfPages();
+  for(var pg=1;pg<=totalPages;pg++){
+    doc.setPage(pg);
+    doc.setDrawColor(210,210,210);
+    doc.setLineWidth(0.2);
+    doc.line(marginL, pageH-12, pageW-marginR, pageH-12);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(150,150,150);
+    doc.text('Mina — Sum Goals. Educational guidance only. Not legal, financial, or tax advice.', marginL, pageH-6);
+    doc.text('Page '+pg+' of '+totalPages, pageW-marginR, pageH-6, {align:'right'});
+  }
+
+  var fileName = isLetter ?
+    'Letter_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf' :
+    'SumGoals_Plan_'+(D.name?D.name.replace(/\s+/g,'_')+'_':'')+new Date().toISOString().slice(0,10)+'.pdf';
   doc.save(fileName);
 }
 
@@ -3604,6 +3842,81 @@ function renderGoalsPage() {
   renderGoalConflict();
 }
 
+
+async function manualSync() {
+  var btn = document.getElementById('syncBtn');
+  if(btn) { btn.textContent = 'Syncing...'; btn.disabled = true; }
+  try {
+    var lsP={}, lsF={}, lsDebts=[];
+    try{ lsP=JSON.parse(localStorage.getItem('vera_profile')||'{}'); }catch(e){}
+    try{ lsF=JSON.parse(localStorage.getItem('vera_fin')||'{}'); }catch(e){}
+    try{ lsDebts=JSON.parse(localStorage.getItem('vera_debts')||'[]'); }catch(e){}
+    var lsFears=[]; try{ lsFears=JSON.parse(localStorage.getItem('vera_fears')||'[]'); }catch(e){}
+    var lsGoals=[]; try{ lsGoals=JSON.parse(localStorage.getItem('vera_goals')||'[]'); }catch(e){}
+
+    var lsDebtTotal = lsDebts.reduce(function(s,d){return s+(d.amount||0);},0) || lsF.total_debt||D.debt||0;
+    var totalInc = (lsP.monthly_income||D.income||0)+(lsP.side_income||D.sideIncome||0);
+    var totalExp = (lsP.rent||D.rent||0)+(lsP.utilities||D.utilities||0)+(lsP.groceries||D.groceries||0)+
+      (lsP.dining||D.dining||0)+(lsP.transport||D.transport||0)+(lsP.subscriptions||D.subscriptions||0)+
+      (lsP.remittances||D.remittances||0)+(lsP.daycare||D.daycare||0);
+
+    await sb.from('profiles').upsert({
+      id: user.id,
+      full_name: D.name||'',
+      language: lsP.language||lsP.lang||D.lang||'en',
+      currency: 'USD', country: lsP.country||'us',
+      situation: lsP.situation||D.situation||'',
+      previous_attempt: lsP.previous_attempt||'',
+      monthly_income: lsP.monthly_income||D.income||0,
+      side_income: lsP.side_income||D.sideIncome||0,
+      rent: lsP.rent||D.rent||0,
+      utilities: lsP.utilities||D.utilities||0,
+      groceries: lsP.groceries||D.groceries||0,
+      dining: lsP.dining||D.dining||0,
+      transport: lsP.transport||D.transport||0,
+      car_payment: lsP.car_payment||D.carPayment||0,
+      insurance: lsP.insurance||0,
+      subscriptions: lsP.subscriptions||D.subscriptions||0,
+      remittances: lsP.remittances||D.remittances||0,
+      daycare: lsP.daycare||D.daycare||0,
+      total_savings: lsP.total_savings||D.savings||0,
+      emergency_fund: lsP.emergency_fund||D.emergency||0,
+      credit_health: lsP.credit_health||D.creditHealth||'',
+      age_range: lsP.age_range||'',
+      fears: lsFears.length>0?lsFears:null,
+      goals: lsGoals.length>0?lsGoals:null,
+      updated_at: new Date().toISOString()
+    }, {onConflict:'id'});
+
+    await sb.from('financial_data').upsert({
+      user_id: user.id,
+      monthly_income: lsP.monthly_income||D.income||0,
+      total_income: totalInc,
+      total_expenses: totalExp,
+      monthly_budget: totalInc-totalExp,
+      total_debt: lsDebtTotal,
+      total_savings: lsP.total_savings||D.savings||0,
+      emergency_fund: lsP.emergency_fund||D.emergency||0,
+      health_score: D.score||0,
+      updated_at: new Date().toISOString()
+    }, {onConflict:'user_id'});
+
+    if(lsDebts.length>0){
+      var rows=lsDebts.map(function(d){
+        return {user_id:user.id,debt_type:d.type||'other',debt_name:d.typeName||d.type||'Debt',
+          balance:d.amount||0,monthly_payment:d.payment||0,interest_rate:d.rate||0,
+          missed_payments:d.missed||false,urgency:d.urgency||'low'};
+      });
+      await sb.from('debts').upsert(rows,{onConflict:'user_id,debt_type'});
+    }
+
+    if(btn){ btn.textContent='Profile synced'; setTimeout(function(){btn.textContent='Sync my profile';btn.disabled=false;},2500); }
+    console.log('Manual sync complete');
+  } catch(e) {
+    console.log('Sync error:', e);
+    if(btn){ btn.textContent='Sync failed — retry';btn.disabled=false; }
+  }
+}
 
 async function signOut() {
   await sb.auth.signOut();
