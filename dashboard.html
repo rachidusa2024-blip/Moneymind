@@ -1081,10 +1081,10 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     </div>
     <div class="sb-divider"></div>
     <div class="sb-section-label">Account</div>
-    <div class="sb-item" onclick="window.location.href='/upgrade.html'">
+    <div class="sb-item" onclick="openUpgradeModal()">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">Pro</div>
       <div class="sb-item-label">Upgrade to Pro</div>
-      <div class="sb-pro-badge">$1</div>
+      <div class="sb-pro-badge">$14</div>
     </div>
   </nav>
   <div class="sb-bottom">
@@ -1132,14 +1132,14 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <div class="page-date" id="dateText"></div>
     </div>
 
-    <!-- Setup prompt -->
+    <!-- Setup prompt — only shown if profile is incomplete -->
     <div class="setup-prompt" id="setupPrompt" style="display:none">
-      <div class="setup-icon">!</div>
+      <div class="setup-icon">M</div>
       <div>
-        <div class="setup-title">Complete your financial profile</div>
-        <div class="setup-sub">Mina needs your numbers to give you a real plan — not generic advice.</div>
+        <div class="setup-title" id="setupTitle">Finish setting up your plan</div>
+        <div class="setup-sub" id="setupSub">Add your income, debts, and savings so Mina can build your real plan.</div>
       </div>
-      <button class="btn-setup" onclick="window.location.href='/onboarding.html'">Complete setup →</button>
+      <button class="btn-setup" onclick="showPage('mina');usePrompt('I want to complete my financial profile. Help me add my income, debts, and savings step by step.')" id="setupBtn">Set up with Mina →</button>
     </div>
 
     <!-- MINA BRIEFING -->
@@ -1364,8 +1364,8 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   <!-- DEBT PAGE -->
   <div class="page" id="page-debt">
     <div class="page-header">
-      <div class="page-eyebrow">Your elimination plan</div>
-      <div class="page-title">Debt <span>Countdown</span></div>
+      <div class="page-eyebrow" id="debtPageEyebrow">Your recovery plan</div>
+      <div class="page-title">Debt <span>Plan</span></div>
     </div>
     <div class="debt-page-grid" id="debtPage"></div>
   </div>
@@ -1458,6 +1458,32 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="update-overlay" id="upgradeOverlay" onclick="if(event.target===this)closeUpgradeModal()">
+  <div class="update-modal" style="max-width:440px">
+    <div style="font-family:var(--font-h);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);margin-bottom:12px">Pro Plan</div>
+    <div style="font-family:var(--font-h);font-size:28px;font-style:italic;color:var(--white);margin-bottom:4px">Unlimited access to Mina.</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.65">Everything in free, plus unlimited document analysis, unlimited letters, your complete debt elimination plan, and PDF downloads.</div>
+    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:20px">
+      <div style="font-family:var(--font-h);font-size:48px;font-style:italic;color:var(--white)">$14</div>
+      <div style="font-size:13px;color:var(--dim)">/month</div>
+      <div style="font-size:11px;color:var(--dim);margin-left:8px">— less than one late payment fee</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--muted)"><div style="color:var(--teal);flex-shrink:0">✓</div>Unlimited document analysis — upload any letter, bill, or notice</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--muted)"><div style="color:var(--teal);flex-shrink:0">✓</div>Unlimited letter generation — every type, ready to print</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--muted)"><div style="color:var(--teal);flex-shrink:0">✓</div>Complete debt elimination plan with exact payoff dates</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--muted)"><div style="color:var(--teal);flex-shrink:0">✓</div>PDF downloads for all letters and plans</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--muted)"><div style="color:var(--teal);flex-shrink:0">✓</div>14 days free — cancel anytime</div>
+    </div>
+    <div style="font-size:11px;color:var(--dim);margin-bottom:16px;font-style:italic">Also available: $197 one-time lifetime access — never pay again.</div>
+    <div class="um-actions">
+      <button class="um-cancel" onclick="closeUpgradeModal()">Not now</button>
+      <button class="um-confirm" onclick="window.location.href='/upgrade.html'">Start Pro — 14 days free</button>
+    </div>
   </div>
 </div>
 
@@ -2248,6 +2274,13 @@ function buildMemoryContext() {
   return parts.join(' · ');
 }
 var weekItems = [];
+
+function openUpgradeModal() {
+  document.getElementById('upgradeOverlay').classList.add('on');
+}
+function closeUpgradeModal() {
+  document.getElementById('upgradeOverlay').classList.remove('on');
+}
 
 function renderWeekCard() {
   var lang = D.lang || 'en';
@@ -3150,38 +3183,196 @@ function renderInsightStrip() {
 
 function renderDebtPage() {
   var el = document.getElementById('debtPage');
+  var lang = D.lang || 'en';
+  var cur = '$';
   var html = '';
-  if (D.debts.length === 0 && D.debt === 0) {
-    html = '<div class="debt-full-card"><div class="empty-state"><div class="empty-icon" style="font-size:32px;font-family:var(--font-h);font-style:italic;opacity:0.4">0</div><div class="empty-title">You are debt free</div><div class="empty-sub">Build your wealth plan with Mina — now is the time to grow.</div></div></div>';
+
+  var debts = D.debts && D.debts.length > 0 ? D.debts : [];
+  var totalDebt = debts.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0) || D.debt || 0;
+
+  // Mina briefing for this page
+  var minaMsg = '';
+  if(debts.length === 0 && totalDebt === 0) {
+    minaMsg = lang==='es' ?
+      'Agrega tus deudas aquí para que pueda construir tu estrategia de eliminación. Estimados están bien — no necesitan ser exactos.' :
+      'Add your debts here and I will build your elimination strategy. Estimates are fine — they do not need to be exact.';
+  } else if(debts.length > 0) {
+    var highRate = debts.reduce(function(a,b){return (b.rate||0)>(a.rate||0)?b:a;}, debts[0]);
+    minaMsg = lang==='es' ?
+      'Tu deuda de mayor interés es '+highRate.typeName+' al '+(highRate.rate||0)+'% APR. Esa es la primera en atacar.' :
+      'Your highest-rate debt is '+highRate.typeName+' at '+(highRate.rate||0)+'% APR. That is the first one to attack.';
   } else {
-    var debtsToShow = D.debts.length > 0 ? D.debts : [{typeName:'Total Debt',amount:D.debt,payment:0,rate:0}];
-    var total = debtsToShow.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0);
-    debtsToShow.forEach(function(d){
-      var months = d.payment > 0 ? Math.ceil(d.amount/d.payment) : 0;
-      var freeDate = new Date(); if(months>0)freeDate.setMonth(freeDate.getMonth()+months);
-      var pct = total > 0 ? Math.round((d.amount/total)*100) : 100;
-      html += '<div class="debt-full-card"><div class="debt-full-header"><div><div class="debt-full-name">'+(d.typeName||'Debt')+'</div>'+(d.rate?'<div class="debt-full-type">'+d.rate+'% APR</div>':'')+'</div><div class="debt-full-amount"><div class="debt-full-value">'+D.cur+' '+(d.amount||0).toLocaleString()+'</div><div class="debt-full-monthly">'+D.cur+' '+(d.payment||0).toLocaleString()+'/month min</div></div></div><div class="debt-progress-track"><div class="debt-progress-fill" style="width:'+pct+'%"></div></div><div class="debt-stats"><div class="debt-stat"><div class="debt-stat-label">Minimum payment</div><div class="debt-stat-value">'+D.cur+' '+(d.payment||0).toLocaleString()+'</div></div><div class="debt-stat"><div class="debt-stat-label">Months remaining</div><div class="debt-stat-value">'+(months>0?months:'—')+'</div></div><div class="debt-stat"><div class="debt-stat-label">Free by</div><div class="debt-stat-value" style="font-size:13px">'+(months>0?freeDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}):'Ask Mina')+'</div></div></div></div>';
-    });
+    minaMsg = lang==='es' ?
+      'Tienes '+cur+totalDebt.toLocaleString()+' en deuda total rastreada. Agrega el desglose para que pueda crear un orden de ataque específico.' :
+      'You have '+cur+totalDebt.toLocaleString()+' in tracked debt. Add the breakdown so I can build a specific attack order.';
   }
-  html += '<div class="debt-cta-card"><div class="debt-cta-title">Want to pay it off faster?</div><div class="debt-cta-sub">Mina will build your accelerated debt elimination strategy using the avalanche or snowball method — customized for your exact numbers.</div><button class="btn-ask-mina" onclick="showPage(\'mina\');setTimeout(function(){usePrompt(\'Build me an accelerated debt elimination plan. Which debts do I attack first and how much extra should I put toward them?\')},500)">Ask Mina to build my strategy</button></div>';
+
+  // Mina card
+  html += '<div class="mina-card" style="animation:none;margin-bottom:16px"><div class="mina-avatar" style="width:36px;height:36px;font-size:14px">M</div><div style="flex:1"><div class="mina-header"><span class="mina-name-label">MINA</span></div><div class="mina-message" style="font-size:14px">'+minaMsg+'</div></div></div>';
+
+  if(debts.length === 0 && totalDebt === 0) {
+    // Empty state with inline add
+    html += '<div class="debt-full-card" style="text-align:center;padding:32px 24px">';
+    html += '<div style="font-family:var(--font-h);font-size:24px;font-style:italic;color:var(--white);margin-bottom:8px">'+(lang==='es'?'¿Cuáles son tus deudas?':'What are your debts?')+'</div>';
+    html += '<div style="font-size:13px;color:var(--muted);margin-bottom:24px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.65">'+(lang==='es'?'Agrega cada deuda — tarjetas, préstamos, facturas médicas. Los estimados están completamente bien.':'Add each debt — credit cards, loans, medical bills. Estimates are completely fine.')+'</div>';
+    html += '<button onclick="showPage(\'mina\');usePrompt(\''+(lang==='es'?'Ayúdame a agregar mis deudas a mi plan. Vamos a hacerlo juntos paso a paso.':'Help me add my debts to my plan. Let us do it together step by step.')+'\')" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.18s">'+(lang==='es'?'Agregar mis deudas con Mina':'Add my debts with Mina')+'</button>';
+    html += '</div>';
+  } else {
+    // Debt cards
+    var debtsToShow = debts.length > 0 ? debts : [{typeName:(lang==='es'?'Deuda total':'Total Debt'), amount:D.debt, payment:0, rate:0}];
+    var total = debtsToShow.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0);
+
+    // Sort by rate descending (avalanche method)
+    debtsToShow = debtsToShow.slice().sort(function(a,b){return (b.rate||0)-(a.rate||0);});
+
+    debtsToShow.forEach(function(d, i) {
+      var months = (d.payment > 0 && d.amount > 0) ? Math.ceil(d.amount/d.payment) : 0;
+      var freeDate = new Date();
+      if(months > 0) freeDate.setMonth(freeDate.getMonth()+months);
+      var pct = total > 0 ? Math.min(100, Math.round((d.amount/total)*100)) : 100;
+      var isFirst = i === 0 && debts.length > 1;
+      var borderColor = isFirst ? 'border-color:rgba(239,68,68,0.3)' : '';
+      var badge = isFirst ? '<div style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);background:var(--red-dim);border:1px solid var(--red-b);padding:2px 8px;border-radius:6px;display:inline-block;margin-bottom:10px">'+(lang==='es'?'Atacar primero':'Attack first')+'</div>' : '';
+
+      html += '<div class="debt-full-card" style="'+borderColor+'">';
+      html += badge;
+      html += '<div class="debt-full-header"><div><div class="debt-full-name">'+(d.typeName||'Debt')+'</div>'+(d.rate?'<div class="debt-full-type">'+d.rate+'% APR — '+(lang==='es'?'alto interés':'high interest')+'</div>':'')+'</div>';
+      html += '<div class="debt-full-amount"><div class="debt-full-value">'+cur+(d.amount||0).toLocaleString()+'</div>';
+      html += '<div class="debt-full-monthly">'+(d.payment?cur+(d.payment||0).toLocaleString()+(lang==='es'?'/mes mín':'/mo min'):'—')+'</div></div></div>';
+      html += '<div class="debt-progress-track"><div class="debt-progress-fill" style="width:'+pct+'%"></div></div>';
+      html += '<div class="debt-stats">';
+      html += '<div class="debt-stat"><div class="debt-stat-label">'+(lang==='es'?'Pago mínimo':'Minimum payment')+'</div><div class="debt-stat-value">'+(d.payment?cur+(d.payment||0).toLocaleString():'—')+'</div></div>';
+      html += '<div class="debt-stat"><div class="debt-stat-label">'+(lang==='es'?'Meses restantes':'Months to pay off')+'</div><div class="debt-stat-value">'+(months>0?months:(lang==='es'?'Agregar pago':'Add payment'))+'</div></div>';
+      html += '<div class="debt-stat"><div class="debt-stat-label">'+(lang==='es'?'Libre para':'Free by')+'</div><div class="debt-stat-value" style="font-size:13px">'+(months>0?freeDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}):(lang==='es'?'Pregunta a Mina':'Ask Mina'))+'</div></div>';
+      html += '</div></div>';
+    });
+
+    // Total summary
+    html += '<div class="debt-full-card" style="background:rgba(0,201,167,0.05);border-color:rgba(0,201,167,0.18)">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:600;color:var(--muted)">'+(lang==='es'?'Deuda total rastreada':'Total tracked debt')+'</div><div style="font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--red)">'+cur+total.toLocaleString()+'</div></div>';
+    if(D.avail > 0 && total > 0) {
+      var totalMonths = Math.ceil(total/(D.avail*0.6));
+      var freeYear = new Date(); freeYear.setMonth(freeYear.getMonth()+totalMonths);
+      html += '<div style="font-size:12px;color:var(--muted);margin-top:8px">'+(lang==='es'?'Libre de deudas estimado: ':'Estimated debt free: ')+'<span style="color:var(--teal);font-weight:600">'+freeYear.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</span></div>';
+    }
+    html += '</div>';
+  }
+
+  // Strategy CTA
+  html += '<div class="debt-cta-card">';
+  html += '<div class="debt-cta-title">'+(lang==='es'?'¿Quieres pagarlo más rápido?':'Want to pay it off faster?')+'</div>';
+  html += '<div class="debt-cta-sub">'+(lang==='es'?'Mina construirá tu estrategia acelerada — qué deuda atacar primero, cuánto extra aplicar, y cuándo estarás libre.':'Mina will build your accelerated elimination strategy — which debt to attack first, how much extra to apply, and when you will be debt free.')+'</div>';
+  html += '<button class="btn-ask-mina" onclick="showPage(\'mina\');setTimeout(function(){usePrompt(\''+(lang==='es'?'Construye mi estrategia acelerada de eliminación de deudas. ¿Qué deudas ataco primero?':'Build my accelerated debt elimination strategy. Which debts do I attack first and how much extra should I apply?')+'\')},400)">'+(lang==='es'?'Pedirle a Mina mi estrategia':'Ask Mina to build my strategy')+'</button>';
+  html += '</div>';
+
   el.innerHTML = html;
 }
 
 function renderPaydayPage() {
   var el = document.getElementById('paydayPage');
+  var lang = D.lang || 'en';
+  var cur = '$';
   var html = '';
-  if (D.paydayDate) {
-    var next = getNextPayday();
-    var days = Math.floor((next-new Date())/(1000*60*60*24));
-    html += '<div class="payday-hero"><div class="payday-days-big">'+days+'</div><div class="payday-days-label">days until payday</div><div class="payday-date-display">'+next.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div></div>';
-    if (D.avail > 0) {
-      var daily = Math.round(D.avail/30);
-      html += '<div class="debt-full-card"><div class="card-header" style="margin-bottom:14px"><div class="card-title">Your budget breakdown</div></div><div class="payday-budget-grid"><div class="pb-item"><div class="pb-label">Daily budget</div><div class="pb-value teal">'+D.cur+' '+daily.toLocaleString()+'</div></div><div class="pb-item"><div class="pb-label">Monthly available</div><div class="pb-value '+(D.avail>=0?'teal':'red')+'">'+D.cur+' '+Math.round(D.avail).toLocaleString()+'</div></div><div class="pb-item"><div class="pb-label">Total debt</div><div class="pb-value red">'+D.cur+' '+D.debt.toLocaleString()+'</div></div><div class="pb-item"><div class="pb-label">Savings</div><div class="pb-value gold">'+D.cur+' '+D.savings.toLocaleString()+'</div></div></div></div>';
-    }
+  var avail = Math.round(D.avail || 0);
+  var hasIncome = D.income > 0;
+
+  // Mina briefing
+  var minaMsg = '';
+  if(!hasIncome) {
+    minaMsg = lang==='es' ?
+      'Agrega tu ingreso mensual para que pueda construir tu plan de flujo de efectivo. Dime cuánto llevas a casa cada mes después de impuestos.' :
+      'Add your monthly income so I can build your cash flow plan. Tell me how much you take home each month after taxes.';
+  } else if(avail > 0) {
+    var daily = Math.round(avail/30);
+    minaMsg = lang==='es' ?
+      'Tienes '+cur+avail.toLocaleString()+' disponible cada mes después de lo esencial — '+cur+daily+' por día de presupuesto seguro.' :
+      'You have '+cur+avail.toLocaleString()+' available each month after essentials — '+cur+daily+' per day as a safe spending budget.';
+  } else if(avail < 0) {
+    minaMsg = lang==='es' ?
+      'Tus gastos superan tus ingresos por '+cur+Math.abs(avail).toLocaleString()+' al mes. Esto necesita atención inmediata — hablemos.' :
+      'Your expenses exceed your income by '+cur+Math.abs(avail).toLocaleString()+' per month. This needs immediate attention — let us talk.';
   } else {
-    html += '<div class="debt-full-card"><div class="empty-state"><div class="empty-icon" style="font-size:32px;font-family:var(--font-h);font-style:italic;opacity:0.4">—</div><div class="empty-title">Payday date not set</div><div class="empty-sub">Tell Mina when you get paid and she will build your step-by-step payday survival plan.</div></div></div>';
+    minaMsg = lang==='es' ?
+      'Cuéntame tu ingreso y gastos para construir tu plan de flujo de efectivo.' :
+      'Tell me your income and expenses so I can build your cash flow plan.';
   }
-  html += '<div class="debt-cta-card"><div class="debt-cta-title">Mina\'s payday instructions</div><div class="debt-cta-sub">The exact moment your salary arrives — Mina tells you what to transfer, what to pay, and what to keep. No guessing. No wasted money.</div><button class="btn-ask-mina" onclick="askMinaPayday()">Get my payday instructions from Mina</button></div>';
+
+  html += '<div class="mina-card" style="animation:none;margin-bottom:16px"><div class="mina-avatar" style="width:36px;height:36px;font-size:14px">M</div><div style="flex:1"><div class="mina-header"><span class="mina-name-label">MINA</span></div><div class="mina-message" style="font-size:14px">'+minaMsg+'</div></div></div>';
+
+  if(!hasIncome) {
+    // No income set — prompt to add
+    html += '<div class="debt-full-card" style="text-align:center;padding:32px 24px">';
+    html += '<div style="font-family:var(--font-h);font-size:22px;font-style:italic;color:var(--white);margin-bottom:8px">'+(lang==='es'?'Construye tu plan de flujo de efectivo':'Build your cash flow plan')+'</div>';
+    html += '<div style="font-size:13px;color:var(--muted);margin-bottom:24px;max-width:380px;margin-left:auto;margin-right:auto;line-height:1.65">'+(lang==='es'?'Mina necesita tu ingreso mensual y gastos esenciales para mostrarte tu disponible diario y mensual.':'Mina needs your monthly income and essential expenses to show your daily and monthly available budget.')+'</div>';
+    html += '<button onclick="showPage(\'mina\');usePrompt(\''+(lang==='es'?'Ayúdame a configurar mi plan de flujo de efectivo. Necesito agregar mi ingreso y gastos.':'Help me set up my cash flow plan. I need to add my income and expenses.')+'\')" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b)">'+(lang==='es'?'Configurar con Mina':'Set up with Mina')+'</button>';
+    html += '</div>';
+  } else {
+    // Cash flow breakdown
+    var totalInc = (D.income||0) + (D.sideIncome||0) + (D.investIncome||0);
+    var totalExp = D.totalExpenses || 0;
+    var daily = avail > 0 ? Math.round(avail/30) : 0;
+
+    html += '<div class="debt-full-card">';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">';
+
+    var cards = [
+      {l:lang==='es'?'Ingreso total':'Total income', v:cur+totalInc.toLocaleString(), c:'teal'},
+      {l:lang==='es'?'Gastos esenciales':'Essential expenses', v:totalExp>0?cur+Math.round(totalExp).toLocaleString():'—', c:''},
+      {l:lang==='es'?'Disponible mensual':'Monthly available', v:cur+Math.abs(avail).toLocaleString(), c:avail>=0?'teal':'red'},
+      {l:lang==='es'?'Presupuesto diario':'Daily budget', v:daily>0?cur+daily:'—', c:'gold'}
+    ];
+
+    cards.forEach(function(c) {
+      html += '<div style="background:var(--surface2);border-radius:11px;padding:14px;text-align:center">';
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-bottom:7px">'+c.l+'</div>';
+      html += '<div style="font-family:var(--font-h);font-size:20px;font-style:italic;color:var(--'+c.c+'||\'--white\')">'+c.v+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // Monthly breakdown bar
+    if(totalExp > 0 && totalInc > 0) {
+      var expPct = Math.min(100, Math.round((totalExp/totalInc)*100));
+      var savPct = Math.max(0, 100-expPct);
+      html += '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:5px"><span>'+(lang==='es'?'Gastos':'Expenses')+' '+expPct+'%</span><span>'+(lang==='es'?'Disponible':'Available')+' '+savPct+'%</span></div>';
+      html += '<div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;display:flex">';
+      html += '<div style="width:'+expPct+'%;background:var(--red);opacity:0.7;border-radius:4px 0 0 4px"></div>';
+      html += '<div style="width:'+savPct+'%;background:var(--teal);opacity:0.7;border-radius:0 4px 4px 0"></div>';
+      html += '</div></div>';
+    }
+    html += '</div>';
+
+    // Payday setup
+    if(D.paydayDate) {
+      var next = getNextPayday();
+      var days = Math.floor((next-new Date())/(1000*60*60*24));
+      html += '<div class="debt-full-card" style="text-align:center;padding:24px">';
+      html += '<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin-bottom:8px">'+(lang==='es'?'PRÓXIMO PAGO':'NEXT PAYDAY')+'</div>';
+      html += '<div style="font-family:var(--font-h);font-size:52px;font-style:italic;color:var(--white);line-height:1">'+days+'</div>';
+      html += '<div style="font-size:14px;color:var(--muted);margin-top:4px">'+(lang==='es'?'días':'days')+' — '+next.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div>';
+      html += '</div>';
+    }
+
+    // Debt-to-income
+    if(D.debt > 0 && totalInc > 0) {
+      var dti = Math.round((D.debt/totalInc)*10)/10;
+      var dtiLabel = dti < 3 ? (lang==='es'?'Manejable':'Manageable') : dti < 6 ? (lang==='es'?'Bajo presión':'Under pressure') : (lang==='es'?'Alta carga':'High burden');
+      var dtiColor = dti < 3 ? 'var(--teal)' : dti < 6 ? 'var(--gold)' : 'var(--red)';
+      html += '<div class="debt-full-card" style="display:flex;align-items:center;justify-content:space-between">';
+      html += '<div><div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:3px">'+(lang==='es'?'Meses de ingreso para pagar toda la deuda':'Months of income to repay all debt')+'</div>';
+      html += '<div style="font-size:12px;color:var(--dim)">'+(lang==='es'?'Relación deuda-ingreso':'Debt-to-income ratio')+'</div></div>';
+      html += '<div style="text-align:right"><div style="font-family:var(--font-h);font-size:24px;font-style:italic;color:'+dtiColor+'">'+dti+'x</div><div style="font-size:11px;color:'+dtiColor+'">'+dtiLabel+'</div></div>';
+      html += '</div>';
+    }
+  }
+
+  // CTA
+  html += '<div class="debt-cta-card">';
+  html += '<div class="debt-cta-title">'+(lang==='es'?'Instrucciones para el día de pago':'Payday instructions from Mina')+'</div>';
+  html += '<div class="debt-cta-sub">'+(lang==='es'?'El momento exacto en que llega tu salario — Mina te dice qué transferir, qué pagar, y qué guardar.':'The exact moment your salary arrives — Mina tells you what to transfer, what to pay, and what to keep.')+'</div>';
+  html += '<button class="btn-ask-mina" onclick="showPage(\'mina\');setTimeout(function(){usePrompt(\''+(lang==='es'?'Dame un plan paso a paso para mi próximo día de pago. ¿Qué pago primero, qué transfiero, y qué guardo?':'Give me a step-by-step plan for my next payday. What do I pay first, what do I transfer, and what do I keep?')+'\')},400)">'+(lang==='es'?'Obtener mis instrucciones de pago':'Get my payday instructions')+'</button>';
+  html += '</div>';
+
   el.innerHTML = html;
 }
 
