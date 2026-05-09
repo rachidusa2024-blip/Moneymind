@@ -3778,46 +3778,56 @@ function generatePDF(structuredData, fullText) {
     // ── LETTER MODE — clean, calm, professional ──
     y = 24;
 
-    // Date right-aligned
+    // Date right-aligned — rendered once by code, skip if it appears in content
     var dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     doc.setFont('helvetica','normal');
     doc.setFontSize(10);
     doc.setTextColor(80,80,80);
     doc.text(dateStr, pageW - marginR, y, {align:'right'});
-    y += 16;
+    y += 12;
 
     var content = structuredData || fullText || '';
     var lines = content.split('\n');
     var prevBlank = false;
     var inBody = false;
     var closingDone = false;
+    var firstLine = true;
+
+    // Month names to detect date lines
+    var monthNames = /^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d/i;
 
     lines.forEach(function(rawLine) {
       var line = rawLine.trim();
       if (line === '[PDF]' || line === '[/PDF]') return;
 
-      // Blank lines
+      // Skip the date line from content — we already rendered it above
+      if (firstLine && monthNames.test(line)) { firstLine = false; return; }
+      firstLine = false;
+
+      // Skip Note/Disclaimer — belongs in chat, not the document
+      if (/^Note:|^Disclaimer:|^This (letter|document|template)/i.test(line)) return;
+
+      // Blank lines — reduced spacing to keep letter compact
       if (!line) {
-        if (!prevBlank) y += inBody ? 5 : 3;
+        if (!prevBlank) y += inBody ? 4 : 2;
         prevBlank = true;
         return;
       }
       prevBlank = false;
-      checkPage(12);
 
-      // Note / Disclaimer — skip entirely for letters (belongs in chat, not in the document)
-      // For reports, render as a subtle grey block
-      if (/^Note:|^Disclaimer:|^This (letter|document|template)/i.test(line)) {
-        // In letter mode: skip completely — the document must be clean
-        return;
+      if (y > pageH - 30) {
+        doc.addPage();
+        doc.setFillColor(255,255,255);
+        doc.rect(0,0,pageW,pageH,'F');
+        y = 22;
       }
 
       // Re: / Subject: line
       if (/^Re:|^Subject:/i.test(line)) {
-        y += 3;
-        doc.setDrawColor(200,200,200);
-        doc.setLineWidth(0.25);
-        doc.line(marginL, y-2, pageW-marginR, y-2);
+        y += 2;
+        doc.setDrawColor(210,210,210);
+        doc.setLineWidth(0.2);
+        doc.line(marginL, y-1, pageW-marginR, y-1);
         var colon = line.indexOf(':');
         var rLabel = line.substring(0,colon+1);
         var rVal = line.substring(colon+1).trim();
@@ -3829,49 +3839,58 @@ function generatePDF(structuredData, fullText) {
         var lw = doc.getTextWidth(rLabel) + 3;
         var rLines = doc.splitTextToSize(sanitize(rVal), contentW - lw);
         doc.text(rLines, marginL + lw, y+5);
-        y += 5 + rLines.length*6;
+        y += 5 + rLines.length * 5.5;
         doc.line(marginL, y+2, pageW-marginR, y+2);
-        y += 7;
+        y += 6;
         return;
       }
 
       // Salutation
       if (/^Dear /i.test(line)) {
         inBody = true;
+        y += 2;
         doc.setFont('helvetica','normal');
         doc.setFontSize(10.5);
         doc.setTextColor(30,30,30);
         doc.text(sanitize(line), marginL, y);
-        y += 9;
+        y += 8;
         return;
       }
 
-      // Closing — Sincerely etc
+      // Closing
       if (!closingDone && /^Sincerely|^Respectfully|^Best regards/i.test(line)) {
         closingDone = true;
-        y += 5;
+        y += 4;
         doc.setFont('helvetica','normal');
         doc.setFontSize(10.5);
         doc.setTextColor(30,30,30);
         doc.text(sanitize(line), marginL, y);
-        y += 18; // signature space
+        y += 16; // signature space
         return;
       }
 
-      // All other text — full width wrap, no colon splitting
+      // Body text — compact line height
       doc.setFont('helvetica','normal');
       doc.setFontSize(10.5);
       doc.setTextColor(30,30,30);
-      var lh = 6.5;
+      var lh = 6;
       var wrapped = doc.splitTextToSize(sanitize(line), contentW);
-      checkPage(wrapped.length * lh + 4);
+      if (y + wrapped.length * lh > pageH - 30) {
+        doc.addPage();
+        doc.setFillColor(255,255,255);
+        doc.rect(0,0,pageW,pageH,'F');
+        y = 22;
+      }
       doc.text(wrapped, marginL, y);
-      y += wrapped.length * lh + 2;
+      y += wrapped.length * lh + 1;
     });
 
-    // ── GUIDANCE SECTION — draw background first, then text once ──
-    checkPage(70);
-    y += 10;
+    // ── GUIDANCE SECTION — always starts on a fresh page ──
+    // Force new page so letter is on page 1, guidance on page 2
+    doc.addPage();
+    doc.setFillColor(255,255,255);
+    doc.rect(0,0,pageW,pageH,'F');
+    y = 28;
 
     var guidanceItems = [
       'Keep a signed copy for your personal records before sending.',
@@ -3883,20 +3902,12 @@ function generatePDF(structuredData, fullText) {
 
     // Pre-calculate total height
     doc.setFontSize(9);
-    var totalGH = 14; // title + padding
+    var totalGH = 14;
     guidanceItems.forEach(function(item) {
-      var iLines = doc.splitTextToSize('  ' + item, contentW - 10);
+      var iLines = doc.splitTextToSize(item, contentW - 12);
       totalGH += iLines.length * 5.5 + 3;
     });
-    totalGH += 6;
-
-    // Check page once with full known height
-    if (y + totalGH > pageH - 24) {
-      doc.addPage();
-      doc.setFillColor(255,255,255);
-      doc.rect(0,0,pageW,pageH,'F');
-      y = 22;
-    }
+    totalGH += 8;
 
     var gStart = y;
 
