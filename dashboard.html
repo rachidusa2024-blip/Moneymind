@@ -142,6 +142,28 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
 .um-cancel{padding:11px 16px;background:transparent;border:1.5px solid var(--bord);border-radius:9px;color:var(--dim);font-size:13px;cursor:pointer;font-family:var(--font-b);transition:all 0.18s}
 .um-cancel:hover{border-color:var(--bord-lit);color:var(--muted)}
 
+/* GUIDED UPDATE STEPS */
+.um-mina-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+.um-mina-msg{font-family:var(--font-h);font-size:16px;font-style:italic;color:var(--soft);line-height:1.65;padding-top:4px}
+.um-input-area{display:flex;flex-direction:column;gap:10px}
+.um-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
+.um-field{width:100%;background:var(--surface2);border:1.5px solid var(--bord);border-radius:9px;padding:10px 13px;color:var(--white);font-size:15px;font-family:var(--font-b);outline:none;transition:border-color 0.18s}
+.um-field:focus{border-color:var(--teal-border)}
+.um-field::placeholder{color:var(--dim);font-size:13px}
+.um-field-pre{position:relative}
+.um-field-pre .um-field{padding-left:28px}
+.um-pre{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--dim);pointer-events:none}
+.um-hint{font-size:11px;color:var(--dim);margin-top:4px;font-style:italic}
+.um-step-info{font-size:11px;color:var(--dim);text-align:right;margin-top:10px;font-weight:500}
+.um-upload-zone{border:1.5px dashed rgba(0,201,167,0.3);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all 0.18s;background:rgba(0,201,167,0.03)}
+.um-upload-zone:hover{border-color:var(--teal);background:var(--teal-dim)}
+.um-upload-text{font-size:13px;color:var(--muted)}
+.um-upload-note{font-size:11px;color:var(--dim);margin-top:4px}
+.um-recalc-text{font-family:var(--font-h);font-size:18px;font-style:italic;color:var(--white);margin-bottom:18px}
+.um-recalc-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;max-width:200px;margin:0 auto}
+.um-recalc-fill{height:3px;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:3px;width:0%;transition:width 1.8s ease}
+.um-summary-msg{font-family:var(--font-h);font-size:15px;font-style:italic;color:var(--soft);line-height:1.75;margin-top:8px;padding:16px;background:var(--surface2);border-radius:10px;border-left:3px solid var(--teal)}
+
 /* Mina avatar dot */
 .mina-avatar { position:relative; }
 .mina-av-dot {
@@ -1389,17 +1411,53 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     </div>
   </div>
 
-<!-- UPDATE MY PLAN MODAL -->
+<!-- UPDATE MY PLAN MODAL — guided conversational flow -->
 <div class="update-overlay" id="updateOverlay">
   <div class="update-modal">
-    <div class="um-av">M</div>
-    <div class="um-title" id="umTitle">Has anything changed?</div>
-    <div class="um-sub" id="umSub">Select what has changed and I will recalculate your plan.</div>
-    <div class="um-options" id="umOptions"></div>
-    <div class="um-actions">
-      <button class="um-cancel" onclick="closeUpdateModal()" id="umCancel">Cancel</button>
-      <button class="um-confirm" onclick="confirmUpdate()" id="umConfirm">Update my plan</button>
+
+    <!-- STEP 1: What changed? -->
+    <div id="umStep1">
+      <div class="um-av">M</div>
+      <div class="um-title" id="umTitle">Has anything changed?</div>
+      <div class="um-sub" id="umSub">Select everything that has changed and I will walk you through updating each one.</div>
+      <div class="um-options" id="umOptions"></div>
+      <div class="um-actions">
+        <button class="um-cancel" onclick="closeUpdateModal()" id="umCancel">Cancel</button>
+        <button class="um-confirm" onclick="startGuidedUpdate()" id="umConfirm">Update my plan →</button>
+      </div>
     </div>
+
+    <!-- STEP 2: Guided update — shown after selection -->
+    <div id="umStep2" style="display:none">
+      <div class="um-mina-row">
+        <div class="um-av" style="margin-bottom:0;flex-shrink:0">M</div>
+        <div class="um-mina-msg" id="umMinaMsg">Let's update things one step at a time.</div>
+      </div>
+      <div class="um-input-area" id="umInputArea"></div>
+      <div class="um-step-info" id="umStepInfo"></div>
+      <div class="um-actions" style="margin-top:16px">
+        <button class="um-cancel" onclick="skipGuidedStep()" id="umSkip">Skip this</button>
+        <button class="um-confirm" onclick="nextGuidedStep()" id="umNext">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Recalculating -->
+    <div id="umStep3" style="display:none;text-align:center;padding:16px 0">
+      <div class="um-av" style="margin:0 auto 14px">M</div>
+      <div class="um-recalc-text" id="umRecalcText">Updating your plan...</div>
+      <div class="um-recalc-bar"><div class="um-recalc-fill" id="umRecalcFill"></div></div>
+    </div>
+
+    <!-- STEP 4: Summary -->
+    <div id="umStep4" style="display:none">
+      <div class="um-av">M</div>
+      <div class="um-title" id="umSummaryTitle">Your plan is updated.</div>
+      <div class="um-summary-msg" id="umSummaryMsg"></div>
+      <div class="um-actions" style="margin-top:20px">
+        <button class="um-confirm" style="width:100%" onclick="closeUpdateModal();renderAll();" id="umDone">Return to Overview</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1909,8 +1967,16 @@ function renderAll() {
   renderPaydayPage();
 }
 
-// ── UPDATE MY PLAN MODAL ──────────────────────────────────────────────────────
+// ── UPDATE MY PLAN — GUIDED FLOW ──────────────────────────────────────────────
 var selectedUpdates = [];
+var guidedSteps = [];
+var guidedIndex = 0;
+var updatedValues = {};
+
+function setEl(id, text) {
+  var el = document.getElementById(id);
+  if(el) el.textContent = text;
+}
 
 function openUpdateModal() {
   var lang = D.lang || 'en';
@@ -1964,58 +2030,176 @@ function openUpdateModal() {
 }
 
 function toggleUpdateOpt(el, id) {
+  if(id === 'refresh') {
+    document.querySelectorAll('.um-opt').forEach(function(b){b.classList.remove('selected');});
+    el.classList.add('selected');
+    selectedUpdates = ['refresh'];
+    return;
+  }
+  var refreshBtn = document.querySelector('.um-opt[data-id="refresh"]');
+  if(refreshBtn) refreshBtn.classList.remove('selected');
+  var ri = selectedUpdates.indexOf('refresh');
+  if(ri > -1) selectedUpdates.splice(ri, 1);
   el.classList.toggle('selected');
   var idx = selectedUpdates.indexOf(id);
   if(idx > -1) selectedUpdates.splice(idx, 1); else selectedUpdates.push(id);
 }
 
+function startGuidedUpdate() {
+  var lang = D.lang || 'en';
+  if(selectedUpdates.length === 0) selectedUpdates = ['refresh'];
+  if(selectedUpdates.length === 1 && selectedUpdates[0] === 'refresh') {
+    closeUpdateModal(); renderAll(); return;
+  }
+  if(selectedUpdates.length === 1 && selectedUpdates[0] === 'upload') {
+    closeUpdateModal();
+    var fi = document.getElementById('docFileInput');
+    if(fi) fi.click();
+    return;
+  }
+  var stepOrder = ['income','expenses','savings','debt','letter','upload'];
+  guidedSteps = stepOrder.filter(function(s){ return selectedUpdates.includes(s); });
+  guidedIndex = 0;
+  document.getElementById('umStep1').style.display = 'none';
+  document.getElementById('umStep2').style.display = 'block';
+  showGuidedStep(lang);
+}
+
+function showGuidedStep(lang) {
+  if(guidedIndex >= guidedSteps.length) { runRecalculation(); return; }
+  var step = guidedSteps[guidedIndex];
+  if(step === 'upload') step = 'letter';
+  var remaining = guidedSteps.length - guidedIndex;
+  var stepInfo = {en: remaining+' item'+(remaining>1?'s':'')+' remaining', es: remaining+' elemento'+(remaining>1?'s':'')+' restante'+(remaining>1?'s':'')};
+  setEl('umStepInfo', stepInfo[lang]||stepInfo.en);
+  var lastStep = guidedIndex === guidedSteps.length - 1;
+  setEl('umSkip', lang==='es'?'Saltar esto':'Skip this');
+  setEl('umNext', lastStep?(lang==='es'?'Actualizar plan':'Update plan'):(lang==='es'?'Siguiente →':'Next →'));
+
+  var msgs = {
+    income:{en:'What is your updated monthly take-home income after taxes?',es:'¿Cuál es tu ingreso mensual neto actualizado?'},
+    expenses:{en:'Have your essential monthly expenses changed?',es:'¿Cambiaron tus gastos mensuales esenciales?'},
+    savings:{en:'What is your current total savings across all accounts?',es:'¿Cuál es tu total de ahorros actual?'},
+    debt:{en:'What is your updated total debt? An estimate is fine.',es:'¿Cuál es tu deuda total actualizada? Un estimado está bien.'},
+    letter:{en:'Upload the document whenever you are ready. I will explain what it means.',es:'Sube el documento cuando estés listo. Explicaré lo que significa.'}
+  };
+  var hints = {
+    income:{en:'An estimate is completely okay. Current: $'+(D.income||0).toLocaleString(),es:'Un estimado está bien. Actual: $'+(D.income||0).toLocaleString()},
+    expenses:{en:'Only include regular essentials — housing, utilities, groceries, transport.',es:'Solo incluye esenciales — vivienda, servicios, comida, transporte.'},
+    savings:{en:'Enter 0 if there is nothing saved — that is valid. Current: $'+(D.savings||0).toLocaleString(),es:'Escribe 0 si no hay nada. Actual: $'+(D.savings||0).toLocaleString()},
+    debt:{en:'Current tracked: $'+(D.debt||0).toLocaleString(),es:'Actual registrado: $'+(D.debt||0).toLocaleString()},
+    letter:{en:'',es:''}
+  };
+  var inputIds = {income:'umIncomeInput',expenses:'umExpInput',savings:'umSavInput',debt:'umDebtInput'};
+  var placeholders = {income:D.income||0,expenses:D.totalExpenses||0,savings:D.savings||0,debt:D.debt||0};
+
+  var msgEl = document.getElementById('umMinaMsg');
+  if(msgEl) msgEl.textContent = (msgs[step]&&msgs[step][lang])||(msgs[step]&&msgs[step].en)||'';
+
+  var inputArea = document.getElementById('umInputArea');
+  if(!inputArea) return;
+  var inputId = inputIds[step];
+  var hint = (hints[step]&&hints[step][lang])||(hints[step]&&hints[step].en)||'';
+  if(inputId) {
+    var lbl = {income:{en:'Monthly take-home income',es:'Ingreso mensual neto'},expenses:{en:'Updated monthly expenses',es:'Gastos mensuales actualizados'},savings:{en:'Total savings',es:'Total de ahorros'},debt:{en:'Total debt',es:'Deuda total'}};
+    var lblText = (lbl[step]&&lbl[step][lang])||(lbl[step]&&lbl[step].en)||'';
+    inputArea.innerHTML = '<label class="um-label">'+lblText+'</label><div class="um-field-pre"><span class="um-pre">$</span><input class="um-field" type="number" min="0" placeholder="'+placeholders[step]+'" id="'+inputId+'"></div>'+(hint?'<div class="um-hint">'+hint+'</div>':'');
+  } else if(step === 'letter') {
+    inputArea.innerHTML = '<div class="um-upload-zone" onclick="triggerUpdateUpload()" style="border:1.5px dashed rgba(0,201,167,0.3);border-radius:10px;padding:22px;text-align:center;cursor:pointer;background:rgba(0,201,167,0.03)">'
+      +'<div style="font-size:22px;color:var(--teal);margin-bottom:8px">↑</div>'
+      +'<div style="font-size:13px;color:var(--muted)">'+(lang='es'?'Toca para subir tu documento':'Tap to upload your document')+'</div>'
+      +'<div style="font-size:11px;color:var(--dim);margin-top:6px">'+(lang='es'?'Seguro y privado. También puedes saltar y subir desde el panel.':'Secure and private. You can also skip and upload from the dashboard.')+'</div>'
+      +'</div><input type="file" id="umFileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleUpdateUpload(this)">';
+  }
+}
+
+function nextGuidedStep() {
+  var step = guidedSteps[guidedIndex];
+  var inputMap = {income:'umIncomeInput',expenses:'umExpInput',savings:'umSavInput',debt:'umDebtInput'};
+  var inputId = inputMap[step];
+  if(inputId) {
+    var el = document.getElementById(inputId);
+    if(el && el.value !== '') updatedValues[step] = parseFloat(el.value)||0;
+  }
+  guidedIndex++;
+  if(guidedIndex >= guidedSteps.length) runRecalculation();
+  else showGuidedStep(D.lang||'en');
+}
+
+function skipGuidedStep() {
+  guidedIndex++;
+  if(guidedIndex >= guidedSteps.length) runRecalculation();
+  else showGuidedStep(D.lang||'en');
+}
+
+function triggerUpdateUpload() {
+  var fi = document.getElementById('umFileInput');
+  if(fi) fi.click();
+}
+
+function handleUpdateUpload(input) {
+  var file = input.files[0];
+  if(!file) return;
+  updatedValues.uploadedFile = file;
+  var zone = document.querySelector('#umInputArea .um-upload-zone');
+  if(!zone) return;
+  var lang = D.lang||'en';
+  zone.innerHTML = '<div style="color:var(--teal);font-size:13px;font-weight:600">✓ '+file.name+'</div><div style="font-size:11px;color:var(--dim);margin-top:4px">'+(lang==='es'?'Listo para analizar':'Ready to analyze')+'</div>';
+}
+
+function runRecalculation() {
+  var lang = D.lang||'en';
+  document.getElementById('umStep2').style.display = 'none';
+  document.getElementById('umStep3').style.display = 'block';
+  setEl('umRecalcText', lang==='es'?'Actualizando tu plan...':'Updating your plan...');
+  setTimeout(function(){var f=document.getElementById('umRecalcFill');if(f)f.style.width='100%';},100);
+  // Apply updates to D
+  if(updatedValues.income !== undefined) D.income = updatedValues.income;
+  if(updatedValues.savings !== undefined){ D.savings = updatedValues.savings; D.total_savings = updatedValues.savings; }
+  if(updatedValues.debt !== undefined) D.debt = updatedValues.debt;
+  if(updatedValues.income !== undefined || updatedValues.expenses !== undefined) {
+    var totalInc = (D.income||0)+(D.sideIncome||0)+(D.investIncome||0);
+    D.avail = totalInc - (D.totalExpenses||0);
+  }
+  localStorage.setItem('vera_plan_updated', new Date().toISOString());
+  setTimeout(function(){
+    document.getElementById('umStep3').style.display = 'none';
+    document.getElementById('umStep4').style.display = 'block';
+    var lang2 = D.lang||'en';
+    var parts = [];
+    if(updatedValues.income !== undefined) parts.push(lang2==='es'?'Tus ingresos ahora registrados como $'+D.income.toLocaleString()+' al mes.':'Your income is now recorded as $'+D.income.toLocaleString()+' per month.');
+    if(updatedValues.savings !== undefined) parts.push(lang2==='es'?'Tus ahorros ahora registrados como $'+D.savings.toLocaleString()+'.':'Your savings are now recorded as $'+D.savings.toLocaleString()+'.');
+    if(updatedValues.debt !== undefined) parts.push(lang2==='es'?'Tu deuda registrada es ahora $'+D.debt.toLocaleString()+'.':'Your tracked debt is now $'+D.debt.toLocaleString()+'.');
+    if(updatedValues.uploadedFile) parts.push(lang2==='es'?'Tu documento está listo para análisis.':'Your document is ready for analysis.');
+    if(D.avail > 0 && D.debt > 0){ var mo=Math.ceil(D.debt/(D.avail*0.6)); parts.push(lang2==='es'?'Tu plan proyecta aproximadamente '+mo+' meses.':'Your plan now projects approximately '+mo+' months.'); }
+    if(!parts.length) parts.push(lang2==='es'?'Tu plan ha sido actualizado.':'Your plan has been refreshed.');
+    setEl('umSummaryTitle', lang2==='es'?'Tu plan está actualizado.':'Your plan is updated.');
+    setEl('umDone', lang2==='es'?'Volver al resumen':'Return to Overview');
+    var msgEl = document.getElementById('umSummaryMsg');
+    if(msgEl) msgEl.textContent = parts.join(' ');
+    if(updatedValues.uploadedFile){
+      var mainFi = document.getElementById('docFileInput');
+      if(mainFi){
+        try{var dt=new DataTransfer();dt.items.add(updatedValues.uploadedFile);mainFi.files=dt.files;}catch(e){}
+      }
+    }
+  }, 2000);
+}
+
 function closeUpdateModal() {
   var overlay = document.getElementById('updateOverlay');
   if(overlay) overlay.classList.remove('on');
-  selectedUpdates = [];
+  selectedUpdates = []; guidedSteps = []; guidedIndex = 0; updatedValues = {};
+  // Reset steps
+  ['umStep1','umStep2','umStep3','umStep4'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.display=(id==='umStep1'?'block':'none');
+  });
+  var fill = document.getElementById('umRecalcFill');
+  if(fill) fill.style.width = '0%';
 }
 
-function confirmUpdate() {
-  // Save selections BEFORE closing (closeUpdateModal resets selectedUpdates)
-  var chosen = selectedUpdates.slice();
-  closeUpdateModal();
-  var lang = D.lang || 'en';
-
-  // Save updated timestamp
-  localStorage.setItem('vera_plan_updated', new Date().toISOString());
-  renderLastUpdated();
-
-  // If they want to upload, open file picker
-  if(chosen.includes('upload')) {
-    var fileInput = document.getElementById('docFileInput');
-    if(fileInput) fileInput.click();
-    return;
-  }
-
-  // Nothing changed — just refresh
-  if(chosen.length === 0 || (chosen.length === 1 && chosen.includes('refresh'))) {
-    renderAll();
-    return;
-  }
-
-  // Build a specific prompt for Mina based on what changed
-  var changeLabels = {
-    en:{income:'income', debt:'debt balances', letter:'a new notice or letter', expenses:'monthly expenses', savings:'savings', refresh:''},
-    es:{income:'ingresos', debt:'saldos de deuda', letter:'un nuevo aviso o carta', expenses:'gastos mensuales', savings:'ahorros', refresh:''}
-  };
-  var l = changeLabels[lang] || changeLabels.en;
-  var changes = chosen.filter(function(s){return s!=='refresh'&&s!=='upload';}).map(function(s){return l[s]||s;}).filter(Boolean).join(', ');
-
-  if(changes) {
-    var prompt = lang==='es' ?
-      'Actualicé la siguiente información: '+changes+'. ¿Puedes ajustar mis recomendaciones basándote en estos cambios?' :
-      'I have updated the following: '+changes+'. Can you adjust my recommendations based on these changes?';
-    showPage('mina');
-    setTimeout(function(){usePrompt(prompt);}, 350);
-  } else {
-    renderAll();
-  }
-}
+function confirmUpdate() { startGuidedUpdate(); }
 
 // ── LAST UPDATED ──────────────────────────────────────────────────────────────
 function renderLastUpdated() {
@@ -4639,3 +4823,5 @@ init();
 </script>
 </body>
 </html>
+
+  
