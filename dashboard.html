@@ -1367,16 +1367,28 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <div class="page-eyebrow" id="debtPageEyebrow">Your recovery plan</div>
       <div class="page-title">Debt <span>Plan</span></div>
     </div>
-    <div class="debt-page-grid" id="debtPage"></div>
+    <div class="debt-page-grid" id="debtPage">
+      <div class="mina-card" style="animation:none">
+        <div class="mina-avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">M</div>
+        <div style="flex:1"><div class="mina-header"><span class="mina-name-label">MINA</span></div>
+        <div class="mina-message" style="font-size:14px">Loading your debt plan...</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- PAYDAY PAGE -->
   <div class="page" id="page-payday">
     <div class="page-header">
-      <div class="page-eyebrow">Mina's guide for your next payday</div>
+      <div class="page-eyebrow">Your monthly picture</div>
       <div class="page-title">Cash Flow <em>Plan</em></div>
     </div>
-    <div class="payday-page-grid" id="paydayPage"></div>
+    <div class="debt-page-grid" id="paydayPage">
+      <div class="mina-card" style="animation:none">
+        <div class="mina-avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">M</div>
+        <div style="flex:1"><div class="mina-header"><span class="mina-name-label">MINA</span></div>
+        <div class="mina-message" style="font-size:14px">Loading your cash flow plan...</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- GOALS PAGE -->
@@ -3406,7 +3418,11 @@ function showPage(page) {
     var mob = document.getElementById('mob-'+p);
     if(mob) mob.classList.toggle('active', p===page);
   });
-  if (page==='mina' && !chatReady) initChat();
+  // Re-render page content on every navigation to ensure fresh data
+  if(page === 'debt') { try { renderDebtPage(); } catch(e){ console.error(e); } }
+  if(page === 'payday') { try { renderPaydayPage(); } catch(e){ console.error(e); } }
+  if(page === 'goals') { try { loadGoals(); } catch(e){ console.error(e); } }
+  if(page === 'mina' && !chatReady) initChat();
   window.scrollTo(0,0);
 }
 
