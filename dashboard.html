@@ -3445,10 +3445,9 @@ Use conditional language: "may violate" not "violates" / "may constitute" not "c
 Distinguish collectors (FDCPA applies) from original creditors (different rules) when relevant.
 Never imply identical protections exist in all states or for all creditor types.
 
-After every letter say: "Copy this letter exactly as written. Print it, sign it by hand, and send it via certified mail with return receipt requested. Keep a copy for your records. Do not call them. Written delivery creates a legal record."
+After every letter say: "Copy this letter exactly as written. Print it, sign it by hand, and send it via certified mail with return receipt requested. Keep a copy for your records. Do not call them. Written delivery creates a legal record. Note: This letter is prepared for informational and educational purposes based on established consumer protection law. It does not constitute legal advice."
 
-Every letter ends with this disclaimer:
-"Note: This letter is prepared based on established consumer protection law for informational and educational purposes. It does not constitute legal advice."
+The note above appears in your chat message AFTER the letter — it does NOT appear inside the letter itself. The letter body must end cleanly with the user's name and nothing after it. No disclaimers, no app references, no footnotes inside the letter.
 
 Letters you write on demand:
 - Debt validation letter (citing FDCPA § 1692g)
@@ -3478,8 +3477,6 @@ Dear Sir or Madam,
 
 Sincerely,
 [Client name]
-
-Note: This letter is prepared based on established consumer protection law for informational and educational purposes. It does not constitute legal advice.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DOCUMENT ANALYSIS PROTOCOL
@@ -3808,21 +3805,10 @@ function generatePDF(structuredData, fullText) {
       prevBlank = false;
       checkPage(12);
 
-      // Note / Disclaimer block
+      // Note / Disclaimer — skip entirely for letters (belongs in chat, not in the document)
+      // For reports, render as a subtle grey block
       if (/^Note:|^Disclaimer:|^This (letter|document|template)/i.test(line)) {
-        y += 4;
-        var nLines = doc.splitTextToSize(sanitize(line), contentW - 10);
-        var nH = nLines.length * 5.5 + 10;
-        doc.setFillColor(248,248,248);
-        doc.rect(marginL, y-5, contentW, nH, 'F');
-        doc.setDrawColor(210,210,210);
-        doc.setLineWidth(0.3);
-        doc.rect(marginL, y-5, contentW, nH, 'S');
-        doc.setFont('helvetica','italic');
-        doc.setFontSize(8.5);
-        doc.setTextColor(110,110,110);
-        doc.text(nLines, marginL+5, y);
-        y += nH + 4;
+        // In letter mode: skip completely — the document must be clean
         return;
       }
 
@@ -3946,31 +3932,25 @@ function generatePDF(structuredData, fullText) {
     });
 
   } else {
-    // ── REPORT / PLAN LAYOUT ──
-    doc.setFillColor(12,15,26);
-    doc.rect(0,0,pageW,16,'F');
-    doc.setFillColor(0,180,150);
-    doc.rect(0,16,pageW,2,'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(12);
-    doc.setTextColor(255,255,255);
-    doc.text('Sum Goals', marginL, 11);
+    // ── REPORT / PLAN LAYOUT — clean, no app branding ──
+    y = 20;
     var dStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
     doc.setFont('helvetica','normal');
-    doc.setFontSize(8);
-    doc.text(dStr, pageW-marginR, 11, {align:'right'});
-    y = 26;
+    doc.setFontSize(9);
+    doc.setTextColor(150,150,150);
+    doc.text(dStr, pageW-marginR, y, {align:'right'});
+    y += 10;
 
     if(D.name){
       doc.setFont('helvetica','bold');
-      doc.setFontSize(11);
+      doc.setFontSize(13);
       doc.setTextColor(30,30,30);
-      doc.text(sanitize(D.name+' - Financial Plan'), marginL, y);
-      y += 2;
-      doc.setDrawColor(0,180,150);
-      doc.setLineWidth(0.5);
+      doc.text(sanitize(D.name+' — Financial Plan'), marginL, y);
+      y += 3;
+      doc.setDrawColor(200,200,200);
+      doc.setLineWidth(0.4);
       doc.line(marginL, y, pageW-marginR, y);
-      y += 8;
+      y += 9;
     }
 
     var rLines = (structuredData||'').split('\n');
@@ -4012,18 +3992,21 @@ function generatePDF(structuredData, fullText) {
     });
   }
 
-  // ── FOOTER — quiet, professional ──
+  // ── FOOTER ──
+  // Letters: no footer at all — completely clean for printing and sending
+  // Reports: minimal page number only, no branding
   var totalPages = doc.internal.getNumberOfPages();
   for(var pg=1;pg<=totalPages;pg++){
     doc.setPage(pg);
-    doc.setDrawColor(215,215,215);
-    doc.setLineWidth(0.2);
-    doc.line(marginL, pageH-13, pageW-marginR, pageH-13);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(6.5);
-    doc.setTextColor(160,160,160);
-    doc.text('Mina - Sum Goals  |  Educational guidance only. Not legal, financial, or tax advice.', marginL, pageH-7);
-    doc.text(pg+' / '+totalPages, pageW-marginR, pageH-7, {align:'right'});
+    if(!isLetter){
+      // Reports only — subtle page number
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7);
+      doc.setTextColor(180,180,180);
+      doc.text(pg+' / '+totalPages, pageW-marginR, pageH-7, {align:'right'});
+    }
+    // Letters: completely clean — no footer, no branding, no page numbers
+    // The letter must look professionally prepared, not app-generated
   }
 
   var fn = isLetter ?
@@ -4823,5 +4806,3 @@ init();
 </script>
 </body>
 </html>
-
-  
