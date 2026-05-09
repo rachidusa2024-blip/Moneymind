@@ -3781,8 +3781,10 @@ async function initChat() {
   var msgs = document.getElementById('chatMessages');
   msgs.innerHTML = '';
 
-  // Load conversation history from Supabase
+  // Load conversation history — try Supabase first, fall back to localStorage
   var historyLoaded = false;
+  var historyData = [];
+
   try {
     var r = await sb.from('chat_history')
       .select('role,content,created_at')
@@ -3791,12 +3793,28 @@ async function initChat() {
       .limit(60);
 
     if (r.data && r.data.length > 0) {
-      historyLoaded = true;
-      var lastDate = null;
+      historyData = r.data;
+    }
+  } catch(e) { console.log('Supabase history load error:', e); }
 
-      r.data.forEach(function(m) {
-        // Show date divider when day changes
-        var msgDate = new Date(m.created_at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  // If Supabase returned nothing, try localStorage backup
+  if (historyData.length === 0 && user) {
+    var lsKey = 'vera_chat_' + user.id;
+    try {
+      var lsData = JSON.parse(localStorage.getItem(lsKey) || '[]');
+      if(lsData.length > 0) historyData = lsData;
+    } catch(e) {}
+  }
+
+  if (historyData.length > 0) {
+    historyLoaded = true;
+    var lastDate = null;
+
+    historyData.forEach(function(m) {
+      try {
+        if(!m || !m.role || !m.content) return;
+        var ts = m.created_at ? new Date(m.created_at) : new Date();
+        var msgDate = ts.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
         if (msgDate !== lastDate) {
           var div = document.createElement('div');
           div.className = 'chat-history-date';
@@ -3809,30 +3827,29 @@ async function initChat() {
         var div2 = document.createElement('div');
         div2.className = 'msg ' + role;
 
-        var displayText = m.content
-          .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g, '[PDF plan — download available above]')
+        var displayText = String(m.content)
+          .replace(/\[PDF\][\s\S]*?\[\/PDF\]/g, '[PDF — download available above]')
           .replace(/\[EXCEL\][\s\S]*?\[\/EXCEL\]/g, '')
           .trim();
         div2.innerHTML = displayText.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
 
         var time = document.createElement('span');
         time.className = 'msg-time';
-        time.textContent = new Date(m.created_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        time.textContent = ts.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
         div2.appendChild(time);
         msgs.appendChild(div2);
 
-        chatHistory.push({role: m.role, content: m.content});
-      });
+        chatHistory.push({role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content});
+      } catch(itemErr) { console.log('Skipping bad history item:', itemErr); }
+    });
 
-      // Session divider before new messages
-      var newDiv = document.createElement('div');
-      newDiv.className = 'chat-session-divider';
-      newDiv.innerHTML = '<span class="chat-session-label">New session — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '</span>';
-      msgs.appendChild(newDiv);
-
-      msgs.scrollTop = msgs.scrollHeight;
-    }
-  } catch(e) { console.log('History load error:', e); }
+    // Session divider before new messages
+    var newDiv = document.createElement('div');
+    newDiv.className = 'chat-session-divider';
+    newDiv.innerHTML = '<span class="chat-session-label">New session — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '</span>';
+    msgs.appendChild(newDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
 
   // Show intro only if no history
   if (!historyLoaded) {
@@ -3931,12 +3948,24 @@ function addMsg(role, text, persist) {
 
   // Save to Supabase for persistence
   if (persist && user) {
-    sb.from('chat_history').insert([{
+    var msgObj = {
       user_id: user.id,
       role: dbRole,
       content: text,
       created_at: new Date().toISOString()
-    }]).then(function(){}).catch(function(){});
+    };
+    sb.from('chat_history').insert([msgObj])
+      .then(function(){})
+      .catch(function(){ /* table may not exist yet — localStorage backup covers this */ });
+
+    // Always save to localStorage as backup (survives signout)
+    var lsKey = 'vera_chat_' + user.id;
+    var stored = [];
+    try { stored = JSON.parse(localStorage.getItem(lsKey) || '[]'); } catch(e){}
+    stored.push(msgObj);
+    // Keep last 80 messages
+    if(stored.length > 80) stored = stored.slice(-80);
+    try { localStorage.setItem(lsKey, JSON.stringify(stored)); } catch(e){}
   }
 }
 
@@ -4495,17 +4524,31 @@ async function sendMsg() {
 
   try {
     var session = await sb.auth.getSession();
+    if(!session.data.session) {
+      removeTyping();
+      addMsg('mina', 'Your session has expired. Please sign in again.');
+      return;
+    }
     var res = await fetch('/api/chat', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.data.session.access_token},
       body:JSON.stringify({message:msg, history:chatHistory.slice(-14), systemPrompt:systemPrompt})
     });
+    if(!res.ok) {
+      var errText = await res.text().catch(function(){return 'Unknown error';});
+      removeTyping();
+      addMsg('mina', 'Something went wrong ('+res.status+'). Please try again. If this keeps happening, check your internet connection.');
+      console.error('API error:', res.status, errText);
+      btn.disabled = false;
+      return;
+    }
     var data = await res.json();
     removeTyping();
     addMsg('mina', data.response || data.message || 'Something went wrong. Please try again.');
   } catch(e) {
     removeTyping();
-    addMsg('mina', 'I am having trouble connecting right now. Please try again in a moment.');
+    addMsg('mina', 'Connection error: ' + (e.message || 'Please check your internet and try again.'));
+    console.error('sendMsg error:', e);
   }
   btn.disabled = false;
 }
