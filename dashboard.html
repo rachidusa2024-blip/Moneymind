@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Sum Goals</title>
+<title>Overview — Sum Goals</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -114,6 +114,33 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
 
 /* Rename health score sidebar */
 .sb-score-label{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim)}
+
+/* LAST UPDATED + UPDATE PLAN */
+.sb-last-updated{padding:6px 12px;margin-bottom:4px}
+.sb-updated-text{font-size:10px;color:var(--dim);margin-bottom:5px;font-style:italic}
+.sb-update-btn{width:100%;padding:9px 12px;background:var(--teal-dim);border:1.5px solid var(--teal-border);border-radius:8px;color:var(--teal);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.18s;text-align:center}
+.sb-update-btn:hover{background:var(--teal);color:#0C0F1A}
+
+/* TRUST LINE */
+.sb-trust-line{font-size:10px;color:var(--dim);text-align:center;padding:6px 12px;letter-spacing:0.06em;font-style:italic}
+
+/* UPDATE MODAL */
+.update-overlay{position:fixed;inset:0;background:rgba(12,15,26,0.9);backdrop-filter:blur(18px);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.update-overlay.on{display:flex;animation:fadeIn 0.2s ease}
+.update-modal{background:var(--surface);border:1px solid var(--gold-border);border-radius:20px;padding:28px;width:100%;max-width:400px;position:relative}
+.update-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--teal),transparent);border-radius:2px}
+.um-av{width:40px;height:40px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:17px;font-style:italic;color:var(--gold);font-weight:700;margin-bottom:14px}
+.um-title{font-family:var(--font-h);font-size:20px;font-style:italic;color:var(--white);margin-bottom:5px}
+.um-sub{font-size:12px;color:var(--dim);margin-bottom:18px;line-height:1.55}
+.um-options{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.um-opt{padding:12px 15px;background:var(--surface2);border:1.5px solid var(--bord);border-left:3px solid transparent;border-radius:10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all 0.15s;text-align:left;font-family:var(--font-b);width:100%}
+.um-opt:hover{border-color:var(--bord-lit);border-left-color:var(--teal);color:var(--white)}
+.um-opt.selected{border-color:var(--teal-border);border-left-color:var(--teal);background:var(--teal-dim);color:var(--white)}
+.um-actions{display:flex;gap:9px}
+.um-confirm{flex:1;padding:11px;background:var(--teal);color:#0C0F1A;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.18s}
+.um-confirm:hover{background:var(--teal-d)}
+.um-cancel{padding:11px 16px;background:transparent;border:1.5px solid var(--bord);border-radius:9px;color:var(--dim);font-size:13px;cursor:pointer;font-family:var(--font-b);transition:all 0.18s}
+.um-cancel:hover{border-color:var(--bord-lit);color:var(--muted)}
 
 /* Mina avatar dot */
 .mina-avatar { position:relative; }
@@ -1012,7 +1039,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     <div class="sb-section-label">Navigation</div>
     <div class="sb-item active" id="nav-dashboard" onclick="showPage('dashboard')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">01</div>
-      <div class="sb-item-label">Dashboard</div>
+      <div class="sb-item-label">Overview</div>
     </div>
     <div class="sb-item" id="nav-mina" onclick="showPage('mina')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">02</div>
@@ -1020,11 +1047,11 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
     </div>
     <div class="sb-item" id="nav-debt" onclick="showPage('debt')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">03</div>
-      <div class="sb-item-label">Debt Countdown</div>
+      <div class="sb-item-label">Debt Plan</div>
     </div>
     <div class="sb-item" id="nav-payday" onclick="showPage('payday')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">04</div>
-      <div class="sb-item-label">Payday Plan</div>
+      <div class="sb-item-label">Cash Flow Plan</div>
     </div>
     <div class="sb-item" id="nav-goals" onclick="showPage('goals')">
       <div class="sb-icon" style="font-family:var(--font-h);font-style:italic;font-size:13px;color:inherit">05</div>
@@ -1052,6 +1079,13 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
         <div class="sb-health-score" id="sbScoreLabel">Complete setup</div>
       </div>
     </div>
+    <!-- LAST UPDATED -->
+    <div class="sb-last-updated" id="sbLastUpdated" style="display:none">
+      <div class="sb-updated-text" id="sbUpdatedText">Plan updated today</div>
+      <button class="sb-update-btn" onclick="openUpdateModal()" id="updatePlanBtn">Update my plan</button>
+    </div>
+    <!-- TRUST LINE -->
+    <div class="sb-trust-line">Private. Secure. Yours.</div>
     <div class="sb-user">
       <div class="sb-avatar" id="sbAvatar">?</div>
       <div class="sb-user-info">
@@ -1059,7 +1093,6 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
         <div class="sb-user-email" id="sbEmail"></div>
       </div>
     </div>
-    <button class="sb-signout" style="margin-bottom:6px;border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)" onclick="manualSync()" id="syncBtn">Sync my profile</button>
     <button class="sb-signout" onclick="signOut()">Sign out</button>
   </div>
 </aside>
@@ -1319,7 +1352,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   <div class="page" id="page-payday">
     <div class="page-header">
       <div class="page-eyebrow">Mina's guide for your next payday</div>
-      <div class="page-title">Payday <em>Survival Plan</em></div>
+      <div class="page-title">Cash Flow <em>Plan</em></div>
     </div>
     <div class="payday-page-grid" id="paydayPage"></div>
   </div>
@@ -1355,6 +1388,20 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <button onclick="openGoalModal()" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b)">Add a goal</button>
     </div>
   </div>
+
+<!-- UPDATE MY PLAN MODAL -->
+<div class="update-overlay" id="updateOverlay">
+  <div class="update-modal">
+    <div class="um-av">M</div>
+    <div class="um-title" id="umTitle">Has anything changed?</div>
+    <div class="um-sub" id="umSub">Select what has changed and I will recalculate your plan.</div>
+    <div class="um-options" id="umOptions"></div>
+    <div class="um-actions">
+      <button class="um-cancel" onclick="closeUpdateModal()" id="umCancel">Cancel</button>
+      <button class="um-confirm" onclick="confirmUpdate()" id="umConfirm">Update my plan</button>
+    </div>
+  </div>
+</div>
 
 <!-- WINS MODAL -->
 <div class="win-overlay" id="winOverlay">
@@ -1436,7 +1483,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
   <div class="mob-item active" id="mob-dashboard" onclick="showPage('dashboard')"><div class="mob-dot"></div>Home</div>
   <div class="mob-item" id="mob-mina" onclick="showPage('mina')"><div class="mob-dot"></div>Mina</div>
   <div class="mob-item" id="mob-debt" onclick="showPage('debt')"><div class="mob-dot"></div>Debt</div>
-  <div class="mob-item" id="mob-payday" onclick="showPage('payday')"><div class="mob-dot"></div>Payday</div>
+  <div class="mob-item" id="mob-payday" onclick="showPage('payday')"><div class="mob-dot"></div>Cash Flow</div>
   <div class="mob-item" id="mob-goals" onclick="showPage('goals')"><div class="mob-dot"></div>Goals</div>
 </div>
 
@@ -1837,6 +1884,9 @@ function renderAll() {
   // Mina briefing
   renderMinaBriefing(hasData);
 
+  // Last updated display
+  renderLastUpdated();
+
   // New dashboard sections
   renderWeekCard();
   renderWinsCard();
@@ -1859,7 +1909,151 @@ function renderAll() {
   renderPaydayPage();
 }
 
-// ── NEXT 7 DAYS ───────────────────────────────────────────────────────────────
+// ── UPDATE MY PLAN MODAL ──────────────────────────────────────────────────────
+var selectedUpdates = [];
+
+function openUpdateModal() {
+  var lang = D.lang || 'en';
+  selectedUpdates = [];
+
+  var opts = {
+    en:[
+      {id:'income', t:'My income changed'},
+      {id:'debt', t:'I added or paid down debt'},
+      {id:'letter', t:'I received a new letter or notice'},
+      {id:'expenses', t:'My monthly expenses changed'},
+      {id:'savings', t:'My savings changed'},
+      {id:'upload', t:'I want to upload a document'},
+      {id:'refresh', t:'Nothing changed — just refresh my plan'}
+    ],
+    es:[
+      {id:'income', t:'Mis ingresos cambiaron'},
+      {id:'debt', t:'Agregué o pagué una deuda'},
+      {id:'letter', t:'Recibí una nueva carta o aviso'},
+      {id:'expenses', t:'Mis gastos mensuales cambiaron'},
+      {id:'savings', t:'Mis ahorros cambiaron'},
+      {id:'upload', t:'Quiero subir un documento'},
+      {id:'refresh', t:'Nada cambió — solo actualiza mi plan'}
+    ]
+  };
+
+  var options = (opts[lang] || opts.en);
+  var titles = {en:'Has anything changed?', es:'¿Ha cambiado algo?'};
+  var subs = {en:'Select what has changed and I will recalculate your plan.', es:'Selecciona qué cambió y recalcularé tu plan.'};
+  var confirms = {en:'Update my plan', es:'Actualizar mi plan'};
+  var cancels = {en:'Cancel', es:'Cancelar'};
+
+  var umTitle = document.getElementById('umTitle');
+  var umSub = document.getElementById('umSub');
+  var umConfirm = document.getElementById('umConfirm');
+  var umCancel = document.getElementById('umCancel');
+  if(umTitle) umTitle.textContent = titles[lang]||titles.en;
+  if(umSub) umSub.textContent = subs[lang]||subs.en;
+  if(umConfirm) umConfirm.textContent = confirms[lang]||confirms.en;
+  if(umCancel) umCancel.textContent = cancels[lang]||cancels.en;
+
+  var optEl = document.getElementById('umOptions');
+  if(optEl) {
+    optEl.innerHTML = options.map(function(o) {
+      return '<button class="um-opt" data-id="'+o.id+'" onclick="toggleUpdateOpt(this,\''+o.id+'\')">' + o.t + '</button>';
+    }).join('');
+  }
+
+  var overlay = document.getElementById('updateOverlay');
+  if(overlay) overlay.classList.add('on');
+}
+
+function toggleUpdateOpt(el, id) {
+  el.classList.toggle('selected');
+  var idx = selectedUpdates.indexOf(id);
+  if(idx > -1) selectedUpdates.splice(idx, 1); else selectedUpdates.push(id);
+}
+
+function closeUpdateModal() {
+  var overlay = document.getElementById('updateOverlay');
+  if(overlay) overlay.classList.remove('on');
+  selectedUpdates = [];
+}
+
+function confirmUpdate() {
+  closeUpdateModal();
+  var lang = D.lang || 'en';
+
+  // If they want to upload, open file picker
+  if(selectedUpdates.includes('upload')) {
+    var fileInput = document.getElementById('docFileInput');
+    if(fileInput) fileInput.click();
+  }
+
+  // Save updated timestamp
+  localStorage.setItem('vera_plan_updated', new Date().toISOString());
+  renderLastUpdated();
+
+  // Build a specific prompt for Mina based on what changed
+  if(selectedUpdates.length > 0 && !selectedUpdates.includes('refresh') && !selectedUpdates.includes('upload')) {
+    var changeLabels = {
+      en:{income:'income', debt:'debt balances', letter:'a new notice or letter', expenses:'monthly expenses', savings:'savings'},
+      es:{income:'ingresos', debt:'saldos de deuda', letter:'un nuevo aviso o carta', expenses:'gastos mensuales', savings:'ahorros'}
+    };
+    var l = changeLabels[lang] || changeLabels.en;
+    var changes = selectedUpdates.filter(function(s){return s!=='refresh'&&s!=='upload';}).map(function(s){return l[s]||s;}).join(', ');
+    var prompt = lang==='es' ?
+      'Actualicé la siguiente información: '+changes+'. ¿Puedes recalcular mi plan con estos cambios?' :
+      'I have updated the following: '+changes+'. Can you recalculate my plan based on these changes?';
+    showPage('mina');
+    setTimeout(function(){usePrompt(prompt);}, 400);
+  } else {
+    // Just refresh - re-render dashboard
+    renderAll();
+  }
+}
+
+// ── LAST UPDATED ──────────────────────────────────────────────────────────────
+function renderLastUpdated() {
+  var lang = D.lang || 'en';
+  var wrap = document.getElementById('sbLastUpdated');
+  var textEl = document.getElementById('sbUpdatedText');
+  var btn = document.getElementById('updatePlanBtn');
+
+  if(!wrap) return;
+
+  var stored = localStorage.getItem('vera_plan_updated') || localStorage.getItem('vera_synced_at');
+  var dateText = '';
+  if(stored) {
+    var d = new Date(stored);
+    var now = new Date();
+    var diffDays = Math.floor((now - d) / (1000*60*60*24));
+    if(diffDays === 0) dateText = lang==='es' ? 'Plan actualizado hoy' : 'Plan updated today';
+    else if(diffDays === 1) dateText = lang==='es' ? 'Plan actualizado ayer' : 'Plan updated yesterday';
+    else dateText = lang==='es' ? 'Plan actualizado hace '+diffDays+' días' : 'Plan updated '+diffDays+' days ago';
+  } else {
+    dateText = lang==='es' ? 'Plan pendiente de actualización' : 'Plan not yet updated';
+  }
+
+  if(textEl) textEl.textContent = dateText;
+  if(btn) btn.textContent = lang==='es' ? 'Actualizar mi plan' : 'Update my plan';
+  wrap.style.display = 'block';
+}
+
+// ── MINA MEMORY CONTEXT for natural briefing ──────────────────────────────────
+function buildMemoryContext() {
+  // Build a natural memory context string for Mina's briefing
+  var parts = [];
+  var stored = localStorage.getItem('vera_plan_updated');
+  if(stored) {
+    var d = new Date(stored);
+    var diffDays = Math.floor((new Date() - d) / (1000*60*60*24));
+    if(diffDays > 0) parts.push('last seen ' + diffDays + (diffDays===1?' day':' days') + ' ago');
+  }
+  var wins = [];
+  try { wins = JSON.parse(localStorage.getItem('vera_wins')||'[]'); } catch(e){}
+  if(wins.length > 0) parts.push(wins.length + ' step'+(wins.length>1?'s':'') + ' completed');
+  var weekDone = {};
+  try { weekDone = JSON.parse(localStorage.getItem('vera_week_done')||'{}'); } catch(e){}
+  var doneCount = Object.values(weekDone).filter(Boolean).length;
+  if(doneCount > 0) parts.push(doneCount + ' weekly action'+(doneCount>1?'s':'') + ' checked off');
+  return parts.join(' · ');
+}
 var weekItems = [];
 
 function renderWeekCard() {
@@ -2549,23 +2743,38 @@ function renderMinaBriefing(hasData) {
     }
 
   } else {
-    // ── RETURNING USER — check what changed ───────────────────────────────
+    // ── RETURNING USER — reference memory naturally ────────────────────────
     var lastScore = parseInt(localStorage.getItem('vera_last_score') || '0');
-    var lastAvail = parseFloat(localStorage.getItem('vera_last_avail') || '0');
+    var wins = [];
+    try { wins = JSON.parse(localStorage.getItem('vera_wins')||'[]'); } catch(e){}
+    var stored = localStorage.getItem('vera_plan_updated');
+    var daysSince = stored ? Math.floor((new Date() - new Date(stored)) / (1000*60*60*24)) : 0;
 
     msg = greet + ', <strong>' + firstName + '.</strong> ';
 
-    if (lastScore > 0 && D.score > lastScore + 2) {
-      msg += t.return_improved + ' ';
-    } else if (lastScore > 0 && D.score < lastScore - 2) {
-      msg += t.return_worse + ' ';
-    } else if (lastScore > 0) {
-      msg += t.return_same + ' ';
-    } else {
-      msg += t.return_default + ' ';
+    // Natural memory reference based on what we know
+    if(wins.length > 0) {
+      var lastWin = wins[wins.length-1];
+      if(lang==='es') {
+        msg += 'La última vez completaste: ' + lastWin.text + '. ';
+      } else {
+        msg += 'Last time you completed: ' + lastWin.text + '. ';
+      }
+    } else if(daysSince > 2) {
+      if(lang==='es') {
+        msg += 'Han pasado ' + daysSince + ' días desde tu última visita. ';
+      } else {
+        msg += 'It has been ' + daysSince + ' day' + (daysSince===1?'':'s') + ' since your last visit. ';
+      }
     }
 
-    // Current state
+    if (lastScore > 0 && D.score > lastScore + 2) {
+      msg += (lang==='es' ? 'Tu situación ha mejorado. ' : 'Your situation has improved. ');
+    } else if (lastScore > 0 && D.score < lastScore - 2) {
+      msg += (lang==='es' ? 'Hay algo que revisar desde tu última visita. ' : 'There is something worth reviewing since your last visit. ');
+    }
+
+    // Current numbers
     if (D.avail < 0) {
       msg += t.deficit.replace('{0}', s + Math.abs(Math.round(D.avail)).toLocaleString()) + ' ';
     } else if (D.avail > 0) {
@@ -2578,8 +2787,7 @@ function renderMinaBriefing(hasData) {
       msg += t.debt_free.replace('{0}', mo) + ' ';
     }
 
-    msg += t.ask;
-  }
+    msg += (lang==='es' ? 'Has anything changed since we last spoke?' : 'Has anything changed since we last spoke?') + ' ' + t.ask;
 
   // Save current state for next visit comparison
   localStorage.setItem('vera_last_score', D.score || 0);
@@ -4423,8 +4631,10 @@ async function manualSync() {
     }));
     if(D.debts&&D.debts.length>0) localStorage.setItem('vera_debts',JSON.stringify(D.debts));
     localStorage.setItem('vera_synced','1');
+    localStorage.setItem('vera_plan_updated', new Date().toISOString());
+    renderLastUpdated();
 
-    if(btn){ btn.textContent='Synced'; setTimeout(function(){btn.textContent='Sync my profile';btn.disabled=false;},2000); }
+    if(btn){ btn.textContent='Updated'; setTimeout(function(){btn.textContent='Update my plan';btn.disabled=false;},2000); }
     console.log('Manual sync complete');
   } catch(e) {
     console.log('Sync error:', e);
