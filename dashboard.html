@@ -41,7 +41,79 @@
 html { scroll-behavior:smooth; }
 body { background:var(--bg); color:var(--white); font-family:var(--font-b); font-size:14px; line-height:1.6; overflow-x:hidden; min-height:100vh; }
 
-/* ── NEW DASHBOARD COMPONENTS ── */
+/* ── NEW DASHBOARD v2 COMPONENTS ── */
+
+/* WEEK CARD */
+.week-card{background:var(--surface);border:1px solid var(--bord);border-radius:16px;padding:20px 22px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.35s both}
+.week-header{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.week-title{font-family:var(--font-h);font-size:17px;font-style:italic;color:var(--white);font-weight:600}
+.week-sub{font-size:12px;color:var(--dim)}
+.week-list{display:flex;flex-direction:column;gap:7px}
+.week-item{display:flex;align-items:flex-start;gap:11px;padding:10px 12px;background:var(--surface2);border-radius:10px;cursor:pointer;transition:all 0.16s;border:1px solid transparent}
+.week-item:hover{border-color:var(--teal-border);background:rgba(0,201,167,0.04)}
+.week-item.done{opacity:0.55}
+.week-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--dim);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.14s;cursor:pointer}
+.week-item.done .week-check{background:var(--teal);border-color:var(--teal)}
+.week-item-text{font-size:13px;color:var(--muted);line-height:1.45;flex:1}
+.week-item.done .week-item-text{text-decoration:line-through;color:var(--dim)}
+.week-why{font-size:10px;color:var(--dim);margin-top:2px;font-style:italic}
+
+/* SMALL WINS */
+.wins-card{background:var(--surface);border:1px solid var(--bord);border-radius:16px;padding:20px 22px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.45s both}
+.wins-header{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.wins-title{font-family:var(--font-h);font-size:17px;font-style:italic;color:var(--white);font-weight:600}
+.wins-sub{font-size:12px;color:var(--dim)}
+.wins-list{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.win-item{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(0,201,167,0.05);border:1px solid rgba(0,201,167,0.12);border-radius:9px}
+.win-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.win-text{font-size:13px;color:var(--soft);flex:1}
+.win-date{font-size:10px;color:var(--dim);white-space:nowrap}
+.wins-empty{font-size:13px;color:var(--dim);font-style:italic;padding:8px 0}
+.wins-add{background:transparent;border:1.5px dashed rgba(255,255,255,0.08);border-radius:9px;color:var(--dim);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-b);transition:all 0.17s;padding:9px 14px;width:100%}
+.wins-add:hover{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
+
+/* WINS MODAL */
+.win-overlay{position:fixed;inset:0;background:rgba(12,15,26,0.88);backdrop-filter:blur(16px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.win-overlay.on{display:flex}
+.win-modal{background:var(--surface);border:1px solid var(--gold-border);border-radius:18px;padding:28px;width:100%;max-width:380px}
+.win-modal-title{font-family:var(--font-h);font-size:20px;font-style:italic;color:var(--white);margin-bottom:16px}
+.win-options{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.win-opt{padding:12px 15px;background:var(--surface2);border:1.5px solid var(--bord);border-radius:10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all 0.15s;text-align:left;font-family:var(--font-b)}
+.win-opt:hover{border-color:var(--teal-border);color:var(--white);background:var(--teal-dim)}
+.win-cancel{width:100%;padding:10px;background:transparent;border:none;color:var(--dim);font-size:13px;cursor:pointer;font-family:var(--font-b);transition:color 0.16s}
+.win-cancel:hover{color:var(--muted)}
+
+/* PREPARE BEFORE YOU CALL */
+.prep-card{background:var(--surface);border:1px solid var(--bord);border-radius:16px;padding:20px 22px;margin-bottom:20px;animation:fadeUp 0.5s ease 0.5s both}
+.prep-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.prep-title{font-family:var(--font-h);font-size:17px;font-style:italic;color:var(--white);font-weight:600}
+.prep-sub{font-size:12px;color:var(--dim);margin-top:2px}
+.prep-expand{background:none;border:none;color:var(--dim);cursor:pointer;padding:4px;transition:all 0.18s;display:flex;align-items:center}
+.prep-expand:hover{color:var(--teal)}
+.prep-expand.open{transform:rotate(180deg);color:var(--teal)}
+.prep-body{margin-top:16px}
+.prep-scenarios{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.prep-scenario{padding:7px 14px;border-radius:20px;border:1.5px solid var(--bord);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all 0.16s}
+.prep-scenario.on{border-color:var(--teal-border);background:var(--teal-dim);color:var(--teal)}
+.prep-scenario:hover{border-color:var(--bord-lit);color:var(--muted)}
+.prep-content{background:var(--surface2);border-radius:12px;padding:16px;margin-bottom:12px}
+.prep-section{margin-bottom:14px}
+.prep-section:last-child{margin-bottom:0}
+.prep-section-title{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.prep-items{display:flex;flex-direction:column;gap:5px}
+.prep-item{font-size:13px;color:var(--muted);padding-left:14px;position:relative;line-height:1.5}
+.prep-item::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.prep-warn{font-size:12px;color:var(--gold);background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.18);border-radius:8px;padding:10px 12px;margin-top:10px;line-height:1.55}
+.prep-ask{width:100%;padding:11px;background:var(--teal);color:#0C0F1A;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:all 0.18s}
+.prep-ask:hover{background:var(--teal-d);transform:translateY(-1px)}
+
+/* CONTROL NOTE */
+.control-note{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(255,255,255,0.02);border:1px solid var(--bord);border-radius:10px;margin-bottom:20px}
+.control-note svg{color:var(--dim);flex-shrink:0}
+.control-note span{font-size:12px;color:var(--dim);line-height:1.5;font-style:italic}
+
+/* Rename health score sidebar */
+.sb-score-label{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim)}
 
 /* Mina avatar dot */
 .mina-avatar { position:relative; }
@@ -976,7 +1048,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
         <div class="sb-health-num" id="sbScoreNum">—</div>
       </div>
       <div class="sb-health-info">
-        <div class="sb-health-label">Health Score</div>
+        <div class="sb-health-label">Financial Snapshot</div>
         <div class="sb-health-score" id="sbScoreLabel">Complete setup</div>
       </div>
     </div>
@@ -1015,38 +1087,37 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <button class="btn-setup" onclick="window.location.href='/onboarding.html'">Complete setup →</button>
     </div>
 
-    <!-- MINA BRIEFING — the emotional center -->
+    <!-- MINA BRIEFING -->
     <div class="mina-card" id="minaCard">
       <div class="mina-avatar">M<div class="mina-av-dot"></div></div>
       <div style="flex:1;min-width:0">
         <div class="mina-header">
-          <span class="mina-name-label">MINA — YOUR COACH</span>
+          <span class="mina-name-label">MINA — YOUR GUIDE</span>
           <div class="mina-status"><div class="mina-dot"></div><span id="minaStatusText">Active now</span></div>
         </div>
-        <div class="mina-message" id="minaBriefing">Analyzing your situation...</div>
+        <div class="mina-message" id="minaBriefing">Reviewing your situation...</div>
       </div>
       <button class="btn-talk-mina" onclick="showPage('mina')">Talk to Mina →</button>
     </div>
 
-    <!-- SITUATION BANNER — shown for urgent situations -->
+    <!-- SITUATION NOTICE — calm, not alarming -->
     <div class="situation-banner" id="situationBanner" style="display:none">
-      <div class="sb-icon" id="sbIcon">⚡</div>
       <div class="sb-body">
-        <div class="sb-title" id="sbTitle">You have an active legal situation</div>
-        <div class="sb-text" id="sbText">Mina has prepared your immediate action steps. Talk to her now.</div>
+        <div class="sb-title" id="sbTitle">There may be time-sensitive steps in your situation</div>
+        <div class="sb-text" id="sbText">Mina has identified some steps worth reviewing based on what you shared.</div>
       </div>
-      <button class="sb-btn" onclick="showPage('mina')">See action steps →</button>
+      <button class="sb-btn" onclick="showPage('mina')">Review with Mina →</button>
     </div>
 
-    <!-- DOCUMENT UPLOAD — the most important feature -->
+    <!-- DOCUMENT UPLOAD -->
     <div class="doc-upload-card" id="docUploadCard">
       <div class="du-left">
         <div class="du-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
         </div>
         <div>
-          <div class="du-title" id="duTitle">Upload a document — Mina reads it instantly</div>
-          <div class="du-sub" id="duSub">Collection letter · Medical bill · Court summons · IRS notice · Loan agreement</div>
+          <div class="du-title" id="duTitle">Upload a document — Mina explains what it means</div>
+          <div class="du-sub" id="duSub">Collection letter · Medical bill · Court notice · IRS notice · Loan agreement</div>
         </div>
       </div>
       <div class="du-right">
@@ -1055,7 +1126,7 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       </div>
     </div>
 
-    <!-- DOCUMENT ANALYSIS RESULT — shown after upload -->
+    <!-- DOCUMENT ANALYSIS RESULT -->
     <div class="doc-result-card" id="docResultCard" style="display:none">
       <div class="dr-header">
         <div class="dr-title-row">
@@ -1065,99 +1136,144 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
         <button class="dr-close" onclick="closeDocResult()">×</button>
       </div>
       <div class="dr-body" id="drBody">
-        <div class="dr-loading">
-          <div class="dr-spinner"></div>
-          <div class="dr-loading-text" id="drLoadingText">Analyzing every line...</div>
-        </div>
+        <div class="dr-loading"><div class="dr-spinner"></div><div class="dr-loading-text" id="drLoadingText">Reading your document...</div></div>
       </div>
       <div class="dr-actions" id="drActions" style="display:none">
-        <button class="dr-action-btn teal" onclick="askMinaAboutDoc()" id="drAskBtn">Ask Mina about this document →</button>
+        <button class="dr-action-btn teal" onclick="askMinaAboutDoc()" id="drAskBtn">Discuss this with Mina →</button>
         <button class="dr-action-btn" onclick="document.getElementById('docFileInput').click()">Upload another</button>
       </div>
     </div>
 
-    <!-- THREE PRIORITY CARDS -->
+    <!-- NEXT 7 DAYS — new section -->
+    <div class="week-card" id="weekCard" style="display:none">
+      <div class="week-header">
+        <div class="week-title" id="weekTitle">Your next 7 days</div>
+        <div class="week-sub" id="weekSub">A few focused steps — nothing overwhelming</div>
+      </div>
+      <div class="week-list" id="weekList"></div>
+    </div>
+
+    <!-- THREE PRIORITY CARDS — calmer language -->
     <div class="priority-grid" id="priorityGrid">
 
-      <!-- YOUR RIGHTS -->
+      <!-- PROTECTIONS -->
       <div class="priority-card rights-card" id="rightsCard">
-        <div class="pc-eyebrow" id="pcRightsLabel">Your rights right now</div>
-        <div class="pc-title" id="pcRightsTitle">You have more power than they want you to know.</div>
-        <div class="pc-body" id="pcRightsBody">Loading your rights...</div>
-        <button class="pc-btn" onclick="showPage('mina');usePrompt('What are my legal rights in my current debt situation? What can collectors legally do and not do?')" id="pcRightsBtn">See my rights →</button>
+        <div class="pc-eyebrow" id="pcRightsLabel">Protections worth knowing</div>
+        <div class="pc-title" id="pcRightsTitle">Understanding your rights can help you respond with confidence.</div>
+        <div class="pc-body" id="pcRightsBody">Loading...</div>
+        <button class="pc-btn" onclick="showPage('mina');usePrompt('Based on my situation, what consumer protections and rights apply to me? Please explain them clearly.')" id="pcRightsBtn">Learn more →</button>
       </div>
 
-      <!-- IMMEDIATE ACTION -->
+      <!-- NEXT STEP -->
       <div class="priority-card action-card" id="actionCard">
-        <div class="pc-eyebrow" id="pcActionLabel">What to do this week</div>
-        <div class="pc-title" id="pcActionTitle">One action that changes everything.</div>
-        <div class="pc-body" id="pcActionBody">Loading your action step...</div>
-        <button class="pc-btn" onclick="showPage('mina');usePrompt('What is the single most important action I should take this week to improve my debt situation?')" id="pcActionBtn">Get the step →</button>
+        <div class="pc-eyebrow" id="pcActionLabel">One important step this week</div>
+        <div class="pc-title" id="pcActionTitle">One focused action based on your situation.</div>
+        <div class="pc-body" id="pcActionBody">Loading...</div>
+        <button class="pc-btn" onclick="showPage('mina');usePrompt('What is the most important step I should take this week based on my situation? Be specific.')" id="pcActionBtn">Talk to Mina →</button>
       </div>
 
-      <!-- LETTERS READY -->
+      <!-- COMMUNICATION TEMPLATES -->
       <div class="priority-card letters-card" id="lettersCard">
-        <div class="pc-eyebrow" id="pcLettersLabel">Letters Mina can write for you</div>
-        <div class="pc-title" id="pcLettersTitle">Real documents. Ready to send.</div>
-        <div class="pc-body" id="pcLettersBody">Loading your letter options...</div>
-        <button class="pc-btn" onclick="showPage('mina');usePrompt('What letters should I send right now based on my situation? Please write the most urgent one.')" id="pcLettersBtn">Write a letter →</button>
+        <div class="pc-eyebrow" id="pcLettersLabel">Communication templates</div>
+        <div class="pc-title" id="pcLettersTitle">Prepared templates based on your situation.</div>
+        <div class="pc-body" id="pcLettersBody">Loading...</div>
+        <button class="pc-btn" onclick="showPage('mina');usePrompt('What written communications would be most useful in my situation right now? Please prepare the most relevant one.')" id="pcLettersBtn">Prepare a letter →</button>
       </div>
 
     </div>
 
-    <!-- NUMBERS SECTION — secondary, not primary -->
+    <!-- SMALL WINS — new section -->
+    <div class="wins-card" id="winsCard" style="display:none">
+      <div class="wins-header">
+        <div class="wins-title" id="winsTitle">Progress</div>
+        <div class="wins-sub" id="winsSub">Steps completed and control regained</div>
+      </div>
+      <div class="wins-list" id="winsList"></div>
+      <button class="wins-add" onclick="addWin()" id="winsAdd">Mark a step as complete</button>
+    </div>
+
+    <!-- PREPARE BEFORE YOU CALL — new section -->
+    <div class="prep-card" id="prepCard" style="display:none">
+      <div class="prep-header">
+        <div>
+          <div class="prep-title" id="prepTitle">Before you make a call</div>
+          <div class="prep-sub" id="prepSub">Prepare calmly before speaking with collectors, hospitals, or the IRS</div>
+        </div>
+        <button class="prep-expand" onclick="togglePrep()" id="prepExpandBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      <div class="prep-body" id="prepBody" style="display:none">
+        <div class="prep-scenarios">
+          <button class="prep-scenario on" onclick="setPrep('collector',this)" id="prepCollector">Debt collector</button>
+          <button class="prep-scenario" onclick="setPrep('hospital',this)" id="prepHospital">Hospital billing</button>
+          <button class="prep-scenario" onclick="setPrep('irs',this)" id="prepIRS">IRS</button>
+          <button class="prep-scenario" onclick="setPrep('creditor',this)" id="prepCreditor">Original creditor</button>
+        </div>
+        <div class="prep-content" id="prepContent"></div>
+        <button class="prep-ask" onclick="askMina_prep()" id="prepAsk">Ask Mina to help me prepare →</button>
+      </div>
+    </div>
+
+    <!-- YOUR NUMBERS -->
     <div class="numbers-section">
       <div class="ns-header">
-        <div class="ns-title" id="nsTitle">Your numbers</div>
+        <div class="ns-title" id="nsTitle">Financial Snapshot</div>
         <div class="ns-sub" id="nsSub">Updated from your profile</div>
       </div>
       <div class="numbers-grid">
         <div class="num-card">
           <div class="num-label" id="numL1">Monthly available</div>
           <div class="num-value" id="availVal">—</div>
-          <div class="num-sub" id="numS1">after all expenses</div>
+          <div class="num-sub" id="numS1">after essentials</div>
         </div>
         <div class="num-card">
-          <div class="num-label" id="numL2">Total debt</div>
+          <div class="num-label" id="numL2">Total debt tracked</div>
           <div class="num-value red" id="debtVal">—</div>
-          <div class="num-sub" id="numS2">being eliminated</div>
+          <div class="num-sub" id="numS2">in your plan</div>
         </div>
         <div class="num-card">
           <div class="num-label" id="numL3">Emergency fund</div>
           <div class="num-value gold" id="emergVal">—</div>
-          <div class="num-sub" id="numS3">months of protection</div>
+          <div class="num-sub" id="numS3">months of coverage</div>
         </div>
         <div class="num-card">
-          <div class="num-label" id="numL4">Debt free by</div>
+          <div class="num-label" id="numL4">Estimated payoff</div>
           <div class="num-value teal" id="debtFreeVal">—</div>
-          <div class="num-sub" id="numS4">following Mina's plan</div>
+          <div class="num-sub" id="numS4">following the plan</div>
         </div>
       </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
+    <!-- ASK MINA ABOUT -->
     <div class="quick-actions" id="quickActions">
-      <div class="qa-title" id="qaTitle">Talk to Mina about</div>
+      <div class="qa-title" id="qaTitle">Ask Mina about</div>
       <div class="qa-grid">
-        <div class="qa-item" onclick="showPage('mina');usePrompt('A debt collector is calling me. What are my rights and what should I say?')">
-          <div class="qa-label" id="qa1">Collector is calling me</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('A debt collector is contacting me. What are my rights and what are the best ways to respond?')">
+          <div class="qa-label" id="qa1">Responding to a collector</div>
         </div>
-        <div class="qa-item" onclick="showPage('mina');usePrompt('I received a court summons. What do I do and how much time do I have to respond?')">
-          <div class="qa-label" id="qa2">Court paperwork received</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('I received court paperwork. What does it mean and what are my options for responding?')">
+          <div class="qa-label" id="qa2">Understanding court paperwork</div>
         </div>
-        <div class="qa-item" onclick="showPage('mina');usePrompt('Can you write a cease and desist letter to stop collectors from contacting me?')">
-          <div class="qa-label" id="qa3">Write a cease and desist</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('Can you prepare a debt validation letter for me? I want to request written documentation of this debt.')">
+          <div class="qa-label" id="qa3">Requesting debt validation</div>
         </div>
-        <div class="qa-item" onclick="showPage('mina');usePrompt('I have a medical bill I cannot afford. What are my options and can you help me find errors in it?')">
-          <div class="qa-label" id="qa4">Medical bill help</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('I have a medical bill I cannot afford. What options do I have and how do I check it for errors?')">
+          <div class="qa-label" id="qa4">Medical bill options</div>
         </div>
-        <div class="qa-item" onclick="showPage('mina');usePrompt('What is the statute of limitations on my debt? Is my debt time-barred?')">
-          <div class="qa-label" id="qa5">Is my debt expired?</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('How long does a collector have to sue me in my state? What is the statute of limitations on my debt?')">
+          <div class="qa-label" id="qa5">Statute of limitations</div>
         </div>
-        <div class="qa-item" onclick="showPage('mina');usePrompt('How do I negotiate directly with a debt collector to settle for less? What should I say?')">
-          <div class="qa-label" id="qa6">Negotiate settlement</div>
+        <div class="qa-item" onclick="showPage('mina');usePrompt('How do I negotiate a settlement directly with a debt collector? What should I say and what should I avoid?')">
+          <div class="qa-label" id="qa6">Negotiating a settlement</div>
         </div>
       </div>
+    </div>
+
+    <!-- CONTROL NOTE — subtle, reassuring -->
+    <div class="control-note" id="controlNote">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span id="controlNoteText">Mina organizes your options and prepares communications — every decision stays with you.</span>
     </div>
 
   </div><!-- /page-dashboard -->
@@ -1239,6 +1355,15 @@ body { background:var(--bg); color:var(--white); font-family:var(--font-b); font
       <button onclick="openGoalModal()" style="background:var(--teal);color:#0C0F1A;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b)">Add a goal</button>
     </div>
   </div>
+
+<!-- WINS MODAL -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-modal">
+    <div class="win-modal-title" id="winModalTitle">What did you complete?</div>
+    <div class="win-options" id="winOptions"></div>
+    <button class="win-cancel" onclick="closeWinModal()" id="winCancel">Cancel</button>
+  </div>
+</div>
 
 </main>
 
@@ -1535,8 +1660,6 @@ async function loadAllData() {
         id: user.id,
         full_name: D.name,
         language: lsP.language||lsP.lang||'en',
-        currency: 'USD',
-        country: lsP.country||'us',
         situation: lsP.situation||'',
         previous_attempt: lsP.previous_attempt||'',
         monthly_income: lsP.monthly_income||0,
@@ -1555,7 +1678,6 @@ async function loadAllData() {
         total_savings: lsP.total_savings||0,
         emergency_fund: lsP.emergency_fund||0,
         credit_health: lsP.credit_health||'',
-        age_range: lsP.age_range||'',
         fears: lsFears.length>0?lsFears:null,
         goals: lsGoals.length>0?lsGoals:null,
         updated_at: new Date().toISOString()
@@ -1715,6 +1837,17 @@ function renderAll() {
   // Mina briefing
   renderMinaBriefing(hasData);
 
+  // New dashboard sections
+  renderWeekCard();
+  renderWinsCard();
+  renderPrepCard();
+
+  // Control note language
+  var cnEl = document.getElementById('controlNoteText');
+  if(cnEl) cnEl.textContent = lang==='es' ?
+    'Mina organiza tus opciones y prepara comunicaciones — cada decisión queda contigo.' :
+    'Mina organizes your options and prepares communications — every decision stays with you.';
+
   // New dashboard cards — the main experience
   renderDashboardCards();
 
@@ -1726,7 +1859,370 @@ function renderAll() {
   renderPaydayPage();
 }
 
-// ── DOCUMENT ANALYSIS ────────────────────────────────────────────────────────
+// ── NEXT 7 DAYS ───────────────────────────────────────────────────────────────
+var weekItems = [];
+
+function renderWeekCard() {
+  var lang = D.lang || 'en';
+  var sit = D.situation || 'plan';
+
+  // Generate week items based on situation
+  var weekBySit = {
+    collectors:{
+      en:[
+        {t:'Review all recent collection letters and note the agency name and account number',w:'Having this information ready reduces stress when Mina helps you respond'},
+        {t:'Decide whether to send a debt validation request before any payment discussions',w:'You have 30 days from first contact to request this in writing'},
+        {t:'Keep a log of any calls — date, time, what was said',w:'This creates a record if you later need to reference specific communications'},
+        {t:'Avoid making verbal payment commitments until you have reviewed the debt in writing',w:'Verbal agreements are harder to document and verify'},
+        {t:'Upload any letters you receive so Mina can review the language',w:''}
+      ],
+      es:[
+        {t:'Revisa todas las cartas de cobranza recientes y anota el nombre de la agencia y número de cuenta',w:'Tener esta información lista reduce el estrés cuando Mina te ayuda a responder'},
+        {t:'Decide si enviar una solicitud de validación de deuda antes de cualquier conversación de pago',w:'Tienes 30 días desde el primer contacto para solicitar esto por escrito'},
+        {t:'Lleva un registro de las llamadas — fecha, hora, lo que se dijo',w:''},
+        {t:'Evita hacer compromisos verbales de pago hasta que hayas revisado la deuda por escrito',w:''},
+        {t:'Sube cualquier carta que recibas para que Mina revise el lenguaje',w:''}
+      ]
+    },
+    legal:{
+      en:[
+        {t:'Identify the date you were served — your response window starts from that date',w:'Response deadlines are typically 20-30 days from service, not document date'},
+        {t:'Locate and organize all paperwork related to this situation in one place',w:''},
+        {t:'Consider consulting a consumer debt attorney — many offer free initial consultations',w:'NACA.net lists consumer protection attorneys by state'},
+        {t:'Do not ignore the paperwork — a non-response results in a default judgment',w:''},
+        {t:'Upload the paperwork so Mina can explain what it says',w:''}
+      ],
+      es:[
+        {t:'Identifica la fecha en que fuiste notificado — tu plazo de respuesta comienza desde esa fecha',w:'Los plazos de respuesta típicamente son 20-30 días desde la notificación'},
+        {t:'Localiza y organiza todos los documentos relacionados con esta situación',w:''},
+        {t:'Considera consultar a un abogado de deudas al consumidor — muchos ofrecen consultas iniciales gratuitas',w:''},
+        {t:'No ignores los documentos — no responder resulta en un fallo por defecto',w:''},
+        {t:'Sube los documentos para que Mina explique lo que dicen',w:''}
+      ]
+    },
+    medical:{
+      en:[
+        {t:'Request a complete itemized bill with all CPT billing codes before making any payment',w:'This is your right and it often reveals errors before you pay anything'},
+        {t:'Check whether the hospital is nonprofit — they are required to offer financial assistance',w:''},
+        {t:'Do not set up a payment plan until you have reviewed the itemized bill for errors',w:''},
+        {t:'Upload the bill so Mina can help you review it',w:''},
+        {t:'Ask about hardship programs or charity care — most hospitals offer them',w:''}
+      ],
+      es:[
+        {t:'Solicita una factura completamente detallada con todos los códigos CPT antes de pagar',w:'Este es tu derecho y a menudo revela errores antes de que pagues'},
+        {t:'Verifica si el hospital es sin fines de lucro — están obligados a ofrecer asistencia financiera',w:''},
+        {t:'No configures un plan de pagos hasta revisar la factura detallada',w:''},
+        {t:'Sube la factura para que Mina te ayude a revisarla',w:''},
+        {t:'Pregunta sobre programas de dificultades o atención benéfica',w:''}
+      ]
+    },
+    irs:{
+      en:[
+        {t:'Identify the exact type of IRS notice you received — the notice number is in the upper right',w:'Different notice types have different deadlines and available options'},
+        {t:'Do not ignore the notice — IRS deadlines are strict and missing them limits your options',w:''},
+        {t:'Gather your tax returns for the relevant years',w:''},
+        {t:'Upload the notice so Mina can explain what it means and what options you have',w:''},
+        {t:'Consider whether Currently Not Collectible status may apply to your situation',w:'This stops all collection while you develop a resolution plan'}
+      ],
+      es:[
+        {t:'Identifica el tipo exacto de aviso del IRS que recibiste — el número está en la parte superior derecha',w:''},
+        {t:'No ignores el aviso — los plazos del IRS son estrictos',w:''},
+        {t:'Reúne tus declaraciones de impuestos de los años relevantes',w:''},
+        {t:'Sube el aviso para que Mina explique lo que significa',w:''},
+        {t:'Considera si el estado de Actualmente No Cobrable puede aplicar a tu situación',w:''}
+      ]
+    },
+    default:{
+      en:[
+        {t:'Organize all recent financial notices and statements in one place',w:'Knowing what you owe and to whom is the foundation of any plan'},
+        {t:'Upload any documents you have received recently',w:'Mina will explain what each one means'},
+        {t:'Write down the three financial situations causing you the most stress right now',w:'Prioritizing reduces overwhelm and helps Mina focus on what matters most'},
+        {t:'Identify which debt or bill has the most immediate deadline',w:''},
+        {t:'Set aside 20 minutes this week to talk through your situation with Mina',w:''}
+      ],
+      es:[
+        {t:'Organiza todos los avisos y estados de cuenta financieros recientes en un lugar',w:''},
+        {t:'Sube cualquier documento que hayas recibido recientemente',w:'Mina explicará lo que significa cada uno'},
+        {t:'Escribe las tres situaciones financieras que más estrés te causan ahora',w:''},
+        {t:'Identifica qué deuda o factura tiene la fecha límite más inmediata',w:''},
+        {t:'Reserva 20 minutos esta semana para hablar con Mina sobre tu situación',w:''}
+      ]
+    }
+  };
+
+  var key = (weekBySit[sit] ? sit : 'default');
+  var items = (weekBySit[key][lang] || weekBySit[key].en);
+
+  // Load saved completion state
+  var savedDone = {};
+  try { savedDone = JSON.parse(localStorage.getItem('vera_week_done')||'{}'); } catch(e){}
+
+  var card = document.getElementById('weekCard');
+  var list = document.getElementById('weekList');
+  var title = document.getElementById('weekTitle');
+  var sub = document.getElementById('weekSub');
+
+  if(title) title.textContent = lang==='es' ? 'Tu próxima semana' : 'Your next 7 days';
+  if(sub) sub.textContent = lang==='es' ? 'Pasos enfocados — nada abrumador' : 'A few focused steps — nothing overwhelming';
+  if(card) card.style.display = 'block';
+
+  if(list) {
+    list.innerHTML = items.map(function(item, i) {
+      var done = savedDone[sit+'_'+i] ? 'done' : '';
+      var check = done ? '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg>' : '';
+      return '<div class="week-item '+done+'" id="wi'+i+'" onclick="toggleWeekItem('+i+',\''+sit+'\')">' +
+        '<div class="week-check" id="wc'+i+'">'+check+'</div>' +
+        '<div><div class="week-item-text">'+item.t+'</div>' +
+        (item.w ? '<div class="week-why">'+item.w+'</div>' : '') +
+        '</div></div>';
+    }).join('');
+  }
+}
+
+function toggleWeekItem(i, sit) {
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('vera_week_done')||'{}'); } catch(e){}
+  var key = sit+'_'+i;
+  saved[key] = !saved[key];
+  localStorage.setItem('vera_week_done', JSON.stringify(saved));
+  var item = document.getElementById('wi'+i);
+  var check = document.getElementById('wc'+i);
+  if(item) item.classList.toggle('done', saved[key]);
+  if(check) check.innerHTML = saved[key] ? '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 5-5" stroke="#0C0F1A" stroke-width="2" stroke-linecap="round"/></svg>' : '';
+  if(saved[key]) addAutoWin(i);
+}
+
+// ── SMALL WINS ────────────────────────────────────────────────────────────────
+var wins = [];
+
+function loadWins() {
+  try { wins = JSON.parse(localStorage.getItem('vera_wins')||'[]'); } catch(e){}
+}
+
+function saveWins() {
+  localStorage.setItem('vera_wins', JSON.stringify(wins));
+}
+
+function renderWinsCard() {
+  var lang = D.lang || 'en';
+  loadWins();
+  var card = document.getElementById('winsCard');
+  var list = document.getElementById('winsList');
+  var title = document.getElementById('winsTitle');
+  var sub = document.getElementById('winsSub');
+  var btn = document.getElementById('winsAdd');
+
+  if(title) title.textContent = lang==='es' ? 'Progreso' : 'Progress';
+  if(sub) sub.textContent = lang==='es' ? 'Pasos completados y control recuperado' : 'Steps completed and control regained';
+  if(btn) btn.textContent = lang==='es' ? 'Marcar un paso como completado' : 'Mark a step as complete';
+  if(card) card.style.display = 'block';
+
+  if(list) {
+    if(wins.length === 0) {
+      list.innerHTML = '<div class="wins-empty">'+(lang==='es'?'Tus pasos completados aparecerán aquí.':'Your completed steps will appear here.')+'</div>';
+    } else {
+      list.innerHTML = wins.slice(-5).reverse().map(function(w) {
+        return '<div class="win-item"><div class="win-dot"></div><div class="win-text">'+w.text+'</div><div class="win-date">'+w.date+'</div></div>';
+      }).join('');
+    }
+  }
+}
+
+function addWin() {
+  var lang = D.lang || 'en';
+  var sit = D.situation || 'plan';
+  var opts = {
+    en:{
+      collectors:['Sent a debt validation letter','Logged all collection calls','Organized all collection letters','Reviewed my rights under consumer protection law','Prepared questions before speaking with a collector'],
+      legal:['Located and organized all court paperwork','Identified my response deadline','Consulted with an attorney','Filed a written response','Uploaded documents for Mina to review'],
+      medical:['Requested an itemized bill','Reviewed my bill for errors','Asked about financial assistance','Prepared questions for the billing department','Uploaded my bill for Mina to review'],
+      irs:['Identified my IRS notice type','Organized my tax documents','Reviewed available resolution options','Uploaded my notice for Mina to review','Prepared questions for a tax professional'],
+      default:['Organized my financial documents','Uploaded a document for review','Completed a conversation with Mina','Identified my most urgent priority','Made a plan for the next 7 days']
+    },
+    es:{
+      collectors:['Envié una carta de validación de deuda','Registré todas las llamadas de cobranza','Organicé todas las cartas de cobranza','Revisé mis derechos','Preparé preguntas antes de hablar con un cobrador'],
+      legal:['Localicé y organicé todos los documentos judiciales','Identifiqué mi fecha límite de respuesta','Consulté con un abogado','Presenté una respuesta escrita','Subí documentos para que Mina los revisara'],
+      medical:['Solicité una factura detallada','Revisé mi factura en busca de errores','Pregunté sobre asistencia financiera','Preparé preguntas para el departamento de facturación','Subí mi factura para que Mina la revisara'],
+      irs:['Identifiqué el tipo de aviso del IRS','Organicé mis documentos fiscales','Revisé las opciones de resolución disponibles','Subí mi aviso para que Mina lo revisara','Preparé preguntas para un profesional fiscal'],
+      default:['Organicé mis documentos financieros','Subí un documento para revisión','Completé una conversación con Mina','Identifiqué mi prioridad más urgente','Hice un plan para los próximos 7 días']
+    }
+  };
+  var langOpts = opts[lang] || opts.en;
+  var sitOpts = langOpts[sit] || langOpts.default;
+  var overlay = document.getElementById('winOverlay');
+  var optList = document.getElementById('winOptions');
+  var title = document.getElementById('winModalTitle');
+  if(title) title.textContent = lang==='es' ? '¿Qué completaste?' : 'What did you complete?';
+  if(optList) {
+    optList.innerHTML = sitOpts.map(function(o) {
+      return '<button class="win-opt" onclick="recordWin(\''+o.replace(/'/g,'\\\'')+'\')">'+(lang==='es'?'':'')+ o +'</button>';
+    }).join('');
+  }
+  if(overlay) overlay.classList.add('on');
+}
+
+function recordWin(text) {
+  var now = new Date();
+  var date = now.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  wins.push({text:text, date:date, ts:now.getTime()});
+  saveWins();
+  closeWinModal();
+  renderWinsCard();
+}
+
+function addAutoWin(i) {
+  // Auto-add a win when a week item is checked
+  var lang = D.lang || 'en';
+  var text = lang==='es' ? 'Paso de la semana completado' : 'Completed a weekly action step';
+  var item = document.getElementById('wi'+i);
+  if(item) {
+    var itemText = item.querySelector('.week-item-text');
+    if(itemText) text = itemText.textContent;
+  }
+  recordWin(text);
+}
+
+function closeWinModal() {
+  var overlay = document.getElementById('winOverlay');
+  if(overlay) overlay.classList.remove('on');
+}
+
+// ── PREPARE BEFORE YOU CALL ────────────────────────────────────────────────────
+var prepOpen = false;
+var currentPrep = 'collector';
+
+function renderPrepCard() {
+  var card = document.getElementById('prepCard');
+  if(card) card.style.display = 'block';
+  var lang = D.lang || 'en';
+  var title = document.getElementById('prepTitle');
+  var sub = document.getElementById('prepSub');
+  if(title) title.textContent = lang==='es' ? 'Antes de hacer una llamada' : 'Before you make a call';
+  if(sub) sub.textContent = lang==='es' ? 'Prepárate antes de hablar con cobradores, hospitales o el IRS' : 'Prepare calmly before speaking with collectors, hospitals, or the IRS';
+  var btns = {
+    collector: document.getElementById('prepCollector'),
+    hospital: document.getElementById('prepHospital'),
+    irs: document.getElementById('prepIRS'),
+    creditor: document.getElementById('prepCreditor')
+  };
+  var labels = {
+    en:{collector:'Debt collector',hospital:'Hospital billing',irs:'IRS',creditor:'Original creditor'},
+    es:{collector:'Cobrador',hospital:'Facturación hospital',irs:'IRS',creditor:'Acreedor original'}
+  };
+  var l = labels[lang] || labels.en;
+  Object.keys(btns).forEach(function(k) { if(btns[k]) btns[k].textContent = l[k]; });
+  setPrepContent(currentPrep);
+}
+
+function togglePrep() {
+  prepOpen = !prepOpen;
+  var body = document.getElementById('prepBody');
+  var btn = document.getElementById('prepExpandBtn');
+  if(body) body.style.display = prepOpen ? 'block' : 'none';
+  if(btn) btn.classList.toggle('open', prepOpen);
+}
+
+function setPrep(type, el) {
+  currentPrep = type;
+  document.querySelectorAll('.prep-scenario').forEach(function(b){b.classList.remove('on');});
+  if(el) el.classList.add('on');
+  setPrepContent(type);
+}
+
+function setPrepContent(type) {
+  var lang = D.lang || 'en';
+  var content = {
+    collector:{
+      en:{
+        questions:['What is the name of your company and your reference number?','Can you send me written verification of this debt?','What is the original creditor for this account?','What is the date of the original delinquency?','What is the total amount you are claiming I owe, including all fees?'],
+        docs:['Any previous letters or notices from this collector','Account statements if available','Notes from previous conversations'],
+        avoid:['Do not confirm the debt is yours verbally until you have seen written validation','Do not give bank account or card numbers over the phone','Do not make verbal payment commitments you have not reviewed in writing'],
+        warn:'You are not required to resolve anything on this call. You can request everything in writing before deciding anything.'
+      },
+      es:{
+        questions:['¿Cuál es el nombre de su empresa y su número de referencia?','¿Puede enviarme verificación escrita de esta deuda?','¿Cuál es el acreedor original de esta cuenta?','¿Cuál es la fecha del incumplimiento original?','¿Cuál es el monto total que reclama que debo, incluyendo todos los cargos?'],
+        docs:['Cualquier carta o aviso anterior de este cobrador','Estados de cuenta si están disponibles','Notas de conversaciones anteriores'],
+        avoid:['No confirmes verbalmente que la deuda es tuya hasta ver la validación escrita','No des números de cuenta bancaria o tarjeta por teléfono','No hagas compromisos verbales de pago que no hayas revisado por escrito'],
+        warn:'No estás obligado a resolver nada en esta llamada. Puedes solicitar todo por escrito antes de decidir nada.'
+      }
+    },
+    hospital:{
+      en:{
+        questions:['Can I request a complete itemized bill with all CPT billing codes?','Does your hospital have a financial assistance or charity care program?','What is the income threshold to qualify for hardship assistance?','Is it possible to set up a payment plan with no interest?','Who is the right person to speak with about billing disputes?'],
+        docs:['Your insurance card and explanation of benefits (EOB) if applicable','Any previous bills or payment receipts','Your itemized bill if you already have it'],
+        avoid:['Do not agree to a payment plan before reviewing the itemized bill','Do not confirm final amounts before checking for errors','Do not assume the first amount quoted is fixed'],
+        warn:'Nonprofit hospitals are legally required to offer financial assistance programs. Always ask before agreeing to pay.'
+      },
+      es:{
+        questions:['¿Puedo solicitar una factura completamente detallada con todos los códigos CPT?','¿Tiene su hospital un programa de asistencia financiera o atención benéfica?','¿Cuál es el umbral de ingresos para calificar para asistencia por dificultades?','¿Es posible configurar un plan de pagos sin intereses?','¿Con quién debo hablar sobre disputas de facturación?'],
+        docs:['Tu tarjeta de seguro y explicación de beneficios si aplica','Facturas o recibos de pago anteriores','Tu factura detallada si ya la tienes'],
+        avoid:['No aceptes un plan de pagos antes de revisar la factura detallada','No confirmes montos finales antes de verificar errores','No asumas que el primer monto citado es fijo'],
+        warn:'Los hospitales sin fines de lucro están legalmente obligados a ofrecer programas de asistencia financiera. Siempre pregunta antes de aceptar pagar.'
+      }
+    },
+    irs:{
+      en:{
+        questions:['What specific notice number is this call regarding?','What is the deadline for responding to this notice?','What resolution options are available for my situation?','Is Currently Not Collectible status something I may qualify for?','Can I set up an installment agreement to pay over time?'],
+        docs:['The specific IRS notice you received','Tax returns for the years in question','Any prior correspondence with the IRS','Documentation of your current income and expenses if requesting hardship consideration'],
+        avoid:['Do not agree to anything you have not reviewed in writing','Do not give bank information unless you have verified this is an official IRS call','IRS will always send written notice first — be cautious of unexpected calls'],
+        warn:'The IRS has six resolution options available. Ask about all of them before agreeing to a payment arrangement. An installment agreement or Offer in Compromise may be more appropriate than immediate full payment.'
+      },
+      es:{
+        questions:['¿Qué número de aviso específico corresponde a esta llamada?','¿Cuál es la fecha límite para responder a este aviso?','¿Qué opciones de resolución están disponibles para mi situación?','¿Podría calificar para el estado de Actualmente No Cobrable?','¿Puedo configurar un acuerdo de pagos a plazos?'],
+        docs:['El aviso específico del IRS que recibiste','Declaraciones de impuestos de los años en cuestión','Cualquier correspondencia previa con el IRS','Documentación de tus ingresos y gastos actuales si solicitas consideración por dificultades'],
+        avoid:['No aceptes nada que no hayas revisado por escrito','No des información bancaria sin verificar que esta es una llamada oficial del IRS','El IRS siempre envía aviso escrito primero — ten cuidado con llamadas inesperadas'],
+        warn:'El IRS tiene seis opciones de resolución disponibles. Pregunta por todas ellas antes de acordar un arreglo de pago.'
+      }
+    },
+    creditor:{
+      en:{
+        questions:['Can I speak with your hardship or financial assistance department?','What interest rate reduction options are available for my account?','Is a temporary payment deferral possible?','What would a settlement of this account look like?','Can you put any agreement we reach in writing before I make a payment?'],
+        docs:['Your most recent account statement','Account number and current balance','Any previous written communications from this creditor'],
+        avoid:['Do not make any payment until you have a written agreement if settling','Do not assume a verbal offer will be honored — get everything in writing','Do not close the call without a name and reference number for the conversation'],
+        warn:'Original creditors often have hardship programs that are not advertised. Always ask specifically before assuming no options exist.'
+      },
+      es:{
+        questions:['¿Puedo hablar con su departamento de dificultades o asistencia financiera?','¿Qué opciones de reducción de tasa de interés están disponibles para mi cuenta?','¿Es posible un diferimiento temporal de pagos?','¿Cómo se vería una liquidación de esta cuenta?','¿Pueden poner cualquier acuerdo al que lleguemos por escrito antes de que haga un pago?'],
+        docs:['Tu estado de cuenta más reciente','Número de cuenta y saldo actual','Cualquier comunicación escrita previa de este acreedor'],
+        avoid:['No hagas ningún pago hasta tener un acuerdo escrito si estás liquidando','No asumas que una oferta verbal será cumplida — obtén todo por escrito','No termines la llamada sin un nombre y número de referencia'],
+        warn:'Los acreedores originales a menudo tienen programas de dificultades que no se anuncian. Siempre pregunta específicamente antes de asumir que no hay opciones.'
+      }
+    }
+  };
+
+  var c = (content[type] || content.collector);
+  var d = (c[lang] || c.en);
+  var el = document.getElementById('prepContent');
+  if(!el) return;
+
+  var qTitle = lang==='es' ? 'Preguntas útiles para hacer' : 'Useful questions to ask';
+  var dTitle = lang==='es' ? 'Documentos para tener listos' : 'Documents to have ready';
+  var aTitle = lang==='es' ? 'Cosas a evitar decir' : 'Things to avoid saying';
+
+  el.innerHTML =
+    '<div class="prep-section"><div class="prep-section-title">'+qTitle+'</div><div class="prep-items">'+
+    d.questions.map(function(q){return '<div class="prep-item">'+q+'</div>';}).join('')+'</div></div>'+
+    '<div class="prep-section"><div class="prep-section-title">'+dTitle+'</div><div class="prep-items">'+
+    d.docs.map(function(q){return '<div class="prep-item">'+q+'</div>';}).join('')+'</div></div>'+
+    '<div class="prep-section"><div class="prep-section-title">'+aTitle+'</div><div class="prep-items">'+
+    d.avoid.map(function(q){return '<div class="prep-item">'+q+'</div>';}).join('')+'</div></div>'+
+    '<div class="prep-warn">'+d.warn+'</div>';
+
+  var askBtn = document.getElementById('prepAsk');
+  if(askBtn) askBtn.textContent = lang==='es' ? 'Pedirle a Mina que me ayude a prepararme →' : 'Ask Mina to help me prepare →';
+}
+
+function askMina_prep() {
+  var lang = D.lang || 'en';
+  var prompts = {
+    collector: lang==='es' ? 'Voy a hablar con un cobrador pronto. ¿Puedes ayudarme a prepararme? ¿Qué debo decir, qué debo evitar, y qué preguntas debo hacer?' : 'I am going to speak with a debt collector soon. Can you help me prepare? What should I say, what should I avoid, and what questions should I ask?',
+    hospital: lang==='es' ? 'Voy a llamar al departamento de facturación del hospital. ¿Cómo me preparo? ¿Qué preguntas debo hacer sobre asistencia financiera y errores de facturación?' : 'I am going to call the hospital billing department. How do I prepare? What questions should I ask about financial assistance and billing errors?',
+    irs: lang==='es' ? 'Necesito llamar al IRS sobre mi aviso. ¿Cómo me preparo y qué opciones de resolución debo preguntar?' : 'I need to call the IRS about my notice. How do I prepare and what resolution options should I ask about?',
+    creditor: lang==='es' ? 'Voy a llamar a mi acreedor original para discutir opciones de pago. ¿Cómo negocio y qué debo pedir?' : 'I am going to call my original creditor to discuss payment options. How do I negotiate and what should I ask for?'
+  };
+  showPage('mina');
+  setTimeout(function(){usePrompt(prompts[currentPrep]||prompts.collector);}, 400);
+}
 var lastDocAnalysis = '';
 
 async function handleDocUpload(input) {
@@ -1824,14 +2320,14 @@ function renderDashboardCards() {
 
   // RIGHTS CARD
   var rights = {
-    collections:{en:{t:'Collectors must stop calling after one letter.',b:'Under the FDCPA, a written cease and desist legally requires them to stop all contact. Calling after 9pm or before 8am is a federal violation worth up to $1,000 per call.'},es:{t:'Los cobradores deben dejar de llamar después de una carta.',b:'Bajo la FDCPA, un cese y desistimiento escrito los obliga a detener todo contacto. Llamar después de las 9pm o antes de las 8am es una violación federal.'}},
-    lawsuit:{en:{t:'Responding to the lawsuit changes everything.',b:'Most debt lawsuits are won by default because people do not respond. A written answer asserting your defenses — including statute of limitations — forces the collector to prove their case.'},es:{t:'Responder a la demanda cambia todo.',b:'La mayoría de las demandas se ganan por defecto porque la gente no responde. Una respuesta escrita que afirme tus defensas obliga al cobrador a probar su caso.'}},
-    medical:{en:{t:'You can dispute your bill before paying anything.',b:'You have the right to an itemized bill. Nonprofit hospitals must offer charity care. The No Surprises Act protects you from unexpected out-of-network charges.'},es:{t:'Puedes disputar tu factura antes de pagar.',b:'Tienes derecho a una factura detallada. Los hospitales sin fines de lucro deben ofrecer atención benéfica. La Ley de No Sorpresas te protege de cargos inesperados.'}},
-    irs:{en:{t:'The IRS is more negotiable than their notices suggest.',b:'Currently Not Collectible status stops all collection immediately. An Offer in Compromise can settle for less than owed. Penalty abatement removes penalties for first-time issues.'},es:{t:'El IRS es más negociable de lo que sugieren sus avisos.',b:'El estado de Actualmente No Cobrable detiene toda cobranza inmediatamente. Una Oferta en Compromiso puede liquidar por menos. Tienes opciones reales.'}},
-    managing:{en:{t:'You can negotiate directly — no middleman needed.',b:'You do not need a debt settlement company. Hardship programs exist at every major bank. Debt buyers paid pennies for your account and will settle for less.'},es:{t:'Puedes negociar directamente — sin intermediarios.',b:'No necesitas una compañía de liquidación de deudas. Existen programas de dificultades en todos los bancos importantes. Los compradores de deuda pagaron centavos y aceptarán menos.'}},
-    payday:{en:{t:'Payday loans may be illegal or unenforceable in your state.',b:'18 states have banned payday lending. If your loan was made illegally the debt may be unenforceable. Most states require lenders to offer payment plans at no extra cost.'},es:{t:'Los préstamos de día de pago pueden ser ilegales en tu estado.',b:'18 estados han prohibido los préstamos de día de pago. Si el préstamo fue hecho ilegalmente puede ser inaplicable. La mayoría de los estados requieren planes de pago.'}}
+    collectors:{en:{t:'Under the FDCPA, you can request written validation before any payment discussion.',b:'Collectors are required to stop collection activity until they provide written proof the debt is yours and the amount is accurate. Many cannot produce this documentation.'},es:{t:'Bajo la FDCPA, puedes solicitar validación escrita antes de cualquier discusión de pago.',b:'Los cobradores están obligados a detener la actividad de cobranza hasta proporcionar prueba escrita de que la deuda es tuya y el monto es correcto.'}},
+    lawsuit:{en:{t:'A written response to the lawsuit may help protect your options.',b:'Most debt lawsuits proceed to default judgment because people do not respond in writing. Filing an answer — even a basic one — requires the collector to demonstrate their case.'},es:{t:'Una respuesta escrita a la demanda puede ayudar a proteger tus opciones.',b:'La mayoría de las demandas de deuda resultan en fallos por defecto porque las personas no responden por escrito.'}},
+    medical:{en:{t:'You have the right to request a full itemized bill before making any payment.',b:'Hospitals are required to provide itemized billing on request. Studies show the majority of medical bills contain errors. Reviewing before paying is always worth doing.'},es:{t:'Tienes derecho a solicitar una factura completamente detallada antes de pagar.',b:'Los hospitales están obligados a proporcionar facturación detallada a solicitud. La mayoría de las facturas médicas contienen errores.'}},
+    irs:{en:{t:'The IRS has several resolution options that are worth understanding.',b:'Currently Not Collectible status, installment agreements, Offers in Compromise, and penalty abatement are all available. The IRS is often more flexible than their notices suggest.'},es:{t:'El IRS tiene varias opciones de resolución que vale la pena entender.',b:'El estado de Actualmente No Cobrable, acuerdos de pagos, Ofertas en Compromiso y reducción de penalidades están disponibles.'}},
+    managing:{en:{t:'Hardship programs exist at most major creditors — they are rarely advertised.',b:'Calling and asking specifically for the hardship department often unlocks reduced interest rates, payment deferrals, and settlement options that are not offered automatically.'},es:{t:'La mayoría de los grandes acreedores tienen programas de dificultades — rara vez se anuncian.',b:'Llamar y pedir específicamente el departamento de dificultades a menudo desbloquea tasas de interés reducidas y opciones de pago diferido.'}},
+    payday:{en:{t:'Payday lending is heavily restricted or banned in many states.',b:'In 18 states payday lending is entirely banned. In many others, loan terms are capped. If your loan violates state law the amount you legally owe may be different from what the lender claims.'},es:{t:'Los préstamos de día de pago están muy restringidos o prohibidos en muchos estados.',b:'En 18 estados los préstamos de día de pago están completamente prohibidos. Si tu préstamo viola la ley estatal, el monto que debes legalmente puede ser diferente de lo que reclama el prestamista.'}}
   };
-  var rData=(rights[sit]||rights.managing)[lang]||(rights[sit]||rights.managing).en;
+  var rData=(rights[sit]||rights[sit==='collectors'?'collectors':sit]||rights.managing)[lang]||(rights[sit]||rights.managing).en;
   var el=document.getElementById('pcRightsTitle'); if(el) el.textContent=rData.t;
   el=document.getElementById('pcRightsBody'); if(el) el.textContent=rData.b;
 
@@ -3140,7 +3636,7 @@ function generateExcel(structuredData) {
     ['Client', D.name || '', '', ''],
     ['Date', new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}), '', ''],
     ['Currency', D.cur || 'USD', '', ''],
-    ['Health Score', (D.score || 0) + ' / 100', '', ''],
+    ['Financial Snapshot', (D.score || 0) + ' / 100', '', ''],
     ['', '', '', ''],
     ['INCOME', '', '', ''],
     ['Monthly Salary (after tax)', D.income || 0, '', ''],
@@ -3849,8 +4345,6 @@ async function manualSync() {
       id: user.id,
       full_name: D.name||'',
       language: D.lang||'en',
-      currency: 'USD',
-      country: D.country||'us',
       situation: D.situation||'',
       monthly_income: D.income||0,
       side_income: D.sideIncome||0,
@@ -3868,7 +4362,6 @@ async function manualSync() {
       total_savings: D.savings||D.total_savings||0,
       emergency_fund: D.emergency||D.emergency_fund||0,
       credit_health: D.creditHealth||D.credit_health||'',
-      age_range: D.ageRange||'',
       fears: lsFears.length>0?lsFears:(D.fears&&D.fears.length>0?D.fears:null),
       goals: lsGoals.length>0?lsGoals:(D.goals&&D.goals.length>0?D.goals:null),
       updated_at: new Date().toISOString()
