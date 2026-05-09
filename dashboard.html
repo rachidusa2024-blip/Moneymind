@@ -2796,6 +2796,8 @@ function renderMinaBriefing(hasData) {
 
     msg += (lang==='es' ? 'Has anything changed since we last spoke?' : 'Has anything changed since we last spoke?') + ' ' + t.ask;
 
+  } // end else (returning user)
+
   // Save current state for next visit comparison
   localStorage.setItem('vera_last_score', D.score || 0);
   localStorage.setItem('vera_last_avail', D.avail || 0);
@@ -4500,42 +4502,6 @@ var GOAL_ICONS = {
   house:'Home', car:'Car', wedding:'Wedding', travel:'Travel',
   education:'Education', business:'Business', emergency:'Safety Net', other:'Goal'
 };
-
-async function loadGoals() {
-  try {
-    var r = await sb.from('user_goals').select('*').eq('user_id', user.id).order('created_at',{ascending:true});
-    if (r.data) userGoals = r.data;
-  } catch(e) {
-    // Fall back to localStorage
-    try { userGoals = JSON.parse(localStorage.getItem('vera_goals_full')||'[]'); } catch(e2){}
-  }
-  renderGoalsPage();
-}
-
-function renderGoalsPage() {
-  var el = document.getElementById('goalsList');
-  var cta = document.getElementById('addGoalCTA');
-  if (!el) return;
-
-  if (userGoals.length === 0) {
-    el.innerHTML = '';
-    cta.style.display = 'block';
-    cta.querySelector('button').textContent = 'Add my first goal';
-    renderGoalConflict();
-    return;
-  }
-
-  cta.style.display = 'block';
-  cta.querySelector('button').textContent = 'Add another goal';
-
-  el.innerHTML = '';
-  userGoals.forEach(function(goal) {
-    el.appendChild(buildGoalCard(goal));
-  });
-
-  renderGoalConflict();
-}
-
 
 async function manualSync() {
   var btn = document.getElementById('syncBtn');
