@@ -1976,34 +1976,43 @@ function closeUpdateModal() {
 }
 
 function confirmUpdate() {
+  // Save selections BEFORE closing (closeUpdateModal resets selectedUpdates)
+  var chosen = selectedUpdates.slice();
   closeUpdateModal();
   var lang = D.lang || 'en';
-
-  // If they want to upload, open file picker
-  if(selectedUpdates.includes('upload')) {
-    var fileInput = document.getElementById('docFileInput');
-    if(fileInput) fileInput.click();
-  }
 
   // Save updated timestamp
   localStorage.setItem('vera_plan_updated', new Date().toISOString());
   renderLastUpdated();
 
+  // If they want to upload, open file picker
+  if(chosen.includes('upload')) {
+    var fileInput = document.getElementById('docFileInput');
+    if(fileInput) fileInput.click();
+    return;
+  }
+
+  // Nothing changed — just refresh
+  if(chosen.length === 0 || (chosen.length === 1 && chosen.includes('refresh'))) {
+    renderAll();
+    return;
+  }
+
   // Build a specific prompt for Mina based on what changed
-  if(selectedUpdates.length > 0 && !selectedUpdates.includes('refresh') && !selectedUpdates.includes('upload')) {
-    var changeLabels = {
-      en:{income:'income', debt:'debt balances', letter:'a new notice or letter', expenses:'monthly expenses', savings:'savings'},
-      es:{income:'ingresos', debt:'saldos de deuda', letter:'un nuevo aviso o carta', expenses:'gastos mensuales', savings:'ahorros'}
-    };
-    var l = changeLabels[lang] || changeLabels.en;
-    var changes = selectedUpdates.filter(function(s){return s!=='refresh'&&s!=='upload';}).map(function(s){return l[s]||s;}).join(', ');
+  var changeLabels = {
+    en:{income:'income', debt:'debt balances', letter:'a new notice or letter', expenses:'monthly expenses', savings:'savings', refresh:''},
+    es:{income:'ingresos', debt:'saldos de deuda', letter:'un nuevo aviso o carta', expenses:'gastos mensuales', savings:'ahorros', refresh:''}
+  };
+  var l = changeLabels[lang] || changeLabels.en;
+  var changes = chosen.filter(function(s){return s!=='refresh'&&s!=='upload';}).map(function(s){return l[s]||s;}).filter(Boolean).join(', ');
+
+  if(changes) {
     var prompt = lang==='es' ?
-      'Actualicé la siguiente información: '+changes+'. ¿Puedes recalcular mi plan con estos cambios?' :
-      'I have updated the following: '+changes+'. Can you recalculate my plan based on these changes?';
+      'Actualicé la siguiente información: '+changes+'. ¿Puedes ajustar mis recomendaciones basándote en estos cambios?' :
+      'I have updated the following: '+changes+'. Can you adjust my recommendations based on these changes?';
     showPage('mina');
-    setTimeout(function(){usePrompt(prompt);}, 400);
+    setTimeout(function(){usePrompt(prompt);}, 350);
   } else {
-    // Just refresh - re-render dashboard
     renderAll();
   }
 }
